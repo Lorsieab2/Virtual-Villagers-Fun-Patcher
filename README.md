@@ -22,6 +22,12 @@ dependency-first selection. API and command-line requests that omit a required
 prerequisite are rejected before any copied game folder or EXE is written.
 
 
+## What's new in v1.35.100
+
+- **Family Tree Maker: children follow a villager you move to another generation** (all five games): their children -- babies on the way, born children and children born later -- and grandchildren move with them, one generation below the later-generation parent, unless you moved a child yourself.
+- **Family Tree Maker: move a baby on the way** with **Move to generation**; your choice (and the portrait's look) is kept when the baby is born. Edits that cannot be given to a child (a baby lost, or twins given different edits) are kept in the tree file, never deleted.
+- **Fix: the Family Tree Maker's drop-downs** printed "TypeError: '_tkinter.Tcl_Obj' object is not callable" each time a list opened on some Python 3.14 installs, and the list was not widened. Fixed.
+
 ## What's new in v1.35.99
 
 - **X Buttons to Remove Chosen Founders** (The Tree of Life and New Believers, new; on by default, in Owner's Defaults and Select All): on the "Select 5 villagers" screen at the start of a new village, an X beside each chosen villager sends them away for good, as Reject does, so you can pick another; the others stay, and you keep choosing until five are picked. After the fifth pick, an X brings Reject back. The X is the games' own small stone button. **Seen working in a running game** in both games (bringing Reject back after the fifth pick is checked by emulation only).

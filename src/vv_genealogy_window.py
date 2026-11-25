@@ -3193,6 +3193,13 @@ class TreeEditor(CanvasTools, tk.Toplevel):
             self.last_state = self._state()
         # A page's own edits kept under a page the tree no longer has (its pages cut differently now) go to
         # the page that holds that generation, once, and are saved (ft.rekey_pages).
+        # A baby on the way the player moved or marked, born since: their edits go to the child (the owner,
+        # 2026-11-25: "Let me move the baby by hand"); a lost one's are dropped.  Saved, with no undo step back.
+        if ft.carry_born_babies(self.edits, getattr(self, "full_village", self.village)):
+            self.dirty = True
+            self.history.clear()
+            self.future.clear()
+            self.last_state = self._state()
         ft.arrange(self.village, self.edits)
         if ft.rekey_pages(self.edits, self.village):
             self.dirty = True
@@ -3479,12 +3486,22 @@ class TreeEditor(CanvasTools, tk.Toplevel):
         # Row by row of each generation, left to right in each (ft.tidy_rows): a wrapped generation's rows
         # are not interleaved (self-review, #578).
         gen_of, orders = ft.tidy_rows(lay)
+        into: dict[int, int] = {}               # those left in another generation's band than they were in
         for q in lay.x:
             if q in lay.others:
                 self._set_entry(v.people[q], dx=None, dy=None)
                 continue
             g, p = gen_of[q], v.people[q]
-            self._set_entry(p, dx=None, dy=None, generation=None if g == v.base_generation.get(q, p.generation) else g)
+            if g != lay.village.people[q].generation:
+                into[q] = g
+                self._set_entry(p, dx=None, dy=None, generation=g)
+            else:                               # their generation as it was: their own edit, or following parents
+                self._set_entry(p, dx=None, dy=None)
+        # A generation they would have anyway (the records', or where their moved parents now take them) is no
+        # edit of their own, so they go on following their parents (the owner, 2026-11-25).
+        for q, g in into.items():
+            if g == ft.generation_without_own(self.edits, v, self.page, v.people[q]):
+                self._set_entry(v.people[q], generation=None)
         self.edits.orders.update(orders)
         self._clear_line_moves()
         self._saved()
@@ -4453,8 +4470,14 @@ class TreeEditor(CanvasTools, tk.Toplevel):
         style = f"List{str(combo).replace('.', '_')}.TCombobox"
 
         def post() -> None:
-            if before:
-                combo.tk.eval(before) if isinstance(before, str) else before()
+            # cget gives the box's own postcommand back as a Tcl object, not a str, on newer Pythons
+            # (3.14: "'_tkinter.Tcl_Obj' object is not callable" each time a list opened): run it as
+            # the Tcl command it is.
+            command = "" if callable(before) else str(before or "")
+            if callable(before):
+                before()
+            elif command:
+                combo.tk.eval(command)
             try:
                 font = tkfont.nametofont("TkDefaultFont")
                 need = max((font.measure(str(v)) for v in combo.cget("values") or ()), default=0) + 30
@@ -5036,9 +5059,10 @@ class TreeEditor(CanvasTools, tk.Toplevel):
         return ft.family_key(self.village, fam)
 
     def _set_entry(self, p: gen.Person, **values) -> None:
-        self._set_entry_key(ft.entry_key(self.village, p), self._entry(p), **values)
+        after = ft.born_after(self.village, p) if p.upcoming else None
+        self._set_entry_key(ft.entry_key(self.village, p), self._entry(p), _born_after=after, **values)
 
-    def _set_entry_key(self, key: str, current: dict, **values) -> None:
+    def _set_entry_key(self, key: str, current: dict, _born_after: int | None = None, **values) -> None:
         """Changes to one villager's edits, kept for the shown page alone: what differs from the tree's own
         (None: not set on this page).  Their generation and chosen look too."""
         entry = dict(current)
@@ -5047,6 +5071,14 @@ class TreeEditor(CanvasTools, tk.Toplevel):
                 entry[name] = value
             else:
                 entry.pop(name, None)
+        if key.startswith(ft.UPCOMING):
+            # A baby on the way's edits go to the child once born (ft.carry_born_babies): which birth that
+            # will be is kept with them -- the first after the mother's last one now.
+            if set(entry) - {ft.BORN_AFTER}:
+                if _born_after is not None:
+                    entry.setdefault(ft.BORN_AFTER, _born_after)
+            else:
+                entry.pop(ft.BORN_AFTER, None)
         base = dict(self.edits.entries.get(key, {}))
         over = {n: v for n, v in entry.items() if base.get(n) != v}
         over.update({n: None for n in base if n not in entry})
@@ -5516,12 +5548,20 @@ class TreeEditor(CanvasTools, tk.Toplevel):
         if g is not None and not 1 <= g <= 99:
             self.bell()
             return
-        for q in self.selected:
-            p = self.village.people[q]
-            if p.upcoming:
-                continue
-            same = g == self.village.base_generation.get(q)
-            self._set_entry(p, generation=None if back or same else g)
+        # A baby on the way too (the owner, 2026-11-25: "Let me move the baby by hand"): kept for the child
+        # once born (ft.carry_born_babies).
+        chosen = [self.village.people[q] for q in self.selected]
+        for p in chosen:
+            self._set_entry(p, generation=None if back else g)
+        if not back:
+            # A generation the villager would have anyway -- the records', or where their moved parents take
+            # them -- is no edit; any other is their own, and stays when their parents move (the owner,
+            # 2026-11-25).  Decided once every selected villager has the generation chosen, parents first, so
+            # the order they were selected in never matters (Codex, #869).
+            base = self.village.base_generation
+            for p in sorted(chosen, key=lambda p: (base.get(p.id, p.generation), p.id)):
+                if g == ft.generation_without_own(self.edits, self.village, self.page, p):
+                    self._set_entry(p, generation=None)
         self._saved()
 
     def _row_keys(self, g: int) -> list[str]:
