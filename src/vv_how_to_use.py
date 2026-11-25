@@ -39,7 +39,8 @@ MAX_LINE_CHARS = 180
 # 1,450 since 2026-11-19, when the v1.35.97 merge put every PR's default-off patches into it (1,405); never drop text.
 # 1,500 since 2026-11-21, when Practicing Devotion Builds Faith and Divine Energy joined it (1,482).
 # 1,550 since 2026-11-22, when the four Heathen aging patches and Revive Buried/Disappeared Villagers joined it (1,514).
-MAX_GUIDE_CHARS = 1550
+# 1,600 since 2026-11-25, when Max Divine Energy Continues to Increase joined it (1,570).
+MAX_GUIDE_CHARS = 1600
 
 
 @dataclass(frozen=True)
