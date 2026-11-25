@@ -902,6 +902,10 @@ static void chooser_show(HWND window) {
                               "Normally not possible right now. With the override it happens anyway, with the villagers the village has: it may not make story sense, and its effects happen.", 400));
         } else if (sm_list.possible[m]) {
             lstrcpynA(text, sm_list.description[m], sizeof text);
+        } else if (chooser.override) {
+            wsprintfA(text, vvfp_tr("vvfp.story/story_outcomes_ui.chooser_description.s3",
+                                    "%s\r\n\r\nNot possible even with the override: %s", 200),
+                      sm_list.description[m], sm_list.needs[m]);
         } else {
             wsprintfA(text, vvfp_tr("vvfp.story/story_outcomes_ui.chooser_description.s1",
                                     "%s\r\n\r\nNot possible right now: %s", 200),

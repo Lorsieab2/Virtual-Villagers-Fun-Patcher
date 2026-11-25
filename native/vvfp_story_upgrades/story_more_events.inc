@@ -30,6 +30,7 @@ typedef int (__stdcall *sm_info_fn)(int k, char *title, char *description, char 
 typedef int (__stdcall *sm_installed_fn)(void);
 
 static int pick_more = -1;              /* the registry index of the armed More pick, -1 none */
+static int pick_more_override;          /* that pick was bought with the picker's override ticked */
 static story_event sm_event;            /* the armed More pick, as the pick's event (pick_event) */
 static char sm_title[SM_TEXT], sm_needs[SM_TEXT], sm_desc[SM_TEXT];
 
@@ -82,7 +83,10 @@ static int sm_installed(int game) {
 
 /* Registry entry `k` of `game`: -1 not in this game, else 1 possible now / 0 not, with its words. */
 static int sm_info(int game, int k, char *title, char *description, char *needs) {
-    sm_info_fn info = (sm_info_fn)(void *)sm_proc("VvfpMoreIslandEventsPickInfo");
+    /* With the picker's override ticked, More Island Events' own relaxed check (its .def @20): 1 possible with the
+       override, 0 not even with it (`needs` then says why). */
+    sm_info_fn info = (sm_info_fn)(void *)sm_proc(sc_pick_override ? "VvfpMoreIslandEventsPickInfoOverride"
+                                                                   : "VvfpMoreIslandEventsPickInfo");
     if (!sm_installed(game) || info == NULL) {
         return -1;
     }
@@ -193,6 +197,7 @@ static int sm_arm(int game, int k) {
     pick_event = &sm_event;
     pick_village = story_village_now(game);
     pick_more = k;
+    pick_more_override = sc_pick_override;
     pick_natural = 0;
     return 1;
 }
@@ -214,6 +219,21 @@ __declspec(dllexport) int __stdcall VvfpStoryMoreEventDue(int game) {
         return -1;
     }
     return sm_armed(game);
+}
+
+/* Called by "VVFP More Island Events.dll" while a pick is due (its draw, VvfpStoryMoreEventDue): 1 when that pick
+   was bought with Pick Island Event's override ticked (its own requirements then relaxed as its
+   VvfpMoreIslandEventsPickInfoOverride says), else 0 -- a natural rare roll's pick too.  It latches the answer
+   itself until the event's popup is built. */
+__declspec(dllexport) int __stdcall VvfpStoryMoreEventOverride(int game) {
+    if (game < 1 || game > 5 || install_state[game] != 1) {
+        return 0;
+    }
+    drop_lapsed_pick();
+    if (!story_village_is(game, &pick_village)) {
+        return 0;
+    }
+    return sm_armed(game) >= 0 && pick_more_override && !pick_natural;
 }
 
 /* Called by "VVFP More Island Events.dll" (A New Home, The Lost Children) once it took the due pick: `delivered`
@@ -276,13 +296,21 @@ static int sm_buy(int game, HWND owner, int k) {
 
 /* The queue file (story_queue.inc): a More pick's pick_index, and its restore.  Builds before this one find the
    index outside the game's table and leave it. */
+/* A pick bought with the override is kept as SM_QUEUE_OVER_BASE - k (so it comes back an override pick); a build
+   before v1.35.101 finds no registry entry there and leaves it. */
+#define SM_QUEUE_OVER_BASE (-1000000)
+
 static int sm_queue_index(int game) {
     int k = sm_armed(game);
-    return k >= 0 ? SM_QUEUE_BASE - k : 0x7FFFFFFF;
+    if (k < 0) {
+        return 0x7FFFFFFF;
+    }
+    return pick_more_override ? SM_QUEUE_OVER_BASE - k : SM_QUEUE_BASE - k;
 }
 
 static int sm_queue_restore(int game, int pick_index, int slot) {
-    int k = SM_QUEUE_BASE - pick_index;
+    int over = pick_index <= SM_QUEUE_OVER_BASE;
+    int k = over ? SM_QUEUE_OVER_BASE - pick_index : SM_QUEUE_BASE - pick_index;
     if (pick_index > SM_QUEUE_BASE || sm_describe(game, k) < 0 || slot != sm_slot_of(game, k)) {
         return 0;
     }
@@ -292,6 +320,7 @@ static int sm_queue_restore(int game, int pick_index, int slot) {
     pick_tick = STORY_TICK();           /* its ten minutes start again */
     pick_village = story_village_now(game);
     pick_more = k;
+    pick_more_override = over;
     pick_natural = 0;
     return 1;
 }

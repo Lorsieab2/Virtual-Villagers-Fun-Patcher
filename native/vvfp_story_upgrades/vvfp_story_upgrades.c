@@ -1772,7 +1772,15 @@ __declspec(dllexport) int __stdcall VvfpStoryProbeMoreArm(int game, int k, DWORD
     pick_event = &sm_event;
     pick_village = story_village_now(game);
     pick_more = k;
+    pick_more_override = sc_pick_override;   /* VvfpStoryProbeMoreOverride sets it first, as the ticked box does */
+    pick_natural = 0;
     return pick_slot;
+}
+
+/* The picker's override as the box leaves it for a purchase (1 ticked, 0 not): the next VvfpStoryProbeMoreArm is
+   bought with it, as sm_buy after the chooser closed. */
+__declspec(dllexport) void __stdcall VvfpStoryProbeMoreOverride(int on) {
+    sc_pick_override = on;
 }
 
 /* The Pick Island Event list's More Island Events entries for `game` as the chooser fills them: their registry
