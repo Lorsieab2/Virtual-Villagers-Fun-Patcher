@@ -408,6 +408,24 @@
   },
   {
    "file": "data/builds.json",
+   "where": "/fun_patches[72]/patches[10]",
+   "game": "vv5",
+   "offset": "0x946dd",
+   "va": "0x4946dd",
+   "english": "{name} sees a heartfelt memorial.",
+   "covered_by": "patch/0x4946dd"
+  },
+  {
+   "file": "data/builds.json",
+   "where": "/fun_patches[72]/patches[9]",
+   "game": "vv5",
+   "offset": "0x94818",
+   "va": "0x494818",
+   "english": "{name} sees the decorated encampment.",
+   "covered_by": "patch/0x494818"
+  },
+  {
+   "file": "data/builds.json",
    "where": "/games[4]/safety_patches[16]",
    "game": "vv5",
    "offset": "0x94c60",

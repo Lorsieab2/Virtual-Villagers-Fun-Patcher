@@ -25,6 +25,7 @@ prerequisite are rejected before any copied game folder or EXE is written.
 ## What's new in v1.35.101
 
 - **Fix Vanilla Bugs: The Blind Totem says something when a villager is held over it** (New Believers, on by default): "The totem is missing its eye." until it is solved and "The totem has a shiny eye!" after, the game's own lines that it never showed, as the other totems each say a line; before, it said nothing. Dropping a villager on it or clicking it is unchanged.
+- **Fix Vanilla Bugs: the mud hut of The Last Heathen's old camp says a line too** (New Believers, on by default): once The Last Heathen is converted and the hut fixed up, a villager held over it says "<name> sees the decorated encampment.", or "<name> sees a heartfelt memorial." with Memorial Actions Can Also Occur at the Heathen Hovel; the game said nothing there. Before The Last Heathen is converted, nothing changes. Both lines can be translated.
 
 ## What's new in v1.35.100
 

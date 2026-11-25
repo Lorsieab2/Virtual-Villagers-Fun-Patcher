@@ -452,6 +452,13 @@ def facts(village: gm.Village) -> list[gm.Fact]:
         village, "vv5_fix_vanilla_bugs", "the cover is drawn at (1702, 1465), 3 pixels left and 6 lower, where it "
         "meets the map's own tiles, in the owner's redrawn picture vvfp_hovel.png (art by Lorsieab2); the game's own "
         "hovel_cover.png is not changed"), gm.CODE, True))
+    # The point-hover routine 0x444310 says nothing at the mud hut; Fix Vanilla Bugs' line once project 25 is done
+    # (tests/test_vv5_hovel_hover.py).
+    out.append(gm.Fact(gm.PUZZLES, gm.patch_words(
+        village, "vv5_fix_vanilla_bugs", "a villager held over the fixed-up mud hut says \"<name> sees the decorated "
+        "encampment.\" (with Memorial Actions Can Also Occur at the Heathen Hovel, \"<name> sees a heartfelt "
+        "memorial.\"), where the game says nothing; before The Last Heathen is solved, nothing changes"),
+        gm.CODE, True))
     # Shrine to the Ancestors draws the owner's picture with its bottom-left on the completed hovel's
     # (1702, 1751), with or without Fix Vanilla Bugs (tests/test_vv5_respectful_hovel_cover.py).
     out.append(gm.Fact(gm.PUZZLES, gm.patch_words(
