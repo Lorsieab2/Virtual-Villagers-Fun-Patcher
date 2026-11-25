@@ -22,6 +22,11 @@ dependency-first selection. API and command-line requests that omit a required
 prerequisite are rejected before any copied game folder or EXE is written.
 
 
+## What's new in v1.35.101
+
+- **Frequency of Weather Changes** (The Secret City, The Tree of Life and New Believers, new; its own row, off by default, on in Owner's Defaults with the slider at 1x): a slider from 0.1x to 10x on the Difficulty Sliders page. Each spell of weather lasts its normal length divided by the number, so the weather changes that many times as often; 1x is the normal game.
+- **Divine Energy Gain Rate** (New Believers, new; its own row, off by default, on in Owner's Defaults with the slider at 1x): a slider from 0.1x to 10x on the Difficulty Sliders page. The believers' Divine Energy (each age unit and Honoring) is multiplied by the number; the cap, the God Powers' costs, relics and island events stay the game's own; 1x is the normal game.
+
 ## What's new in v1.35.100
 
 - **Family Tree Maker: children follow a villager you move to another generation** (all five games): their children -- babies on the way, born children and children born later -- and grandchildren move with them, one generation below the later-generation parent, unless you moved a child yourself.

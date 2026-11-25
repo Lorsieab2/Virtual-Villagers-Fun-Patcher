@@ -46,6 +46,7 @@ CONTROLS = {
     # The 0.1x-10x sliders (the owner, 2026-11-17), made by one loop over RUNTIME_SLIDERS.
     "collectible_frequency_multiplier", "food_gain_multiplier", "tech_gain_multiplier",
     "skill_success_multiplier", "age_speed_multiplier",
+    "weather_frequency_multiplier", "divine_energy_gain_multiplier",    # the owner, 2026-11-25 (v1.35.101)
     # The Difficulty Sliders page's button (the owner, 2026-11-18): every slider is on that page.
     "difficulty_sliders",
     "island_event_content_filters", "partner_carry_percent", "more_island_events_and_creator",  # the Island Events section's filters (the owner, 2026-11-15)

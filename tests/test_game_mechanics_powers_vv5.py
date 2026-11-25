@@ -88,6 +88,12 @@ class GodPowers(unittest.TestCase):
             # a 1 in 10 chance of +1 Divine Energy (and Faith) on each Devotion check, through the stock adder up to the
             # cap; no power's cost, range or effect changes (Faith: vv_game_mechanics_faith_vv5)
             "vv5_devotion_builds_faith",
+            # the believers' Divine Energy earnings times the 0.1-10x slider (the owner, 2026-11-25); the costs and the
+            # cap are the game's own (Divine Energy's own entry: vv_game_mechanics_items_vv5)
+            "vv5_divine_energy_gain",
+            # every spell of weather's length divided by the 0.1-10x slider (the owner, 2026-11-25): Sunshine's and
+            # Tempest's weather go through the same setter 0x477060 (0x41F32C, 0x4230C7); PATCHED says so
+            "vv5_weather_frequency",
         }
         data = ROOT / "data"
         catalog = [(row.get("id"), row) for row in json.loads((data / "builds.json").read_text(encoding="utf-8"))
