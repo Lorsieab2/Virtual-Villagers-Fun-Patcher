@@ -42,15 +42,23 @@ static struct {
     char (*title)[SM_TEXT];
     char (*description)[SM_TEXT];
     char (*needs)[SM_TEXT];
+    int *over;                          /* possible only because the picker's override is ticked (chooser_set_override) */
 } sm_list;
 
-/* The list grown to hold `need` entries (all five arrays together); 1 when it does. */
+/* The Isola Grand Event Collection's rows with the picker's override ticked (story_outcomes_ui.inc
+   chooser_set_override): checked and bought as the in-game library buys them (CG_CAST_PREFER: a role's requirement
+   nobody meets is dropped and the event's own requirement is not asked; the content filters, kinship, the
+   protected villagers and "a villager for each role" stay), instead of the strict cast the rare roll uses. */
+static int sc_pick_override;
+
+/* The list grown to hold `need` entries (all six arrays together); 1 when it does. */
 static int sm_reserve(int need) {
-    int cap = sm_list.cap, c1 = cap, c2 = cap, c3 = cap, c4 = cap;
+    int cap = sm_list.cap, c1 = cap, c2 = cap, c3 = cap, c4 = cap, c5 = cap;
     if (need <= cap) {
         return 1;
     }
     if (!story_grow((void **)&sm_list.k, &cap, need, sizeof(int))
+        || !story_grow((void **)&sm_list.over, &c5, need, sizeof(int))
         || !story_grow((void **)&sm_list.possible, &c1, need, sizeof(int))
         || !story_grow((void **)&sm_list.title, &c2, need, SM_TEXT)
         || !story_grow((void **)&sm_list.description, &c3, need, SM_TEXT)

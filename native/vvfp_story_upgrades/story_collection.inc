@@ -1152,7 +1152,7 @@ static const char *sc_check(int game, int i, char *why, int cap) {
                                "its file can not be read: install the patch again", 200), cap);
         return why;
     }
-    cg_cast_now = CG_CAST_STRICT;
+    cg_cast_now = sc_pick_override ? CG_CAST_PREFER : CG_CAST_STRICT;   /* the picker's override: the library's cast */
     cg_origin_now = CG_ORIGIN_PICK;
     refusal = cg_refusal(game, &planned);
     cg_cast_now = keep_cast;
@@ -1236,9 +1236,10 @@ static int sc_pick_buy(int game, HWND owner, int ref) {
         return 0;
     }
     if (sc_check(game, i, why, sizeof why) != NULL
-        || (lv_entry_living(i) ? !lv_arm_entry(game, i, CG_ORIGIN_PICK, CG_CAST_STRICT)
+        || (lv_entry_living(i) ? !lv_arm_entry(game, i, CG_ORIGIN_PICK, sc_pick_override ? CG_CAST_PREFER : CG_CAST_STRICT)
                                : (!sc_load_entry(i, &size)
-                                  || !cg_queue_origin(game, sc_bytes, size, CG_ORIGIN_PICK, CG_CAST_STRICT)))) {
+                                  || !cg_queue_origin(game, sc_bytes, size, CG_ORIGIN_PICK,
+                                                      sc_pick_override ? CG_CAST_PREFER : CG_CAST_STRICT)))) {
         wsprintfA(message, vvfp_tr("vvfp.story/story_collection.sc_pick_buy.s0",
                                    "%s can not happen right now: %s No tech points have been deducted.", 200),
                   sc_list[i].title, cg_queue_refusal()[0] != '\0' ? cg_queue_refusal() : why);

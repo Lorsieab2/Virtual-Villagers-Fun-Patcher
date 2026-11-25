@@ -167,7 +167,7 @@ static int vv1_event_roll(int family, int bound) {
         return VV1_RAND(bound);
     }
     vv1_event_chosen = 1;
-    if (oc_unlocked(1, slot)) {
+    if (oc_unlocked(1, slot) || ov_pass(1, slot)) {
         /* pass the event's own condition for this one roll */
         if (family == VV1_FAMILY_ISLAND) {
             vv1_unlock_island = 1;
@@ -176,6 +176,7 @@ static int vv1_event_roll(int family, int bound) {
         }
     }
     pick_slot = -1;
+    pick_override_event = NULL;
     STORY_COUNT(delivered);
     last_failed_event = NULL;
     oc_delivered(1, NULL);

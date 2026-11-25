@@ -137,6 +137,15 @@ static story_village pick_village;
 /* 1 while the armed pick is the Isola Grand Event Collection's rare roll's (story_collection.inc): it was never the
    player's, so its lapse or refusal is never told to the player. */
 static int pick_natural;
+/* The armed pick when the player bought it with the picker's override ticked (story_override.inc), else NULL: the
+   override holds only while pick_event is still this event (every arming sets pick_event; arm_pick clears this). */
+static const story_event *pick_override_event;
+/* The override (story_override.inc), used earlier. */
+static int ov_armed(int game, int slot);
+static void ov_prepare(int game, int slot, void *object);
+static int ov_cast(int game, int slot, void *object);
+static void ov_undo(int game, int slot, void *object);
+static int ov_pass(int game, int slot);
 /* The outcome of the last pick, shown the next time the chooser opens when
    the game could not run it. */
 static const story_event *last_failed_event;
@@ -408,20 +417,32 @@ static int take_pick(int game) {
 static int choose_from_table(int game, unsigned int table, int current) {
     void *object;
     const story_event *event = pick_event;
-    int slot = take_pick(game);
+    int over;
+    int slot;
+    drop_lapsed_pick();
+    over = pick_slot >= 0 && pick_game == game && ov_armed(game, pick_slot);   /* the picker's override */
+    slot = take_pick(game);
     if (slot < 0) {
         return current;
     }
+    pick_override_event = NULL;
     object = *(void **)(uintptr_t)(table + 4u * (unsigned int)slot);
     if (object != NULL && oc_unlocked(game, slot)) {
         oc_unlock_prepare(game, slot, object);
     }
+    if (object != NULL && over) {
+        ov_prepare(game, slot, object);
+    }
     if (object != NULL && (can_fire_with_retries(object)
-                           || (oc_unlocked(game, slot) && oc_unlock_ready(game, slot, object)))) {
+                           || (oc_unlocked(game, slot) && oc_unlock_ready(game, slot, object))
+                           || (over && ov_cast(game, slot, object)))) {
         STORY_COUNT(delivered);
         last_failed_event = NULL;
         oc_delivered(game, object);
         return slot;
+    }
+    if (object != NULL && over) {
+        ov_undo(game, slot, object);
     }
     STORY_COUNT(refused);
     oc_refused(game);
@@ -1381,6 +1402,7 @@ static void label_of(const story_event *e, char *out, size_t size) {
 }
 
 #include "story_more_events.inc"   /* Pick Island Event: More Island Events' events (v1.35.97) */
+#include "story_override.inc"      /* Pick Island Event: the override toggle (v1.35.101) */
 #include "story_outcomes_ui.inc"
 
 /* Arms `event` for `game`: makes the island event due and remembers the
@@ -1389,6 +1411,7 @@ static int arm_pick(int game, const story_event *event) {
     if (!GAMES[game].arm()) {
         return 0;
     }
+    pick_override_event = NULL;
     pick_slot = event->slot;
     pick_game = game;
     pick_tick = STORY_TICK();
@@ -1429,6 +1452,7 @@ static int story_pick_island_event(int game, HWND owner) {
     char label[160];
     char summary[1200];
     char message[1800];
+    char why[400];
     int chosen;
     int possible_now;
     if (!story_installed(game)) {
@@ -1496,11 +1520,15 @@ static int story_pick_island_event(int game, HWND owner) {
         return 0;
     }
     /* The village may have moved on while the boxes were open. */
-    possible_now = g->possible(event) || (settings->unlocked && oc_unlock_possible(game, event));
+    possible_now = g->possible(event) || (settings->unlocked && oc_unlock_possible(game, event))
+                   || (settings->override && ov_possible(game, event, why, sizeof why));
     if (ce_armed || g->island_pending() || !possible_now || !arm_pick(game, event)) {
         MessageBoxA(owner, "That island event can not happen right now. No tech points have been deducted.",
                     "Origins Upgrades", MB_OK | MB_ICONINFORMATION | MB_TOPMOST | MB_SETFOREGROUND);
         return 0;
+    }
+    if (settings->override) {
+        pick_override_event = event;    /* story_override.inc: delivered past its condition, cast if need be */
     }
     oc_arm(game, event->slot, settings);
     wsprintfA(message, vvfp_tr("vvfp.story/vvfp_story_upgrades.story_pick_island_event.s9", "%s is on its way.", 200), label);
@@ -1630,7 +1658,41 @@ __declspec(dllexport) int __stdcall VvfpStoryProbeSetPick(int game, int position
     pick_tick = tick;
     pick_event = &g->events[position];
     pick_village = story_village_now(game);
+    pick_override_event = NULL;
     return pick_slot;
+}
+
+/* The armed pick bought with the picker's override ticked (1) or not (0), as story_pick_island_event marks it. */
+__declspec(dllexport) void __stdcall VvfpStoryProbeSetOverride(int on) {
+    pick_override_event = on ? pick_event : NULL;
+}
+
+/* story_override.inc for event `position` of `game`: whether the override makes it possible now (and why not, into
+   `why`, at least 400 bytes); and ov_cast on `object` as a delivery runs it, after ov_prepare when `prepare`. */
+__declspec(dllexport) int __stdcall VvfpStoryProbeOverridePossible(int game, int position, char *why) {
+    if (game < 1 || game > 5 || position < 0 || position >= GAMES[game].event_count) {
+        return -1;
+    }
+    return ov_possible(game, &GAMES[game].events[position], why, 400);
+}
+
+/* The override table as compiled: entry `i` of `game` -> slot, pass, cast4, cast_c, flag count, flag base, room,
+   refused (0/1); 0 past the end. */
+__declspec(dllexport) int __stdcall VvfpStoryProbeOverrideEntry(int game, int i, int *out) {
+    const ov_event *e;
+    if (game < 1 || game > 5 || i < 0 || i >= OV_COUNTS[game]) {
+        return 0;
+    }
+    e = &OV_TABLES[game][i];
+    out[0] = e->slot;
+    out[1] = e->pass;
+    out[2] = e->cast4;
+    out[3] = e->cast_c;
+    out[4] = e->flag_count;
+    out[5] = e->flag_base;
+    out[6] = e->room;
+    out[7] = e->refuse != NULL;
+    return 1;
 }
 
 /* The Lost Children: point Restore Missing Island Events' page roll at the

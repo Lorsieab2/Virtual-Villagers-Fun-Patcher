@@ -38,7 +38,8 @@ enum {
     IDC_PICK_HEADING = 3010,
     IDC_PICK_WARN = 3012,
     IDC_PICK_SORT = 3013,
-    IDC_PICK_SORT_LABEL = 3014
+    IDC_PICK_SORT_LABEL = 3014,
+    IDC_PICK_OVERRIDE = 3015
 };
 
 /* The villager sort order chosen in each game this session (the owner:
@@ -73,12 +74,17 @@ static const signed char OC_GONG_ROWS[OC_GONG_RESULTS][3] = {
 #define OC_LIST_LIMIT 101           /* amounts with more values are typed */
 #define OC_ROSTER_MAX 256
 
-enum { OC_POSSIBLE_NO = 0, OC_POSSIBLE_YES = 1, OC_POSSIBLE_UNLOCK = 2 };
+/* OC_POSSIBLE_OVERRIDE: possible only because the picker's override is ticked (story_override.inc). */
+enum { OC_POSSIBLE_NO = 0, OC_POSSIBLE_YES = 1, OC_POSSIBLE_UNLOCK = 2, OC_POSSIBLE_OVERRIDE = 3 };
+#define OV_WHY_BYTES 400
 
 static struct {
     const story_game *game;
     int gid;
     int possible[STORY_MAX_EVENTS];
+    int base[STORY_MAX_EVENTS];         /* the possibility without the override */
+    int override;                       /* the override is ticked (off each time the picker opens) */
+    char why[STORY_MAX_EVENTS][OV_WHY_BYTES];   /* with the override: why it is still not possible ("" = its own needs) */
     int listed[STORY_MAX_EVENTS];       /* the event is offered (event_listed) */
     int chosen;
     int current;                        /* the event shown, or -1 */
@@ -587,6 +593,20 @@ static void chooser_description(int index, char *out, int size) {
                           : vvfp_tr("vvfp.story/story_outcomes_ui.chooser_description.s0",
                                     "Normally not possible right now; picking it makes it happen anyway.", 300));
         }
+    } else if (chooser.possible[index] == OC_POSSIBLE_OVERRIDE) {
+        if (size >= 1100) {
+            char text[1100];
+            wsprintfA(text, vvfp_tr("vvfp.story/story_outcomes_ui.chooser_description.s2",
+                                    "Normally not possible right now (it needs %s). With the override it happens "
+                                    "anyway, with the villagers the village has: it may not make story sense, and "
+                                    "its effects happen.", 400),
+                      event_requires(ev));
+            wsprintfA(out, "%s\r\n\r\n%s", description, text);
+        }
+    } else if (chooser.override && chooser.why[index][0] != '\0' && size >= 1100) {
+        wsprintfA(out, vvfp_tr("vvfp.story/story_outcomes_ui.chooser_description.s3",
+                               "%s\r\n\r\nNot possible even with the override: %s", 200),
+                  description, chooser.why[index]);
     } else if (size >= 1100) {
         wsprintfA(out, vvfp_tr("vvfp.story/story_outcomes_ui.chooser_description.s1", "%s\r\n\r\nNot possible right now: %s", 200),
                   description, event_requires(ev));
@@ -878,7 +898,12 @@ static void chooser_show(HWND window) {
     if (index >= SM_ROW) {
         /* A More Island Events event: no settings; what it needs when it can not happen now. */
         int m = index - SM_ROW;
-        if (sm_list.possible[m]) {
+        if (sm_list.possible[m] && sm_list.over[m]) {
+            wsprintfA(text, "%s\r\n\r\n%s", sm_list.description[m],
+                      vvfp_tr("vvfp.story/story_outcomes_ui.chooser_show.s0",
+                              "Normally not possible right now. With the override it happens anyway, with the "
+                              "villagers the village has: it may not make story sense, and its effects happen.", 400));
+        } else if (sm_list.possible[m]) {
             lstrcpynA(text, sm_list.description[m], sizeof text);
         } else {
             wsprintfA(text, vvfp_tr("vvfp.story/story_outcomes_ui.chooser_description.s1",
@@ -998,8 +1023,98 @@ static void chooser_list_label(int index, char *label) {
                                       " (never happens in the original game)", 100)
                             : vvfp_tr("vvfp.story/story_outcomes_ui.chooser_dialog.s4",
                                       " (normally not possible right now)", 100));
+    } else if (chooser.possible[index] == OC_POSSIBLE_OVERRIDE) {
+        lstrcatA(label, vvfp_tr("vvfp.story/story_outcomes_ui.chooser_list_label.s0", " (only with the override)", 100));
     } else if (!chooser.possible[index]) {
         lstrcatA(label, vvfp_tr("vvfp.story/story_outcomes_ui.chooser_dialog.s5", " - not possible right now", 100));
+    }
+}
+
+/* ---- The override (story_override.inc) ------------------------------------ */
+
+#define OV_WARNING "With the override ticked you can pick island events the game would not run right now. Such an " \
+                   "event happens anyway, with the villagers your village has: it may not make story sense, and its " \
+                   "effects (losses, sickness, villagers leaving, and so on) happen as the event says.\r\n\r\n" \
+                   "Events that are truly impossible (no villager the event's own code needs, or no room left in " \
+                   "the game's villager records) stay closed.\r\n\r\nPress OK to turn the override on, or Cancel."
+
+static const char *chooser_override_warning(void) {
+    return vvfp_tr("vvfp.story/story_outcomes_ui.OV_WARNING.s0", OV_WARNING, 900);
+}
+
+/* Each event's possibility with the override ticked (`on`) or not: an event whose own condition fails (and that no
+   unlock makes possible) is possible with the override when its entry allows it now; otherwise its reason is kept
+   for the description.  Settings made so far are kept; each event's override flag follows. */
+static void chooser_set_override(int on) {
+    int i;
+    chooser.override = on;
+    for (i = 0; i < chooser.game->event_count && i < STORY_MAX_EVENTS; ++i) {
+        const story_event *ev = &chooser.game->events[i];
+        int over = 0;
+        chooser.why[i][0] = '\0';
+        if (on && chooser.base[i] != OC_POSSIBLE_YES && chooser.game == &GAMES[chooser.gid]) {
+            over = ov_possible(chooser.gid, ev, chooser.why[i], OV_WHY_BYTES);
+        }
+        chooser.possible[i] = chooser.base[i] == OC_POSSIBLE_NO && over ? OC_POSSIBLE_OVERRIDE : chooser.base[i];
+        /* an unlocked event bought with the override is cast as well when its own condition picks nobody */
+        chooser.settings[i].override = over;
+    }
+    if (chooser.game == &GAMES[chooser.gid]) {
+        /* The collection's rows (story_more_events.inc sc_pick_override): listed again, strict, then -- ticked -- as
+           the library casts them; a row possible only then is marked.  More Island Events' own rows are as they
+           were (their requirements are its companion's). */
+        int k;
+        sc_pick_override = 0;
+        sm_fill(chooser.gid);
+        for (k = 0; k < sm_list.count; ++k) {
+            sm_list.over[k] = sm_list.possible[k];       /* strict, for now */
+        }
+        if (on) {
+            sc_pick_override = 1;
+            sm_fill(chooser.gid);
+        }
+        for (k = 0; k < sm_list.count; ++k) {
+            sm_list.over[k] = on && sm_list.possible[k] && !sm_list.over[k];
+        }
+    }
+}
+
+/* The left list: the game's events (each marked), then More Island Events' and the collection's; the selection
+   kept (by its event) when the list is filled again. */
+static void chooser_fill_list(HWND window) {
+    int i;
+    int sel = (int)SendDlgItemMessageA(window, IDC_PICK_LIST, LB_GETCURSEL, 0, 0);
+    int keep = sel >= 0 ? (int)SendDlgItemMessageA(window, IDC_PICK_LIST, LB_GETITEMDATA, (WPARAM)sel, 0) : -1;
+    char label[CHOOSER_LABEL];
+    WCHAR wide[CHOOSER_LABEL];
+    SendDlgItemMessageA(window, IDC_PICK_LIST, LB_RESETCONTENT, 0, 0);
+    for (i = 0; i < chooser.game->event_count; ++i) {
+        int row;
+        if (i < STORY_MAX_EVENTS && !chooser.listed[i]) {
+            continue;                   /* its event is not in this game (event_listed) */
+        }
+        chooser_list_label(i, label);
+        vvfp_to_wide(label, wide, CHOOSER_LABEL);   /* never read in the ANSI code page */
+        row = (int)SendDlgItemMessageW(window, IDC_PICK_LIST, LB_ADDSTRING, 0, (LPARAM)wide);
+        SendDlgItemMessageA(window, IDC_PICK_LIST, LB_SETITEMDATA, (WPARAM)row, (LPARAM)i);
+        if (i == keep) {
+            SendDlgItemMessageA(window, IDC_PICK_LIST, LB_SETCURSEL, (WPARAM)row, 0);
+        }
+    }
+    for (i = 0; i < sm_list.count; ++i) {     /* More Island Events' events (story_more_events.inc) */
+        int row;
+        lstrcpynA(label, sm_list.title[i], 300);
+        if (!sm_list.possible[i]) {
+            lstrcatA(label, vvfp_tr("vvfp.story/story_outcomes_ui.chooser_dialog.s5", " - not possible right now", 100));
+        } else if (sm_list.over[i]) {
+            lstrcatA(label, vvfp_tr("vvfp.story/story_outcomes_ui.chooser_list_label.s0", " (only with the override)", 100));
+        }
+        vvfp_to_wide(label, wide, CHOOSER_LABEL);
+        row = (int)SendDlgItemMessageW(window, IDC_PICK_LIST, LB_ADDSTRING, 0, (LPARAM)wide);
+        SendDlgItemMessageA(window, IDC_PICK_LIST, LB_SETITEMDATA, (WPARAM)row, (LPARAM)(SM_ROW + i));
+        if (SM_ROW + i == keep) {
+            SendDlgItemMessageA(window, IDC_PICK_LIST, LB_SETCURSEL, (WPARAM)row, 0);
+        }
     }
 }
 
@@ -1009,6 +1124,7 @@ static INT_PTR CALLBACK chooser_dialog(HWND window, UINT message, WPARAM wparam,
         return handled;
     }
     if (message == WM_INITDIALOG && chooser.gong) {
+        ShowWindow(GetDlgItem(window, IDC_PICK_OVERRIDE), SW_HIDE);   /* the Gong has no conditions to pass */
         SetWindowTextA(window, "Pick Gong of Wonder Outcome");
         SetDlgItemTextA(window, IDC_PICK_HEADING,
                         "What the Gong does the next time it is rung (Random is the original game's own choice):");
@@ -1022,29 +1138,11 @@ static INT_PTR CALLBACK chooser_dialog(HWND window, UINT message, WPARAM wparam,
         return TRUE;
     }
     if (message == WM_INITDIALOG) {
-        int i;
-        char label[CHOOSER_LABEL];
-        WCHAR wide[CHOOSER_LABEL];
-        for (i = 0; i < chooser.game->event_count; ++i) {
-            int row;
-            if (i < STORY_MAX_EVENTS && !chooser.listed[i]) {
-                continue;                   /* its event is not in this game (event_listed) */
-            }
-            chooser_list_label(i, label);
-            vvfp_to_wide(label, wide, CHOOSER_LABEL);   /* never read in the ANSI code page */
-            row = (int)SendDlgItemMessageW(window, IDC_PICK_LIST, LB_ADDSTRING, 0, (LPARAM)wide);
-            SendDlgItemMessageA(window, IDC_PICK_LIST, LB_SETITEMDATA, (WPARAM)row, (LPARAM)i);
-        }
-        for (i = 0; i < sm_list.count; ++i) {     /* More Island Events' events (story_more_events.inc) */
-            int row;
-            lstrcpynA(label, sm_list.title[i], 300);
-            if (!sm_list.possible[i]) {
-                lstrcatA(label, vvfp_tr("vvfp.story/story_outcomes_ui.chooser_dialog.s5", " - not possible right now", 100));
-            }
-            vvfp_to_wide(label, wide, CHOOSER_LABEL);
-            row = (int)SendDlgItemMessageW(window, IDC_PICK_LIST, LB_ADDSTRING, 0, (LPARAM)wide);
-            SendDlgItemMessageA(window, IDC_PICK_LIST, LB_SETITEMDATA, (WPARAM)row, (LPARAM)(SM_ROW + i));
-        }
+        CheckDlgButton(window, IDC_PICK_OVERRIDE, BST_UNCHECKED);
+        chooser_set_text(window, IDC_PICK_OVERRIDE,
+                         vvfp_tr("vvfp.story/story_outcomes_ui.chooser_dialog.s7",
+                                 "Override: allow events that are normally not possible", 200));
+        chooser_fill_list(window);
         SendDlgItemMessageA(window, IDC_PICK_AMOUNT, EM_LIMITTEXT, 12, 0);
         chooser.current = -1;
         chooser.row = -1;
@@ -1054,6 +1152,20 @@ static INT_PTR CALLBACK chooser_dialog(HWND window, UINT message, WPARAM wparam,
     if (message == WM_COMMAND) {
         int id = LOWORD(wparam);
         int code = HIWORD(wparam);
+        if (id == IDC_PICK_OVERRIDE && code == BN_CLICKED && !chooser.gong) {
+            int on = IsDlgButtonChecked(window, IDC_PICK_OVERRIDE) == BST_CHECKED;
+            if (on && vvfp_message_box(window, chooser_override_warning(), "Pick Island Event",
+                                       MB_OKCANCEL | MB_ICONWARNING | MB_DEFBUTTON2) != IDOK) {
+                CheckDlgButton(window, IDC_PICK_OVERRIDE, BST_UNCHECKED);
+                on = 0;
+            }
+            if (on != chooser.override) {
+                chooser_set_override(on);
+                chooser_fill_list(window);
+                chooser_show(window);
+            }
+            return TRUE;
+        }
         if (id == IDC_PICK_LIST && code == LBN_SELCHANGE) {
             chooser_show(window);
             return TRUE;
@@ -1159,8 +1271,12 @@ static void chooser_prepare(int game, const story_game *g) {
     chooser.chosen = -1;
     chooser.roster_count = a != NULL ? ce_roster(a, chooser.roster, OC_ROSTER_MAX) : 0;
     sm_list.count = 0;
+    sc_pick_override = 0;               /* the override is off each time the picker opens */
     if (g == &GAMES[game]) {
         sm_fill(game);                  /* More Island Events' events, when it is installed */
+    }
+    for (i = 0; i < sm_list.count; ++i) {
+        sm_list.over[i] = 0;
     }
     for (i = 0; i < chooser.roster_count; ++i) {
         const unsigned char *record = a->record(chooser.roster[i].index);
@@ -1179,7 +1295,10 @@ static void chooser_prepare(int game, const story_game *g) {
             chooser.settings[i].choice[k] = OC_RANDOM;
         }
         chooser.settings[i].unlocked = chooser.possible[i] == OC_POSSIBLE_UNLOCK;
+        chooser.base[i] = chooser.possible[i];
+        chooser.why[i][0] = '\0';
     }
+    chooser.override = 0;               /* off each time the picker opens */
 }
 
 static int chooser_run(int game, const story_game *g, HWND owner) {
@@ -1367,6 +1486,18 @@ __declspec(dllexport) int __stdcall VvfpStoryProbeChooserOpen(int game, int gong
     chooser.gong = gong;
     chooser_prepare(game, gong ? &OC_GONG_GAME : &GAMES[game]);
     return chooser.game->event_count;
+}
+
+/* The opened chooser's override ticked (1) or not (0), as the checkbox does once its warning is answered OK. */
+__declspec(dllexport) void __stdcall VvfpStoryProbeChooserOverride(int on) {
+    chooser_set_override(on);
+}
+
+/* The opened chooser's event `index`: whether it is bought with the override, and its "even with the override"
+   reason (into out). */
+__declspec(dllexport) int __stdcall VvfpStoryProbeChooserWhy(int index, char *out, int size) {
+    lstrcpynA(out, chooser.why[index], size);
+    return chooser.settings[index].override;
 }
 
 /* Whether the opened chooser lists event `index` (event_listed). */

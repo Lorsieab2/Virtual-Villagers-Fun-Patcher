@@ -11,6 +11,7 @@ typedef struct { unsigned short site; int value; } oc_force;
 typedef struct { const char *label; const char *condition; unsigned short force_first; unsigned short force_count; unsigned char cond; } oc_option;
 typedef struct { const char *label; const char *text; const char *warn; signed char branch; unsigned char kind; unsigned char phase; signed char scope; signed char scope2; short site; unsigned short option_first; unsigned short option_count; int bound; int base; int step; int everyone; int nobody; signed char reg; unsigned char mem; int mem_disp; int disp; unsigned char elem; signed char elem_size; int elem_disp; unsigned char cond; const char *note; unsigned short xsite_first; unsigned short xsite_count; unsigned char occurrence; } oc_control;
 typedef struct { int slot; unsigned short control_first; unsigned short control_count; unsigned char strength; unsigned char unlock; unsigned char unlock_need; const char *dead_note; } oc_event;
+typedef struct { int slot; unsigned char pass; unsigned char cast4; unsigned char cast_c; unsigned char flag_count; unsigned char flag_base; unsigned char room; const char *refuse; } ov_event;
 
 #define VV3_EVENT_TABLE 0x4B3C78u
 #define VV3_EVENT_GETTER 0x419AC0u
@@ -575,6 +576,14 @@ static const oc_event VV1_OC_EVENTS[] = {
     { 136, 87, 2, 0, 0, 0, NULL },
 };
 #define VV1_OC_EVENT_COUNT 36
+static const ov_event VV1_OV_EVENTS[] = {
+    { 3, 1, 0, 0, 0, 0, 0, NULL },
+    { 4, 1, 0, 0, 0, 0, 0, NULL },
+    { 12, 1, 0, 0, 0, 0, 3, NULL },
+    { 64, 1, 0, 0, 0, 0, 0, NULL },
+    { 68, 1, 0, 0, 0, 0, 0, NULL },
+};
+#define VV1_OV_EVENT_COUNT 5
 static const story_event VV1_EVENTS[] = {
     { 0, "The Bad Little Monkey", "", "A monkey ransacks the research table: the tribe loses tech points.", "nothing beyond an island event being possible" },
     { 1, "A Mighty Storm", "", "A typhoon strikes in the night and washes away all of the stored food.", "stored food, with Restore Missing Island Events ticked (without it the original game never runs it; picking it makes it happen)" },
@@ -1390,6 +1399,17 @@ static const oc_event VV2_OC_EVENTS[] = {
     { 1000, 79, 12, 0, 0, 0, NULL },
 };
 #define VV2_OC_EVENT_COUNT 36
+static const ov_event VV2_OV_EVENTS[] = {
+    { 15, 1, 0, 0, 0, 0, 0, NULL },
+    { 16, 1, 0, 0, 0, 0, 0, NULL },
+    { 21, 1, 0, 0, 0, 0, 3, NULL },
+    { 25, 1, 0, 0, 0, 0, 2, NULL },
+    { 64, 1, 0, 0, 0, 0, 0, NULL },
+    { 65, 1, 0, 0, 0, 0, 0, NULL },
+    { 68, 1, 0, 0, 0, 0, 1, NULL },
+    { 82, 1, 0, 0, 0, 0, 0, NULL },
+};
+#define VV2_OV_EVENT_COUNT 8
 static const story_event VV2_EVENTS[] = {
     { 0, "The Obnoxious Parrot", "", "A parrot keeps startling the researchers: the tribe loses tech points.", "nothing beyond an island event being possible" },
     { 1, "The Flash Flood", "", "A flash flood soaks the food bin: only the top layer of food stays edible.", "nothing beyond an island event being possible" },
@@ -2056,6 +2076,45 @@ static const oc_event VV3_OC_EVENTS[] = {
     { 57, 99, 18, 0, 0, 0, NULL },
 };
 #define VV3_OC_EVENT_COUNT 46
+static const ov_event VV3_OV_EVENTS[] = {
+    { 7, 0, 0, 0, 0, 0, 1, NULL },
+    { 15, 0, 5, 0, 0, 0, 0, NULL },
+    { 16, 0, 2, 0, 0, 0, 0, NULL },
+    { 17, 0, 2, 0, 0, 0, 0, NULL },
+    { 18, 0, 2, 0, 0, 0, 0, NULL },
+    { 19, 0, 2, 0, 0, 0, 0, NULL },
+    { 20, 0, 2, 0, 0, 0, 0, NULL },
+    { 21, 0, 2, 0, 0, 0, 0, NULL },
+    { 22, 0, 2, 0, 0, 0, 0, NULL },
+    { 23, 0, 1, 0, 2, 0, 0, NULL },
+    { 24, 0, 3, 0, 0, 0, 0, NULL },
+    { 25, 0, 2, 0, 0, 0, 0, NULL },
+    { 26, 0, 2, 0, 0, 0, 0, NULL },
+    { 27, 0, 3, 0, 0, 0, 0, NULL },
+    { 28, 0, 4, 0, 4, 1, 0, NULL },
+    { 29, 0, 3, 0, 0, 0, 0, NULL },
+    { 30, 0, 3, 0, 0, 0, 0, NULL },
+    { 31, 0, 2, 0, 0, 0, 0, NULL },
+    { 32, 0, 2, 0, 0, 0, 0, NULL },
+    { 33, 0, 2, 0, 0, 0, 0, NULL },
+    { 34, 0, 4, 5, 0, 0, 0, NULL },
+    { 35, 0, 5, 4, 0, 0, 0, NULL },
+    { 36, 0, 1, 5, 0, 0, 0, NULL },
+    { 37, 0, 1, 0, 0, 0, 0, NULL },
+    { 38, 0, 2, 0, 0, 0, 0, NULL },
+    { 39, 0, 2, 0, 0, 0, 0, NULL },
+    { 40, 0, 5, 0, 2, 0, 0, NULL },
+    { 41, 0, 2, 0, 0, 0, 0, NULL },
+    { 42, 0, 4, 0, 0, 0, 0, NULL },
+    { 43, 0, 4, 0, 0, 0, 0, NULL },
+    { 44, 0, 2, 0, 0, 0, 0, NULL },
+    { 45, 0, 2, 0, 0, 0, 0, NULL },
+    { 46, 0, 3, 0, 0, 0, 0, NULL },
+    { 47, 0, 0, 0, 0, 0, 0, "a tribal chief: the event's own code looks the chief up and speaks through them" },
+    { 56, 0, 1, 0, 0, 0, 0, NULL },
+    { 57, 0, 0, 0, 0, 0, 1, NULL },
+};
+#define VV3_OV_EVENT_COUNT 36
 static const story_event VV3_EVENTS[] = {
     { 1, "The Tsunami", "", "A tsunami crashes into the village, destroying structures and sweeping villagers away.", "the game's own condition for the tsunami (two or more of the villagers it checks)" },
     { 2, "The Plague Of Ants", "", "Ants infest the granary: some food is lost.", "nothing beyond an island event being possible" },
@@ -2468,6 +2527,38 @@ static const oc_event VV4_OC_EVENTS[] = {
     { 49, 71, 1, 0, 0, 0, NULL },
 };
 #define VV4_OC_EVENT_COUNT 38
+static const ov_event VV4_OV_EVENTS[] = {
+    { 6, 0, 0, 0, 0, 0, 1, NULL },
+    { 12, 0, 1, 0, 0, 0, 0, NULL },
+    { 13, 0, 1, 0, 0, 0, 0, NULL },
+    { 14, 0, 1, 0, 0, 0, 0, NULL },
+    { 15, 0, 3, 0, 0, 0, 0, NULL },
+    { 18, 0, 0, 0, 0, 0, 0, NULL },
+    { 25, 0, 0, 0, 0, 0, 3, NULL },
+    { 28, 0, 4, 0, 0, 0, 3, NULL },
+    { 29, 0, 1, 0, 0, 0, 0, NULL },
+    { 30, 0, 1, 0, 0, 0, 0, NULL },
+    { 31, 0, 3, 0, 0, 0, 0, NULL },
+    { 32, 0, 2, 0, 0, 0, 0, NULL },
+    { 33, 0, 2, 0, 0, 0, 0, NULL },
+    { 34, 0, 0, 0, 0, 0, 0, "a mother with a baby: the event is about her own baby" },
+    { 35, 0, 2, 0, 2, 0, 0, NULL },
+    { 36, 0, 1, 0, 0, 0, 0, NULL },
+    { 37, 0, 3, 0, 0, 0, 0, NULL },
+    { 38, 0, 1, 0, 0, 0, 0, NULL },
+    { 39, 0, 1, 0, 0, 0, 0, NULL },
+    { 40, 0, 1, 0, 0, 0, 0, NULL },
+    { 41, 0, 1, 0, 0, 0, 0, NULL },
+    { 42, 0, 1, 0, 0, 0, 0, NULL },
+    { 43, 0, 1, 0, 0, 0, 0, NULL },
+    { 44, 0, 1, 0, 0, 0, 0, NULL },
+    { 45, 0, 2, 0, 2, 0, 0, NULL },
+    { 46, 0, 2, 0, 2, 0, 0, NULL },
+    { 47, 0, 2, 3, 0, 0, 0, NULL },
+    { 48, 0, 2, 0, 0, 0, 0, NULL },
+    { 49, 0, 1, 0, 0, 0, 0, NULL },
+};
+#define VV4_OV_EVENT_COUNT 29
 static const story_event VV4_EVENTS[] = {
     { 2, "The Creeping Mold", "", "A toxic mold spreads in the food bin: some food is ruined.", "nothing beyond an island event being possible" },
     { 3, "The Allergy Season", "", "Many villagers suffer a bout of hay fever.", "nothing beyond an island event being possible" },
@@ -3175,6 +3266,38 @@ static const oc_event VV5_OC_EVENTS[] = {
     { 47, 66, 3, 0, 0, 0, NULL },
 };
 #define VV5_OC_EVENT_COUNT 33
+static const ov_event VV5_OV_EVENTS[] = {
+    { 5, 0, 1, 0, 0, 0, 0, NULL },
+    { 11, 0, 1, 0, 0, 0, 0, NULL },
+    { 12, 0, 1, 0, 0, 0, 0, NULL },
+    { 13, 0, 3, 9, 0, 0, 0, NULL },
+    { 14, 0, 6, 7, 0, 0, 0, NULL },
+    { 15, 0, 0, 0, 0, 0, 0, NULL },
+    { 16, 0, 0, 0, 0, 0, 0, NULL },
+    { 17, 0, 0, 0, 0, 0, 0, NULL },
+    { 24, 0, 3, 0, 0, 0, 0, NULL },
+    { 26, 0, 0, 0, 0, 0, 3, NULL },
+    { 27, 0, 0, 0, 0, 0, 3, NULL },
+    { 30, 0, 0, 0, 0, 0, 3, NULL },
+    { 31, 0, 0, 0, 0, 0, 1, NULL },
+    { 33, 0, 0, 0, 0, 0, 3, NULL },
+    { 34, 0, 6, 9, 0, 0, 0, NULL },
+    { 35, 0, 1, 0, 0, 0, 0, NULL },
+    { 36, 0, 3, 9, 0, 0, 0, NULL },
+    { 37, 0, 2, 9, 2, 0, 0, NULL },
+    { 38, 0, 3, 9, 0, 0, 0, NULL },
+    { 39, 0, 10, 2, 0, 0, 0, NULL },
+    { 40, 0, 2, 0, 2, 0, 0, NULL },
+    { 41, 0, 2, 0, 0, 0, 0, NULL },
+    { 42, 0, 3, 0, 0, 0, 0, NULL },
+    { 43, 0, 1, 0, 0, 0, 0, NULL },
+    { 44, 0, 8, 0, 0, 0, 0, NULL },
+    { 45, 0, 1, 0, 0, 0, 0, NULL },
+    { 46, 0, 2, 0, 0, 0, 0, NULL },
+    { 47, 0, 6, 9, 0, 0, 0, NULL },
+    { 55, 0, 3, 0, 0, 0, 0, NULL },
+};
+#define VV5_OV_EVENT_COUNT 29
 static const story_event VV5_EVENTS[] = {
     { 1, "The Creeping Mold", "", "A toxic mold spreads in the food bin: some food is ruined.", "nothing beyond an island event being possible" },
     { 2, "The Allergy Season", "", "Many villagers suffer a bout of hay fever.", "nothing beyond an island event being possible" },

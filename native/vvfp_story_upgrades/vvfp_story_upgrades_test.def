@@ -428,3 +428,8 @@ EXPORTS
     VvfpStoryProbeHeathenAging=_VvfpStoryProbeHeathenAging@12
     VvfpStoryProbeReviveLoadShared=_VvfpStoryProbeReviveLoadShared@20
     VvfpStoryProbeHeathenEvents=_VvfpStoryProbeHeathenEvents@8
+    VvfpStoryProbeSetOverride=_VvfpStoryProbeSetOverride@4
+    VvfpStoryProbeOverridePossible=_VvfpStoryProbeOverridePossible@12
+    VvfpStoryProbeOverrideEntry=_VvfpStoryProbeOverrideEntry@12
+    VvfpStoryProbeChooserOverride=_VvfpStoryProbeChooserOverride@4
+    VvfpStoryProbeChooserWhy=_VvfpStoryProbeChooserWhy@12

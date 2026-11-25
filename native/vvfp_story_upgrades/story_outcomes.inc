@@ -74,6 +74,7 @@ typedef struct {
     unsigned char who[OC_MAX_CONTROLS][OC_WHO_BYTES];
     int strength;
     int unlocked;                     /* deliver past a timing condition */
+    int override;                     /* bought with the picker's override ticked (story_override.inc) */
 } oc_settings;
 
 typedef struct {
