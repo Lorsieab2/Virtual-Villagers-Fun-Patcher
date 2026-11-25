@@ -88,7 +88,7 @@ class Source(unittest.TestCase):
         self.assertNotIn("self._multiplier_slider(\n            fun_settings", text)
         self.assertEqual((patcher.TECH_COST_MULTIPLIER_DEFAULT, patcher.MEAL_MULTIPLIER_DEFAULT,
                           patcher.SICKNESS_MULTIPLIER_DEFAULT, patcher.LOUDER_FLUTES_MULTIPLIER_DEFAULT,
-                          patcher.ISLAND_FREQUENCY_MULTIPLIER_DEFAULT), (3, 2, 2, 5, 2))
+                          patcher.ISLAND_FREQUENCY_MULTIPLIER_DEFAULT), (3, 2, 2, 5, 4))
 
     def test_owners_defaults_keeps_its_values(self) -> None:
         text = source()
@@ -130,7 +130,7 @@ class Saved(unittest.TestCase):
                                    (gui.saved_meal_multiplier, "meal_multiplier", 2),
                                    (gui.saved_sickness_multiplier, "sickness_multiplier", 2),
                                    (gui.saved_louder_flutes_multiplier, "louder_flutes_multiplier", 5),
-                                   (gui.saved_island_frequency_multiplier, "island_frequency_multiplier", 2)):
+                                   (gui.saved_island_frequency_multiplier, "island_frequency_multiplier", 4)):
             for saved, restored in self.CASES + (("50", default), (True, default), (None, default),
                                                  (float("nan"), default)):
                 with self.subTest(key=key, saved=saved):
