@@ -1,6 +1,6 @@
 """More Frequent Island Events (all five games; the owner, 2026-11-15: a slider like the other multiplier sliders, 2x
 to 100x; at N x the game's own island events come N times as often; the opening events' timing and the rescue rule
-as in the stock game; off by default, on in Owner's Defaults, the slider 2 unless moved).
+as in the stock game; off by default, on in Owner's Defaults, the slider 4 unless moved; it was 2 until 2026-11-25).
 
 EMULATED, on the executable the patcher renders for the row, in each of the three public modes: "VVFP Island
 Frequency.dll" is started as VVFP Startup.dll starts it (VvfpStartup(game, ...)), with the slider's number in
@@ -213,8 +213,9 @@ class Setting(unittest.TestCase):
     def setUp(self) -> None:
         self.addCleanup(patcher.set_island_frequency_multiplier, patcher.island_frequency_multiplier())
 
-    def test_tenths_from_a_tenth_to_100_default_2(self) -> None:
-        self.assertEqual(patcher.ISLAND_FREQUENCY_MULTIPLIER_DEFAULT, 2)
+    def test_tenths_from_a_tenth_to_100_default_4(self) -> None:
+        # The owner, 2026-11-25: "yes make it 4x default" (it was 2).
+        self.assertEqual(patcher.ISLAND_FREQUENCY_MULTIPLIER_DEFAULT, 4)
         r = patcher.ISLAND_FREQUENCY_MULTIPLIER_RANGE
         self.assertEqual((r[0], r[-1], len(r)), (0.1, 10, 100))
         for good in (1, 2.5, 0.1, 2, 9.9, 10):

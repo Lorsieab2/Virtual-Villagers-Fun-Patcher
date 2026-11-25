@@ -27,6 +27,7 @@ prerequisite are rejected before any copied game folder or EXE is written.
 - **Family Tree Maker: children follow a villager you move to another generation** (all five games): their children -- babies on the way, born children and children born later -- and grandchildren move with them, one generation below the later-generation parent, unless you moved a child yourself.
 - **Family Tree Maker: move a baby on the way** with **Move to generation**; your choice (and the portrait's look) is kept when the baby is born. Edits that cannot be given to a child (a baby lost, or twins given different edits) are kept in the tree file, never deleted.
 - **Fix: the Family Tree Maker's drop-downs** printed "TypeError: '_tkinter.Tcl_Obj' object is not callable" each time a list opened on some Python 3.14 installs, and the list was not widened. Fixed.
+- **More Frequent Island Events' slider starts at 4** (all five games; it was 2): at 4 the game's own island events come every 3 to 5¾ real-life hours in A New Home, 2½ to 4¾ in The Lost Children and 2 to 3¾ in The Secret City, The Tree of Life and New Believers. Owner's Defaults sets it to 4 too. A patcher folder you already used keeps the number it saved (move the slider to change it), and a game you already patched keeps its number until you patch it again.
 
 ## What's new in v1.35.99
 
