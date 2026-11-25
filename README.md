@@ -22,6 +22,10 @@ dependency-first selection. API and command-line requests that omit a required
 prerequisite are rejected before any copied game folder or EXE is written.
 
 
+## What's new in v1.35.99
+
+- **X Buttons to Remove Chosen Founders** (The Tree of Life and New Believers, new; on by default, in Owner's Defaults and Select All): on the "Select 5 villagers" screen at the start of a new village, an X beside each chosen villager sends them away for good, as Reject does, so you can pick another; the others stay, and you keep choosing until five are picked. After the fifth pick, an X brings Reject back. The X is the games' own small stone button. **Not yet seen in a running game.**
+
 ## What's new in v1.35.98
 
 - **Revive Buried/Disappeared Villagers** (all five games, new; off by default, on in Owner's Defaults and Select All; needs Story / Cheat Upgrades): a Tech-screen upgrade that lists the village's buried and vanished villagers from its Deaths log and brings the one you pick back as the same person, aged 5; their grave is removed. 100,000 tech points each time while Story / Cheat Upgrades cost Tech Points is ticked. **Seen working in a running game in New Believers and A New Home.**
