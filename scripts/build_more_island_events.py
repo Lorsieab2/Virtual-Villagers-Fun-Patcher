@@ -391,8 +391,23 @@ def pick_entries() -> list[dict]:
     return out
 
 
+def pick_override_needs() -> dict[str, str]:
+    """mie_pick.inc's MIE_OVERRIDE, one line per registry key: what the event still needs with Pick Island Event's
+    override (adjacent C literals joined as C joins them)."""
+    text = PICK_INC.read_text(encoding="utf-8")
+    body = text[text.index("static const mie_override MIE_OVERRIDE[] = {"):]
+    body = body[:body.index("\n};")]
+    out = {}
+    for block in re.findall(r"\{ (\"[^{}]*?)\},", body, re.S):
+        literals = ["".join(re.findall(r'"((?:[^"\\]|\\.)*)"', group))
+                    for group in re.findall(r'(?:"(?:[^"\\]|\\.)*"\s*)+', block)]
+        out[literals[0]] = literals[1]
+    return out
+
+
 def pick_template_rows() -> list[dict]:
     out = []
+    override = pick_override_needs()
     for e in pick_entries():
         out.append({"stem": f"{PICK_STEM}.{e['key']}.description", "english": e["description"], "games": e["games"],
                     "mechanism": "b", "context": PICK_CONTEXT,
@@ -408,6 +423,13 @@ def pick_template_rows() -> list[dict]:
                         "games": e["games"], "mechanism": "b", "context": PICK_CONTEXT,
                         "notes": "a patcher window: what the event needs, as .needs, with Guardians of Isola "
                                  "Rewrite installed (its words: Isolans, A Family Reunited) (lower case, no full stop)",
+                        "route": "key"})
+        if e["key"] in override:
+            out.append({"stem": f"{PICK_STEM}.{e['key']}.needs_override", "english": override[e["key"]],
+                        "games": e["games"], "mechanism": "b", "context": PICK_CONTEXT,
+                        "notes": "a patcher window: what the event still needs with Pick Island Event's override "
+                                 "ticked, shown after \"Not possible even with the override:\" (lower case, no full "
+                                 "stop)",
                         "route": "key"})
     out.append({"stem": f"{PICK_STEM}.first_events",
                 "english": "the village's first island events to have happened", "games": ["vv1", "vv2"],

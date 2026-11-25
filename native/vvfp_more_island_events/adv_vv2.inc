@@ -250,6 +250,7 @@ static int __fastcall v2_choose_event(void *dialog, void *unused) {
     int widened = 0, event;
     (void)unused;
     adv_log_reset();                     /* an island event is drawn: whatever was ours is over */
+    mp_relax_reset();
     v12_op = 0;
     mb_op_forget();
     v2_due_drawn = -1;

@@ -46,12 +46,15 @@ static int vv3_age(const unsigned char *r) {
 
 /* The Tribal Chief in the robe: the chief byte +0xE80 and the robe's body +0xDF4 (a chief the clothing dialog
    0x41BF89 has dressed otherwise is not robed).  The chief is the owner's one exception to the protected villagers
-   (ADV_ALLOW_TRIBAL_CHIEF); a chief protected otherwise (carrying a baby) is not taken. */
+   (ADV_ALLOW_TRIBAL_CHIEF); a chief protected otherwise (carrying a baby) is not taken.  With Pick Island Event's
+   override (mp_relaxed) the robe is not asked: the Tribal Chief in whatever clothes (only the name and sex are read). */
 static int vv3_robed_chief(void) {
     int i;
+    int any_clothes = mp_relaxed(MIE_RELAX_TROUBLING);
     for (i = 0; i < g_records; ++i) {
         const unsigned char *r = t_record(i);
-        if (r != NULL && vv3_alive(r) && r[0xE80] != 0 && *(const int *)(r + 0xDF4) == TS_VV3_ROBE_BODY
+        if (r != NULL && vv3_alive(r) && r[0xE80] != 0
+            && (any_clothes || *(const int *)(r + 0xDF4) == TS_VV3_ROBE_BODY)
             && !adv_is_protected_allowing(3, r, ADV_ALLOW_TRIBAL_CHIEF)) {
             return i;
         }

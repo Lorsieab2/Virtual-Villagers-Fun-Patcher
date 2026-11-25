@@ -75660,6 +75660,127 @@
    "mechanism": "b",
    "context": "Game Mechanics window (the tick box beside Auto-refresh: show only the vital statistics and numbers)",
    "notes": "a patcher window"
+  },
+  {
+   "stem": "vvfp.more_island_events/mie_pick.aspiring_adventurer.needs_override",
+   "english": "two villagers of 14 or more who may go (not nursing a baby, and none the game keeps out of island events)",
+   "games": [
+    "vv1",
+    "vv2",
+    "vv3",
+    "vv4",
+    "vv5"
+   ],
+   "mechanism": "b",
+   "context": "VVFP More Island Events.dll (Pick Island Event's list of the More Island Events events)",
+   "notes": "a patcher window: what the event still needs with Pick Island Event's override ticked, shown after \"Not possible even with the override:\" (lower case, no full stop)",
+   "route": "key"
+  },
+  {
+   "stem": "vvfp.more_island_events/mie_pick.cave_explorers.needs_override",
+   "english": "two villagers of 18 or more who may go (not nursing a baby, and none the game keeps out of island events)",
+   "games": [
+    "vv1"
+   ],
+   "mechanism": "b",
+   "context": "VVFP More Island Events.dll (Pick Island Event's list of the More Island Events events)",
+   "notes": "a patcher window: what the event still needs with Pick Island Event's override ticked, shown after \"Not possible even with the override:\" (lower case, no full stop)",
+   "route": "key"
+  },
+  {
+   "stem": "vvfp.more_island_events/mie_pick.the_climb.needs_override",
+   "english": "a villager of 18 or more who may go (not nursing a baby, and none the game keeps out of island events)",
+   "games": [
+    "vv2"
+   ],
+   "mechanism": "b",
+   "context": "VVFP More Island Events.dll (Pick Island Event's list of the More Island Events events)",
+   "notes": "a patcher window: what the event still needs with Pick Island Event's override ticked, shown after \"Not possible even with the override:\" (lower case, no full stop)",
+   "route": "key"
+  },
+  {
+   "stem": "vvfp.more_island_events/mie_pick.troubling_signs.needs_override",
+   "english": "the Tribal Chief (not nursing a baby), nine other villagers of 18 or more who may be picked, and a name for the tribe",
+   "games": [
+    "vv3"
+   ],
+   "mechanism": "b",
+   "context": "VVFP More Island Events.dll (Pick Island Event's list of the More Island Events events)",
+   "notes": "a patcher window: what the event still needs with Pick Island Event's override ticked, shown after \"Not possible even with the override:\" (lower case, no full stop)",
+   "route": "key"
+  },
+  {
+   "stem": "vvfp.more_island_events/mie_pick.diving_for_treasure.needs_override",
+   "english": "two villagers of 18 or more who may be picked",
+   "games": [
+    "vv3"
+   ],
+   "mechanism": "b",
+   "context": "VVFP More Island Events.dll (Pick Island Event's list of the More Island Events events)",
+   "notes": "a patcher window: what the event still needs with Pick Island Event's override ticked, shown after \"Not possible even with the override:\" (lower case, no full stop)",
+   "route": "key"
+  },
+  {
+   "stem": "vvfp.more_island_events/mie_pick.playful_dolphins.needs_override",
+   "english": "two villagers of 14 or more who may be picked",
+   "games": [
+    "vv4"
+   ],
+   "mechanism": "b",
+   "context": "VVFP More Island Events.dll (Pick Island Event's list of the More Island Events events)",
+   "notes": "a patcher window: what the event still needs with Pick Island Event's override ticked, shown after \"Not possible even with the override:\" (lower case, no full stop)",
+   "route": "key"
+  },
+  {
+   "stem": "vvfp.more_island_events/mie_pick.mysterious_mask.needs_override",
+   "english": "two to four children under 14 and five villagers of 18 or more who may be picked",
+   "games": [
+    "vv4"
+   ],
+   "mechanism": "b",
+   "context": "VVFP More Island Events.dll (Pick Island Event's list of the More Island Events events)",
+   "notes": "a patcher window: what the event still needs with Pick Island Event's override ticked, shown after \"Not possible even with the override:\" (lower case, no full stop)",
+   "route": "key"
+  },
+  {
+   "stem": "vvfp.more_island_events/mie_pick.remembrance_ceremony.needs_override",
+   "english": "at least one grave",
+   "games": [
+    "vv1",
+    "vv2",
+    "vv3",
+    "vv4"
+   ],
+   "mechanism": "b",
+   "context": "VVFP More Island Events.dll (Pick Island Event's list of the More Island Events events)",
+   "notes": "a patcher window: what the event still needs with Pick Island Event's override ticked, shown after \"Not possible even with the override:\" (lower case, no full stop)",
+   "route": "key"
+  },
+  {
+   "stem": "vvfp.more_island_events/mie_pick.remembrance_ceremony_nb.needs_override",
+   "english": "at least one grave",
+   "games": [
+    "vv5"
+   ],
+   "mechanism": "b",
+   "context": "VVFP More Island Events.dll (Pick Island Event's list of the More Island Events events)",
+   "notes": "a patcher window: what the event still needs with Pick Island Event's override ticked, shown after \"Not possible even with the override:\" (lower case, no full stop)",
+   "route": "key"
+  },
+  {
+   "stem": "vvfp.more_island_events/mie_pick.the_rumblings.needs_override",
+   "english": "a finished hut",
+   "games": [
+    "vv1",
+    "vv2",
+    "vv3",
+    "vv4",
+    "vv5"
+   ],
+   "mechanism": "b",
+   "context": "VVFP More Island Events.dll (Pick Island Event's list of the More Island Events events)",
+   "notes": "a patcher window: what the event still needs with Pick Island Event's override ticked, shown after \"Not possible even with the override:\" (lower case, no full stop)",
+   "route": "key"
   }
  ]
 }
