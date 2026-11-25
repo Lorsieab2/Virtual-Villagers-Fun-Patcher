@@ -1,0 +1,5 @@
+LIBRARY "VVFP Divine Energy Gain"
+EXPORTS
+    VvfpStartup
+    VvfpDivineEnergyGainInstalled
+    VvfpDivineEnergyGainTenths
