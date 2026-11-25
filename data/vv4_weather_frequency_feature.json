@@ -1,0 +1,59 @@
+{
+  "id": "vv4_weather_frequency",
+  "enabled": true,
+  "catalog_enabled": true,
+  "catalog_hidden": false,
+  "game_id": "vv4",
+  "name": "Frequency of Weather Changes",
+  "description": "The weather changes more or less often: 0.1 to 10 times as often, as you choose with the Frequency of Weather Changes slider in the patcher window (it reads -10 to 10: 10 is 10 times, -10 a tenth, -2 half, and 1, the middle, the normal game; 1 unless you move it; type it in the box beside the slider too). Every spell of weather lasts its normal length divided by the number: normally clear weather lasts 8 to 30 minutes and any other kind 3 to 6, on the game's clock (real-life minutes on Normal speed; the clock runs twice as fast on Fast, 0.6 times on Slow, and stops while paused). So at 2 clear weather lasts 4 to 15 minutes and any other kind 1.5 to 3; never less than 1 second. Every spell, whatever brings it on (the weather's own turn or an island event), is shortened or lengthened the same way; which kind comes next is the game's own. A spell already under way when the game starts keeps its end. Rain and storms build up their strength 5 points every 6 seconds, so at high numbers spells are short and the strength rarely reaches 50, above which mushrooms and collectibles get a second chance to appear. **Needs no other patch.** Off by default; Owner's Defaults ticks it, with the slider at 1. **Unverified in play** (checked by emulation of the game's own code). The companion is \"VVFP Weather Frequency.dll\", started by VVFP More Companions.dll, and the slider's number is written beside it in \"VVFP Weather Frequency.txt\"; nothing is written to a save.",
+  "output_tag": "Weather Frequency",
+  "dependencies": [],
+  "conflicts": [],
+  "behavior_changes": [
+    "Frequency of Weather Changes: the companion's sites 0x46BD1D, 0x46BD22, 0x46BD29, 0x46BD2E (see runtime_detours), installed only when the slider is not 1; N is read at start from \"VVFP Weather Frequency.txt\" beside the companion in tenths (0.1 to 10; none is 1)."
+  ],
+  "explicit_non_changes": [
+    "No executable byte is patched: the companion writes its sites at run time, only after verifying their stock bytes (all of them, or none; an optional site another patch owns is left alone).",
+    "At 1x nothing is installed. The game's rand is never drawn more or less often: the companion's chances are its own numbers.",
+    "Nothing is written to a save, a villager record or a file; no text is shown."
+  ],
+  "evidence_status": "implemented from exact-build disassembly of the stock executable; the companion's install and its effect emulated on the rendered executable (tests/test_new_sliders.py); runtime/player confirmation pending",
+  "companion_files": [
+    {
+      "source": "assets/weather_frequency/VVFP Weather Frequency.dll",
+      "destination": "VVFP Weather Frequency.dll",
+      "sha256": "D054B4CF78B7F63AF060E2072DA4CB55024A5FDCBF556333C53B753C54635105"
+    }
+  ],
+  "patches": [],
+  "runtime_detours": [
+    {
+      "va": "0x46BD1D",
+      "stock_bytes": "BFE0010000",
+      "written_bytes": "BFXXXXXXXX",
+      "routine": "the weather setter 0x46BC30's mov edi, 480: clear weather's least (seconds on the game's clock): the companion writes the seconds divided by N (rounded, at least 1; the greatest kept above the least)",
+      "installed_by": "VVFP Weather Frequency.dll, VvfpStartup (started by VVFP More Companions.dll, third word)"
+    },
+    {
+      "va": "0x46BD22",
+      "stock_bytes": "B808070000",
+      "written_bytes": "B8XXXXXXXX",
+      "routine": "the weather setter 0x46BC30's mov eax, 1800: clear weather's greatest (seconds on the game's clock): the companion writes the seconds divided by N (rounded, at least 1; the greatest kept above the least)",
+      "installed_by": "VVFP Weather Frequency.dll, VvfpStartup (started by VVFP More Companions.dll, third word)"
+    },
+    {
+      "va": "0x46BD29",
+      "stock_bytes": "BFB4000000",
+      "written_bytes": "BFXXXXXXXX",
+      "routine": "the weather setter 0x46BC30's mov edi, 180: any other weather's least (seconds on the game's clock): the companion writes the seconds divided by N (rounded, at least 1; the greatest kept above the least)",
+      "installed_by": "VVFP Weather Frequency.dll, VvfpStartup (started by VVFP More Companions.dll, third word)"
+    },
+    {
+      "va": "0x46BD2E",
+      "stock_bytes": "B868010000",
+      "written_bytes": "B8XXXXXXXX",
+      "routine": "the weather setter 0x46BC30's mov eax, 360: any other weather's greatest (seconds on the game's clock): the companion writes the seconds divided by N (rounded, at least 1; the greatest kept above the least)",
+      "installed_by": "VVFP Weather Frequency.dll, VvfpStartup (started by VVFP More Companions.dll, third word)"
+    }
+  ]
+}

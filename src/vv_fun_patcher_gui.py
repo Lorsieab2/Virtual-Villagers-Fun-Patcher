@@ -307,8 +307,9 @@ ALL_SKELETONS_ID = "vv5_all_heathens_leave_skeletons"
 # What Owner's Defaults sets both sliders to (the owner, 2026-11-07: "set the sliders to 2x").
 OWNERS_DEFAULT_SLIDER = 2
 
-# The rows of the 0.1x-10x sliders (all five games): the owner, 2026-11-17.
-NEW_SLIDER_ROW_IDS = [f"vv{game}{slider.row_suffix}" for slider in RUNTIME_SLIDERS for game in range(1, 6)]
+# The rows of the 0.1x-10x sliders (the owner, 2026-11-17; and 2026-11-25: Frequency of Weather Changes in The Secret
+# City, The Tree of Life and New Believers, Divine Energy Gain Rate in New Believers), each in the games it has.
+NEW_SLIDER_ROW_IDS = [f"vv{game}{slider.row_suffix}" for slider in RUNTIME_SLIDERS for game in slider.games]
 # One-Time Collectibles Appear Again (The Secret City, The Tree of Life).
 ONE_TIME_COLLECTIBLES_IDS = ["vv3_one_time_collectibles_again", "vv4_one_time_collectibles_again"]
 

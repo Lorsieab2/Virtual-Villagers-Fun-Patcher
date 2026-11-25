@@ -191,6 +191,9 @@ FILES = [
     "assets/tech_gain/VVFP Tech Gain.dll",
     "assets/skill_success/VVFP Skill Success.dll",
     "assets/age_speed/VVFP Age Speed.dll",
+    # Frequency of Weather Changes (VV3-VV5) and Divine Energy Gain Rate (VV5): 0.1x-10x sliders (v1.35.101).
+    "assets/weather_frequency/VVFP Weather Frequency.dll",
+    "assets/divine_energy_gain/VVFP Divine Energy Gain.dll",
     # Village Solidarity (all five games): the village's score, its odds factor and the Tech screen counter.
     "assets/village_solidarity/VVFP Village Solidarity.dll",
     # Island Events Scale With Population / With Stored Food and Tech Points (A New Home, The Tree of Life, New
@@ -452,6 +455,10 @@ FILES = [
     "data/vv3_age_speed_feature.json",
     "data/vv4_age_speed_feature.json",
     "data/vv5_age_speed_feature.json",
+    "data/vv3_weather_frequency_feature.json",
+    "data/vv4_weather_frequency_feature.json",
+    "data/vv5_weather_frequency_feature.json",
+    "data/vv5_divine_energy_gain_feature.json",
     "data/no_safeguards_companion.json",
     "data/vv1_golden_child_born_female_feature.json",
     "data/vv1_village_solidarity_feature.json",
