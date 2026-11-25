@@ -382,7 +382,9 @@ static int cr_v5_send(int index) {
     unsigned char *r = t_record(index);
     int flag = 0;
     ADV_TC0(0x473440u, r);
-    if (cr_hovel_patch() && t_rand(100) < CR_HOVEL_PERCENT) {
+    /* The hovel only once The Last Heathen is done, as the hovel patch's own chooser asks (project 25, its first
+       test): a ceremony Pick Island Event's override brought before it honors at the mausoleum only. */
+    if (cr_hovel_patch() && cr_v5_heathens_done() && t_rand(100) < CR_HOVEL_PERCENT) {
         if (t_rand(100) < CR_HONOR_PERCENT) {
             ((cr_tc2r)(uintptr_t)CR_HOVEL_HONOR)(r, NULL, 17, (int)(uintptr_t)&flag);
             return CR_ACT_HOVEL_HONOR;
@@ -480,6 +482,7 @@ static void cr_v12_construct(void *event, int type, int magnitude, unsigned int 
     unsigned char held[5];
     int widened = 0;
     adv_log_reset();                     /* an island event is drawn: whatever was ours is over */
+    mp_relax_reset();
     g_cr_listed = 0;
     g_cr_picked = 0;
     __try {

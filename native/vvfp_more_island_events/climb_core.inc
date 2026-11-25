@@ -48,23 +48,28 @@ static struct {
 
 /* ---- Who ----------------------------------------------------------------------------------------------------- */
 
-static int climb_eligible(const adv_game *g, const unsigned char *r) {
-    return r != NULL && g->eligible(r) && g->age(r) >= CLIMB_ADULT_UNITS && g->research(r) >= CLIMB_TRAINEE;
+/* `any_rank` (Pick Island Event's override, mp_relaxed): the Research rank is not asked -- the summit sets Research
+   to 100 and the advice adds to it, whatever it was. */
+static int climb_eligible(const adv_game *g, const unsigned char *r, int any_rank) {
+    return r != NULL && g->eligible(r) && g->age(r) >= CLIMB_ADULT_UNITS
+        && (any_rank || g->research(r) >= CLIMB_TRAINEE);
 }
 
 /* How many villagers may climb; climb_at: the k-th of them (0-based), or -1. */
 static int climb_count(const adv_game *g) {
     int i, n = 0, count = g->count();
+    int any_rank = mp_relaxed(MIE_RELAX_CLIMB);
     for (i = 0; i < count; ++i) {
-        n += climb_eligible(g, g->record(i));
+        n += climb_eligible(g, g->record(i), any_rank);
     }
     return n;
 }
 
 static int climb_at(const adv_game *g, int k) {
     int i, count = g->count();
+    int any_rank = mp_relaxed(MIE_RELAX_CLIMB);
     for (i = 0; i < count; ++i) {
-        if (climb_eligible(g, g->record(i)) && k-- == 0) {
+        if (climb_eligible(g, g->record(i), any_rank) && k-- == 0) {
             return i;
         }
     }
@@ -148,7 +153,7 @@ static void climb_find_tallest(const adv_game *g) {
 }
 
 /* Who climbs, every roll and every page, for the popup about to be built; 0 when the event cannot happen. */
-static int climb_begin(const adv_game *g) {
+static int climb_begin_event(const adv_game *g) {
     int n, set;
     const unsigned char *r;
     memset(&climb, 0, sizeof climb);
@@ -178,6 +183,12 @@ static int climb_begin(const adv_game *g) {
         climb.ready &= climb_set(set)->count > 0;
     }
     return climb.ready;
+}
+
+static int climb_begin(const adv_game *g) {
+    int ready = climb_begin_event(g);
+    mp_relax_used(MIE_RELAX_CLIMB);        /* an override pick is used once, begun or not */
+    return ready;
 }
 
 /* ---- The effects --------------------------------------------------------------------------------------------- */
