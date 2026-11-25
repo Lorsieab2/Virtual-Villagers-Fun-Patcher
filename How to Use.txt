@@ -685,6 +685,16 @@ takes one. Soap was never limited to 6. The stacked pictures still show at
 most 6 (soap at most 3 bars); point at them to see the real count. Not yet
 tested in a running game.
 
+X BUTTONS TO REMOVE CHOSEN FOUNDERS (THE TREE OF LIFE, NEW BELIEVERS)
+
+On by default, in Owner's Defaults and in Select All. On the "Select 5
+villagers" screen of a new village, each chosen villager gets an X at the
+right end of their name plank. Click it to send that villager away for good,
+as Reject does; the villagers chosen after them move along to fill the gap,
+and the candidate on show stays. Pick on until five are chosen. After the
+fifth pick, while the button says Done, an X brings back Select and Reject
+and shows a new candidate. Once the island has started there are no X
+buttons. Not yet seen in a running game.
 PICTURE STUDIO
 
 On the Tools tab, click Picture Studio... It draws villagers exactly as the

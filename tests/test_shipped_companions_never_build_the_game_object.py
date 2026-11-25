@@ -49,9 +49,11 @@ HOSTS = {
 # build the game object) though their hooks run only in play.  A file a branch does not have yet is skipped.
 OTHERS = {
     4: (ROOT / "assets" / "cloth_sacks" / "VVFP VV4 Cloth Sacks.dll",
-        ROOT / "assets" / "empty_sources" / "VVFP VV4 Empty Sources.dll"),
+        ROOT / "assets" / "empty_sources" / "VVFP VV4 Empty Sources.dll",
+        ROOT / "assets" / "founder_x_buttons" / "VVFP Founder X Buttons.dll"),
     5: (ROOT / "assets" / "devotion_faith" / "VVFP Devotion Faith.dll",
-        ROOT / "assets" / "heathen_aging" / "VVFP Heathen Aging.dll"),
+        ROOT / "assets" / "heathen_aging" / "VVFP Heathen Aging.dll",
+        ROOT / "assets" / "founder_x_buttons" / "VVFP Founder X Buttons.dll"),
 }
 LOADS = {0xB8, 0xB9, 0xBA, 0xBB, 0xBD, 0xBE, 0xBF, 0x68}   # mov r32, imm32 (not esp) / push imm32
 

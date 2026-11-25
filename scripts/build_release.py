@@ -167,6 +167,8 @@ FILES = [
     "assets/heathen_aging/VVFP Heathen Aging Events.txt",
     "assets/heathen_aging/VVFP Heathen Skeletons Former.txt",
     "assets/heathen_aging/VVFP Heathen Skeletons All.txt",
+    # X Buttons to Remove Chosen Founders (The Tree of Life, New Believers): the companion.
+    "assets/founder_x_buttons/VVFP Founder X Buttons.dll",
     # Louder Wind Flutes (The Tree of Life): the wind flute sounds louder (the slider).
     "assets/vv4_louder_flutes/VVFP VV4 Louder Flutes.dll",
     # Children Play Tag and Build Sandcastles (all five games): tag and sandcastles as normal play choices.
@@ -379,6 +381,9 @@ FILES = [
     "data/vv5_heathen_tribe_ages_feature.json",
     "data/vv5_former_villager_heathens_leave_skeletons_feature.json",
     "data/vv5_all_heathens_leave_skeletons_feature.json",
+    # X Buttons to Remove Chosen Founders (The Tree of Life, New Believers).
+    "data/vv4_founder_x_buttons_feature.json",
+    "data/vv5_founder_x_buttons_feature.json",
     # 0.1-10x Tech Cost (all five games; scripts/build_tech_cost_multiplier_features.py).
     "data/vv1_tech_cost_multiplier_feature.json",
     "data/vv2_tech_cost_multiplier_feature.json",
