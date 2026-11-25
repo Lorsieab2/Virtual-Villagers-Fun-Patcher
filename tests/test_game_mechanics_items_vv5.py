@@ -120,7 +120,7 @@ PINNED_SUBS = {
     "Science level 2": (C, E), "Medicine level 2": (C,), "Learning level 1": (C,), "Learning level 3": (C,),
     "Divine Energy": (C,), "The Hungry Totem": (C, C), "The Knowing Totem": (C,), "The Hydroponic Farm": (C,),
     "The Hollow Totem": (C,), "The Rainbow Totem": (C,),
-    "The Tribute Statue": (C, C), "The Heathen Chief": (C,), "The Nursery School": (C,), "The fire pit": (C,),
+    "The Tribute Statue": (C, C), "The Blind Totem": (C,), "The Heathen Chief": (C,), "The Nursery School": (C,), "The fire pit": (C,),
     "Fixing a hut (the repair)": (C, C), "Red (rare) mushroom": (E, C, C, C), "Barrel of Babies": (C,),
     "Lab gear (the second collectible set, 24 pieces)": (C,),
     "Story / Cheat Upgrades": (C,),

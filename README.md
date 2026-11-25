@@ -22,6 +22,10 @@ dependency-first selection. API and command-line requests that omit a required
 prerequisite are rejected before any copied game folder or EXE is written.
 
 
+## What's new in v1.35.101
+
+- **Fix Vanilla Bugs: The Blind Totem says something when a villager is held over it** (New Believers, on by default): "The totem is missing its eye." until it is solved and "The totem has a shiny eye!" after, the game's own lines that it never showed, as the other totems each say a line; before, it said nothing. Dropping a villager on it or clicking it is unchanged.
+
 ## What's new in v1.35.100
 
 - **Family Tree Maker: children follow a villager you move to another generation** (all five games): their children -- babies on the way, born children and children born later -- and grandchildren move with them, one generation below the later-generation parent, unless you moved a child yourself.

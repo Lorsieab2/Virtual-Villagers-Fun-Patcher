@@ -427,7 +427,15 @@ def _puzzle_entries() -> list[Entry]:
                 "checked on that skill, and anyone else 14% of the time.", VERIFIED_C))),
         Entry(PUZZLE, "The Blind Totem", "villagers make and install a golden eye (panning, smelting, installing)", (
             "until it is solved no God power can be cast on the island's north-east corner (world x past 1,815 and y "
-            "above 445): the game says \"Your vision and power are blocked here!\""), VERIFIED_E),  # 0x4234C8
+            "above 445): the game says \"Your vision and power are blocked here!\""), VERIFIED_E,  # 0x4234C8
+              # The totem's area 0x2D, handler 0x434520: its hover case (message 1, 0x434554) showed nothing; the
+              # game's own 0x256 eSayTotemNeedsEye / 0x257 eSayTotemShinyEye were never used.
+              ((f"A villager held over the other totems says something (\"The Hungry Totem should be torn down.\", "
+                "and once one is down \"{name} sees the remnants of a totem.\"), but over The Blind Totem the game "
+                f"says nothing. {_feature('vv5_fix_vanilla_bugs')}: it says the game's own unused lines, \"The "
+                "totem is missing its eye.\" until it is solved and \"The totem has a shiny eye!\" after. Dropping a "
+                "villager on it or clicking it says \"It's missing its eye\" until it is solved, in both.",
+                VERIFIED_C),)),
         Entry(PUZZLE, "The Heathen Chief", "four necklace pieces brought to the Chief", (
             "the Heathen Chief's Faith is set to 100, so the Chief joins the tribe."), VERIFIED_E,  # 0x4360EE
               # CConvertHeathenChiefPuzzle registers four drop places (0x436CEE..0x436D1E): areas 0x26 (farmer's,
