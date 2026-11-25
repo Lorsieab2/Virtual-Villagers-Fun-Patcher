@@ -22,6 +22,10 @@ dependency-first selection. API and command-line requests that omit a required
 prerequisite are rejected before any copied game folder or EXE is written.
 
 
+## What's new in v1.35.101
+
+- **Max Divine Energy Continues to Increase** (New Believers, new; off by default and in Select All, on in Owner's Defaults): the Divine Energy cap is no longer held at 1,000 -- it keeps growing with your believers, the babies they carry, the Tribute Statue, Spirituality and the first collectible set (1,150 with 150 believers and every bonus, 1,680 with 256 Villagers). The Divine Energy bar shows the energy as a share of the cap, so a full bar is still full and fits its frame. Below 1,000 nothing changes. The companion is "VVFP Divine Energy Cap.dll". **Not yet seen in a running game.**
+
 ## What's new in v1.35.100
 
 - **Family Tree Maker: children follow a villager you move to another generation** (all five games): their children -- babies on the way, born children and children born later -- and grandchildren move with them, one generation below the later-generation parent, unless you moved a child yourself.
@@ -1987,6 +1991,12 @@ Meant to make VV5 harder and push players to take care of their tribe. When New 
 Each time a believer practises Devotion, there is a 1 in 10 chance their Faith rises by 1, and a separate 1 in 10 chance the village gains 1 Divine Energy: small amounts that add up over time. Practising Devotion is the game's Devotion skill check. It comes on 1 Honoring in 8 (half go to the statue, and 1 in 4 of those end in the check) and on every sermon to a Heathen, while playing and while catching up. The rolls come whether the check passes or fails; the Devotion skill, its odds and its gain stay the normal game's. **Honoring as a job needs the statue at its first stage or The Tribute Statue solved, as in the normal game.** **Faith never goes above 100 and Divine Energy never above the village's cap** (the game's own limits). **Believers only:** Heathens never practise Devotion, and the Heathen Doctor, the Heathen Chief (and the Retired Chief), the three Masters and the Heathen Mommy never get these rolls. **With "Faith Loss is Doubled/Gains Halved" also ticked, the Faith chance is halved to 1 in 20; the Divine Energy chance stays 1 in 10.** **Spirituality and Learning change how often the Devotion check passes, not these rolls.** **Works the same with every other patch and in every population mode.** **Not yet seen in a running game** (checked by emulation of the stock executable). The companion is "VVFP Devotion Faith.dll"; it never writes a save or a file.
 
 - Patch ID: `vv5_devotion_builds_faith`
+
+**Max Divine Energy Continues to Increase**
+
+Removes the hardcoded 1,000 maximum Divine Energy, so the cap keeps growing with the number of believers and collectibles. The cap is worked out as in the normal game: 5 for each believer and each baby they carry, plus 10; +50 and +50 more for the Tribute Statue's first two stages; +100 once The Tribute Statue is solved; +50 and +50 more for Spirituality 2 and 3; +3 for each piece of the first collectible set (+90 once all 24 are owned). The normal game stops it at 1,000 (120 believers with every bonus); with this patch it goes on: 1,150 with 150 believers and every bonus, 1,680 with 256 ("256 Villagers (Experimental)"). The Divine Energy bar at the top of the screen shows the energy as a share of the cap, so a full bar is still full and fits its frame. **The cap still falls when believers die or leave, as in the normal game, and the Divine Energy never goes above the cap.** **Below 1,000 nothing changes.** **A save made with a cap above 1,000 still loads without the patch: the game then brings the cap and the Divine Energy back down to 1,000.** **Works the same with every other patch and in every population mode.** **Not yet seen in a running game** (checked by emulation of the stock executable). The companion is "VVFP Divine Energy Cap.dll"; it never writes a save or a file.
+
+- Patch ID: `vv5_max_divine_energy_increases`
 
 **Esteemed Elders in Every Game**
 
