@@ -85,7 +85,7 @@ class TheRows(unittest.TestCase):
                 self.assertEqual(row["companion_files"], [{"source": f"assets/founder_x_buttons/{DLL_NAME}",
                                                            "destination": DLL_NAME, "sha256": digest}])
                 self.assertIn("Select 5 villagers", row["description"])
-                self.assertIn("**Not yet seen in a running game**", row["description"])
+                self.assertIn("**Seen working in a running game** (2026-11-24;", row["description"])
                 self.assertEqual([d["va"] for d in row["runtime_detours"]],
                                  [f"0x{GAME[game]['generator']:X}", f"0x{GAME[game]['vtable'] + 0xC:X}",
                                   f"0x{GAME[game]['vtable'] + 0x18:X}"])
