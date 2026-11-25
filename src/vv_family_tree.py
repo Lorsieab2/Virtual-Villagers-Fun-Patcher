@@ -1743,7 +1743,9 @@ def _carry_entries(entries: dict, village: gen.Village, fallback: dict) -> bool:
         litter = [c for c in born if c is first or (first.litter is not None and c.litter == first.litter)]
         groups.setdefault((mother.id, after), ([], litter))[0].append(key)
     for keys, litter in groups.values():
-        given = [{f: entries[k][f] for f in CARRIED if entries[k].get(f) is not None} for k in keys]
+        # A page's None is its own choice too (it takes back the tree's edit there, page_view): carried as well
+        # (Codex, #869).
+        given = [{f: entries[k][f] for f in CARRIED if f in entries[k]} for k in keys]
         # One baby, one child; twins only when every one of them was given the same (which is which cannot be
         # told): never a guess.
         if len(keys) == len(litter) and all(g == given[0] for g in given):

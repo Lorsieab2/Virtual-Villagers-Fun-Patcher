@@ -298,5 +298,56 @@ class BabyOnTheWayTests(unittest.TestCase):
         self.assertEqual(ft.page_village(edits, born, 0).people[N].generation, 2)
 
 
+class CodexReviewTests(unittest.TestCase):
+    """Codex, #869."""
+
+    def editor(self, v, edits, selected, g):
+        import vv_genealogy_window as gw
+
+        class Fake:
+            _set_generation = gw.TreeEditor._set_generation
+            _set_entry = gw.TreeEditor._set_entry
+            _set_entry_key = gw.TreeEditor._set_entry_key
+            _entry = gw.TreeEditor._entry
+            _entry_by_key = gw.TreeEditor._entry_by_key
+            _pkey = gw.TreeEditor._pkey
+
+            def bell(self):
+                raise AssertionError("refused")
+
+            def _saved(self):
+                pass
+
+        f = Fake()
+        f.village, f.edits, f.page, f.selected = v, edits, 0, list(selected)
+        f.gen_choice = type("Var", (), {"get": lambda _s: str(g)})()
+        return f
+
+    def test_the_order_villagers_are_selected_in_never_matters(self):
+        for order in ([E, C], [C, E]):
+            v = village()
+            edits = ft.Edits()
+            pk = str(ft.page_key(edits, v, 0))
+            edits.page_edits = {pk: {"entries": {key(v, C): {"generation": 1}}}}    # C II -> I; E follows to II
+            ft.arrange(v, edits)
+            self.editor(v, edits, order, 2)._set_generation()                    # both to II
+            ft.arrange(v, edits)
+            page = ft.page_village(edits, v, 0)
+            self.assertEqual((page.people[C].generation, page.people[E].generation), (2, 2), order)
+
+    def test_a_pages_none_over_the_trees_baby_edit_is_carried(self):
+        v = village()
+        edits = ft.Edits()
+        edits.entries[key(v, F)] = {"generation": 2, ft.BORN_AFTER: ft.born_after(v, v.people[F])}
+        pk = str(ft.page_key(edits, v, 0))
+        edits.page_edits = {pk: {"entries": {key(v, F): {"generation": None}}}}  # this page: the records' III
+        ft.arrange(v, edits)
+        self.assertEqual(ft.page_village(edits, v, 0).people[F].generation, 3)
+        born = with_birth(v)
+        ft.carry_born_babies(edits, born)
+        ft.arrange(born, edits)
+        self.assertEqual(born.people[N].generation, 2)                           # the tree's
+        self.assertEqual(ft.page_village(edits, born, 0).people[N].generation, 3)   # the page's own, kept
+
 if __name__ == "__main__":
     unittest.main()

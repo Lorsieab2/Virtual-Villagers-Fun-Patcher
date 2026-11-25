@@ -5548,14 +5548,20 @@ class TreeEditor(CanvasTools, tk.Toplevel):
         if g is not None and not 1 <= g <= 99:
             self.bell()
             return
-        for q in self.selected:
-            p = self.village.people[q]
-            # A baby on the way too (the owner, 2026-11-25: "Let me move the baby by hand"): kept for the child
-            # once born (ft.carry_born_babies).
+        # A baby on the way too (the owner, 2026-11-25: "Let me move the baby by hand"): kept for the child
+        # once born (ft.carry_born_babies).
+        chosen = [self.village.people[q] for q in self.selected]
+        for p in chosen:
+            self._set_entry(p, generation=None if back else g)
+        if not back:
             # A generation the villager would have anyway -- the records', or where their moved parents take
-            # them -- is no edit; any other is their own, and stays when their parents move (the owner, 2026-11-25).
-            same = not back and g == ft.generation_without_own(self.edits, self.village, self.page, p)
-            self._set_entry(p, generation=None if back or same else g)
+            # them -- is no edit; any other is their own, and stays when their parents move (the owner,
+            # 2026-11-25).  Decided once every selected villager has the generation chosen, parents first, so
+            # the order they were selected in never matters (Codex, #869).
+            base = self.village.base_generation
+            for p in sorted(chosen, key=lambda p: (base.get(p.id, p.generation), p.id)):
+                if g == ft.generation_without_own(self.edits, self.village, self.page, p):
+                    self._set_entry(p, generation=None)
         self._saved()
 
     def _row_keys(self, g: int) -> list[str]:
