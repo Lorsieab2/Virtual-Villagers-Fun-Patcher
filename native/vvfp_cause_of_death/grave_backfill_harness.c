@@ -651,6 +651,9 @@ static int setup_village(int cause_value) {
     dig(20, "Tupa", 1222, 3, 60, cause_value, "Dedicated Student");
     dig(21, "Youth", 800, game >= 3 ? -1 : 0, 0, cause_value, NULL);   /* made young again once */
     dig(22, "Renny", 720, game >= 3 ? -1 : 0, 0, cause_value, NULL);   /* listed only before a rename */
+    /* A name the last village left with its age zeroed: the game counts the place free (the owner,
+       2026-11-24: a new village's Deaths log listed 48 of them -- "there should be no graves"). */
+    dig(30, "Ghost", 0, game >= 3 ? 3 : 3, 95, cause_value, "Inspired Inventor");
     write_history();
     write_old_logs();
     write_graves_file();
@@ -763,6 +766,8 @@ int main(int argc, char **argv) {
         CHECK(count_of(text, "\r\n  Name: Tupa\r\n") == 1,
               "the record appended by hand in the owner's shape counts for Tupa's grave (name, age at death)");
         CHECK(count_of(text, "\r\n  Name: Dup\r\n") == 2, "two Dup graves, two Dup records");
+        CHECK(strstr(text, "Ghost") == NULL,
+              "a name left in a place whose age is 0 (the last village's) is no grave: no record");
         {
             const char *k = death(8, "Kito");
             const char *c = death(9, "Chika");

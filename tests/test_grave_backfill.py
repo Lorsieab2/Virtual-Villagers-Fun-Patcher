@@ -31,7 +31,7 @@ BUILD = ROOT / "scripts" / "build_grave_backfill_harness.ps1"
 TEST_DLL = ROOT / "tests" / "test_dlls" / "VVFP Cause of Death.test.dll"
 COD = ROOT / "native" / "vvfp_cause_of_death"
 PARENTAGE = ROOT / "native" / "parentage_export"
-CHECKS_PER_GAME = 45   # 42, and 3 for the old and new Deaths folders (part 8)
+CHECKS_PER_GAME = 46   # 43, and 3 for the old and new Deaths folders (part 8)
 
 
 class GraveBackfillSource(unittest.TestCase):
@@ -49,19 +49,26 @@ class GraveBackfillSource(unittest.TestCase):
         self.assertIn("SavedVillageHeader=_SavedVillageHeader@16",
                       (ROOT / "native" / "save_reset_export" / "save_reset_export.def").read_text(encoding="utf-8"))
 
-    def test_a_grave_at_age_0_is_a_grave(self):
+    def test_a_grave_is_a_name_the_game_counts(self):
         # The owner, 2026-10-09: "for all 5 games, 0 is a valid value for head, body and age!!!!"
         # A grave or Roster of the Dead entry is told by its name (every burial copies it there
-        # first), never by an age of 0: a villager buried at age 0 gets a Death record too.
+        # first); a villager buried at age 0 still gets a Death record from the burial's own hook.
+        # The owner, 2026-11-24 ("there should be no graves", "for all 5 games"): a new village
+        # keeps the last village's names with their ages zeroed, and every game counts a place
+        # with age 0 free -- so the backfill passes those by, in all five games.
         source = (COD / "cod_backfill.inc").read_text(encoding="utf-8")
         gather = source[source.index("static int backfill_gather(void) {"):]
         gather = gather[:gather.index("\n}\n")]
-        self.assertNotIn("age == 0", gather)
-        self.assertEqual(gather.count("if (!backfill_dug("), 2)
+        self.assertEqual(gather.count("if (!backfill_dug(grave) || !backfill_counted(age)) {"), 1)
+        self.assertEqual(gather.count("if (!backfill_dug(entry) || !backfill_counted(age)) {"), 1)
+        self.assertNotIn("break;", gather)
         dug = source[source.index("static int backfill_dug("):]
         dug = dug[:dug.index("\n}\n")]
         self.assertIn("grave[0] != '\\0'", dug)
         self.assertNotIn("age", dug.split("{", 1)[1])
+        counted = source[source.index("static int backfill_counted(int age) {"):]
+        counted = counted[:counted.index("\n}\n")]
+        self.assertIn("return age != 0;", counted)
 
     def test_only_a_record_on_disk_accounts_for_a_departure(self):
         # Codex, #524: a record from the grave that is only held for the save
