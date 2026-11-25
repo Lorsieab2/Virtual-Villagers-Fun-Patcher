@@ -477,6 +477,11 @@ CASES = [
     Case("Devotion Faith", "assets/devotion_faith/VVFP Devotion Faith.dll", (5,),
          lambda g: [f"vv{g}_devotion_builds_faith"],
          lambda m, g: (m.export("VvfpStartup", g, 0), m.export("VvfpDevotionFaithInstalled"))[1]),
+    # X Buttons to Remove Chosen Founders (The Tree of Life, New Believers): the candidate generator's entry and the
+    # "Select 5 villagers" screen's command handler and draw slots.
+    Case("Founder X Buttons", "assets/founder_x_buttons/VVFP Founder X Buttons.dll", (4, 5),
+         lambda g: [f"vv{g}_founder_x_buttons"],
+         lambda m, g: (m.export("VvfpStartup", g, 0), m.export("VvfpFounderXInstalled"))[1]),
     # Esteemed Elders in Every Game (A New Home, The Lost Children, The Tree of Life, New Believers): the panel's title,
     # the burial's epitaph.
     Case("Esteemed Elders", "assets/esteemed_elders/VVFP Esteemed Elders.dll", (1, 2, 4, 5),

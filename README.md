@@ -22,6 +22,10 @@ dependency-first selection. API and command-line requests that omit a required
 prerequisite are rejected before any copied game folder or EXE is written.
 
 
+## What's new in v1.35.99
+
+- **X Buttons to Remove Chosen Founders** (The Tree of Life and New Believers, new; on by default, in Owner's Defaults and Select All): on the "Select 5 villagers" screen at the start of a new village, an X beside each chosen villager sends them away for good, as Reject does, so you can pick another; the others stay, and you keep choosing until five are picked. After the fifth pick, an X brings Reject back. The X is the games' own small stone button. **Seen working in a running game** in both games (bringing Reject back after the fifth pick is checked by emulation only).
+
 ## What's new in v1.35.98
 
 - **Revive Buried/Disappeared Villagers** (all five games, new; off by default, on in Owner's Defaults and Select All; needs Story / Cheat Upgrades): a Tech-screen upgrade that lists the village's buried and vanished villagers from its Deaths log and brings the one you pick back as the same person, aged 5; their grave is removed. 100,000 tech points each time while Story / Cheat Upgrades cost Tech Points is ticked. **Seen working in a running game in New Believers and A New Home.**
@@ -1811,6 +1815,12 @@ A villager who has mastered three or four skills (88 or more) gets the title "Es
 
 - Patch ID: `vv4_esteemed_elders`
 
+**X Buttons to Remove Chosen Founders**
+
+On the "Select 5 villagers" screen at the start of a new village, an X beside each chosen villager sends them away so you can pick another. Each X stands at the right end of that villager's name plank. Clicking it removes that villager for good, just as Reject does; the villagers chosen after them move along to fill the gap, and the candidate on show stays. Keep choosing until five are chosen. After the fifth pick, while the button says Done, an X takes you back to choosing: Select and Reject come back and a new candidate is shown. **Once the island has started, the five chosen are your founders and there are no X buttons.** The X buttons are the game's own stone button with an X on it. **Works the same with every other patch and in every population mode.** **Seen working in a running game** (2026-11-24; bringing Select and Reject back after the fifth pick is checked by emulation and a test harness only). The companion is "VVFP Founder X Buttons.dll"; it never writes a save or a file. On by default.
+
+- Patch ID: `vv4_founder_x_buttons`
+
 ### Virtual Villagers - New Believers
 
 **Clickable Tips**
@@ -2163,6 +2173,12 @@ Gives New Believers 256 villager slots (numbered 0 to 255) instead of 150 (belie
 Puts back the Options dialog's Difficulty choice -- Easy, Normal or Hard -- as A New Home, The Lost Children and The Secret City have it. New Believers already plays by a difficulty level, saved with each village (a village starts on Normal), with The Secret City's rules, but its Options dialog never shows the choice. The Difficulty row is drawn where The Secret City has it, directly above Game Speed, with the game's own radio buttons, words and font; Game Speed moves down one row and the dialog grows by that row, so every row and the Done button stay in view. Easy: a new village starts with 300 more food, villagers never eat the extra food the other levels take, a fed, healthy villager tries to regain health on every check, and villagers fall sick about a quarter as often. Normal: above 8,000 food each villager's meal takes 2 more food three times in four, and a starving villager loses health on about three checks in four. Hard: a new village starts with 99 less food, the extra food is taken at any food level, and a starving villager loses health on every check. **The starting food only changes for a village made after you pick the level.** **Needs no other patch.** The companion is "VVFP Difficulty.dll", started by VVFP Startup.dll. On by default; **checked in a live game, windowed** (the row's layout, every button, and the chosen level after a save and reload); **clicks in fullscreen have not been tried in a live game**.
 
 - Patch ID: `vv5_difficulty_settings`
+
+**X Buttons to Remove Chosen Founders**
+
+On the "Select 5 villagers" screen at the start of a new village, an X beside each chosen villager sends them away so you can pick another. Each X stands at the right end of that villager's name plank. Clicking it removes that villager for good, just as Reject does; the villagers chosen after them move along to fill the gap, and the candidate on show stays. Keep choosing until five are chosen. After the fifth pick, while the button says Done, an X takes you back to choosing: Select and Reject come back and a new candidate is shown. **Once the island has started, the five chosen are your founders and there are no X buttons.** The X buttons are the game's own stone button with an X on it. **Works the same with every other patch and in every population mode.** **Seen working in a running game** (2026-11-24; bringing Select and Reject back after the fifth pick is checked by emulation and a test harness only). The companion is "VVFP Founder X Buttons.dll"; it never writes a save or a file. On by default.
+
+- Patch ID: `vv5_founder_x_buttons`
 
 ## The Origins upgrades menus
 

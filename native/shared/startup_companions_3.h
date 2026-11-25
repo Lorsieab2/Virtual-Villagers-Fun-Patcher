@@ -51,6 +51,9 @@ static const char *const VVFP_STARTUP_COMPANIONS_3[] = {
     /* The four Heathen aging rows (New Believers): Heathens who age and die of old age, are replaced at once, and
        (the tribe row) have children; each row's flag file says which (the owner, 2026-11-22). */
     "VVFP Heathen Aging.dll",
+    /* X Buttons to Remove Chosen Founders (The Tree of Life, New Believers): an X beside each chosen villager on the
+       Select 5 villagers screen sends them away so another can be picked (the owner, 2026-11-24). */
+    "VVFP Founder X Buttons.dll",
     /* APPEND ONLY (see above). */
 };
 #define VVFP_STARTUP_COMPANION_COUNT_3 \

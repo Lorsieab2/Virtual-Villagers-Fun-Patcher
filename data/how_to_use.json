@@ -1151,6 +1151,16 @@
       ]
     },
     {
+      "ids": ["vv4_founder_x_buttons", "vv5_founder_x_buttons"],
+      "guide": [
+        "On by default, in Owner's Defaults and in Select All.",
+        "On the \"Select 5 villagers\" screen of a new village, each chosen villager gets an X at the right end of their name plank.",
+        "Click an X to send that villager away for good, as Reject does. The others move along; pick on until five are chosen.",
+        "After the fifth pick (the button says Done), an X brings back Select and Reject and shows a new candidate.",
+        "Once the island has started there are no X buttons. Not yet seen in a running game."
+      ]
+    },
+    {
       "ids": ["vv5_devotion_builds_faith"],
       "guide": [
         "Off by default; on in Owner's Defaults and Select All. Nothing to click: it works on its own.",
