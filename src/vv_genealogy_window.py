@@ -4453,8 +4453,14 @@ class TreeEditor(CanvasTools, tk.Toplevel):
         style = f"List{str(combo).replace('.', '_')}.TCombobox"
 
         def post() -> None:
-            if before:
-                combo.tk.eval(before) if isinstance(before, str) else before()
+            # cget gives the box's own postcommand back as a Tcl object, not a str, on newer Pythons
+            # (3.14: "'_tkinter.Tcl_Obj' object is not callable" each time a list opened): run it as
+            # the Tcl command it is.
+            command = "" if callable(before) else str(before or "")
+            if callable(before):
+                before()
+            elif command:
+                combo.tk.eval(command)
             try:
                 font = tkfont.nametofont("TkDefaultFont")
                 need = max((font.measure(str(v)) for v in combo.cget("values") or ()), default=0) + 30
