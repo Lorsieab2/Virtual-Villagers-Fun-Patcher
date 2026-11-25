@@ -151,6 +151,12 @@ class ChildrenFollowTests(unittest.TestCase):
 N, N2 = 20, 21
 
 
+def parked(edits) -> bool:
+    """Whether any entry, the tree's or a page's, is parked (kept, applied to nobody)."""
+    pages = [part.get("entries", {}) for part in edits.page_edits.values() if isinstance(part, dict)]
+    return any(k.startswith(ft.PARKED) for e in [edits.entries, *pages] for k in e)
+
+
 def with_birth(v: gen.Village, twins: int = 0, lost: bool = False) -> gen.Village:
     """The same village after D's baby on the way (F) -- or twins -- was born (N, N2), or lost."""
     out = village()
@@ -239,12 +245,13 @@ class BabyOnTheWayTests(unittest.TestCase):
         self.assertFalse(ft.carry_born_babies(edits, v))
         self.assertTrue(upcoming_left(edits))
 
-    def test_a_lost_baby_is_dropped(self):
+    def test_a_lost_baby_is_parked_never_deleted(self):
         v = village()
         edits = self.edit(v, F, generation=2)
         lost = with_birth(v, lost=True)
         self.assertTrue(ft.carry_born_babies(edits, lost))
         self.assertFalse(upcoming_left(edits))
+        self.assertTrue(parked(edits))
 
     def test_twins_given_the_same_both_keep_it(self):
         v = twin_village()
@@ -268,6 +275,7 @@ class BabyOnTheWayTests(unittest.TestCase):
             shown = ft.page_village(edits, born, 0)
             self.assertEqual((shown.people[N].generation, shown.people[N2].generation), (3, 3))
             self.assertFalse(upcoming_left(edits))
+            self.assertTrue(parked(edits))              # kept in the file, applied to nobody
 
     def test_a_birth_before_the_edit_is_not_this_baby(self):
         v = village()

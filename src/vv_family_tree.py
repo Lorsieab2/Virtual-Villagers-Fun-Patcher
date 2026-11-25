@@ -1735,8 +1735,8 @@ def _carry_entries(entries: dict, village: gen.Village, fallback: dict) -> bool:
         born = sorted((c for c in people.values() if c.mother == mother.id and not c.upcoming
                        and c.birth_record is not None and c.birth_record > after), key=lambda c: c.birth_record)
         if not born:
-            if key not in pending:              # lost: no baby on the way of hers now, and none born
-                del entries[key]
+            if key not in pending:              # lost, or born with no Birth record: parked, never deleted
+                _park_entry(entries, key)
                 changed = True
             continue
         first = born[0]                         # this pregnancy: the first birth since, with its twins
@@ -1751,10 +1751,22 @@ def _carry_entries(entries: dict, village: gen.Village, fallback: dict) -> bool:
                 target = entries.setdefault(entry_key(village, child), {})
                 for f, v in given[0].items():
                     target.setdefault(f, v)     # the child's own edits stay theirs
-        for k in keys:
-            del entries[k]
+            for k in keys:
+                del entries[k]
+        else:                                   # which child's cannot be told: parked, never deleted
+            for k in keys:
+                _park_entry(entries, k)
         changed = True
     return changed
+
+
+def _park_entry(entries: dict, key: str) -> None:
+    """A baby on the way's edits that cannot be given to a child: kept under "parked|<key>" (as
+    settle_namesakes parks), applied to nobody -- the player's edits are never deleted."""
+    target, n = PARKED + key, 2
+    while target in entries:
+        target, n = f"{PARKED}{key}#{n}", n + 1
+    entries[target] = entries.pop(key)
 
 
 def carry_born_babies(edits: Edits, village: gen.Village) -> bool:
