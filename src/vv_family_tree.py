@@ -1449,13 +1449,11 @@ def page_village(edits: Edits, village: gen.Village, page: int) -> gen.Village:
     spans = page_spans(edits, village)
     lo, hi = spans[max(0, min(page, len(spans) - 1))]
     entries = page_view(edits, village, page).entries
-    changed: dict[int, int] = {}
-    for pid, p in village.people.items():
-        if not lo <= p.generation <= hi:
-            continue
-        g = entries.get(entry_key(village, p), {}).get("generation") or village.base_generation.get(pid, p.generation)
-        if g != p.generation and lo <= g <= hi:
-            changed[pid] = g
+    people = village.people
+    # Children follow a parent moved on this page (followed_generations), within the page's span too.
+    shown = followed_generations(village, own_generations(village, entries),
+                                 allow=lambda pid, g: lo <= people[pid].generation <= hi and lo <= g <= hi)
+    changed = {pid: g for pid, g in shown.items() if g != people[pid].generation}
     if not changed:
         return village
     out = _copy(village)
@@ -1962,10 +1960,55 @@ def arrange(village: gen.Village, edits: Edits) -> None:
     or in the player's own order of a generation, left to right.  A villager deleted from the
     tree has no number, so the others' run on without a gap."""
     settle_namesakes(village, edits)            # each namesake's edits with that villager (Codex, PR #653)
+    shown = followed_generations(village, own_generations(village, edits.entries))
     for pid, p in village.people.items():
-        own = edits.entries.get(entry_key(village, p), {}).get("generation")
-        p.generation = own or village.base_generation.get(pid, p.generation)
+        p.generation = shown[pid]
     _renumber(village, edits)
+
+
+def own_generations(village: gen.Village, entries: dict) -> dict[int, int]:
+    """The villagers the player put in a generation themselves ("generation" in their edits): id -> it."""
+    out = {}
+    for pid, p in village.people.items():
+        g = entries.get(entry_key(village, p), {}).get("generation")
+        if isinstance(g, int) and 1 <= g <= 99:
+            out[pid] = g
+    return out
+
+
+def followed_generations(village: gen.Village, own: dict[int, int], allow=None) -> dict[int, int]:
+    """Each villager's generation as the tree shows it: their own when the player gave them one (`own`),
+    else the records' -- moved along with their parents when the player moved those (the owner, 2026-11-25:
+    "his upcoming child I can't change from gen 3 to gen 2"): a child stays as far below their real parents
+    (a default father is nobody's parent here) as the records put them, so children, babies on the way and
+    grandchildren follow a moved villager, unless the player moved that child themselves.  Display alone:
+    who descends from whom (Kinship) keeps the records' generations.  `allow(pid, g)` False keeps that
+    villager where the village already shows them (a page moves villagers only within its own span)."""
+    people, base = village.people, village.base_generation
+    out: dict[int, int] = {}
+    # Record-generation order: a parent's record generation is always below their child's, so is done first.
+    for pid in sorted(people, key=lambda q: (base.get(q, people[q].generation), q)):
+        p = people[pid]
+        record = base.get(pid, p.generation)
+        g = own.get(pid)
+        if not g:
+            g = record
+            parents = [q for q in gen.real_parents(people, p) if q in out]
+            if parents:
+                shift = max(out[q] for q in parents) - max(base.get(q, people[q].generation) for q in parents)
+                g = max(1, min(99, record + shift))
+        if allow is not None and not allow(pid, g):
+            g = p.generation
+        out[pid] = g
+    return out
+
+
+def generation_without_own(edits: Edits, village: gen.Village, page: int, p: gen.Person) -> int:
+    """The generation a villager would have on that page with no generation of their own: the records', or
+    where their moved parents take them -- what a generation edit equal to it would change nothing from."""
+    own = own_generations(village, page_view(edits, village, page).entries)
+    own.pop(p.id, None)
+    return followed_generations(village, own)[p.id]
 
 
 def _renumber(village: gen.Village, edits: Edits) -> None:

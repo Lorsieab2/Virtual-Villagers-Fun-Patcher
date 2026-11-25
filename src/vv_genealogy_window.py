@@ -3479,12 +3479,22 @@ class TreeEditor(CanvasTools, tk.Toplevel):
         # Row by row of each generation, left to right in each (ft.tidy_rows): a wrapped generation's rows
         # are not interleaved (self-review, #578).
         gen_of, orders = ft.tidy_rows(lay)
+        into: dict[int, int] = {}               # those left in another generation's band than they were in
         for q in lay.x:
             if q in lay.others:
                 self._set_entry(v.people[q], dx=None, dy=None)
                 continue
             g, p = gen_of[q], v.people[q]
-            self._set_entry(p, dx=None, dy=None, generation=None if g == v.base_generation.get(q, p.generation) else g)
+            if g != lay.village.people[q].generation:
+                into[q] = g
+                self._set_entry(p, dx=None, dy=None, generation=g)
+            else:                               # their generation as it was: their own edit, or following parents
+                self._set_entry(p, dx=None, dy=None)
+        # A generation they would have anyway (the records', or where their moved parents now take them) is no
+        # edit of their own, so they go on following their parents (the owner, 2026-11-25).
+        for q, g in into.items():
+            if g == ft.generation_without_own(self.edits, v, self.page, v.people[q]):
+                self._set_entry(v.people[q], generation=None)
         self.edits.orders.update(orders)
         self._clear_line_moves()
         self._saved()
@@ -5520,7 +5530,9 @@ class TreeEditor(CanvasTools, tk.Toplevel):
             p = self.village.people[q]
             if p.upcoming:
                 continue
-            same = g == self.village.base_generation.get(q)
+            # A generation the villager would have anyway -- the records', or where their moved parents take
+            # them -- is no edit; any other is their own, and stays when their parents move (the owner, 2026-11-25).
+            same = not back and g == ft.generation_without_own(self.edits, self.village, self.page, p)
             self._set_entry(p, generation=None if back or same else g)
         self._saved()
 
