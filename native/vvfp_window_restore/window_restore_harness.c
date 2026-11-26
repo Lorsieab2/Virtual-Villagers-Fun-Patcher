@@ -20,6 +20,7 @@
 #include <windows.h>
 #include <stdio.h>
 #include <string.h>
+#include "../shared/harness_redirect_documents.h"
 
 typedef int(__cdecl *init_fn)(unsigned int);
 typedef void *(__cdecl *create_window_fn)(const char *, int, int, int, int, unsigned int);
@@ -156,6 +157,9 @@ int main(int argc, char **argv) {
     int bounds[4];
     int stock, fixed, refused, installed = -1;
 
+    /* Never the real Documents (the owner, 2026-10-10): the companion and SDL load into a process whose
+       Documents is a throwaway %TEMP% folder. */
+    if (!harness_redirect_documents_process()) return 2;
     if (argc < 3) {
         printf("usage: window_restore_harness <SDL2.dll folder> stock|fixed|refused [companion]\n");
         return 2;
