@@ -28,6 +28,14 @@
 #define CAUSE_MODULE ((HMODULE)(UINT_PTR)0x11000000u)
 #define ORIGINS_MODULE ((HMODULE)(UINT_PTR)0x12000000u)
 #define AGING_MODULE ((HMODULE)(UINT_PTR)0x13000000u)
+#define MAUSOLEUM_MODULE ((HMODULE)(UINT_PTR)0x14000000u)
+
+/* The Heathens' graves at the mud hut (New Believers). */
+static int g_mausoleum_loaded;
+static int g_mausoleum_notified;
+static int g_mausoleum_slot;
+static int g_mausoleum_before_sweep;
+static char g_mausoleum_proc_asked[64];
 
 static int g_aging_loaded;
 static int g_aging_notified;
@@ -89,6 +97,13 @@ static void __stdcall fake_aging_reset(int game, int slot) {
     g_aging_before_sweep = g_swept == 0;
 }
 
+static void __stdcall fake_mausoleum_reset(int game, int slot) {
+    (void)game;
+    ++g_mausoleum_notified;
+    g_mausoleum_slot = slot;
+    g_mausoleum_before_sweep = g_swept == 0;
+}
+
 static HMODULE WINAPI harness_get_module(LPCSTR name) {
     ++g_modules_asked;
     if (g_origins_name != NULL && lstrcmpA(name, g_origins_name) == 0) {
@@ -96,6 +111,9 @@ static HMODULE WINAPI harness_get_module(LPCSTR name) {
     }
     if (lstrcmpA(name, "VVFP Heathen Aging.dll") == 0) {
         return g_aging_loaded ? AGING_MODULE : NULL;
+    }
+    if (lstrcmpA(name, "VVFP Heathen Mausoleum.dll") == 0) {
+        return g_mausoleum_loaded ? MAUSOLEUM_MODULE : NULL;
     }
     if (lstrcmpA(name, "VVFP Story Upgrades.dll") == 0) {
         ++g_story_name_asked;
@@ -120,6 +138,10 @@ static FARPROC WINAPI harness_get_proc(HMODULE module, LPCSTR name) {
     if (module == AGING_MODULE) {
         lstrcpynA(g_aging_proc_asked, name, sizeof g_aging_proc_asked);
         return (FARPROC)fake_aging_reset;
+    }
+    if (module == MAUSOLEUM_MODULE) {
+        lstrcpynA(g_mausoleum_proc_asked, name, sizeof g_mausoleum_proc_asked);
+        return (FARPROC)fake_mausoleum_reset;
     }
     if (module == ORIGINS_MODULE) {
         lstrcpynA(g_origins_proc_asked, name, sizeof g_origins_proc_asked);
@@ -250,6 +272,19 @@ int main(void) {
     g_aging_notified = 0;
     ResetDeletedTribe(5, 4);
     check(g_aging_notified == 0, "WITHOUT THE HEATHEN AGING COMPANION LOADED NOTHING IS CALLED");
+
+    /* The Heathens' graves at the mud hut (New Believers): told before the sweep deletes its file. */
+    reset_recorders(1, 1, 1, 1);
+    g_mausoleum_loaded = 1;
+    g_mausoleum_notified = g_mausoleum_slot = g_mausoleum_before_sweep = 0;
+    ResetDeletedTribe(5, 2);
+    check(g_mausoleum_notified == 1 && g_mausoleum_slot == 2 && g_mausoleum_before_sweep
+          && lstrcmpA(g_mausoleum_proc_asked, "VvfpHeathenMausoleumVillageReset") == 0,
+          "THE HEATHEN MAUSOLEUM COMPANION IS TOLD THE VILLAGE IS GONE, before the sweep");
+    g_mausoleum_loaded = 0;
+    g_mausoleum_notified = 0;
+    ResetDeletedTribe(5, 2);
+    check(g_mausoleum_notified == 0, "WITHOUT THE HEATHEN MAUSOLEUM COMPANION LOADED NOTHING IS CALLED");
 
     reset_recorders(1, 1, 1, 1);
     ResetDeletedTribe(5, 0);

@@ -3709,7 +3709,9 @@ static int cg_graves(int game) {
     if (game != 5) {
         return 0;
     }
-    return TC0(0x464E90u, 0x5481A8u);
+    /* ...and the Heathens' graves at the Shrine to the Ancestors ("VVFP Heathen Mausoleum.dll"; the owner,
+       2026-11-26). */
+    return TC0(0x464E90u, 0x5481A8u) + hm_shrine_count();
 }
 
 /* Living, listed villagers now (New Believers: believers), `children` 1: only those under 14. */

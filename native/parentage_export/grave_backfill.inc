@@ -867,7 +867,9 @@ __declspec(dllexport) int __stdcall RecordGravesMissingFromLog(
     int i, j;
 
     if (game_id < GAME_VV1 || game_id > GAME_VV5
-        || slot < 1 || slot > 5 || graves == NULL || count <= 0 || count > 500) {
+        || slot < 1 || slot > 5 || graves == NULL || count <= 0 || count > 1000) {
+        /* (1,000: New Believers' 500 Roster of the Dead entries and the 500 graves at the Shrine to the Ancestors,
+           "VVFP Heathen Mausoleum.dll", the Cause of Death companion's places 500-999.) */
         return -1;
     }
     for (i = 0; i < count; ++i) {

@@ -1,0 +1,10 @@
+LIBRARY "VVFP Heathen Mausoleum"
+EXPORTS
+    VvfpStartup=_VvfpStartup@8
+    VvfpHeathenMausoleumInstalled=_VvfpHeathenMausoleumInstalled@0
+    VvfpHeathenMausoleumCount=_VvfpHeathenMausoleumCount@0
+    VvfpHeathenMausoleumEntry=_VvfpHeathenMausoleumEntry@4
+    VvfpHeathenMausoleumRemove=_VvfpHeathenMausoleumRemove@4
+    VvfpHeathenMausoleumTable=_VvfpHeathenMausoleumTable@0
+    VvfpHeathenMausoleumIsHeathenGrave=_VvfpHeathenMausoleumIsHeathenGrave@4
+    VvfpHeathenMausoleumVillageReset=_VvfpHeathenMausoleumVillageReset@8
