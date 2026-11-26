@@ -745,6 +745,11 @@ static void cie_reset(int slot);
 static void cw_saved(int slot);
 static void cw_reset(int slot);
 static const char *cw_words(unsigned int fingerprint);
+/* cod_revive.inc: every villager's complete record at their departure, for Revive (revive_snapshot.h). */
+static void revive_note(int index, const unsigned char *record);
+static void revive_saved(int slot);
+static void revive_reset(int slot);
+static void revive_tick(void);
 
 #include "cod_roster.inc"
 #include "cod_gone.inc"
@@ -755,6 +760,7 @@ static const char *cw_words(unsigned int fingerprint);
 #include "cod_backfill.inc"
 #include "cod_cie.inc"             /* the Custom Island Event's "Dies" */
 #include "cod_cie_words.inc"       /* ...and its own cause words (VvfpCauseKilledBy) */
+#include "cod_revive.inc"          /* every villager's complete record at their departure, for Revive */
 #include "cod_former.inc"
 #include "cod_arrivals.inc"
 #include "cod_creation_save.inc"   /* the logs at village creation */
@@ -910,6 +916,8 @@ __declspec(dllexport) void __stdcall VvfpCauseTick(int game) {
     if (!cod_pass_starts(g_game)) {
         return;                       /* the same draw pass: the records are as the passes left them */
     }
+    revive_tick();                    /* what the patcher's files keep, while each villager is there (cod_revive.inc):
+                                         once a draw pass, never once a head drawn */
 #ifdef VVFP_TEST
     ++cod_test_passes;
 #endif
@@ -989,6 +997,7 @@ __declspec(dllexport) void __stdcall VvfpCauseVillageReset(int game, int slot) {
         cie_reset(slot);
     }
     cw_reset(slot);
+    revive_reset(slot);
     if (saved_slot == slot) {
         saved_slot = 0;
     }

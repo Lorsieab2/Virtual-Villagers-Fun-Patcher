@@ -2407,10 +2407,17 @@ def log_files(game_dir: Path) -> list[Path]:
     shared, slots = [], []
     for root in log_roots(game_dir):
         if root.is_dir():
-            for p in sorted(root.rglob("*.txt")):
+            for p in sorted(root.rglob("*.txt"), key=_natural):
                 if not not_a_log(game_dir, p):
                     (slots if layout.is_slot_folder(p) else shared).append(p)
-    return shared + sorted(slots, key=lambda p: (layout.is_slot_folder(p), str(p)))
+    return shared + sorted(slots, key=lambda p: (layout.is_slot_folder(p), _natural(p)))
+
+
+def _natural(p: Path) -> tuple:
+    """A path's sort key with its numbers as numbers: "... Log 9.txt" before "... Log 10.txt", the order the logs
+    were written in (Codex, PR #880: a lexical sort put Log 10 first, so a reader keeping the newest record kept an
+    older one).  The companions read them the same way (story_revive.inc rv_each_file, statistics_reconcile.inc)."""
+    return tuple(int(part) if part.isdigit() else part for part in re.split(r"(\d+)", str(p)))
 
 
 SEX_CHANGED = "Changed"     # a known_sexes "sex": the logs say this villager's sex changed (src/vv_sex_changes.py)
