@@ -171,10 +171,18 @@ static void run(int index, int slots) {
     memset(rec(index), 0, stride);
     CHECK(rvs_pending_count == 2, "both departures are kept until the save (%d)", rvs_pending_count);
     CHECK(read_file() < 0, "nothing is written before the save");
+    {
+        static vv_rs_entry given[4];
+        int n = VvfpCauseReviveSnapshots(game, SLOT, given, 4);
+        CHECK(n == 2 && VvfpCauseReviveSnapshots(game, SLOT, NULL, 0) == 2 && holds(&given[0], villager_a)
+                  && holds(&given[1], villager_b) && VvfpCauseReviveSnapshots(game, SLOT + 1, NULL, 0) == 0,
+              "before the save, Revive is given both (VvfpCauseReviveSnapshots), never to another slot");
+    }
     revive_saved(SLOT);
     n = read_file();
     CHECK(n == (long)(VV_RS_HEADER + 2 * sizeof(vv_rs_entry)) && vv_rs_file_valid(file, (DWORD)n, game),
           "the save writes one valid file with both (%ld bytes)", n);
+    CHECK(VvfpCauseReviveSnapshots(game, SLOT, NULL, 0) == 0, "after the save they are the file's, not given again");
     CHECK(n > 0 && holds(entry(0), villager_a) && holds(entry(1), villager_b),
           "each snapshot is its own villager's, byte for byte, oldest first (the reused record never mixes them)");
     CHECK(n > 0 && entry(0)->bytes == vv_rs_data_bytes(game) && entry(0)->flags == 0,

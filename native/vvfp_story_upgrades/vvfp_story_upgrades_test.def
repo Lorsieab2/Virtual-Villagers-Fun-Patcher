@@ -441,3 +441,4 @@ EXPORTS
     VvfpStoryProbeMoreOverride=_VvfpStoryProbeMoreOverride@4
     VvfpStoryProbeOverrideArmed=_VvfpStoryProbeOverrideArmed@0
     VvfpStoryProbeReviveChiefBody=_VvfpStoryProbeReviveChiefBody@0
+    VvfpStoryProbeReviveMissed=_VvfpStoryProbeReviveMissed@0

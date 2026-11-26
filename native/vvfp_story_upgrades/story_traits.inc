@@ -447,6 +447,33 @@ static int rs_set_trait(int game, int index, unsigned int trait) {
     return 0;
 }
 
+/* Revive (story_revive.inc, Codex PR #880): the villager the game's creator just made in record `index` keeps
+   `traits` again.  rs_sync is throttled: within RS_SYNC_MS of its last look it answers with the roster from before the
+   creation, where the new record is nobody -- so the village is looked at NOW (as the head look's setter does), and
+   once more if the record is still nobody.  1 when the file says they have every one of `traits`, 0 when not. */
+static int rs_keep_traits(int game, int index, unsigned int traits) {
+    int attempt, row;
+    if (traits == 0u) {
+        return 1;
+    }
+    for (attempt = 0; attempt < 2; ++attempt) {
+        rs_sync_tick = GetTickCount() - RS_SYNC_MS - 1u;   /* the village now, not a moment ago */
+        if (rs_sync(game) && index >= 0 && index < rs_slots() && rs_roster[index] != 0) {
+            break;
+        }
+    }
+    if (attempt == 2 || (row = rs_row_of(index)) == 0) {
+        return 0;
+    }
+    if ((rs_traits[row - 1] & traits) != traits) {
+        rs_traits[row - 1] |= traits;
+        if (!rs_publish()) {
+            return 0;
+        }
+    }
+    return (rs_traits[row - 1] & traits) == traits;
+}
+
 /* The story traits the villager in `record` (a live record of `game`) keeps (bit 0 "mute"), 0 none: the Village
    History and Village Population rosters print them ("VVFP Population Export.dll", "  Story traits: mute"). */
 __declspec(dllexport) int __stdcall VvfpStoryTraitsOf(int game, const void *record) {

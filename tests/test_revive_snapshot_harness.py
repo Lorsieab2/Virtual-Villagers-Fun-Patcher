@@ -33,6 +33,8 @@ CHECKS = 15 * 10 + 2 * 2 + 1 * 2
 CHECKS += 3 + 3 + 2 + 2 + 3 + 5
 # The Secret City's robed Chief: seen before the robe, and never seen so (Codex, PR #880).
 CHECKS += 2
+# Revive is given the departures not saved yet, and none after the save (Codex, PR #880): two a run.
+CHECKS += 2 * 10
 
 
 @unittest.skipUnless(CL.is_file(), "the 32-bit MSVC toolchain is not installed")

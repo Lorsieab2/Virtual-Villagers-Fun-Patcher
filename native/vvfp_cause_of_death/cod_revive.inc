@@ -336,6 +336,26 @@ static void revive_saved(int slot) {
     }
 }
 
+/* The current village's snapshots not written yet (Codex, PR #880): a villager who died or vanished since the last
+   save of `slot` has a Death or Disappeared record already (the parentage exporter writes it then) but a snapshot
+   only here until the next save.  Revive ("VVFP Story Upgrades.dll", found by GetModuleHandleA) reads them through
+   this and merges them with the file, these winning.  Copies up to `max_entries` (VV_RS_ENTRY_BYTES each, oldest
+   first) into `out` (NULL: only counted); the number there is.  Another slot's departures are never given. */
+__declspec(dllexport) int __stdcall VvfpCauseReviveSnapshots(int game, int slot, void *out, int max_entries) {
+    int i, n = 0;
+    if (game != g_game || slot < 1 || slot > 5 || rvs_pending == NULL) {
+        return 0;
+    }
+    for (i = 0; i < rvs_pending_count; ++i) {
+        if (rvs_pending_slot[i] == slot || rvs_pending_slot[i] <= 0) {
+            if (out != NULL && n < max_entries) {
+                memcpy((unsigned char *)out + (size_t)n * VV_RS_ENTRY_BYTES, &rvs_pending[i], VV_RS_ENTRY_BYTES);
+            }
+            ++n;
+        }
+    }
+    return out != NULL && n > max_entries ? max_entries : n;
+}
 /* Start Over erased `slot`: its snapshots go with the village. */
 static void revive_reset(int slot) {
     char path[MAX_PATH];

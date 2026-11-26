@@ -1560,6 +1560,52 @@ static int rv_slot(int game) {
         ? story_hosts[game]->slot() : 0;
 }
 
+/* The current village's snapshots not written to the file yet (Codex, PR #880): a villager who died or vanished
+   since the last save has their Death or Disappeared record already, but their snapshot is only in "VVFP Cause of
+   Death.dll" until the next save (cod_revive.inc VvfpCauseReviveSnapshots, found loaded, never loaded from here).
+   Added after the file's, so they are the newest: each person's newest snapshot is theirs (rv_match_snaps). */
+static void rv_merge_pending(int game) {
+    typedef int (__stdcall *pending_fn)(int game, int slot, void *out, int max_entries);
+    HMODULE cod = GetModuleHandleA("VVFP Cause of Death.dll");
+    pending_fn pending = cod != NULL ? (pending_fn)(void *)GetProcAddress(cod, "VvfpCauseReviveSnapshots") : NULL;
+    int slot = rv_slot(game), n, got, k, kept = 0;
+    if (pending == NULL || slot <= 0) {
+        return;
+    }
+    n = pending(game, slot, NULL, 0);
+    if (n <= 0 || n > VV_RS_MAX) {
+        return;
+    }
+    if (rv_snap_count + n > rv_snap_cap) {
+        int cap = rv_snap_count + n;
+        vv_rs_entry *more = (vv_rs_entry *)HeapAlloc(GetProcessHeap(), 0, (SIZE_T)cap * sizeof(vv_rs_entry));
+        unsigned char *claimed = (unsigned char *)HeapAlloc(GetProcessHeap(), 0, (SIZE_T)cap);
+        if (more == NULL || claimed == NULL) {
+            if (more != NULL) HeapFree(GetProcessHeap(), 0, more);
+            if (claimed != NULL) HeapFree(GetProcessHeap(), 0, claimed);
+            return;
+        }
+        if (rv_snap_count > 0) {
+            memcpy(more, rv_snaps, (size_t)rv_snap_count * sizeof(vv_rs_entry));
+        }
+        if (rv_snaps != NULL) HeapFree(GetProcessHeap(), 0, rv_snaps);
+        if (rv_snap_claimed != NULL) HeapFree(GetProcessHeap(), 0, rv_snap_claimed);
+        rv_snaps = more;
+        rv_snap_claimed = claimed;
+        rv_snap_cap = cap;
+    }
+    got = pending(game, slot, rv_snaps + rv_snap_count, n);
+    for (k = 0; k < got && k < n; ++k) {
+        if (vv_rs_valid(&rv_snaps[rv_snap_count + k], game)) {
+            if (kept != k) {
+                rv_snaps[rv_snap_count + kept] = rv_snaps[rv_snap_count + k];
+            }
+            ++kept;
+        }
+    }
+    rv_snap_count += kept;
+}
+
 /* This slot's snapshot file from disk (read only: an unreadable one gives none, and stays as it is). */
 static void rv_load_snaps(int game, int slot) {
     wchar_t path[MAX_PATH], name[96];
@@ -1586,6 +1632,7 @@ static void rv_load(int game) {
     }
     rv_village_header(game, slot);
     rv_load_snaps(game, slot);        /* first: the logs then reuse the read buffer */
+    rv_merge_pending(game);           /* ...and those not saved yet (VVFP Cause of Death.dll) */
     rv_each_log(a, slot, L"Deaths and Disappearances", L"Deaths", rv_parse_deaths);
     if (rv_count > 0) {
         rv_each_log(a, slot, L"Tribe History", NULL, rv_parse_history);
@@ -1615,7 +1662,14 @@ static int rv_village_refusal(int game, const ce_adapter *a) {
     return 0;
 }
 
-static int rs_set_trait(int game, int index, unsigned int trait);   /* story_traits.inc */
+static int rs_keep_traits(int game, int index, unsigned int traits);   /* story_traits.inc */
+/* What the last revival could not write to the patcher's files (RV_MISSED_*), for the done box. */
+#define RV_MISSED_LOOK 0x01
+#define RV_MISSED_PRESENTATION 0x02
+#define RV_MISSED_TRAITS 0x04
+#define RV_MISSED_MASK 0x08
+#define RV_MISSED_TITLE 0x10
+static int rv_last_missed;
 static int rv_last_role;              /* the last revival's puzzle role (New Believers), 0 none */
 static int rv_last_chief_body;        /* The Secret City: rv_chief_body's answer for the last revival (-1 not a Chief) */
 static unsigned char rv_backup[0xF000];   /* a record as the creator made it (the largest: The Lost Children's 0xE48C) */
@@ -1791,24 +1845,29 @@ static int rv_buy(int game, int which, int *made) {
         ce_spawn_parents(&s, &parents);
         (void)a->set_parents(index, &parents);
     }
-    if ((a->caps & CAP_TITLE) && s.title[0] != '\0') {
-        (void)titles_set(game, index, s.title);
+    rv_last_missed = 0;
+    if ((a->caps & CAP_TITLE) && s.title[0] != '\0' && !titles_set(game, index, s.title)) {
+        rv_last_missed |= RV_MISSED_TITLE;
     }
-    if ((a->caps & CAP_MASK) && s.mask != CE_KEEP) {
-        (void)story_set_mask(game, r, s.mask);
+    if ((a->caps & CAP_MASK) && s.mask != CE_KEEP && !story_set_mask(game, r, s.mask)) {
+        rv_last_missed |= RV_MISSED_MASK;
     }
     /* What the patcher's own files kept for them: the head look, the gender presentation, the story traits. */
     if (rv_last_restored) {
         vvfp_head_look_api look;
         vvfp_gp_api presentation;
-        if ((e->flags & VV_RS_HEAD_LOOK) && e->head_look != VVFP_HEAD_LOOK_AUTO && vvfp_head_look_find(game, &look)) {
-            (void)look.set(game, r, e->head_look);
+        /* Each setter looks at the village now (the head look and presentation stores force their own roster
+           sync; the story traits' is forced here, rs_keep_traits), and what failed is said in the done box. */
+        if ((e->flags & VV_RS_HEAD_LOOK) && e->head_look != VVFP_HEAD_LOOK_AUTO && vvfp_head_look_find(game, &look)
+            && look.set(game, r, e->head_look) != 1) {
+            rv_last_missed |= RV_MISSED_LOOK;
         }
-        if ((e->flags & VV_RS_PRESENTATION) && e->presentation == 1 && vvfp_gp_find(game, &presentation)) {
-            (void)presentation.set(game, r, 1);
+        if ((e->flags & VV_RS_PRESENTATION) && e->presentation == 1 && vvfp_gp_find(game, &presentation)
+            && presentation.set(game, r, 1) != 1) {
+            rv_last_missed |= RV_MISSED_PRESENTATION;
         }
-        if ((e->flags & VV_RS_TRAITS) && e->traits != 0u) {
-            (void)rs_set_trait(game, index, e->traits);
+        if ((e->flags & VV_RS_TRAITS) && e->traits != 0u && !rs_keep_traits(game, index, e->traits)) {
+            rv_last_missed |= RV_MISSED_TRAITS;
         }
     }
     if (p->grave >= 0) {
@@ -2226,6 +2285,11 @@ static int rv_offered(int game) {
     return vvfp_patcher_file_exists(RV_FLAG_FILE);
 }
 
+/* The done box's words when something the patcher keeps for them could not be written now (rv_last_missed). */
+static const char *rv_missed_note(void) {
+    return vvfp_tr("vvfp.story/story_revive.rv_missed_note.s0", "\r\n\r\nSome of what the patcher keeps for them could not be written now (their head look, gender presentation, story traits, mask or custom title): every other detail is back. Set it again in Change Appearance or the Custom Island Event.", 400);
+}
+
 static int story_revive_from_graves(int game, HWND owner) {
     const ce_adapter *a = ce_adapter_for(game);
     char text[RV_LINE];
@@ -2264,6 +2328,9 @@ static int story_revive_from_graves(int game, HWND owner) {
     }
     wsprintfA(text, vvfp_tr("vvfp.story/story_revive.story_revive_from_graves.s2", "%s is back in the village, aged %d.", 200),
               rv_people[rv_chosen].name, rv_last_role != 0 ? rv_role_def_of(rv_last_role)->age / 20 : RV_AGE_YEARS);
+    if (rv_last_missed != 0) {
+        rv_add(text, (int)sizeof text, rv_missed_note());
+    }
     MessageBoxA(owner, text, vvfp_tr("vvfp.storybridge/story_bridge.vvfp_story_add_revive_button.s0", "Revive Buried/Disappeared Villagers", 128),
                 MB_OK | MB_ICONINFORMATION | MB_TOPMOST | MB_SETFOREGROUND);
     return 1;
@@ -2302,6 +2369,7 @@ __declspec(dllexport) int __stdcall VvfpStoryProbeReviveLoad(int game, const cha
         rv_parse_history(a, history, lstrlenA(history));
     }
     rv_snaps_from(game, rv_test_snap_file, rv_test_snap_length);
+    rv_merge_pending(game);
     rv_settle(game, a);
     rv_make_rows();
     return rv_rows;
@@ -2330,6 +2398,7 @@ __declspec(dllexport) int __stdcall VvfpStoryProbeReviveLoadShared(int game, con
         rv_parse_history(a, history, lstrlenA(history));
     }
     rv_snaps_from(game, rv_test_snap_file, rv_test_snap_length);
+    rv_merge_pending(game);
     rv_settle(game, a);
     rv_make_rows();
     return rv_rows;
@@ -2435,6 +2504,11 @@ __declspec(dllexport) int __stdcall VvfpStoryProbeReviveRestored(void) {
    game's), -1 not a Chief beside another. */
 __declspec(dllexport) int __stdcall VvfpStoryProbeReviveChiefBody(void) {
     return rv_last_chief_body;
+}
+
+/* What the last revival could not write to the patcher's files (RV_MISSED_*), 0 everything. */
+__declspec(dllexport) int __stdcall VvfpStoryProbeReviveMissed(void) {
+    return rv_last_missed;
 }
 
 /* The last revival's puzzle role (New Believers: 12..17 back in the role), 0 none. */

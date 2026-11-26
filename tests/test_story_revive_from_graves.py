@@ -940,6 +940,61 @@ class EveryDetailTests(unittest.TestCase):
                 self.assertEqual(r.p.export("VvfpStoryProbeReviveSnapshotOf", 0), 1)
                 answer, made = r.buy(0)
                 self.assertEqual((answer, r.p.export("VvfpStoryProbeReviveRestored")), (1, 1))
+    def _pending(self, r, entries):
+        """VVFP Cause of Death.dll loaded with `entries` noted since the last save (VvfpCauseReviveSnapshots)."""
+        p = r.p
+        exports = {"VvfpCauseArrivedBy": p.alloc(0x10), "VvfpCauseArrivedParents": p.alloc(0x10),
+                   "VvfpCauseReviveSnapshots": p.alloc(0x10)}
+        p.api_handlers["GetModuleHandleA"] = lambda q: (
+            0x73000000 if q.cstring(q.arg(0)) == "VVFP Cause of Death.dll" else 0, 4)
+        p.api_handlers["GetProcAddress"] = lambda q: (exports.get(q.cstring(q.arg(1)), 0), 8)
+        p.stub(exports["VvfpCauseArrivedBy"], lambda q: (0, 12))
+        p.stub(exports["VvfpCauseArrivedParents"], lambda q: (0, 12))
+
+        def given(q):
+            out, room = q.arg(2), q.arg(3)
+            if out:
+                for k, e in enumerate(entries[:room]):
+                    q.write(out + k * len(e), e)
+                return min(len(entries), room), 16
+            return len(entries), 16
+        p.stub(exports["VvfpCauseReviveSnapshots"], given)
+
+    def test_died_and_revived_before_the_village_was_saved(self):
+        # Codex, PR #880: the snapshot is only in the Cause of Death companion until the next save; the Death record
+        # is already written, so they are listed -- and come back with every detail.
+        for game, mode, r in self._each(("collection_progression",)):
+            with self.subTest(game=game):
+                snap = Snap(r, 9)
+                snap.gone()
+                r.p.export("VvfpStoryProbeReviveSnapshotFile", 0, 0)          # nothing in the file yet
+                self._pending(r, [snap.entry])
+                self.assertEqual(r.load(ana_death()), 1)
+                self.assertEqual(r.p.export("VvfpStoryProbeReviveSnapshotOf", 0), 1)
+                answer, made = r.buy(0)
+                self.assertEqual((answer, r.p.export("VvfpStoryProbeReviveRestored")), (1, 1))
+                self.assertEqual(self._same(r, made, snap), [])
+
+    def test_story_traits_come_back_within_250_ms_of_the_last_roster_look(self):
+        # Codex, PR #880: the story traits' roster look is throttled (250 ms); a revival right after one looked at
+        # the village from before the creation and lost the traits.  The clock here never moves: every look is
+        # within 250 ms of the last.
+        for game, mode, r in self._each(("collection_progression",)):
+            with self.subTest(game=game):
+                n = r.v.L["n"]
+                rec = r.v.put(2, sex="m", years=30, name="Other One")
+                r.p.export("VvfpStoryTraitsOf", n, rec)                      # a look at the village now
+                snap = Snap(r, 9)
+                out = r.p.alloc(ENTRY_BYTES)
+                size = r.p.export("VvfpStoryProbeReviveCapture", n, 9, 0x08, -1, -1, -1, 1, out)   # mute
+                entry = bytes(r.p.read(out, size))
+                snap.gone()
+                snapshot_file(r, [entry])
+                self.assertEqual(r.load(ana_death()), 1)
+                answer, made = r.buy(0)
+                self.assertEqual((answer, r.p.export("VvfpStoryProbeReviveRestored")), (1, 1))
+                self.assertEqual(r.p.export("VvfpStoryTraitsOf", n, r.v.record(made)) & 1, 1)
+                self.assertEqual(r.p.export("VvfpStoryProbeReviveMissed") & 0x04, 0)
     def test_a_damaged_snapshot_file_is_never_used(self):
         for game, mode, r in self._each(("collection_progression",)):
             with self.subTest(game=game):
