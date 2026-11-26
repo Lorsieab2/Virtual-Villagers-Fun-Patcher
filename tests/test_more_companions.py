@@ -155,8 +155,9 @@ class Emulated(unittest.TestCase):
                                      (b"8192", 8192, ["VVFP Devotion Faith.dll"]),   # bit 13
                                      (b"16384", 16384, ["VVFP Esteemed Elders.dll"]),   # bit 14
                                      (b"32768", 32768, ["VVFP Heathen Aging.dll"]),   # bit 15
-                                     (b"65536", 65536, ["VVFP Founder X Buttons.dll"]),   # bit 16, the last entry
-                                     (b"131072", 131072, [])):   # bit 17: past the word's last entry (bit 16)
+                                     (b"65536", 65536, ["VVFP Founder X Buttons.dll"]),   # bit 16
+                                     (b"131072", 131072, ["VVFP Divine Energy Cap.dll"]),   # bit 17, the last entry
+                                     (b"262144", 262144, [])):   # bit 18: past the word's last entry (bit 17)
             with self.subTest(setting=setting):
                 m = self.machine(setting)
                 m.export("VvfpStartup", 3, 0)

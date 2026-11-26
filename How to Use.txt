@@ -1604,6 +1604,17 @@ Faith never goes above 100 and Divine Energy never above the village's cap.
 Heathens, the Chief (and the Retired Chief), purple-masked Heathens and the
 Heathen Mommy never get it.
 
+MAX DIVINE ENERGY CONTINUES TO INCREASE (NEW BELIEVERS)
+
+Off by default and in Select All; on in Owner's Defaults only. The normal
+game never lets the Divine Energy cap go above 1,000. With this patch the cap
+keeps growing with your believers, the babies they carry, the Tribute
+Statue, Spirituality and the first collectible set: 1,150 with 150 believers
+and every bonus, 1,680 with 256 Villagers. The Divine Energy bar at the top of
+the screen shows the energy as a share of the cap, so a full bar is still
+full. The cap still falls when believers die or leave. Below 1,000 nothing
+changes. Not yet seen in a running game.
+
 FORMER VILLAGERS KEEP AGING AMONG THE HEATHENS (NEW BELIEVERS)
 
 Off by default and in Select All; on in Owner's Defaults only. A villager who leaves

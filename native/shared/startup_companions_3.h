@@ -54,6 +54,9 @@ static const char *const VVFP_STARTUP_COMPANIONS_3[] = {
     /* X Buttons to Remove Chosen Founders (The Tree of Life, New Believers): an X beside each chosen villager on the
        Select 5 villagers screen sends them away so another can be picked (the owner, 2026-11-24). */
     "VVFP Founder X Buttons.dll",
+    /* Max Divine Energy Continues to Increase (New Believers): the Divine Energy cap is no longer held at 1,000, and
+       the HUD's bar shows a cap above 1,000 in proportion (the owner, 2026-11-25). */
+    "VVFP Divine Energy Cap.dll",
     /* APPEND ONLY (see above). */
 };
 #define VVFP_STARTUP_COMPANION_COUNT_3 \
