@@ -47,10 +47,17 @@ class FakeGimp:
         if self.fail_reads:
             raise SystemExit("GIMP did not finish every file")
         for item in job["files"]:
+            # GIMP hands the wanted layers back as one picture, one under the other, and their names in order.
             self.read.append(Path(item["xcf"]).name)
             Path(item["out"]).mkdir(parents=True, exist_ok=True)
-            for leaf, image in self.painted.get(Path(item["xcf"]).name, {}).items():
-                image.save(Path(item["out"]) / leaf)
+            layers = self.painted.get(Path(item["xcf"]).name, {})
+            if layers:
+                width, height = next(iter(layers.values())).size
+                tall = Image.new("RGBA", (width, height * len(layers)), (0, 0, 0, 0))
+                for k, image in enumerate(layers.values()):
+                    tall.paste(image, (0, k * height))
+                tall.save(Path(item["out"]) / "layers.png")
+            (Path(item["out"]) / "layers.json").write_text(json.dumps(list(layers)), encoding="utf-8")
         return ""
 
 

@@ -3,6 +3,7 @@
     python scripts/skin_tone_sheets.py preview   --game vv3 --images "<game>\\Images" --out previews
     python scripts/skin_tone_sheets.py sheets    --game vv3 --images "<game>\\Images" --out "<folder>"
     python scripts/skin_tone_sheets.py workbench --game vv3 --images "<game>\\Images"
+    python scripts/skin_tone_sheets.py workbench-all --images-root "<the folder of the five games>"
     python scripts/skin_tone_sheets.py import    --game vv3
     python scripts/skin_tone_sheets.py publish   --game vv3 --images "<game>\\Images"
 
@@ -543,19 +544,26 @@ gi.require_version("Gimp", "3.0")
 from gi.repository import Gimp, Gio
 job = json.load(open(os.environ["VVFP_SKIN_JOB"], encoding="utf-8"))
 for item in job["files"]:
-    image = None
-    for layer in item["layers"]:
-        source = Gio.File.new_for_path(layer["png"])
-        if image is None:
-            image = Gimp.file_load(Gimp.RunMode.NONINTERACTIVE, source)
-            made = image.get_layers()[0]
-        else:
-            made = Gimp.file_load_layer(Gimp.RunMode.NONINTERACTIVE, image, source)
-            image.insert_layer(made, None, 0)
-        made.set_name(layer["name"])
-        made.set_visible(bool(layer["visible"]))
+    # One picture holds every layer of the sheet, one under the other (one file read a sheet, not one a
+    # layer).  Each layer is a copy of it cut down to its own band and moved to the top: nothing is resampled.
+    image = Gimp.file_load(Gimp.RunMode.NONINTERACTIVE, Gio.File.new_for_path(item["png"]))
+    width, height = item["width"], item["height"]
+    whole = image.get_layers()[0]
+    parts = [whole]
+    for k in range(1, len(item["layers"])):
+        part = whole.copy()
+        image.insert_layer(part, None, 0)
+        part.resize(width, height, 0, -k * height)
+        part.set_offsets(0, 0)
+        parts.append(part)
+    whole.resize(width, height, 0, 0)
+    whole.set_offsets(0, 0)
+    image.resize(width, height, 0, 0)
+    for part, layer in zip(parts, item["layers"]):
+        part.set_name(layer["name"])
+        part.set_visible(bool(layer["visible"]))
         if layer["lock"]:
-            made.set_lock_content(True)
+            part.set_lock_content(True)
     Gimp.file_save(Gimp.RunMode.NONINTERACTIVE, image, Gio.File.new_for_path(item["xcf"]), None)
     image.delete()
     print("VVFP wrote", item["xcf"])
@@ -569,20 +577,30 @@ from gi.repository import Gimp, Gio
 job = json.load(open(os.environ["VVFP_SKIN_JOB"], encoding="utf-8"))
 for item in job["files"]:
     image = Gimp.file_load(Gimp.RunMode.NONINTERACTIVE, Gio.File.new_for_path(item["xcf"]))
+    width, height = image.get_width(), image.get_height()
     os.makedirs(item["out"], exist_ok=True)
+    wanted = []
     for layer in image.get_layers():
         name = layer.get_name()
         tone = re.match(r"Tone (\d+)", name)
         leaf = "tone_%02d.png" % int(tone.group(1)) if tone else ("mask.png" if name.startswith("Skin mask") else None)
-        if leaf is None:
-            continue
-        alone = Gimp.Image.new(image.get_width(), image.get_height(), Gimp.ImageBaseType.RGB)
-        copy = Gimp.Layer.new_from_drawable(layer, alone)
-        alone.insert_layer(copy, None, 0)
-        copy.set_visible(True)
-        copy.resize_to_image_size()
-        Gimp.file_save(Gimp.RunMode.NONINTERACTIVE, alone, Gio.File.new_for_path(os.path.join(item["out"], leaf)), None)
-        alone.delete()
+        if leaf is not None:
+            wanted.append((leaf, layer))
+    if wanted:
+        # Every wanted layer goes into one picture, one under the other (one file written a sheet): a copy
+        # of each, cut to the sheet's own area and moved to its band.  Nothing is resampled.
+        tall = Gimp.Image.new(width, height * len(wanted), Gimp.ImageBaseType.RGB)
+        for k, (leaf, layer) in enumerate(wanted):
+            at = layer.get_offsets()
+            copy = Gimp.Layer.new_from_drawable(layer, tall)
+            tall.insert_layer(copy, None, 0)
+            copy.set_visible(True)
+            copy.resize(width, height, at[-2], at[-1])
+            copy.set_offsets(0, k * height)
+        tall.merge_visible_layers(Gimp.MergeType.CLIP_TO_IMAGE)
+        Gimp.file_save(Gimp.RunMode.NONINTERACTIVE, tall, Gio.File.new_for_path(os.path.join(item["out"], "layers.png")), None)
+        tall.delete()
+    json.dump([leaf for leaf, _ in wanted], open(os.path.join(item["out"], "layers.json"), "w", encoding="utf-8"))
     image.delete()
     print("VVFP read", item["xcf"])
 '''
@@ -641,15 +659,9 @@ def changed_by_the_owner(game, folder: Path, stems) -> list[str]:
             if (folder / f"{game}_{stem}.xcf").is_file() and _file_sha(folder / f"{game}_{stem}.xcf") != pins.get(stem)]
 
 
-def build_workbench(game, images: Path, folder: Path, only=None):
-    """<folder>/<game>_<sheet>.xcf for every sheet, and .generated.json (what each generated layer was, so
-    `import` can tell the owner's edits from untouched layers, and what each .xcf was when written).
-
-    NOTHING OF THE OWNER'S IS EVER REPLACED.  An .xcf that is not the file this tool wrote is the owner's: it
-    is first read as `import` reads it, so its edits are in "edits", and then it is left exactly as it is.
-    If it cannot be read it is left as it is too.  Only files still as written are made again.
-    Returns (written, kept, unread): the .xcf files written, the owner's sheets kept (and read), and the
-    owner's sheets kept that could not be read."""
+def _prepare_workbench(game, images: Path, folder: Path, only, tmp: Path) -> dict:
+    """Everything a build of one game's workbench needs before GIMP runs: the owner's changed files read
+    (their edits kept), and one picture a sheet to build -- its layers one under the other."""
     folder.mkdir(parents=True, exist_ok=True)
     stems = [Path(s["name"]).stem for s in sheets_of(game) if find_file(Path(images), s["name"])]
     if only:
@@ -665,43 +677,70 @@ def build_workbench(game, images: Path, folder: Path, only=None):
     edits = folder / "edits"
     art = Art(game, images, edits if edits.is_dir() else None)     # after the import: the edits just kept apply
     manifest = _manifest(folder)
-    pins = manifest.setdefault(XCF_PINS, {})
+    manifest.setdefault(XCF_PINS, {})
+    files, made = [], []
+    for name in art.specs:
+        stem = Path(name).stem
+        if stem not in stems or stem in theirs:
+            continue
+        stock, mask = art.stock(name), art.mask(name)
+        white = np.zeros_like(stock)
+        white[mask] = 255
+        top = stock.copy()
+        top[mask] = 0
+        bands = [(stock, LAYER_GAME, True, True), (white, LAYER_MASK, False, False)]
+        record = {"mask.png": _sha(_clean(white))}
+        for number, tone in enumerate(core.TONES, 1):
+            layer = art.tone_layer(name, tone)
+            bands.append((layer, tone_layer_name(number), number == SHOWN_TONE, False))
+            record[f"tone_{number:02d}.png"] = _sha(_clean(layer))
+        bands.append((top, LAYER_TOP, True, True))
+        tall = tmp / f"{game}_{stem}.png"
+        Image.fromarray(np.concatenate([band[0] for band in bands], axis=0)).save(tall, compress_level=1)
+        manifest[stem] = record
+        made.append(stem)
+        files.append({"xcf": str(folder / f"{game}_{stem}.xcf"), "png": str(tall), "width": int(stock.shape[1]),
+                      "height": int(stock.shape[0]),
+                      "layers": [{"name": label, "visible": visible, "lock": lock} for _, label, visible, lock in bands]})
+    return {"game": game, "folder": folder, "files": files, "made": made, "manifest": manifest,
+            "kept": [stem for stem in theirs if stem not in unread], "unread": unread}
+
+
+def _finish_workbench(prepared: dict):
+    """After GIMP: pin each .xcf written, and write the workbench's record."""
+    game, folder, manifest = prepared["game"], prepared["folder"], prepared["manifest"]
+    for stem in prepared["made"]:
+        manifest[XCF_PINS][stem] = _file_sha(folder / f"{game}_{stem}.xcf")
+    (folder / ".generated.json").write_text(json.dumps(manifest, indent=1), encoding="utf-8")
+    return [f["xcf"] for f in prepared["files"]], prepared["kept"], prepared["unread"]
+
+
+def build_workbench(game, images: Path, folder: Path, only=None):
+    """<folder>/<game>_<sheet>.xcf for every sheet, and .generated.json (what each generated layer was, so
+    `import` can tell the owner's edits from untouched layers, and what each .xcf was when written).
+
+    NOTHING OF THE OWNER'S IS EVER REPLACED.  An .xcf that is not the file this tool wrote is the owner's: it
+    is first read as `import` reads it, so its edits are in "edits", and then it is left exactly as it is.
+    If it cannot be read it is left as it is too.  Only files still as written are made again.
+    Returns (written, kept, unread): the .xcf files written, the owner's sheets kept (and read), and the
+    owner's sheets kept that could not be read."""
     with tempfile.TemporaryDirectory() as tmp:
-        files, made = [], []
-        for name in art.specs:
-            stem = Path(name).stem
-            if stem not in stems or stem in theirs:
-                continue
-            work = Path(tmp) / stem
-            work.mkdir()
-            stock, mask = art.stock(name), art.mask(name)
-            layers, record = [], {}
+        prepared = _prepare_workbench(game, Path(images), folder, only, Path(tmp))
+        if prepared["files"]:
+            run_gimp(_GIMP_BUILD, {"files": prepared["files"]})
+    return _finish_workbench(prepared)
 
-            def put(pixels, leaf, label, visible, lock):
-                Image.fromarray(pixels).save(work / leaf)
-                layers.append({"png": str(work / leaf), "name": label, "visible": visible, "lock": lock})
 
-            put(stock, "game.png", LAYER_GAME, True, True)
-            white = np.zeros_like(stock)
-            white[mask] = 255
-            put(white, "mask.png", LAYER_MASK, False, False)
-            record["mask.png"] = _sha(_clean(white))
-            for number, tone in enumerate(core.TONES, 1):
-                layer = art.tone_layer(name, tone)
-                put(layer, f"tone_{number:02d}.png", tone_layer_name(number), number == SHOWN_TONE, False)
-                record[f"tone_{number:02d}.png"] = _sha(_clean(layer))
-            top = stock.copy()
-            top[mask] = 0
-            put(top, "top.png", LAYER_TOP, True, True)
-            manifest[stem] = record
-            made.append(stem)
-            files.append({"xcf": str(folder / f"{game}_{stem}.xcf"), "layers": layers})
+def build_workbenches(games_and_images, root: Path):
+    """Several games' workbenches with ONE start of GIMP (a start alone takes minutes): build_workbench for
+    each (game, its Images folder), into <root>/<game>.  Returns {game: (written, kept, unread)}."""
+    with tempfile.TemporaryDirectory() as tmp:
+        prepared = [_prepare_workbench(game, Path(images), root / game, None, Path(tmp))
+                    for game, images in games_and_images]
+        files = [item for one in prepared for item in one["files"]]
         if files:
             run_gimp(_GIMP_BUILD, {"files": files})
-    for stem in made:
-        pins[stem] = _file_sha(folder / f"{game}_{stem}.xcf")
-    (folder / ".generated.json").write_text(json.dumps(manifest, indent=1), encoding="utf-8")
-    return [f["xcf"] for f in files], [stem for stem in theirs if stem not in unread], unread
+    return {one["game"]: _finish_workbench(one) for one in prepared}
 
 
 def pin_as_written(game, folder: Path, not_after: float):
@@ -736,15 +775,21 @@ def import_workbench(game, folder: Path, only=None):
         run_gimp(_GIMP_EXPORT, {"files": files})
         for item in files:
             stem = Path(item["out"]).name
-            for path in sorted(Path(item["out"]).glob("*.png")):
-                target = edits / stem / path.name
-                if _sha(_clean(_layer_pixels(path))) == manifest.get(stem, {}).get(path.name):
+            leaves = json.loads((Path(item["out"]) / "layers.json").read_text(encoding="utf-8"))
+            if not leaves:
+                continue
+            tall = _layer_pixels(Path(item["out"]) / "layers.png")
+            height = tall.shape[0] // len(leaves)
+            for k, leaf in enumerate(leaves):
+                layer = tall[k * height:(k + 1) * height]
+                target = edits / stem / leaf
+                if _sha(_clean(layer)) == manifest.get(stem, {}).get(leaf):
                     if target.is_file():
                         target.unlink()         # put back as generated: the edit is withdrawn
                     continue
                 target.parent.mkdir(parents=True, exist_ok=True)
-                Image.open(path).convert("RGBA").save(target)
-                kept.append(f"{stem}/{path.name}")
+                Image.fromarray(layer).save(target)
+                kept.append(f"{stem}/{leaf}")
     return kept
 
 
@@ -846,7 +891,8 @@ TO MAKE THE FILES AGAIN (safe: nothing of yours is ever replaced)
 
 def main() -> int:
     ap = argparse.ArgumentParser(description=__doc__.splitlines()[0])
-    ap.add_argument("what", choices=["preview", "sheets", "workbench", "import", "mockup", "heathens", "publish", "audit"])
+    ap.add_argument("what", choices=["preview", "sheets", "workbench", "import", "mockup", "heathens", "publish", "audit",
+                                    "workbench-all"])
     ap.add_argument("--game", choices=sorted(TITLES))
     ap.add_argument("--images-root", type=Path, help="mockup: the folder holding every game's own folder")
     ap.add_argument("--images", type=Path, help="the game's own Images folder (read only)")
@@ -857,6 +903,15 @@ def main() -> int:
     args = ap.parse_args()
     if args.what == "mockup":
         mockup(args.images_root, args.out, args.workbench if args.workbench.is_dir() else None)
+        return 0
+    if args.what == "workbench-all":
+        args.workbench.mkdir(parents=True, exist_ok=True)
+        (args.workbench / "README.txt").write_text(README, encoding="utf-8")
+        games = [g for g in sorted(TITLES) if not args.only or g in args.only]
+        done = build_workbenches([(g, args.images_root / FOLDERS[g] / "Images") for g in games], args.workbench)
+        for game, (written, kept, unread) in done.items():
+            print(f"{game}: wrote {len(written)}; kept {len(kept)} changed by you (edits read); "
+                  f"kept {len(unread)} changed by you that could not be read")
         return 0
     if not args.game:
         raise SystemExit("--game is needed")
