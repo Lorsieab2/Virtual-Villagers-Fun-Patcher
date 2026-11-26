@@ -39,7 +39,7 @@ Core (W-A):
 - A regrown camp after The Last Heathen gets a new Chief and Masters once it has 6 adults (eldest suitable; real roles).
 - **Owner: "for show masters = purple masks (no puzzles)".** For-show Masters wear the purple mask, no puzzle.
 - **Owner: "for show chief can be at most an esteemed elder. he can still do chief exclusve actions like spreading the word etc".** A for-show Chief's title tops out at Esteemed Elder; he can still do the Chief-exclusive actions such as Spreading the Word.
-- **Owner: "chief = he or she after the first one".** The original Heathen Chief is as the game makes him; every later Chief (and Master) can be any sex.
+- **Owner: "chief = he or she after the first one".** The original Heathen Chief is as the game makes him; every later Chief (and Master) can be any sex. **Owner: "later heathens after the first one can be any sex. including the mommy".** Every later holder of any special role (Doctor 12, Chief 13, Masters 14-16, Mommy 17) is any sex.
 - **Owner: "same sex yes, events may give them babies too".** Couples of any sex; natural conception stays woman + man; island events and Custom Island Events can give any couple a baby.
 - Groups 1/2/3/4 at 40/30/20/10%, adults 18-40, children 2-12; couples pair gradually (no log flood on install).
 - **Owner: "they should grow normally. (anyway we're gonna convert everyone so no point restricting)".** Decision 18 changed: no believers'-room reservation; Heathens grow normally in every population mode; only 10 records are kept free.
