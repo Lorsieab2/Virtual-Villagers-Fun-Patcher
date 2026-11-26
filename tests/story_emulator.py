@@ -268,6 +268,10 @@ class Process:
     def _api_GetTickCount(self):
         return self.tick, 0
 
+    def _api_GetCurrentProcessId(self):
+        # a fixed id: Heathen Aging seeds its own xorshift with it at start (Heathen Tribe Expansion's flag)
+        return 0x1234, 0
+
     def _api_MessageBoxA(self):
         self.messages.append(self.cstring(self.arg(1)))
         return self.message_answer, 16
