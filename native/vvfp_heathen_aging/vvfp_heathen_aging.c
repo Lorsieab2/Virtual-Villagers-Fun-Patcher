@@ -104,14 +104,16 @@
    for the three rows it folds -- every Heathen ages and has children, every Heathen leaves a skeleton, island
    events carry Heathens -- and adds, all drawn from this companion's own xorshift (never the game's rand):
      * THE BIRTHS SLIDER (0.1x-10x, "VVFP Heathen Tribe Births.txt", 1x when missing): each eligible woman (as
-       above, in a couple) rolls 1 in 2,400 x W / t a unit (t tenths, W such women), and births go on after The
-       Last Heathen while a Heathen woman and man are alive (decisions 1-3);
-     * COUPLES (decision 15): an adult Heathen woman and an adult Heathen man, neither in a couple, not kin by
-       their records (parent and child, full or half siblings: the parents' names, heads and bodies), pair for
-       life -- until one dies, converts or leaves -- and every baby of hers is his.  Kept per save slot in
-       "...\Save <S>\Data\Heathen Couples\Heathen Couples - Save <S>.dat" (heathen_evo.h section 5), following
-       their identities as the file above does; each new couple gets a "Couple formed" record
-       (WriteParentageHeathenCouple, when that export is there);
+       above, in a couple with a man) rolls 1 in 2,400 x W / t a unit (t tenths, W such women), and births go on
+       after The Last Heathen while a Heathen woman and man are alive (decisions 1-3);
+     * COUPLES (decision 15; the owner, 2026-11-26: "same sex yes"): any two adult Heathens, neither in a couple,
+       not kin by their records (parent and child, full or half siblings: the parents' names, heads and bodies),
+       pair for life -- until one dies, converts or leaves -- at most one new couple a look and only when the
+       village's clock has moved (gradually, never a flood of records on install).  A woman's babies are her
+       man's; a couple of the same sex has babies only through island events (VvfpHeathenAgingEventPregnancy
+       takes any two).  Kept per save slot in "...\Save <S>\Data\Heathen Couples\Heathen Couples - Save
+       <S>.dat" (heathen_evo.h section 5), following their identities as the file above does; each new couple
+       gets a "Couple formed" record (WriteParentageHeathenCouple, when that export is there);
      * LITTERS: single, twins 5.25%, triplets 1.75% (the stock odds without the Medicine 3 gate), as many as the
        room allows; every forced conception -- the tribe's, the Heathen Mommy's infant, an island event's -- gets
        its Conception record (WriteParentageRecordWithFather: the game's own hook skips forced conceptions);
@@ -123,14 +125,16 @@
        or not anyone is (decision 1 and the design's "arrivals continue after The Last Heathen");
      * MASKS: every arrival and newborn 90% blue, 7% orange, 3% red (decision 7; "VVFP Heathen Options.txt" may
        change the mix); a replacement keeps the dead one's, as before;
-     * ROLES (decision 6): when the Heathen Chief or a Master (13-16) dies once that puzzle is solved, the eldest
-       adult ordinary Heathen takes the role -- the real role after The Last Heathen, else for show (the role's
-       stock skills, the Chief's red or a Master's orange mask, its title through Story Upgrades when it can set
-       one) -- with a "Took the role" record (VvfpCauseHeathenRole); while the puzzle is unsolved, today's rule;
-     * THE RECORD CAP (decision 18): no birth or arrival takes a record the believers could still need -- the
-       free records stay at least 10 more than the believers' remaining room, their cap read from the running
-       executable's own room check 0x472BD0 in whatever form the population rows left it (stock 90 + the
-       collections, or the 150 / 256 builds' detour and its total-demand helper);
+     * ROLES (decision 6, and the owner's answers of 2026-11-26): when the Heathen Chief or a Master (13-16) dies
+       once that puzzle is solved, the eldest adult ordinary Heathen of either sex takes the role -- the real role
+       after The Last Heathen, else for show: the role's stock skills; a Master the purple mask and a Chief the
+       Chief's own mask, both through the Origins mask store that "Heathens Keep Their Masks When Converted"
+       draws (orange / red without those rows); the title through Story Upgrades when it can set one, a Master's
+       the role's, a Chief's at most "Esteemed Elder".  After The Last Heathen a regrown camp of 6 adults or more
+       gets a real Chief and Masters, one vacant role a look.  Each with a "Took the role" record
+       (VvfpCauseHeathenRole).  While the puzzle is unsolved, today's rule, the new one of either sex;
+     * THE RECORD CAP (decision 18 as the owner changed it): Heathens grow normally in every population mode; a
+       birth or an arrival only keeps 10 records free, so the game never runs out;
      * THE BRIDGE: "VVFP Heathen Life.dll"'s VvfpHeathenLifeUnit is called for every aging Heathen's unit, and
        asked every pass whether to keep the sick byte (heathen_evo.h section 3).
 
@@ -634,7 +638,7 @@ static void write_couples(int slot) {
 static int couple_find(unsigned int who) {
     int i;
     for (i = 0; i < g_couple_count; ++i) {
-        if (g_couples[i].woman == who || g_couples[i].man == who) {
+        if (g_couples[i].first == who || g_couples[i].second == who) {
             return i;
         }
     }
@@ -651,12 +655,12 @@ static void couple_drop(int at) {
 static void couples_rekey(unsigned int from, unsigned int to) {
     int i;
     for (i = 0; i < g_couple_count; ++i) {
-        if (g_couples[i].woman == from) {
-            g_couples[i].woman = to;
+        if (g_couples[i].first == from) {
+            g_couples[i].first = to;
             g_couple_dirty = 1;
         }
-        if (g_couples[i].man == from) {
-            g_couples[i].man = to;
+        if (g_couples[i].second == from) {
+            g_couples[i].second = to;
             g_couple_dirty = 1;
         }
     }
@@ -962,62 +966,16 @@ static int free_records(void) {
     return n;
 }
 
-/* ---- the record cap (decision 18) ---------------------------------------------------------------------------
+/* ---- the record cap (decision 18, as the owner changed it on 2026-11-26) ---------------------------------------
 
-   The believers' cap is what the running executable's room check 0x472BD0 compares, read from its own bytes:
-     the bonus  0x472C04: stock `cmp esi, 0xA; jne; mov esi, 0xF` -- 5 for each of the two collections (groups 0x68
-                and 0x50, 0x414690 on 0x4DBFC8), 15 for both; Immediate Fixed's `mov esi, imm32` -- that number;
-     the base   0x472C49: stock `add esi, imm8` (90), compared with the believers and their unborn babies
-                (0x4713F0); or the population rows' `jmp` to their detour, `add esi, imm32` (135, 150's 90 + 60,
-                241, 256's 90 + 166) then `call` their total-demand helper (every active record and every unborn
-                baby, any faction), compared with that.
-   The believers' remaining room is the cap less what is compared; a birth or an arrival of n Heathens is made only
-   while the free records, less n, stay at least HE_ROOM_KEPT more than that room.  Any other form of the check:
-   all the free records are the believers' (nothing is made). */
-#define G_BELIEVERS 0x4713F0u          /* thiscall on the manager: believers + their unborn babies */
-#define G_COLLECTION 0x414690u         /* thiscall on 0x4DBFC8 (group): al 1 when that collection is complete */
-#define G_COLLECTIONS 0x4DBFC8u
-#define CAP_BONUS_SITE 0x472C04u
-#define CAP_BASE_SITE 0x472C49u
-typedef int (__cdecl *demand_fn)(void);
-
-static int believer_room(void) {
-    int room = (int)g_slots;
-    __try {
-        const unsigned char *base_at = (const unsigned char *)(UINT_PTR)CAP_BASE_SITE;
-        const unsigned char *bonus_at = (const unsigned char *)(UINT_PTR)CAP_BONUS_SITE;
-        int base, bonus = 0, counted;
-        UINT_PTR helper = 0;
-        if (base_at[0] == 0x83 && base_at[1] == 0xC6) {
-            base = (signed char)base_at[2];
-        } else if (base_at[0] == 0xE9) {
-            const unsigned char *detour = base_at + 5 + *(const int *)(base_at + 1);
-            if (detour[0] != 0x81 || detour[1] != 0xC6 || detour[6] != 0xE8) {
-                return room;
-            }
-            base = *(const int *)(detour + 2);
-            helper = (UINT_PTR)(detour + 11 + *(const int *)(detour + 7));
-        } else {
-            return room;
-        }
-        if (bonus_at[0] == 0xBE) {
-            bonus = *(const int *)(bonus_at + 1);
-        } else {
-            bonus += (((tc1_fn)(UINT_PTR)G_COLLECTION)((void *)(UINT_PTR)G_COLLECTIONS, NULL, 0x68) & 0xFF) ? 5 : 0;
-            bonus += (((tc1_fn)(UINT_PTR)G_COLLECTION)((void *)(UINT_PTR)G_COLLECTIONS, NULL, 0x50) & 0xFF) ? 5 : 0;
-            bonus = bonus == 10 ? 15 : bonus;
-        }
-        counted = helper != 0 ? ((demand_fn)helper)() : ((tc0_fn)(UINT_PTR)G_BELIEVERS)(g_manager, NULL);
-        room = base + bonus - counted;
-    } __except (EXCEPTION_EXECUTE_HANDLER) {
-        room = (int)g_slots;
-    }
-    return room < 0 ? 0 : room;
-}
+   The owner: Heathens "should grow normally" in every population mode ("we're gonna convert everyone so no point
+   restricting").  The only limit is the technical one: a birth or an arrival of n Heathens is made only while
+   the free records, less n, stay at least HE_ROOM_KEPT (10), so the game's own creator never runs out of
+   records. */
 
 /* How many of `wanted` new Heathens fit (0 .. wanted). */
 static int heathens_fit(int wanted) {
-    int spare = free_records() - HE_ROOM_KEPT - believer_room();
+    int spare = free_records() - HE_ROOM_KEPT;
     return spare <= 0 ? 0 : spare < wanted ? spare : wanted;
 }
 
@@ -1163,7 +1121,7 @@ static void roll_mask(int *orange, int *red) {
 
 /* ---- couples (decision 15) ----------------------------------------------------------------------------------
 
-   A couple is a woman and a man, both living adult Heathens (14 or older; never the Heathen Mommy, whose infant
+   A couple is two living adult Heathens of either sex (14 or older; never the Heathen Mommy, whose infant
    is her puzzle's), neither in a couple, not kin.  KIN, by the records alone (never a scan of names for
    parents): one is the other's parent (the child's father or mother name, head and body are the parent's own),
    or they share a mother or a father (the same parent name, head and body on both: full and half siblings).
@@ -1195,9 +1153,9 @@ static int kin(const unsigned char *a, const unsigned char *b) {
 static int ages(const unsigned char *record);
 static int could_conceive(const unsigned char *woman);
 
-static int pairable(const unsigned char *r, int sex_woman) {
-    return r[R_FACTION] != 0 && living(r) && ages(r) && i32(r, R_AGE) >= ADULT && i32(r, R_ROLE) != 17
-        && (i32(r, R_SEX) == 1) == sex_woman;
+/* An adult Heathen of either sex who may pair (never the Heathen Mommy, whose infant is her puzzle's). */
+static int pairable(const unsigned char *r) {
+    return r[R_FACTION] != 0 && living(r) && ages(r) && i32(r, R_AGE) >= ADULT && i32(r, R_ROLE) != 17;
 }
 
 /* The couples' records found again; a couple one of whom is no longer a living Heathen here ends. */
@@ -1216,70 +1174,81 @@ static void couples_refresh(void) {
         }
     }
     for (c = g_couple_count; c-- > 0;) {
-        int w = -1, m = -1;
+        int a = -1, b = -1;
         for (i = 0; i < g_slots && i < 256u; ++i) {
-            if (who[i] == g_couples[c].woman) {
-                w = (int)i;
-            } else if (who[i] == g_couples[c].man) {
-                m = (int)i;
+            if (who[i] == g_couples[c].first) {
+                a = (int)i;
+            } else if (who[i] == g_couples[c].second) {
+                b = (int)i;
             }
         }
-        if (w < 0 || m < 0) {
+        if (a < 0 || b < 0) {
             couple_drop(c);                /* a death, a conversion or leaving: the couple ends */
             continue;
         }
-        g_partner[w] = m;
-        g_partner[m] = w;
+        g_partner[a] = b;
+        g_partner[b] = a;
     }
 }
 
-static int couple_add(unsigned char *woman, unsigned char *man) {
+static int couple_add(unsigned char *first, unsigned char *second) {
     if (g_couple_count >= HE_COUPLES_MAX) {
         return 0;
     }
-    g_couples[g_couple_count].woman = identity(woman);
-    g_couples[g_couple_count].man = identity(man);
-    g_couples[g_couple_count].formed = (unsigned int)i32(woman, R_PROCESSED);
+    g_couples[g_couple_count].first = identity(first);
+    g_couples[g_couple_count].second = identity(second);
+    g_couples[g_couple_count].formed = (unsigned int)i32(first, R_PROCESSED);
     g_couples[g_couple_count].state = HE_COUPLE_ACTIVE;
     ++g_couple_count;
     g_couple_dirty = 1;
-    g_partner[rec_index(woman)] = rec_index(man);
-    g_partner[rec_index(man)] = rec_index(woman);
-    log_couple(woman, man);
+    g_partner[rec_index(first)] = rec_index(second);
+    g_partner[rec_index(second)] = rec_index(first);
+    log_couple(first, second);
     return 1;
 }
 
-/* Every woman free to pair is paired with a man free to pair who is not her kin, at random among them. */
-static void pair_couples(void) {
-    unsigned char *men[256];
-    unsigned int i, j;
+/* At most one new couple a look (gradually: the caller asks only when the village's clock moved): an adult free to
+   pair, at random, with another adult free to pair who is not their kin, at random -- of either sex (the owner,
+   2026-11-26: "same sex yes"). */
+static void pair_one_couple(void) {
+    unsigned char *free_ones[256], *partners[256], *one;
+    unsigned int i;
+    int n = 0, m = 0, k;
     for (i = 0; i < g_slots && i < 256u; ++i) {
-        unsigned char *woman = rec_at((int)i);
-        int n = 0;
-        if (g_partner[i] >= 0 || !pairable(woman, 1)) {
-            continue;
+        unsigned char *r = rec_at((int)i);
+        if (g_partner[i] < 0 && pairable(r)) {
+            free_ones[n++] = r;
         }
-        for (j = 0; j < g_slots && j < 256u; ++j) {
-            unsigned char *man = rec_at((int)j);
-            if (g_partner[j] < 0 && pairable(man, 0) && !kin(woman, man)) {
-                men[n++] = man;
-            }
+    }
+    if (n < 2) {
+        return;
+    }
+    one = free_ones[he_below((unsigned int)n)];
+    for (k = 0; k < n; ++k) {
+        if (free_ones[k] != one && !kin(one, free_ones[k])) {
+            partners[m++] = free_ones[k];
         }
-        if (n > 0 && !couple_add(woman, men[he_below((unsigned int)n)])) {
-            return;
-        }
+    }
+    if (m > 0) {
+        (void)couple_add(one, partners[he_below((unsigned int)m)]);
     }
 }
 
-/* Her partner, a living adult Heathen man, or NULL. */
-static unsigned char *partner_of(const unsigned char *woman) {
-    int at = rec_index(woman), m;
-    unsigned char *man;
+/* The partner of the Heathen in `record` (either sex), a living adult Heathen, or NULL. */
+static unsigned char *partner_of(const unsigned char *record) {
+    int at = rec_index(record), m;
+    unsigned char *partner;
     if (at < 0 || at >= 256 || (m = g_partner[at]) < 0 || (unsigned int)m >= g_slots) {
         return NULL;
     }
-    man = rec_at(m);
-    return man[R_FACTION] != 0 && living(man) && i32(man, R_SEX) != 1 && i32(man, R_AGE) >= ADULT ? man : NULL;
+    partner = rec_at(m);
+    return partner[R_FACTION] != 0 && living(partner) && i32(partner, R_AGE) >= ADULT ? partner : NULL;
+}
+
+/* Her partner when he is a man (a natural conception is a woman's and a man's), or NULL. */
+static unsigned char *partner_man(const unsigned char *woman) {
+    unsigned char *partner = partner_of(woman);
+    return partner != NULL && i32(partner, R_SEX) != 1 ? partner : NULL;
 }
 
 static void count_couple_women(void) {
@@ -1287,7 +1256,7 @@ static void count_couple_women(void) {
     g_couple_women = 0;
     for (i = 0; i < g_slots && i < 256u; ++i) {
         const unsigned char *r = rec_at((int)i);
-        g_couple_women += r[R_FACTION] != 0 && living(r) && ages(r) && could_conceive(r) && partner_of(r) != NULL;
+        g_couple_women += r[R_FACTION] != 0 && living(r) && ages(r) && could_conceive(r) && partner_man(r) != NULL;
     }
 }
 
@@ -1444,12 +1413,32 @@ static int held_role(const unsigned char *record) {
 #define FLOAT_100 0x42C80000u
 #define FLOAT_90 0x42B40000u
 
-/* The Chief or a Master in `role` (13-16) died once its puzzle was solved: the eldest living adult ordinary Heathen
-   (roles 0-11, holding no role) takes it -- the real role after The Last Heathen (its stock set-up: the Chief all
-   six skills 100, a Master 90 in the role's skill; the role's own mask art), else for show (the same skills, the
-   Chief's red or a Master's orange mask, the title through Story Upgrades when it can set one, kept in the file);
-   then its "Took the role" record. */
-static void pass_role(int role, const unsigned char *dead) {
+/* A role for show's mask (the owner, 2026-11-26: "for show masters = purple masks (no puzzles)"): the game draws
+   the purple and the Chief's mask only from the puzzle roles (0x4728C6, the table 0x472B60), so for show it is put
+   in the Origins mask store ("VVFP Origins Icons.dll" VvfpMaskKeep: 1 blue, 4 purple, 5 the Chief's), which
+   "VVFP Heathens Keep Masks.dll" draws on an ordinary Heathen with neither kind byte -- only when both are in the
+   game.  1 when the store took it. */
+#define MASK_STORE_BLUE 1
+#define MASK_STORE_PURPLE 4
+#define MASK_STORE_CHIEF 5
+typedef int (__stdcall *mask_keep_fn)(void *record, int mask);
+
+static int store_mask(unsigned char *record, int mask) {
+    HMODULE origins = GetModuleHandleA("VVFP Origins Icons.dll");
+    mask_keep_fn keep = origins != NULL && GetModuleHandleA("VVFP Heathens Keep Masks.dll") != NULL
+        ? (mask_keep_fn)(void *)GetProcAddress(origins, "VvfpMaskKeep") : NULL;
+    return keep != NULL && keep(record, mask) == 1;
+}
+
+/* The Chief or a Master in `role` (13-16) is wanted -- its holder died once its puzzle was solved, or (after The
+   Last Heathen) the regrown camp has none: the eldest living adult ordinary Heathen of either sex (roles 0-11,
+   holding no role; the owner: every later holder "can be any sex") takes it -- the real role after The Last
+   Heathen (its stock set-up: the Chief all six skills 100, a Master 90 in the role's skill; the role's own mask
+   art), else for show (the same skills; a Master the purple mask and the Chief the Chief's mask through the
+   store above, else orange / red; the title through Story Upgrades when it can set one -- a Master's the role's,
+   the Chief's at most "Esteemed Elder", the owner: "for show chief can be at most an esteemed elder"; kept in
+   the file); then its "Took the role" record.  1 when someone took it. */
+static int pass_role(int role, const unsigned char *dead) {
     static const int SKILL_OF[4] = { -1, 3, 4, 0 };     /* 13 all, 14 Research, 15 Building, 16 Farming */
     unsigned char *heir = NULL;
     unsigned int i;
@@ -1462,7 +1451,7 @@ static void pass_role(int role, const unsigned char *dead) {
         }
     }
     if (heir == NULL) {
-        return;
+        return 0;
     }
     for (k = 0; k < 6; ++k) {
         if (SKILL_OF[role - 13] < 0 || SKILL_OF[role - 13] == k) {
@@ -1476,14 +1465,50 @@ static void pass_role(int role, const unsigned char *dead) {
     } else {
         HMODULE story = GetModuleHandleA(HE_STORY_DLL);
         he_set_title_fn title = story != NULL ? (he_set_title_fn)(void *)GetProcAddress(story, HE_TITLE_EXPORT) : NULL;
-        heir[R_ORANGE] = role != 13;
-        heir[R_RED] = role == 13;
+        if (store_mask(heir, role == 13 ? MASK_STORE_CHIEF : MASK_STORE_PURPLE)) {
+            heir[R_ORANGE] = 0;
+            heir[R_RED] = 0;
+        } else {
+            heir[R_ORANGE] = role != 13;
+            heir[R_RED] = role == 13;
+        }
         known_put(identity(heir), KIND_ROLE + (unsigned int)(role - 13));
         if (title != NULL) {
-            (void)title(HA_GAME, rec_index(heir), vv5_role_title(role));
+            (void)title(HA_GAME, rec_index(heir), role == 13 ? "Esteemed Elder" : vv5_role_title(role));
         }
     }
     log_role(rec_index(heir), role);
+    return 1;
+}
+
+/* After The Last Heathen (the owner, 2026-11-26): a regrown camp of REGROWN_ADULTS adult Heathens or more gets a
+   real Chief and Masters -- one vacant role (no living Heathen holds it) a look, the Chief first. */
+#define REGROWN_ADULTS 6
+
+static void regrown_roles(void) {
+    unsigned int i;
+    int adults = 0, held[4] = { 0, 0, 0, 0 }, role;
+    if (!puzzle_done(LAST_HEATHEN)) {
+        return;
+    }
+    for (i = 0; i < g_slots; ++i) {
+        const unsigned char *r = rec_at((int)i);
+        if (r[R_FACTION] != 0 && living(r)) {
+            adults += i32(r, R_AGE) >= ADULT;
+            if (i32(r, R_ROLE) >= 13 && i32(r, R_ROLE) <= 16) {
+                held[i32(r, R_ROLE) - 13] = 1;
+            }
+        }
+    }
+    if (adults < REGROWN_ADULTS) {
+        return;
+    }
+    for (role = 13; role <= 16; ++role) {
+        if (!held[role - 13]) {
+            (void)pass_role(role, NULL);
+            return;
+        }
+    }
 }
 
 /* A role for show belongs to a living Heathen: one who converted or is gone no longer holds it. */
@@ -1517,9 +1542,12 @@ static void evo_pass(void) {
     }
     roles_follow();
     couples_refresh();
-    pair_couples();
+    if (g_clock_units > 0) {
+        pair_one_couple();                 /* gradually: at most one a look, as the village's clock moves */
+    }
     count_couple_women();
     arrivals();
+    regrown_roles();
     g_clock_index = -1;
     for (i = 0; i < g_slots && g_clock_index < 0; ++i) {
         if (living(rec_at((int)i))) {
@@ -1541,9 +1569,9 @@ static int create_role(int role) {
     case 12: return create(0, 2, 70, -1, 400, 0, 0, 12, -14);
     case 14: return create(0, 3, 90, -1, 540, 0, 0, 14, -74);
     case 15: return create(0, 4, 90, -1, 540, 0, 0, 15, -74);
-    case 16: return create(0, 0, 90, 0, 540, 0, 0, 16, -74);
+    case 16: return create(0, 0, 90, -1, 540, 0, 0, 16, -74);   /* later holders: either sex (the owner) */
     case 13:
-        index = create(0, 2, 90, 0, 1000, 0, 0, 13, -94);
+        index = create(0, 2, 90, -1, 1000, 0, 0, 13, -94);   /* a later Chief: either sex (the owner) */
         if (index >= 0) {
             r = rec_at(index);
             for (i = 0; i < 6; ++i) {
@@ -1712,6 +1740,9 @@ static int gone(unsigned char *record, int how, int cause) {
     int index = rec_index(record);
     int body = how == HA_DIED && keeps_body(record);
     int held = g_evo ? held_role(record) : 0;
+    if (held != 0 && (role < 13 || role > 16)) {
+        (void)store_mask(record, MASK_STORE_BLUE);   /* a role for show: its stored mask goes with it */
+    }
     if (role == 17) {                      /* her replacement's infant is named after her own infant's other parent */
         copy_name((unsigned char *)g_mommy_parent_name, record + R_BABY_FATHER_NAME, R_PARENT_NAME_CAP + 1);
         g_mommy_parent_head = i32(record, R_BABY_FATHER_HEAD);
@@ -1740,7 +1771,7 @@ static int gone(unsigned char *record, int how, int cause) {
        villager -- a defection must not grow the camp. */
     if (held != 0 && puzzle_done(puzzle_of_role(held))) {
         known_drop(identity(record), KIND_ROLE + (unsigned int)(held - 13));
-        pass_role(held, record);           /* decision 6: the role goes on in the camp */
+        (void)pass_role(held, record);           /* decision 6: the role goes on in the camp */
     }
     if (puzzle_done(LAST_HEATHEN) || (former && puzzle_of_role(role) == 0) || living_heathens() == 0) {
         g_mommy_parent_name[0] = 0;
@@ -1878,7 +1909,7 @@ static int tribe_women(void) {
 static void maybe_conceive_evo(unsigned char *woman) {
     unsigned char *man;
     int twins, triplets, babies, women = g_couple_women > 0 ? g_couple_women : 1;
-    if (!could_conceive(woman) || (man = partner_of(woman)) == NULL
+    if (!could_conceive(woman) || (man = partner_man(woman)) == NULL
         || (unsigned int)he_below(HE_BIRTH_ROLL * (unsigned int)women) >= g_births_tenths || heathens_fit(1) < 1) {
         return;
     }

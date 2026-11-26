@@ -248,11 +248,26 @@ def _detour(v: Evo, base: int, *, fixed_bonus: int | None = None) -> None:
     v.stub(DEMAND, demand)
 
 
+def _clock(v: Evo, units: int = 1) -> None:
+    """The village's clock moves `units` (a look first, so the clock record is known): at most one new couple."""
+    first = next(i for i in range(v.slots) if v.read(v.record(i) + PRESENT, 1) != b"\0")
+    v.look(first)
+    v.credit(v.record(first), units)
+
+
 def _couple(v: Evo, man_i: int = 1, woman_i: int = 2, **kw) -> tuple[int, int]:
     man = v.villager(man_i, heathen=True, sex=0, name=kw.pop("man_name", "Kalo"))
     woman = v.villager(woman_i, heathen=True, sex=1, name=kw.pop("woman_name", "Mele"))
-    v.look(man_i)                                      # the look pairs them
+    _clock(v)                                          # the clock moves: they pair
     return man, woman
+
+
+def _preset(v: Evo, pairs: list[tuple[int, int]]) -> None:
+    """The slot's couples file, as a save that already had these couples."""
+    path = ("C:\\Docs\\LDW\\Game\\Virtual Villagers Fun Patcher\\Save 1\\Data\\Heathen Couples\\"
+            "Heathen Couples - Save 1.dat")
+    v.files[path] = struct.pack("<5I", 0x31434856, 1, 5, len(pairs), 1) + b"".join(
+        struct.pack("<4I", _identity(v, v.record(a)), _identity(v, v.record(b)), 600, 0) for a, b in pairs)
 
 
 def _force_arrival(v: Evo, *rolls, tenths: int = 100, clock: int = 0) -> list[int]:
@@ -330,6 +345,7 @@ class BirthsSlider(unittest.TestCase):
                 for k in range(3):
                     v.villager(10 + k, heathen=True, sex=0, name=f"Man{k}")
                     v.villager(20 + k, heathen=True, sex=1, name=f"Woman{k}")
+                _preset(v, [(20 + k, 10 + k) for k in range(3)])
                 v.look(10)
                 self.assertTrue(all(v.couple_of(20 + k) >= 0 for k in range(3)))
                 v.put32(v.record(20) + AGE, 601)            # only the first has a unit due
@@ -434,8 +450,7 @@ class Couples(unittest.TestCase):
                 "Heathen Couples - Save 1.dat")
         v.files[path] = struct.pack("<5I", 0x31434856, 1, 5, 1, 1) + struct.pack(
             "<4I", _identity(v, woman), _identity(v, v.record(3)), 600, 0)
-        v.seed(first_output((3, 0)))                    # a fresh pairing would take the first man
-        v.look(1)
+        v.look(1)                                       # no clock unit: no new couple, only the file's
         self.assertEqual(v.couple_of(5), 3, "the couple in the file")
 
     def test_kin_never_pair(self):
@@ -468,7 +483,7 @@ class Couples(unittest.TestCase):
                     parents(woman, "Dad", "Mum")
                     v.put32(woman + FATHER_HEAD, 9)          # another Dad
                     v.put32(woman + MOTHER_HEAD, 9)          # another Mum
-                v.look(1)
+                _clock(v)
                 pairs = case in ("unrelated", "same names, other parents")
                 self.assertEqual(v.couple_of(2), 1 if pairs else -1)
 
@@ -483,7 +498,9 @@ class Couples(unittest.TestCase):
                 else:
                     v.write(man + FACTION, b"\x00")
                 v.look(2)
-                self.assertEqual(v.couple_of(2), 3, "the couple ended; she pairs with the man left")
+                self.assertEqual(v.couple_of(2), -1, "the couple ended")
+                _clock(v)
+                self.assertEqual(v.couple_of(2), 3, "she pairs again, with the one left")
                 _ = other
 
     def test_a_renamed_partner_stays_her_partner(self):
@@ -499,8 +516,45 @@ class Couples(unittest.TestCase):
         v.villager(1, heathen=True, sex=0, name="Kalo")
         v.villager(2, heathen=True, sex=1, name="Mommy", role=17)
         v.villager(3, heathen=True, sex=1, name="Girl", age=200)
-        v.look(1)
+        _clock(v, 5)
         self.assertEqual((v.couple_of(2), v.couple_of(3)), (-1, -1))
+
+    def test_same_sex_couples_form(self):
+        for sex in (0, 1):
+            with self.subTest(sex=sex):
+                v = Evo()
+                v.villager(1, heathen=True, sex=sex, name="Aa")
+                v.villager(2, heathen=True, sex=sex, name="Bb")
+                _clock(v)
+                self.assertEqual(v.couple_of(1), 2, "the owner: same sex yes")
+
+    def test_pairing_is_gradual_one_couple_a_clock_step(self):
+        v = Evo()
+        for i in range(1, 7):
+            v.villager(i, heathen=True, sex=i % 2, name=f"P{i}")
+        v.look(1)
+        v.look(1)
+        self.assertEqual(sum(v.couple_of(i) >= 0 for i in range(1, 7)), 0, "no clock step: nobody pairs")
+        _clock(v)
+        self.assertEqual(sum(v.couple_of(i) >= 0 for i in range(1, 7)), 2, "one couple")
+        _clock(v, 50)
+        self.assertEqual(sum(v.couple_of(i) >= 0 for i in range(1, 7)), 4, "one more a look, however far it moved")
+        self.assertEqual(len(v.couples_logged), 2)
+
+    def test_a_same_sex_couple_has_a_baby_only_through_an_island_event(self):
+        v = Evo()
+        a = v.villager(1, heathen=True, sex=0, name="Aa")
+        b = v.villager(2, heathen=True, sex=0, name="Bb")
+        _clock(v)
+        v.put32(a + AGE, 601)
+        v.seed(first_output((2400, 0)))
+        v.life_tick()
+        self.assertEqual(v.conceived, [], "no natural conception")
+        self.assertEqual(v.export("VvfpHeathenAgingEventPregnancy", 5, 1, 0xFFFFFFFF, 1, 0), 1,
+                         "an event: any two, the partner the other parent")
+        carrier, args = v.conceived[0]
+        self.assertEqual((carrier, v.cstring(args[3])), (a, "Bb"))
+        self.assertEqual(v.conceptions, [(a, b, 1)])
 
 
 @unittest.skipIf(_skip(), _skip() or "")
@@ -615,73 +669,53 @@ def _fill(v: Evo, believers: int, heathens: int) -> None:
     for i in range(believers):
         v.villager(i, heathen=False, name=f"B{i}")
     for i in range(believers, believers + heathens):
-        v.villager(i, heathen=True, name=f"H{i}")
+        v.villager(i, heathen=True, name=f"H{i}", age=200)   # children: none pairs
 
 
 @unittest.skipIf(_skip(), _skip() or "")
 class RecordCap(unittest.TestCase):
-    """Decision 18: free records stay HE_ROOM_KEPT (10) more than the believers' remaining room, read from the
-    executable's own room check in each population mode, the stock 150 build and the 256 build."""
+    """Decision 18 as the owner changed it (2026-11-26: "they should grow normally"): Heathens grow in every
+    population mode; the only limit is the technical one, 10 records kept free so the game never runs out."""
 
     def _arrive_four(self, v: Evo) -> int:
         return len(_force_arrival(v, (100, 95), (2, 1)))
 
-    def test_no_population_increase_stock_150(self):
-        # free = 150 - B - H; room = 90 + bonus - B; spare = free - 10 - room
-        for believers, heathens, collections, made in ((80, 40, (), 4), (80, 48, (), 2), (80, 58, (), 0),
-                                                       (80, 40, (0x68, 0x50), 0), (80, 40, (0x68,), 4),
-                                                       (95, 30, (), 4)):
-            with self.subTest(b=believers, h=heathens, c=collections):
-                v = Evo(arrivals="10", collections=collections)
-                _fill(v, believers, heathens)
-                self.assertEqual(self._arrive_four(v), made)
-
-    def test_collection_progression_and_immediate_fixed_150(self):
-        # Progression: cap 135 + bonus against every record: spare = 150 - 10 - 135 - bonus
-        for collections, made in (((), 4), ((0x68,), 0)):
-            with self.subTest(collections=collections):
-                v = Evo(arrivals="10", collections=collections)
-                _detour(v, 135)
-                _fill(v, 60, 40)
-                self.assertEqual(self._arrive_four(v), made)
-        v = Evo(arrivals="10")                            # Fixed: 60 + 90 = 150, every record the believers'
-        _detour(v, 90, fixed_bonus=60)
-        _fill(v, 20, 20)
-        self.assertEqual(self._arrive_four(v), 0)
-
-    def test_an_unknown_form_of_the_room_check_lets_nobody_in(self):
-        v = Evo(arrivals="10")
-        v.write(CAP_BASE, b"\x90\x90\x90")
-        _fill(v, 2, 2)
-        self.assertEqual(self._arrive_four(v), 0)
+    def test_every_mode_only_keeps_ten_records_free_150(self):
+        # spare = 150 - B - H - 10, whatever the believers' cap
+        for mode in ("stock", "stock+collections", "progression", "fixed"):
+            for believers, heathens, made in ((80, 40, 4), (80, 58, 2), (80, 60, 0), (20, 20, 4)):
+                with self.subTest(mode=mode, b=believers, h=heathens):
+                    v = Evo(arrivals="10", collections=(0x68, 0x50) if mode.endswith("collections") else ())
+                    if mode == "progression":
+                        _detour(v, 135)
+                    elif mode == "fixed":
+                        _detour(v, 90, fixed_bonus=60)
+                    _fill(v, believers, heathens)
+                    self.assertEqual(self._arrive_four(v), made)
 
     def test_the_256_build_in_all_three_modes(self):
-        for mode, made in (("stock", 4), ("progression", 4), ("progression+15", 0), ("fixed", 0)):
-            with self.subTest(mode=mode):
-                v = Evo256(arrivals="10", collections=(0x68, 0x50) if mode.endswith("15") else ())
-                if mode.startswith("progression"):
-                    _detour(v, 241)                       # spare = 256 - 10 - 241 - bonus
-                elif mode == "fixed":
-                    _detour(v, 90, fixed_bonus=166)
-                _fill(v, 100, 100)                        # stock: free 56, room 0 (cap 90 < 100): spare 46
-                self.assertEqual(self._arrive_four(v), made)
-                self.assertTrue(all(i >= 200 for i, _ in v.created), "records past 150")
+        for mode in ("stock", "progression", "fixed"):
+            for believers, heathens, made in ((100, 100, 4), (120, 124, 2), (120, 126, 0)):
+                with self.subTest(mode=mode, b=believers, h=heathens):
+                    v = Evo256(arrivals="10")
+                    if mode == "progression":
+                        _detour(v, 241)
+                    elif mode == "fixed":
+                        _detour(v, 90, fixed_bonus=166)
+                    _fill(v, believers, heathens)
+                    self.assertEqual(self._arrive_four(v), made)
+                    self.assertTrue(all(i >= 150 for i, _ in v.created), "records past 150")
 
-    def test_the_256_build_lets_heathens_past_record_150(self):
-        v = Evo256(arrivals="10")
-        _fill(v, 60, 120)                                 # stock cap 90: room 30; free 76: spare 36
-        made = self._arrive_four(v)
-        self.assertEqual(made, 4)
-        self.assertTrue(all(i >= 180 for i, _ in v.created))
-
-    def test_a_birth_waits_for_the_room(self):
+    def test_a_birth_waits_for_the_ten_records(self):
         v = Evo()
-        _fill(v, 80, 50)                                  # free 20, room 10: spare 0
+        _fill(v, 80, 60)                                  # 142 with the couple: 8 free
         man, woman = _couple(v, 140, 141)
+        self.assertEqual(v.couple_of(141), 140)
+        v.put32(v.record(0) + PROCESSED, v.i32(v.record(0), AGE))   # the clock's believer: no unit of its own
         v.put32(woman + AGE, 601)
         v.seed(first_output((2400, 0)))
         v.life_tick()
-        self.assertEqual(v.conceived, [], "no conception that would take the believers' room")
+        self.assertEqual(v.conceived, [], "no conception into the last 10 records")
 
 
 @unittest.skipIf(_skip(), _skip() or "")
@@ -698,7 +732,7 @@ class Roles(unittest.TestCase):
 
     def test_for_show_before_the_last_heathen(self):
         for role, puzzle, skills, mask, title in (
-                (13, 16, (100.0,) * 6, (0, 1), "Heathen Chief"),
+                (13, 16, (100.0,) * 6, (0, 1), "Esteemed Elder"),
                 (16, 5, (90.0, 0, 0, 0, 0, 0), (1, 0), "Heathen Master Farmer"),
                 (14, 13, (0, 0, 0, 90.0, 0, 0), (1, 0), "Heathen Master Scientist"),
                 (15, 9, (0, 0, 0, 0, 90.0, 0), (1, 0), "Heathen Master Builder")):
@@ -753,6 +787,75 @@ class Roles(unittest.TestCase):
         self.assertEqual((v.read(heir + ORANGE, 1)[0], v.read(heir + RED, 1)[0]), (0, 0))
         self.assertEqual(v.roles_logged, [(3, 13)])
         self.assertEqual(v.titles, [])
+
+    def test_for_show_masks_through_the_origins_store(self):
+        """The owner: "for show masters = purple masks (no puzzles)"; the Chief's own mask art for show.  The game
+        draws those only from the puzzle roles, so they go in the Origins store "Heathens Keep Their Masks When
+        Converted" draws (4 purple, 5 the Chief's); the kind bytes stay 0.  A holder's death puts it back to blue."""
+        for role, puzzle, mask in ((14, 13, 4), (13, 16, 5)):
+            with self.subTest(role=role):
+                v = Evo()
+                kept = []
+                stub = v.alloc(0x10)
+                v.stub(stub, lambda p: (kept.append((p.arg(0), p.arg(1))), (1, 8))[1])
+                base = v._module
+
+                def module(p, base=base):
+                    name = p.cstring(p.arg(0)) if p.arg(0) else ""
+                    if name in ("VVFP Origins Icons.dll", "VVFP Heathens Keep Masks.dll"):
+                        return 0x0B600000, 4
+                    return base(p)
+                proc = v._proc
+
+                def find(p, proc=proc):
+                    if p.arg(0) == 0x0B600000:
+                        return (stub if p.cstring(p.arg(1)) == "VvfpMaskKeep" else 0), 8
+                    return proc(p)
+                v.api_handlers["GetModuleHandleA"] = module
+                v.api_handlers["GetProcAddress"] = find
+                v.solve(puzzle)
+                holder = self._camp(v, role)
+                _due_to_die(v, holder)
+                v.life_tick()
+                heir = v.record(3)
+                self.assertEqual(kept, [(heir, mask)])
+                self.assertEqual((v.read(heir + ORANGE, 1)[0], v.read(heir + RED, 1)[0]), (0, 0))
+                _due_to_die(v, heir)
+                v.life_tick()
+                self.assertEqual(kept[1], (heir, 1), "its stored mask back to blue when it dies")
+
+    def test_any_sex_holds_a_role(self):
+        """The owner: every later holder "can be any sex" -- the eldest, man or woman; a replacement made in a
+        puzzle role is of random sex (the creator's -1), the Chief and Farmer too."""
+        v = Evo(story=True)
+        v.solve(16)
+        holder = self._camp(v, 13)
+        v.put32(v.record(3) + SEX, 1)                     # the eldest is a woman
+        _due_to_die(v, holder)
+        v.life_tick()
+        self.assertEqual(v.roles_logged, [(3, 13)])
+        for role in (13, 16):
+            with self.subTest(role=role):
+                v = Evo()
+                holder = self._camp(v, role)
+                _due_to_die(v, holder)
+                v.life_tick()
+                self.assertEqual((v.created[0][1][7], v.created[0][1][3]), (role, -1), "random sex")
+
+    def test_a_regrown_camp_gets_a_real_chief_and_masters(self):
+        v = Evo()
+        for puzzle in (1, 5, 9, 13, 16, 17, 25):
+            v.solve(puzzle)
+        for i in range(1, 6):
+            v.villager(i, heathen=True, role=1, name=f"A{i}", age=400 + 20 * i, sex=i % 2)
+        v.villager(9, heathen=True, role=0, name="Kid", age=100)
+        v.look(1)
+        self.assertEqual(v.roles_logged, [], "5 adults: not yet")
+        v.villager(6, heathen=True, role=2, name="Sixth", age=900, sex=1)
+        for _ in range(5):
+            v.look(1)
+        self.assertEqual(v.roles_logged, [(6, 13), (5, 14), (4, 15), (3, 16)], "one a look, the eldest first")
+        self.assertEqual([v.i32(v.record(i), ROLE) for i in (6, 5, 4, 3)], [13, 14, 15, 16], "the real roles")
 
     def test_while_the_puzzle_is_unsolved_todays_rule(self):
         v = Evo(story=True)

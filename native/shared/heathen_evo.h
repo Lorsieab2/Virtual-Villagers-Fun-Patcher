@@ -38,7 +38,7 @@
    2. THE SLIDER RATES (W-A; decision 4).  Every roll is drawn from the companion's own xorshift (slider_scale.h's
       rule), never the game's rand 0x403660.  t = the slider in tenths.
         Births:   each eligible woman (an aging Heathen woman 14-45, not expecting, not the Heathen Mommy, in a
-                  couple whose man is a living adult Heathen) rolls 1 in HE_BIRTH_ROLL x W / t a unit, W the number
+                  couple with a living adult Heathen man) rolls 1 in HE_BIRTH_ROLL x W / t a unit, W the number
                   of such women: about one conception for the whole tribe every 240 units (24 real hours on
                   Normal) at 1x.
         Arrivals: once a unit of the village's clock (the age credit of the first living record), 1 in
@@ -92,7 +92,8 @@
      Couples (W-A): Data\Heathen Couples\Heathen Couples - Save <S>.dat
          header  HE_COUPLES_MAGIC 'VHC1', HE_COUPLES_VERSION 1, game 5, count, slot   (20 bytes; slot at +16,
                  retagged by Copy / Move Player Slot: src/vv_copy_slot.py)
-         count x he_couple (16 bytes): woman identity, man identity, formed (the woman's processed age then),
+         count x he_couple (16 bytes): the two partners' identities (either sex: the owner, 2026-11-26), formed
+                 (the first one's processed age then),
                  state (HE_COUPLE_ACTIVE; an ended couple is dropped from the file)
        Identities are native/shared/custom_titles.h vv_title_identity (name, likes, dislikes), as the Heathen Aging
        file's; src/vv_last_names.py's offline rename rekeys both identity fields.
@@ -134,7 +135,7 @@
 /* ---- 2. rates ---------------------------------------------------------------------------------------------- */
 #define HE_BIRTH_ROLL 2400u              /* 240 units x 10 tenths */
 #define HE_ARRIVAL_ROLL 4800u            /* 480 units x 10 tenths */
-#define HE_ROOM_KEPT 10                  /* decision 18: records always left free, beside the believers' room */
+#define HE_ROOM_KEPT 10                  /* decision 18 (as the owner changed it): the records always left free */
 /* The litter (the stock odds without the Medicine 3 gate, 0x465ECD..0x465F2D): rolled out of 10,000. */
 #define HE_TRIPLETS_IN_10000 175         /* 1.75% */
 #define HE_TWINS_IN_10000 525            /* 5.25% */
@@ -194,9 +195,9 @@ typedef int (__stdcall *he_set_title_fn)(int game, int index, const char *title)
 #define HE_COUPLES_FOLDER "Heathen Couples"
 #define HE_COUPLES_FILE "Heathen Couples - Save %d.dat"
 typedef struct {
-    unsigned int woman;                  /* identities (vv_title_identity) */
-    unsigned int man;
-    unsigned int formed;                 /* the woman's processed age when they paired */
+    unsigned int first;                  /* identities (vv_title_identity); a couple is two adults of either sex */
+    unsigned int second;
+    unsigned int formed;                 /* the first one's processed age when they paired */
     unsigned int state;                  /* HE_COUPLE_ACTIVE */
 } he_couple;
 

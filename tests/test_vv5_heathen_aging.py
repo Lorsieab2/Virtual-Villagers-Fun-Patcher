@@ -524,7 +524,7 @@ class Tribe(unittest.TestCase):
 
     def test_each_puzzle_heathen_is_replaced_in_the_same_role_while_the_puzzle_is_unsolved(self):
         stock = {12: (2, 70, -1, 400, -14), 14: (3, 90, -1, 540, -74), 15: (4, 90, -1, 540, -74),
-                 16: (0, 90, 0, 540, -74), 13: (2, 90, 0, 1000, -94), 17: (1, 70, -1, 400, -25)}
+                 16: (0, 90, -1, 540, -74), 13: (2, 90, -1, 1000, -94), 17: (1, 70, -1, 400, -25)}
         puzzles = {12: 1, 16: 5, 15: 9, 14: 13, 13: 16, 17: 17}
         for role, (skill, value, sex, age, faith) in stock.items():
             with self.subTest(role=role):

@@ -28,7 +28,27 @@ die with skeletons they go in the mud hut memorial, only if their faction is Hea
 | 15 | Former villagers among the Heathens pair too; couples stay together until one dies or converts; half-siblings are never paired. |
 | 16 | New log records "Couple formed" and "Took the role" (new exports WriteParentageHeathenCouple, VvfpCauseHeathenRole). |
 | 17 | A Heathen keeps its grown skills when it converts. |
-| 18 | Heathens never take a record the believers could still need (10 free + the believers' remaining room); no extra fixed cap. Read the 256 build's believer cap from that exe. |
+| 18 | **Changed again (2026-11-26).** Owner: "they should grow normally. (anyway we're gonna convert everyone so no point restricting)". Heathens grow normally in every population mode; the only limit is the technical one: 10 records are always kept free so the game never runs out. (The believers'-remaining-room reservation is dropped.) |
 
 Also in scope: the Heathen tribe conception-log bug (forced conceptions skip the parentage hook) is fixed and
 checked live.
+
+## The owner's answers to W-A's questions (2026-11-26)
+
+1. **A regrown camp after The Last Heathen** gets a new Chief and Masters once it has 6 adults: the eldest
+   suitable ordinary Heathens, in the real roles (decision 6), one vacant role at a time.
+2. **For-show roles.** Owner: "for show masters = purple masks (no puzzles)" and "for show chief can be at most an
+   esteemed elder. he can still do chief exclusve actions like spreading the word etc". A show Master wears the
+   purple mask and a show Chief the Chief's mask, through the Origins mask store that "Heathens Keep Their Masks
+   When Converted" draws (without those two rows: orange / red). The show Chief's title is at most "Esteemed
+   Elder". Spreading the Word for a show Chief is not built: see W-A's report (it needs a new splice).
+3. **Same-sex couples: yes.** Owner: "same sex yes, events may give them babies too". Any two adult Heathens may
+   pair (kin rules still apply); a natural conception stays a woman's and a man's; island events may give any
+   couple a baby.
+4. Group sizes and ages as W-A chose; couples pair **gradually** (at most one new couple a look, as the village's
+   clock moves), so the logs never flood.
+5. See decision 18 above.
+6. An unreadable couples file pauses that village's couples, births and arrivals. The log note is not written yet (W-A's report says why).
+7. Owner: "chief = he or she after the first one" and "later heathens after the first one can be any sex.
+   including the mommy". Every later holder of a puzzle or special role (12-17: replacements, successors, the
+   regrown camp's, the show roles) is of either sex; the original holders stay as the game makes them.
