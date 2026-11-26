@@ -1,10 +1,13 @@
-"""Write the rows of the five 0.1x-10x sliders (the owner, 2026-11-17), all five games each:
+"""Write the rows of the 0.1x-10x sliders: five (the owner, 2026-11-17) in all five games each, and two more (the
+owner, 2026-11-25, for v1.35.101) only in the games that have what they change (SLIDER_GAMES):
 
   Collectible and Mushroom Frequency  "VVFP Collectible Frequency.dll"  native/vvfp_collectible_frequency
   Food Gained per Food Source         "VVFP Food Gain.dll"              native/vvfp_food_gain
   Tech Point Gain Rate                "VVFP Tech Gain.dll"              native/vvfp_tech_gain
   Skill Practice Success Chance       "VVFP Skill Success.dll"          native/vvfp_skill_success
   Age and Nursing Timer Speed         "VVFP Age Speed.dll"              native/vvfp_age_speed
+  0.1-10x Weather Changes        "VVFP Weather Frequency.dll"      native/vvfp_weather_frequency  (VV3-VV5)
+  0.1-10x Divine Energy Gain             "VVFP Divine Energy Gain.dll"     native/vvfp_divine_energy_gain (VV5)
 
 Each slider goes 0.1 to 10 in tenths, 1 (the normal game) unless moved; its number is written beside the companion
 (src/vv_fun_patcher.py RUNTIME_SLIDERS) and read at start (native/shared/slider_scale.h); at 1x the companion
@@ -12,8 +15,8 @@ installs nothing.  Each companion is a third-word companion started by "VVFP Mor
 why each is the right one) are in each companion's source; every one was read from the stock executables
 (research/stock-executables) and is checked again by tests/test_new_sliders.py.
 
-One command after a companion's source changes: this script builds the five (scripts/build_vvfp_<name>.ps1) and pins
-them by SHA-256 in all 25 rows.  --no-build pins what is already built.
+One command after a companion's source changes: this script builds them all (scripts/build_vvfp_<name>.ps1) and pins
+each by SHA-256 in all its rows.  --no-build pins what is already built.
 """
 from __future__ import annotations
 
@@ -96,6 +99,60 @@ AGE_SITES = {
     4: (0x46656C, "2BC701866DFFFFFF", "sub eax, edi; add [esi - 0x93], eax"),
     5: (0x46FFA3, "2BC70186341C0000", "sub eax, edi; add [esi + 0x1C34], eax"),
 }
+# The weather setter's four spell lengths (seconds on the game's clock): (va, opcode, stock seconds, what) -- clear's
+# least and greatest, then any other kind's (native/vvfp_weather_frequency).
+WEATHER_SETTER = {3: 0x41FB40, 4: 0x46BC30, 5: 0x477060}
+WEATHER_SITES = {
+    3: [(0x41FBF9, 0xBF, 900, "mov edi, 900: clear weather's least"), (0x41FBFE, 0xBB, 1800,
+                                                                       "mov ebx, 1800: clear weather's greatest"),
+        (0x41FC05, 0xBF, 180, "mov edi, 180: any other weather's least"),
+        (0x41FC0A, 0xBB, 360, "mov ebx, 360: any other weather's greatest")],
+    4: [(0x46BD1D, 0xBF, 480, "mov edi, 480: clear weather's least"), (0x46BD22, 0xB8, 1800,
+                                                                       "mov eax, 1800: clear weather's greatest"),
+        (0x46BD29, 0xBF, 180, "mov edi, 180: any other weather's least"),
+        (0x46BD2E, 0xB8, 360, "mov eax, 360: any other weather's greatest")],
+    5: [(0x4771AB, 0xBF, 480, "mov edi, 480: clear weather's least"), (0x4771B0, 0xB8, 1800,
+                                                                       "mov eax, 1800: clear weather's greatest"),
+        (0x4771B7, 0xBF, 180, "mov edi, 180: any other weather's least"),
+        (0x4771BC, 0xB8, 360, "mov eax, 360: any other weather's greatest")],
+}
+# The setter's calls from the weather's own code (the natural changes, divided by N): (va, what).  Every other call
+# (island events, God Powers, a queued kind) is left alone, so those spells last as in the normal game.
+WEATHER_NATURAL = {
+    3: [(0x41FD11, "the start of a village's weather"), (0x41FF9C, "the fruit trees' rain after clear"),
+        (0x41FFAB, "back to clear when a spell ends"), (0x41FFC0, "clear -> another kind (shared with a queued kind)")],
+    4: [(0x46BDF8, "the start of a village's weather"), (0x46C103, "clear -> another kind"),
+        (0x46C113, "back to clear when a spell ends")],
+    5: [(0x477298, "the start of a village's weather"), (0x477563, "clear -> another kind"),
+        (0x477573, "back to clear when a spell ends")],
+}
+# The setter's other calls, never touched (an island event's, a God Power's, a queued kind's ...).
+WEATHER_LEFT_ALONE = {
+    3: [0x414E67, 0x414E9C, 0x4150D9, 0x415119, 0x4151E9, 0x4166BB, 0x4166CB, 0x4167AD, 0x433B76, 0x464739,
+        0x464787, 0x4647D9],
+    4: [0x414957, 0x4149BC, 0x414B99, 0x414BD9, 0x414C19, 0x41509C, 0x41FF3A, 0x432918, 0x46C129],
+    5: [0x414C37, 0x414C9C, 0x414E29, 0x41F32C, 0x41FB1D, 0x4230C7, 0x425A1E, 0x439182, 0x477589],
+}
+# The Secret City's queued kind shares the 0x41FFC0 call: its path's first instruction jumps to the companion, which
+# makes the same call unmarked and goes on at 0x41FFC5.
+WEATHER_QUEUED = {3: (0x41FFB4, "C74604FFFFFFFF", 0x41FFC5)}
+# New Believers' Divine Energy adder and the calls of it that pay the believers' earnings (native/vvfp_divine_energy_gain).
+ENERGY_WRITER = {5: 0x424F80}
+ENERGY_SITES = {
+    5: [(0x472D25, "each believer's +1 every age unit"), (0x472D43, "+3 more at Devotion 50 or more"),
+        (0x472D61, "+5 more at Devotion 88 or more"),
+        (0x472DDB, "+1 more on Hard, or on Medium with 8,000 food or more"),
+        (0x46D893, "Honoring's +3"), (0x46D8B3, "Honoring's +4 more at Devotion 50 or more"),
+        (0x46D8D7, "Honoring's +5 more at Devotion 88 or more"),
+        (0x46DA1F, "work event 40's +1 (the Tribute Statue's polishing with Fix Vanilla Bugs)")],
+}
+# The adder's other calls, never scaled: (va, what).
+ENERGY_LEFT_ALONE = {
+    5: [(0x44E65C, "the tutorial's top-up to 10"), (0x425DB4, "a new village's 50"), (0x4250F4, "the cap's clamp"),
+        (0x41474D, "a relic found again: 10"), (0x41476E, "a relic found again: 50"),
+        (0x41478F, "a relic found again: 150"), (0x4157C8, "an island event's +10"),
+        (0x415DAB, "an island event's -20")],
+}
 
 SLIDERS = {
     # key: (row suffix, name, DLL, asset folder, output tag)
@@ -106,7 +163,18 @@ SLIDERS = {
     "skill_success": ("_skill_success", "Skill Practice Success Chance", "VVFP Skill Success.dll", "skill_success",
                       "Skill Success"),
     "age_speed": ("_age_speed", "Age and Nursing Timer Speed", "VVFP Age Speed.dll", "age_speed", "Age Speed"),
+    # The owner, 2026-11-25 (v1.35.101): "Frequency of weather changes in games that have them" and "frequency of
+    # divine energy gain in vv5".
+    "weather_frequency": ("_weather_frequency", "0.1-10x Weather Changes", "VVFP Weather Frequency.dll",
+                          "weather_frequency", "Weather Frequency"),
+    "divine_energy_gain": ("_divine_energy_gain", "0.1-10x Divine Energy Gain", "VVFP Divine Energy Gain.dll",
+                           "divine_energy_gain", "Divine Energy Gain"),
 }
+# The games each slider has a row in (A New Home and The Lost Children have no weather; only New Believers has
+# Divine Energy).
+SLIDER_GAMES = {key: GAMES for key in SLIDERS}
+SLIDER_GAMES["weather_frequency"] = (3, 4, 5)
+SLIDER_GAMES["divine_energy_gain"] = (5,)
 
 COMMON_TAIL = ("**Needs no other patch.** Off by default; Owner's Defaults ticks it, with the slider at 1. "
                "**Unverified in play** (checked by emulation of the game's own code). The companion is \"{dll}\", "
@@ -159,6 +227,31 @@ def describe(key: str, game: int) -> str:
                 f"often: 0.1 to 10 times as often (always, once that reaches it), as you choose with {words}. The "
                 "villager's skill still counts, and what a pass gives is the game's own. \"Learning Skills Never "
                 "Fails\" still makes every check pass. ")
+    elif key == "weather_frequency":
+        clear = "15 to 30" if game == 3 else "8 to 30"
+        trees = (" When the game makes a spell its shortest length (The Secret City does so in one state of its "
+                 "fruit trees), that is divided too." if game == 3 else "")
+        others = ("an island event, a God Power (Sunshine, Tempest) or anything else" if game == 5
+                  else "an island event or anything else")
+        body = (f"The weather changes on its own more or less often: 0.1 to 10 times as often, as you choose with "
+                f"{words}. Every natural spell of weather (the weather's own turns: the start of a village's weather, "
+                "clear weather giving way to another kind, and back to clear) lasts its normal length divided by the "
+                f"number: normally clear weather lasts {clear} minutes and any other kind 3 to 6, on the game's clock "
+                "(real-life minutes on Normal speed; the clock runs twice as fast on Fast, 0.6 times on Slow, and "
+                f"stops while paused). So at 2 clear weather lasts {'7.5 to 15' if game == 3 else '4 to 15'} minutes "
+                f"and any other kind 1.5 to 3; never less than 1 second. Weather that {others} brings on, at once or "
+                "next in line, lasts exactly as in the normal game. Which kind comes next is the game's own. A spell "
+                "already under way when the game starts keeps its end." + trees + " Rain and storms build up their strength "
+                "5 points every 6 seconds, so at high numbers spells are short and the strength rarely reaches 50, "
+                "above which mushrooms and collectibles get a second chance to appear. ")
+    elif key == "divine_energy_gain":
+        body = (f"The believers earn Divine Energy faster or slower: 0.1 to 10 times their normal Divine Energy, as "
+                f"you choose with {words}; the rest of a whole point is a chance, so on average it is exact. What it "
+                "multiplies: each believer's 1 every age unit (4 at Devotion 50 or more, 9 at 88 or more, and 1 more "
+                "on Hard, or on Medium with 8,000 food or more) and Honoring's 3, 7 or 12 (and, with Fix Vanilla "
+                "Bugs, the Tribute Statue polishing's 1). The cap is the game's own, and so are the God Powers' costs "
+                "and every other Divine Energy change: a new village's 50, the tutorial's top-up, a relic found "
+                "again (10, 50 or 150), island events and \"Practicing Devotion Builds Faith and Divine Energy\". ")
     else:
         extra = {
             1: " The Golden Child stays 5.",
@@ -201,6 +294,35 @@ def detours(key: str, game: int) -> list[dict]:
                             "multiplies a positive amount by N (the rest a chance) and goes on into the writer"
                             + ("; optional" if optional else ""), "installed_by": by}
                 for va, what, optional in table[game]]
+    if key == "weather_frequency":
+        setter = WEATHER_SETTER[game]
+        out = [{"va": f"0x{va:X}", "stock_bytes": f"{op:02X}" + seconds.to_bytes(4, "little").hex().upper(),
+                "written_bytes": "E8XXXXXXXX",
+                "routine": f"the weather setter 0x{setter:X}'s {what} (seconds on the game's clock): a call of the "
+                           "companion, which loads the same register with the stock seconds, or with the seconds "
+                           "divided by N (rounded, at least 1; the greatest kept above the least) while a natural "
+                           "change is being made; flags and every other register kept", "installed_by": by}
+               for va, op, seconds, what in WEATHER_SITES[game]]
+        out += [{"va": f"0x{va:X}", "stock_bytes": call_bytes(va, setter), "written_bytes": "E8XXXXXXXX",
+                 "routine": f"the weather's own call of the setter 0x{setter:X}, {what}: goes through the companion, "
+                            "which marks the change natural, calls the setter with the same arguments and clears the "
+                            "mark", "installed_by": by}
+                for va, what in WEATHER_NATURAL[game]]
+        if game in WEATHER_QUEUED:
+            va, stock, resume = WEATHER_QUEUED[game]
+            out.append({"va": f"0x{va:X}", "stock_bytes": stock, "written_bytes": "E9XXXXXXXX9090",
+                        "routine": f"a queued kind's path (mov dword ptr [esi + 4], -1, then the call it shares "
+                                   f"with the natural change): a jump to the companion, which makes the same move "
+                                   f"and the same call of the setter unmarked (stock lengths) and goes on at "
+                                   f"0x{resume:X}", "installed_by": by})
+        return out
+    if key == "divine_energy_gain":
+        writer = ENERGY_WRITER[game]
+        return [{"va": f"0x{va:X}", "stock_bytes": call_bytes(va, writer), "written_bytes": "E8XXXXXXXX",
+                 "routine": f"{what}: the call of the Divine Energy adder 0x{writer:X} goes through the companion, "
+                            "which multiplies a positive amount by N (the rest a chance) and goes on into the adder",
+                 "installed_by": by}
+                for va, what in ENERGY_SITES[game]]
     va, stock, text = AGE_SITES[game]
     return [{"va": f"0x{va:X}", "stock_bytes": stock, "written_bytes": "E8XXXXXXXX" + "90" * (len(stock) // 2 - 5),
              "routine": f"the world tick's add of each villager's real seconds since its last look ({text}): the "
@@ -255,7 +377,7 @@ def main() -> None:
             subprocess.run(["powershell", "-NoProfile", "-ExecutionPolicy", "Bypass", "-File",
                             str(ROOT / "scripts" / f"build_vvfp_{asset}.ps1")], check=True)
         dll_sha = sha(ROOT / "assets" / asset / dll)
-        for game in GAMES:
+        for game in SLIDER_GAMES[key]:
             path = ROOT / "data" / f"vv{game}{SLIDERS[key][0]}_feature.json"
             path.write_text(json.dumps(row(key, game, dll_sha), indent=2, ensure_ascii=False) + "\n",
                             encoding="utf-8", newline="\n")

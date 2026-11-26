@@ -123,7 +123,8 @@ def _feature(feature: str) -> str:
 # the test keeps the two the same).
 # Story / Cheat Upgrades and its cost row are on by default (owner, 2026-11-01).
 DEFAULT_OFF = frozenset({"vv5_learning_never_fails", "vv5_everyone_collects_like_vv1", "vv5_super_secret_golden_mushroom",
-                         "vv5_collectibles_stay_collected", "vv5_science_collectibles_complete"})
+                         "vv5_collectibles_stay_collected", "vv5_science_collectibles_complete",
+                         "vv5_divine_energy_gain"})
 ORIGINS = "vv5_enable_origins_exclusive_features"
 STORY = "vv5_story_cheat_upgrades"
 STORY_COST = "vv5_story_cheat_upgrades_cost_tech_points"
@@ -131,7 +132,7 @@ PATCHES = (ORIGINS, STORY, STORY_COST, "vv5_learning_never_fails", "vv5_heathen_
            "vv5_statue_polishing_or_honoring", "vv5_easier_devotee_training", "vv5_vv4_nursery_divisor_parity",
            "vv5_builders_fix_huts", "vv5_builders_and_healers_work_first", "vv5_super_secret_golden_mushroom",
            "vv5_everyone_collects_like_vv1", "vv5_collectibles_stay_collected", "vv5_adult_confused",
-           "vv5_science_collectibles_complete")
+           "vv5_science_collectibles_complete", "vv5_divine_energy_gain")
 
 
 # ---------------------------------------------------------------------------
@@ -290,7 +291,12 @@ def _power_entries() -> list[Entry]:
         # villagers and sets the tips' marks 0x44EC40) ends at 0x425DA6: the cap +0x17D60 = 50, then the adder
         # 0x424F80(50).
         (("A new village starts with a Divine Energy cap of 50 and 50 Divine Energy: the game's new-village set-up "
-          "sets both as its last step.", VERIFIED_C),))]
+          "sets both as its last step.", VERIFIED_C),
+         # native/vvfp_divine_energy_gain: the adder's calls 0x472D25/0x472D43/0x472D61/0x472DDB (each believer) and
+         # 0x46D893/0x46D8B3/0x46D8D7 (Honoring), 0x46DA1F (work event 40) go through the companion.
+         (f"{_feature('vv5_divine_energy_gain')}: the believers' Divine Energy (each age unit and Honoring) is "
+          "multiplied by its slider's number, 0.1 to 10 (1, the normal game, unless moved); the cap, the powers' "
+          "costs, relics found again and island events are the game's own.", VERIFIED_C)))]
     for name, cost, _ in powers.TABLE:
         out.append(Entry(POWER, name, f"{cost:,} Divine Energy",
                          POWER_WORDS[name] + " Every number and its source: God powers.", VERIFIED_E))

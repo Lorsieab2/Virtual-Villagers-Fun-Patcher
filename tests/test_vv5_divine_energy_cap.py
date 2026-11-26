@@ -128,7 +128,8 @@ class TheRow(unittest.TestCase):
         self.assertEqual([(int(d["va"], 16), bytes.fromhex(d["stock_bytes"])) for d in row["runtime_detours"]],
                          list(SITES.items()))
         self.assertIn(ROW, {p.id for p in patcher.load_public_fun_patches()})
-        self.assertEqual(patcher.STARTUP_LOADER_COMPANIONS_3[-1], DLL_NAME, "appended to the third word")
+        # bit 17 of the append-only third word (later companions come after it; position = bit)
+        self.assertEqual(patcher.STARTUP_LOADER_COMPANIONS_3.index(DLL_NAME), 17)
         header = (ROOT / "native" / "shared" / "startup_companions_3.h").read_text(encoding="utf-8")
         self.assertIn(f'"{DLL_NAME}"', header)
 

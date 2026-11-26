@@ -1525,6 +1525,24 @@
       ]
     },
     {
+      "ids": ["vv3_weather_frequency", "vv4_weather_frequency", "vv5_weather_frequency"],
+      "guide": [
+        "Off by default; Owner's Defaults ticks it, with its slider at 1. Select All does not tick it. The weather changes on its own more or less often.",
+        "0.1 to 10 times as often, set with the 0.1-10x Weather Changes slider (1 unless you move it): each natural spell lasts its normal length divided by it.",
+        "Weather from island events or God Powers lasts as in the normal game; which kind comes next is the game's own. A spell under way at start keeps its end.",
+        "Rain and storms build up their strength over time, so at high numbers they rarely get strong enough to bring the extra mushrooms and collectibles. Not yet tested in play."
+      ]
+    },
+    {
+      "ids": ["vv5_divine_energy_gain"],
+      "guide": [
+        "Off by default; Owner's Defaults ticks it, with its slider at 1. Select All does not tick it. The believers earn Divine Energy faster or slower.",
+        "0.1 to 10 times their normal Divine Energy, set with the 0.1-10x Divine Energy Gain slider (1 unless you move it; 1 is the normal game).",
+        "Each believer's energy every age unit and Honoring's count, Devotion included; the cap, the God Powers' costs, relics and island events are the game's own.",
+        "Not yet tested in play."
+      ]
+    },
+    {
       "ids": ["vv3_one_time_collectibles_again", "vv4_one_time_collectibles_again"],
       "guide": [
         "Off by default; Owner's Defaults ticks it. Select All does not tick it.",
@@ -2042,10 +2060,28 @@
         "Owner's Defaults sets it to 1. It does nothing while the patch is not ticked."
       ]
     },
+    "weather_frequency_multiplier": {
+      "title": "0.1-10x Weather Changes",
+      "guide": [
+        "How many times as often the weather changes with the 0.1-10x Weather Changes patch: 0.1 to 10 in steps of 0.1, 1 unless you move it.",
+        "The slider reads -10 (a tenth) to 10 (10 times); 1, the middle, is the normal game, and -2 is half. Drag it or type the number in the box (then press Enter).",
+        "It is written into each game the next time you patch with 0.1-10x Weather Changes ticked; patch again after changing it.",
+        "Owner's Defaults sets it to 1. It does nothing while the patch is not ticked."
+      ]
+    },
+    "divine_energy_gain_multiplier": {
+      "title": "0.1-10x Divine Energy Gain",
+      "guide": [
+        "How many times their normal Divine Energy the believers earn with the 0.1-10x Divine Energy Gain patch (New Believers): 0.1 to 10 in steps of 0.1, 1 unless you move it.",
+        "The slider reads -10 (a tenth) to 10 (10 times); 1, the middle, is the normal game, and -2 is half. Drag it or type the number in the box (then press Enter).",
+        "It is written into the game the next time you patch with 0.1-10x Divine Energy Gain ticked; patch again after changing it.",
+        "Owner's Defaults sets it to 1. It does nothing while the patch is not ticked."
+      ]
+    },
     "difficulty_sliders": {
       "title": "Difficulty Sliders",
       "guide": [
-        "Opens the page with every slider: Tech Cost, Hungrier Villagers, Sickness, More Frequent Island Events, Louder Wind Flutes, Village Solidarity and the five newer ones.",
+        "Opens the page with every slider: Tech Cost, Hungrier Villagers, Sickness, More Frequent Island Events, Louder Wind Flutes, Village Solidarity and the seven newer ones.",
         "They are grouped by game, with each patch's name beside its slider. A slider is used only while its patch is ticked on the main page.",
         "Each reads -10 to 10: 10 is 10 times, -10 a tenth, -2 half, and 1, the middle, the normal game. A number saved above 10 is 10.",
         "One number is shared by every game that has the patch. Patch again after changing a slider."

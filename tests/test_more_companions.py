@@ -156,8 +156,12 @@ class Emulated(unittest.TestCase):
                                      (b"16384", 16384, ["VVFP Esteemed Elders.dll"]),   # bit 14
                                      (b"32768", 32768, ["VVFP Heathen Aging.dll"]),   # bit 15
                                      (b"65536", 65536, ["VVFP Founder X Buttons.dll"]),   # bit 16
-                                     (b"131072", 131072, ["VVFP Divine Energy Cap.dll"]),   # bit 17, the last entry
-                                     (b"262144", 262144, [])):   # bit 18: past the word's last entry (bit 17)
+                                     # Every later entry by its own bit (the list's order, append only), then the bit
+                                     # past the word's last entry.
+                                     *((str(1 << i).encode(), 1 << i, [name])
+                                       for i, name in enumerate(patcher.STARTUP_LOADER_COMPANIONS_3) if i > 16),
+                                     (str(1 << len(patcher.STARTUP_LOADER_COMPANIONS_3)).encode(),
+                                      1 << len(patcher.STARTUP_LOADER_COMPANIONS_3), [])):
             with self.subTest(setting=setting):
                 m = self.machine(setting)
                 m.export("VvfpStartup", 3, 0)

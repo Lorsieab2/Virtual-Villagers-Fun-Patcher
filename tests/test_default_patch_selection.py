@@ -183,6 +183,8 @@ class DefaultPatchSelectionTests(unittest.TestCase):
                   or p.endswith("_tech_gain")
                   or p.endswith("_skill_success")
                   or p.endswith("_age_speed")
+                  or p.endswith("_weather_frequency")      # the owner, 2026-11-25 (VV3-VV5)
+                  or p.endswith("_divine_energy_gain")     # the owner, 2026-11-25 (VV5)
                   # One-Time Collectibles Appear Again (the owner, 2026-11-17: on in Owner's Defaults only).
                   or p.endswith("_one_time_collectibles_again")
                   # Every Island Event Can Happen (the owner, 2026-11-17: off by default, on in Owner's Defaults).
@@ -490,6 +492,7 @@ class DefaultPatchSelectionTests(unittest.TestCase):
         held_back |= {"vv1_golden_child_born_female"}     # its option (the owner, 2026-11-16)
         # ...and the 0.1x-10x sliders (the owner, 2026-11-17: on in Owner's Defaults, off everywhere else).
         held_back |= {f"vv{n}{s}" for n in range(1, 6) for s in ("_collectible_frequency", "_food_gain", "_tech_gain", "_skill_success", "_age_speed")}
+        held_back |= {f"vv{n}_weather_frequency" for n in (3, 4, 5)} | {"vv5_divine_energy_gain"}
         # ...and One-Time Collectibles Appear Again (the owner, 2026-11-17: likewise).
         held_back |= {"vv3_one_time_collectibles_again", "vv4_one_time_collectibles_again"}
         # ...and the island events' content controls (the owner, 2026-11-15): Content Notes (on in Owner's Defaults

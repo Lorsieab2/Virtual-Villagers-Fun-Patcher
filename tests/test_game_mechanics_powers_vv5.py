@@ -91,6 +91,13 @@ class GodPowers(unittest.TestCase):
             # the Divine Energy cap is no longer held at 1,000; no power's cost, range or effect changes (Tech points
             # and effects: vv_game_mechanics_vv5.energy_cap_line)
             "vv5_max_divine_energy_increases",
+            # the believers' Divine Energy earnings times the 0.1-10x slider (the owner, 2026-11-25); the costs and the
+            # cap are the game's own (Divine Energy's own entry: vv_game_mechanics_items_vv5)
+            "vv5_divine_energy_gain",
+            # the weather's own changes divided by the 0.1-10x slider (the owner, 2026-11-25: "Leave powers alone"):
+            # Sunshine's and Tempest's calls of the setter (0x41F32C, 0x4230C7) are never touched, so their weather
+            # lasts as in the normal game (tests/test_new_sliders.py WeatherFrequency); its words name them
+            "vv5_weather_frequency",
         }
         data = ROOT / "data"
         catalog = [(row.get("id"), row) for row in json.loads((data / "builds.json").read_text(encoding="utf-8"))

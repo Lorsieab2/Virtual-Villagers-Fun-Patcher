@@ -755,6 +755,17 @@ SLIDER_LINES = (
      "villagers' age clock runs {n} times as fast: growing up, old age, pregnancy, nursing, eating, health and "
      "sickness all come {n} times as soon in real time (the ages are the game's own); the countdowns on this page "
      "count at the normal speed"),
+    # The owner, 2026-11-25 (v1.35.101): The Secret City, The Tree of Life and New Believers only.
+    ("Village timers", "_weather_frequency", "VVFP Weather Frequency.txt",
+     "the weather changes on its own {n} times as often: every natural spell of weather lasts its normal length "
+     "divided by {n} (never under 1 second), so the weather lengths given on this page are divided by {n} too; "
+     "weather an island event or a God Power brings lasts as in the normal game, which kind comes next is the "
+     "game's own, and rain and storms still build up their strength 5 points every 6 seconds"),
+    # The owner, 2026-11-25 (v1.35.101): New Believers only.
+    ("Tech points and effects", "_divine_energy_gain", "VVFP Divine Energy Gain.txt",
+     "the believers earn {n} times their normal Divine Energy (on average: the rest of a whole point is a chance): "
+     "each believer's every age unit and Honoring's, with Devotion counted first; the cap, the God Powers' costs, a "
+     "new village's 50, relics found again and island events are the game's own"),
 )
 
 

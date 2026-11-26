@@ -2429,6 +2429,18 @@ Every technology level on the Tech screen costs 0.1 to 10 times its normal price
 - Evidence status: static source/manifest verification performed; runtime/player confirmation pending
 - Guarded executable edits: 16; every edit has an exact purpose and before/after guard in the manifest.
 
+#### 0.1-10x Weather Changes (`vv3_weather_frequency`)
+
+The weather changes on its own more or less often: 0.1 to 10 times as often, as you choose with the 0.1-10x Weather Changes slider in the patcher window (it reads -10 to 10: 10 is 10 times, -10 a tenth, -2 half, and 1, the middle, the normal game; 1 unless you move it; type it in the box beside the slider too). Every natural spell of weather (the weather's own turns: the start of a village's weather, clear weather giving way to another kind, and back to clear) lasts its normal length divided by the number: normally clear weather lasts 15 to 30 minutes and any other kind 3 to 6, on the game's clock (real-life minutes on Normal speed; the clock runs twice as fast on Fast, 0.6 times on Slow, and stops while paused). So at 2 clear weather lasts 7.5 to 15 minutes and any other kind 1.5 to 3; never less than 1 second. Weather that an island event or anything else brings on, at once or next in line, lasts exactly as in the normal game. Which kind comes next is the game's own. A spell already under way when the game starts keeps its end. When the game makes a spell its shortest length (The Secret City does so in one state of its fruit trees), that is divided too. Rain and storms build up their strength 5 points every 6 seconds, so at high numbers spells are short and the strength rarely reaches 50, above which mushrooms and collectibles get a second chance to appear. **Needs no other patch.** Off by default; Owner's Defaults ticks it, with the slider at 1. **Unverified in play** (checked by emulation of the game's own code). The companion is "VVFP Weather Frequency.dll", started by VVFP More Companions.dll, and the slider's number is written beside it in "VVFP Weather Frequency.txt"; nothing is written to a save.
+
+**Requires no other patch to be ticked.**
+
+- Behavior changes: 0.1-10x Weather Changes: the companion's sites 0x41FBF9, 0x41FBFE, 0x41FC05, 0x41FC0A, 0x41FD11, 0x41FF9C, 0x41FFAB, 0x41FFC0, 0x41FFB4 (see runtime_detours), installed only when the slider is not 1; N is read at start from "VVFP Weather Frequency.txt" beside the companion in tenths (0.1 to 10; none is 1).
+- Explicit non-changes/exclusions: No executable byte is patched: the companion writes its sites at run time, only after verifying their stock bytes (all of them, or none; an optional site another patch owns is left alone). At 1x nothing is installed. The game's rand is never drawn more or less often: the companion's chances are its own numbers. Nothing is written to a save, a villager record or a file; no text is shown.
+- Dependencies: none
+- Evidence status: implemented from exact-build disassembly of the stock executable; the companion's install and its effect emulated on the rendered executable (tests/test_new_sliders.py); runtime/player confirmation pending
+- Guarded executable edits: 0; every edit has an exact purpose and before/after guard in the manifest.
+
 #### 256 Villagers (Experimental) (`vv3_population_256`)
 
 EXPERIMENTAL. Gives The Secret City 256 villager slots (0 to 255) instead of 150. The game's villager table is moved to a new, larger place in memory and every part of the game that walks it -- births, island events, the Villager Details screen, saving and loading -- is widened to match. With Collection Progression Max Pop the cap becomes 221 plus the collection and Magic Level 3 bonuses (256 with everything); with Immediate Fixed Max Pop it is 256 at once; with No Population Increase the stock cap of 125 is unchanged, only the table is larger. The patched game is named "... - Modded 256" and keeps its saves, and the patcher's logs, in their own "Virtual Villagers - The Secret City - Modded 256" folder, so they never mix with 150-slot saves. The patcher does not copy saves into it: copy your save files from the "... - Modded" save folder yourself. An old save loads with all its villagers; the first time the game saves it, it is written in the longer 256 format, which only a 256 build can open, so keep the originals as a backup. **Needs Fix Vanilla Bugs on (it is on by default) to load a village that the base game's exactly-150-villager save bug has already damaged.** Off by default.
@@ -3533,6 +3545,18 @@ Every technology level on the Tech screen costs 0.1 to 10 times its normal price
 - Dependencies: none
 - Evidence status: static source/manifest verification performed; runtime/player confirmation pending
 - Guarded executable edits: 12; every edit has an exact purpose and before/after guard in the manifest.
+
+#### 0.1-10x Weather Changes (`vv4_weather_frequency`)
+
+The weather changes on its own more or less often: 0.1 to 10 times as often, as you choose with the 0.1-10x Weather Changes slider in the patcher window (it reads -10 to 10: 10 is 10 times, -10 a tenth, -2 half, and 1, the middle, the normal game; 1 unless you move it; type it in the box beside the slider too). Every natural spell of weather (the weather's own turns: the start of a village's weather, clear weather giving way to another kind, and back to clear) lasts its normal length divided by the number: normally clear weather lasts 8 to 30 minutes and any other kind 3 to 6, on the game's clock (real-life minutes on Normal speed; the clock runs twice as fast on Fast, 0.6 times on Slow, and stops while paused). So at 2 clear weather lasts 4 to 15 minutes and any other kind 1.5 to 3; never less than 1 second. Weather that an island event or anything else brings on, at once or next in line, lasts exactly as in the normal game. Which kind comes next is the game's own. A spell already under way when the game starts keeps its end. Rain and storms build up their strength 5 points every 6 seconds, so at high numbers spells are short and the strength rarely reaches 50, above which mushrooms and collectibles get a second chance to appear. **Needs no other patch.** Off by default; Owner's Defaults ticks it, with the slider at 1. **Unverified in play** (checked by emulation of the game's own code). The companion is "VVFP Weather Frequency.dll", started by VVFP More Companions.dll, and the slider's number is written beside it in "VVFP Weather Frequency.txt"; nothing is written to a save.
+
+**Requires no other patch to be ticked.**
+
+- Behavior changes: 0.1-10x Weather Changes: the companion's sites 0x46BD1D, 0x46BD22, 0x46BD29, 0x46BD2E, 0x46BDF8, 0x46C103, 0x46C113 (see runtime_detours), installed only when the slider is not 1; N is read at start from "VVFP Weather Frequency.txt" beside the companion in tenths (0.1 to 10; none is 1).
+- Explicit non-changes/exclusions: No executable byte is patched: the companion writes its sites at run time, only after verifying their stock bytes (all of them, or none; an optional site another patch owns is left alone). At 1x nothing is installed. The game's rand is never drawn more or less often: the companion's chances are its own numbers. Nothing is written to a save, a villager record or a file; no text is shown.
+- Dependencies: none
+- Evidence status: implemented from exact-build disassembly of the stock executable; the companion's install and its effect emulated on the rendered executable (tests/test_new_sliders.py); runtime/player confirmation pending
+- Guarded executable edits: 0; every edit has an exact purpose and before/after guard in the manifest.
 
 #### 256 Villagers (Experimental) (`vv4_population_256`)
 
@@ -4657,6 +4681,18 @@ Supported stock identity is the exact `Virtual Villagers - New Believers.exe` bu
 
 ### Optional features
 
+#### 0.1-10x Divine Energy Gain (`vv5_divine_energy_gain`)
+
+The believers earn Divine Energy faster or slower: 0.1 to 10 times their normal Divine Energy, as you choose with the 0.1-10x Divine Energy Gain slider in the patcher window (it reads -10 to 10: 10 is 10 times, -10 a tenth, -2 half, and 1, the middle, the normal game; 1 unless you move it; type it in the box beside the slider too); the rest of a whole point is a chance, so on average it is exact. What it multiplies: each believer's 1 every age unit (4 at Devotion 50 or more, 9 at 88 or more, and 1 more on Hard, or on Medium with 8,000 food or more) and Honoring's 3, 7 or 12 (and, with Fix Vanilla Bugs, the Tribute Statue polishing's 1). The cap is the game's own, and so are the God Powers' costs and every other Divine Energy change: a new village's 50, the tutorial's top-up, a relic found again (10, 50 or 150), island events and "Practicing Devotion Builds Faith and Divine Energy". **Needs no other patch.** Off by default; Owner's Defaults ticks it, with the slider at 1. **Unverified in play** (checked by emulation of the game's own code). The companion is "VVFP Divine Energy Gain.dll", started by VVFP More Companions.dll, and the slider's number is written beside it in "VVFP Divine Energy Gain.txt"; nothing is written to a save.
+
+**Requires no other patch to be ticked.**
+
+- Behavior changes: 0.1-10x Divine Energy Gain: the companion's sites 0x472D25, 0x472D43, 0x472D61, 0x472DDB, 0x46D893, 0x46D8B3, 0x46D8D7, 0x46DA1F (see runtime_detours), installed only when the slider is not 1; N is read at start from "VVFP Divine Energy Gain.txt" beside the companion in tenths (0.1 to 10; none is 1).
+- Explicit non-changes/exclusions: No executable byte is patched: the companion writes its sites at run time, only after verifying their stock bytes (all of them, or none; an optional site another patch owns is left alone). At 1x nothing is installed. The game's rand is never drawn more or less often: the companion's chances are its own numbers. Nothing is written to a save, a villager record or a file; no text is shown.
+- Dependencies: none
+- Evidence status: implemented from exact-build disassembly of the stock executable; the companion's install and its effect emulated on the rendered executable (tests/test_new_sliders.py); runtime/player confirmation pending
+- Guarded executable edits: 0; every edit has an exact purpose and before/after guard in the manifest.
+
 #### 0.1-10x Sickness (`vv5_sickness_multiplier`)
 
 **Needs no other patch.** Off by default. Villagers fall sick 0.1 to 10 times as often as they would: you choose how many times with the 0.1-10x Sickness slider in the patcher window (in steps of 0.1, 2 unless you move it; type it in the box beside the slider too; the slider reads -10 to 10: 10 is 10 times, -10 a tenth, -2 half, 1 in the middle the normal game; a number saved above 10 is 10). 1 is the normal game; above 1 the game is harder, below 1 easier (at x 0.5 half as often). The rarest chances cannot go below the game's own smallest, about 1 in 32,768 a check, so at the lowest settings the rarest rolls are a little more likely than the number says. Every natural chance of falling sick is multiplied, at every Medicine level and difficulty, the old villagers' extra chance included, and it stacks with the other patches (with Sickness works like VV1-3 it multiplies that rule's chances). Medicine, the fire, Easy's cures, healers, island events and everything that cures are unchanged.
@@ -4680,6 +4716,18 @@ Every technology level on the Tech screen costs 0.1 to 10 times its normal price
 - Dependencies: none
 - Evidence status: static source/manifest verification performed; runtime/player confirmation pending
 - Guarded executable edits: 12; every edit has an exact purpose and before/after guard in the manifest.
+
+#### 0.1-10x Weather Changes (`vv5_weather_frequency`)
+
+The weather changes on its own more or less often: 0.1 to 10 times as often, as you choose with the 0.1-10x Weather Changes slider in the patcher window (it reads -10 to 10: 10 is 10 times, -10 a tenth, -2 half, and 1, the middle, the normal game; 1 unless you move it; type it in the box beside the slider too). Every natural spell of weather (the weather's own turns: the start of a village's weather, clear weather giving way to another kind, and back to clear) lasts its normal length divided by the number: normally clear weather lasts 8 to 30 minutes and any other kind 3 to 6, on the game's clock (real-life minutes on Normal speed; the clock runs twice as fast on Fast, 0.6 times on Slow, and stops while paused). So at 2 clear weather lasts 4 to 15 minutes and any other kind 1.5 to 3; never less than 1 second. Weather that an island event, a God Power (Sunshine, Tempest) or anything else brings on, at once or next in line, lasts exactly as in the normal game. Which kind comes next is the game's own. A spell already under way when the game starts keeps its end. Rain and storms build up their strength 5 points every 6 seconds, so at high numbers spells are short and the strength rarely reaches 50, above which mushrooms and collectibles get a second chance to appear. **Needs no other patch.** Off by default; Owner's Defaults ticks it, with the slider at 1. **Unverified in play** (checked by emulation of the game's own code). The companion is "VVFP Weather Frequency.dll", started by VVFP More Companions.dll, and the slider's number is written beside it in "VVFP Weather Frequency.txt"; nothing is written to a save.
+
+**Requires no other patch to be ticked.**
+
+- Behavior changes: 0.1-10x Weather Changes: the companion's sites 0x4771AB, 0x4771B0, 0x4771B7, 0x4771BC, 0x477298, 0x477563, 0x477573 (see runtime_detours), installed only when the slider is not 1; N is read at start from "VVFP Weather Frequency.txt" beside the companion in tenths (0.1 to 10; none is 1).
+- Explicit non-changes/exclusions: No executable byte is patched: the companion writes its sites at run time, only after verifying their stock bytes (all of them, or none; an optional site another patch owns is left alone). At 1x nothing is installed. The game's rand is never drawn more or less often: the companion's chances are its own numbers. Nothing is written to a save, a villager record or a file; no text is shown.
+- Dependencies: none
+- Evidence status: implemented from exact-build disassembly of the stock executable; the companion's install and its effect emulated on the rendered executable (tests/test_new_sliders.py); runtime/player confirmation pending
+- Guarded executable edits: 0; every edit has an exact purpose and before/after guard in the manifest.
 
 #### 256 Villagers (Experimental) (`vv5_population_256`)
 
