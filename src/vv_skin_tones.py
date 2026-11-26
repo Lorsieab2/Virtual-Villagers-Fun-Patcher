@@ -21,10 +21,14 @@ and with neither known the tone is random, as the head is.  Founders and arrival
 triplets copy the first baby, as their heads do.
 
 THE FILE.  "Virtual Villagers Fun Patcher\\Save <S>\\Data\\Skin Tones\\Skin Tones - Save <S>.dat", in the
-shape of the Head Looks' file (native/vvfp_head_look/head_look_store.inc) with its own magic 'VST1':
+shape of the Head Looks' file (native/vvfp_head_look/head_look_store.inc) with its own magic 'VST2':
 
     u32 magic, u32 game (1..5), u32 count (150 or 256),
-    u32 roster[count], u32 id[count], u8 value[count]
+    u32 roster[count], u32 id[count], u8 value[count], u8 birth[count]
+
+birth: the tone the villager was born with or first given (0 none, 1..TONE_COUNT); "Reset to birth tone"
+puts it back.  The first layout, 'VST1', had no birth bytes (12 + count * 9 bytes) and is still read: its
+villagers' birth tones are the tones they had.
 
 value: the low four bits are the villager's tone (0 none yet, 1..TONE_COUNT, 15 the game's own art, chosen); the
 high four bits are, on a mother who is carrying, her baby's tone, rolled once at the conception (0 none):
@@ -77,7 +81,8 @@ TONE_NONE = 0               # no tone kept yet: drawn with the game's own art
 TONE_GAMES_OWN = 15         # the game's own art, chosen in Change Appearance
 GAMES_OWN_NAME = "Default"
 
-MAGIC = 0x31545356          # 'VST1'
+MAGIC = 0x32545356          # 'VST2'
+MAGIC_ONE_BYTE = 0x31545356  # 'VST1': no birth tones; still read
 FOLDER = "Skin Tones"
 LOG_WORD = "skin tone"      # "Old skin tone: ..." / "New skin tone: ..." in an "Appearance changed" record
 BIRTH_LINE = "Skin tone"    # "Skin tone: ..." in a Birth record
@@ -112,24 +117,27 @@ def file_path(patcher_folder: Path, slot: int) -> Path:
     return Path(patcher_folder) / f"Save {slot}" / "Data" / FOLDER / f"{FOLDER} - Save {slot}.dat"
 
 
-def pack(game: int, roster, ids, values) -> bytes:
+def pack(game: int, roster, ids, values, births) -> bytes:
     count = len(roster)
-    if not (len(ids) == len(values) == count):
-        raise ValueError("roster, ids and values must be the same length")
+    if not (len(ids) == len(values) == len(births) == count):
+        raise ValueError("roster, ids, values and births must be the same length")
     return (struct.pack("<3I", MAGIC, game, count) + struct.pack(f"<{count}I", *roster)
-            + struct.pack(f"<{count}I", *ids) + bytes(values))
+            + struct.pack(f"<{count}I", *ids) + bytes(values) + bytes(births))
 
 
 def unpack(data: bytes):
-    """(game, roster, ids, values) of a file's bytes; ValueError for any other shape."""
+    """(game, roster, ids, values, births) of a file's bytes, either layout; ValueError for any other shape."""
     if len(data) < 12:
         raise ValueError("too short for a Skin Tones file")
     magic, game, count = struct.unpack_from("<3I", data)
-    if magic != MAGIC or not 1 <= game <= 5 or count not in (150, 256) or len(data) != 12 + count * 9:
+    per = {MAGIC: 10, MAGIC_ONE_BYTE: 9}.get(magic)
+    if per is None or not 1 <= game <= 5 or count not in (150, 256) or len(data) != 12 + count * per:
         raise ValueError("not a Skin Tones file")
     roster = struct.unpack_from(f"<{count}I", data, 12)
     ids = struct.unpack_from(f"<{count}I", data, 12 + 4 * count)
-    return game, roster, ids, tuple(data[12 + 8 * count:])
+    values = tuple(data[12 + 8 * count:12 + 9 * count])
+    births = tuple(data[12 + 9 * count:]) if magic == MAGIC else tuple(tone_of(v) for v in values)
+    return game, roster, ids, values, births
 
 
 def tone_of(value: int) -> int:
@@ -147,5 +155,12 @@ def pending_baby_tone(value: int) -> int:
 def tones_by_identity(data: bytes) -> dict[int, int]:
     """{villager identity: tone} of a file's bytes, for the Family Tree, the Picture Studio and Revive: every
     villager a tone is kept for (0 = the game's own art)."""
-    _, _, ids, values = unpack(data)
+    _, _, ids, values, _ = unpack(data)
     return {identity: tone_of(value) for identity, value in zip(ids, values) if identity and value & 0x0F}
+
+
+def birth_tones_by_identity(data: bytes) -> dict[int, int]:
+    """{villager identity: birth tone 1..TONE_COUNT} of a file's bytes."""
+    _, _, ids, values, births = unpack(data)
+    return {identity: birth for identity, value, birth in zip(ids, values, births)
+            if identity and value & 0x0F and 1 <= birth <= TONE_COUNT}

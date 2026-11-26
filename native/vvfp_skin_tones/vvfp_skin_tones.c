@@ -9,10 +9,13 @@
    every villager is drawn with the game's own art.
 
    THE FILE.  "Virtual Villagers Fun Patcher\Save <S>\Data\Skin Tones\Skin Tones - Save <S>.dat", the Head
-   Looks' store (native/vvfp_head_look/head_look_store.inc) with its own magic 'VST1': the same shape, the
-   same following of each villager by identity through loads, packs, renames and sex changes, the same
-   refusal to write over another village's file, the same atomic write.  Start Over must delete it
-   (native/shared/save_reset.c lists the per-save folders).
+   Looks' store (native/vvfp_head_look/head_look_store.inc) with its own magic 'VST2' and a second byte per
+   villager: the same following of each villager by identity through loads, packs, renames and sex changes,
+   the same refusal to write over another village's file, the same atomic write.  The second byte is the
+   villager's BIRTH TONE (the owner, 2026-11-26: a "reset to birth tone" option): the tone they were born
+   with or first given, never changed by Change Appearance, which VvfpSkinToneReset puts back.  The first
+   layout, 'VST1' (one byte per villager), is still read: its villagers' birth tones are the tones they
+   had.  Start Over must delete the file (native/shared/save_reset.c lists the per-save folders).
 
    WHO GETS WHICH TONE (skin_tone_rules.h has the rule itself).  Whenever the village on screen is known,
    every held villager with no tone is given one, the oldest first, so parents come before their children:
@@ -195,7 +198,10 @@ static unsigned int hl_identity(const unsigned char *r) {
     return h ? h : 1u;
 }
 
-#define HL_MAGIC 0x31545356u            /* 'VST1' */
+#define HL_MAGIC 0x32545356u            /* 'VST2' */
+#define HL_SECOND                       /* g_second: each villager's birth tone, 0 none, 1..COUNT */
+#define HL_MAGIC_ONE_BYTE 0x31545356u   /* 'VST1': a tone and no birth tone; still read */
+#define HL_SECOND_OF(v) ((((v) & 0x0Fu) >= 1u && ((v) & 0x0Fu) <= (unsigned int)VVFP_SKIN_TONE_COUNT) ? ((v) & 0x0Fu) : 0u)
 #define HL_MAGIC_V1 0u
 #define HL_READS_V1 0
 #define HL_LOOK_MAX 255                 /* both four-bit halves of the kept byte */
@@ -273,7 +279,7 @@ static int g_give_tried;
 /* Every held villager with no tone gets one (the rules at the top).  1 when the table is the village's
    (whether or not anyone was given a tone).  Throttled like the store's own look at the village. */
 static int st_give(void) {
-    static unsigned char was[HL_MAX];
+    static unsigned char was[HL_MAX], was_second[HL_MAX];
     static unsigned int was_id[HL_MAX];
     static int order[HL_MAX], given[HL_MAX], spent[HL_MAX];
     const st_layout *l = &LAYOUT[g_game];
@@ -307,6 +313,7 @@ static int st_give(void) {
     }
     memcpy(was, g_look, sizeof was);
     memcpy(was_id, g_look_id, sizeof was_id);
+    memcpy(was_second, g_second, sizeof was_second);
     for (i = 0; i < n; ++i) {
         const unsigned char *r = hl_record(order[i]);
         int tone = 0;
@@ -338,6 +345,7 @@ static int st_give(void) {
         }
         g_look[order[i]] = (unsigned char)((g_look[order[i]] & 0xF0u) | (unsigned int)tone);
         g_look_id[order[i]] = g_roster[order[i]];
+        g_second[order[i]] = (unsigned char)tone;           /* the tone they were born with or first given */
         given[ngiven++] = order[i];
     }
     for (i = 0; i < nspent; ++i) {
@@ -346,6 +354,7 @@ static int st_give(void) {
     if (!hl_publish()) {
         memcpy(g_look, was, sizeof was);        /* memory never says what the file does not */
         memcpy(g_look_id, was_id, sizeof was_id);
+        memcpy(g_second, was_second, sizeof was_second);
         return 1;
     }
     return 1;
@@ -430,33 +439,69 @@ int __stdcall VvfpSkinToneGet(int game, const void *record) {
     return st_drawn_tone(st_value((const unsigned char *)record));
 }
 
-/* THE REVIVE SNAPSHOT'S READ: the kept tone of the villager in `record` exactly as kept -- 0 none, 1..COUNT,
-   15 the game's own, chosen -- without giving anyone a tone.  Hand it back with VvfpSkinToneGive. */
+/* The record's number when it is a held villager of the village on screen, else -1. */
+static int st_at(const unsigned char *record) {
+    int i;
+    if (record == NULL || !hl_sync()) {
+        return -1;
+    }
+    i = hl_index(record);
+    return i >= 0 && g_roster[i] != 0 && g_roster[i] == hl_identity(record) ? i : -1;
+}
+
+/* THE REVIVE SNAPSHOT'S READ: what is kept for the villager in `record`, as one number to hand back to
+   VvfpSkinToneGive -- the tone (0 none, 1..COUNT, 15 the game's own, chosen) in the low byte and the birth
+   tone (0 none, 1..COUNT) in the next -- without giving anyone a tone. */
 int __stdcall VvfpSkinToneOf(int game, const void *record) {
     int i;
-    if (game != g_game || g_game == 0 || record == NULL || !hl_sync()) {
+    if (game != g_game || g_game == 0) {
         return 0;
     }
-    i = hl_index((const unsigned char *)record);
-    if (i < 0 || g_roster[i] == 0 || g_roster[i] != hl_identity((const unsigned char *)record)) {
-        return 0;
-    }
-    return ST_TONE(g_look[i]);
+    i = st_at((const unsigned char *)record);
+    return i < 0 ? 0 : ST_TONE(g_look[i]) | ((int)g_second[i] << 8);
 }
 
-static int st_keep(const unsigned char *record, int tone) {
-    unsigned char value = st_value(record);
-    return hl_set(record, (int)((value & 0xF0u) | (unsigned int)tone));
-}
-
-/* THE REVIVE SNAPSHOT'S WRITE, and a newborn's or copy's tone from outside: keep `tone` (1..COUNT or 15)
-   for the villager in `record`, with no log record (nothing was changed by the player).  1 when the file
-   says so. */
-int __stdcall VvfpSkinToneGive(int game, const void *record, int tone) {
-    if (game != g_game || g_game == 0 || record == NULL || !st_tone_ok(tone)) {
+/* The birth tone of the villager in `record`: 1..COUNT, or 0 for none kept. */
+int __stdcall VvfpSkinToneBirth(int game, const void *record) {
+    int i;
+    if (game != g_game || g_game == 0) {
         return 0;
     }
-    return st_keep((const unsigned char *)record, tone);
+    i = st_at((const unsigned char *)record);
+    return i >= 0 && g_second[i] >= 1 && g_second[i] <= VVFP_SKIN_TONE_COUNT ? (int)g_second[i] : 0;
+}
+
+/* Keep `tone` for the villager in `record`; `birth` not 0: that birth tone too (0: the one kept stays, and
+   a villager with none gets `tone` when it is a tone).  1 when the file says so; otherwise nothing changed. */
+static int st_keep(const unsigned char *record, int tone, int birth) {
+    unsigned char value = st_value(record), was;
+    int i = st_at(record);
+    if (i < 0) {
+        return 0;
+    }
+    was = g_second[i];
+    if (birth != 0) {
+        g_second[i] = (unsigned char)birth;
+    } else if (was == 0 && tone >= 1 && tone <= VVFP_SKIN_TONE_COUNT) {
+        g_second[i] = (unsigned char)tone;
+    }
+    if (!hl_set(record, (int)((value & 0xF0u) | (unsigned int)tone))) {
+        g_second[i] = was;                      /* memory never says what the file does not */
+        return 0;
+    }
+    return 1;
+}
+
+/* THE REVIVE SNAPSHOT'S WRITE, and a tone given from outside: keep what VvfpSkinToneOf returned -- the
+   tone (1..COUNT or 15) in the low byte, the birth tone (0: not known) in the next -- for the villager
+   in `record`, with no log record (nothing was changed by the player).  1 when the file says so. */
+int __stdcall VvfpSkinToneGive(int game, const void *record, int kept) {
+    int tone = kept & 0xFF, birth = (kept >> 8) & 0xFF;
+    if (game != g_game || g_game == 0 || record == NULL || !st_tone_ok(tone) || birth > VVFP_SKIN_TONE_COUNT
+        || (kept & ~0xFFFF) != 0) {
+        return 0;
+    }
+    return st_keep((const unsigned char *)record, tone, birth);
 }
 
 /* Change Appearance: keep `tone` (1..COUNT, or 15 for the game's own art) and log the change.  1 when the
@@ -467,11 +512,18 @@ int __stdcall VvfpSkinToneSet(int game, const void *record, int tone) {
         return 0;
     }
     was = ST_TONE(st_value((const unsigned char *)record));
-    if (!st_keep((const unsigned char *)record, tone)) {
+    if (!st_keep((const unsigned char *)record, tone, 0)) {
         return 0;
     }
     st_log_change((const unsigned char *)record, was, tone);
     return 1;
+}
+
+/* Change Appearance's "Reset to birth tone": the villager's birth tone again, logged like any change.
+   1 when the file says so; 0 when no birth tone is kept. */
+int __stdcall VvfpSkinToneReset(int game, const void *record) {
+    int birth = VvfpSkinToneBirth(game, record);
+    return birth != 0 && VvfpSkinToneSet(game, record, birth);
 }
 
 /* Change Appearance for All: every tone in ONE write; 1 when the file says so for all of them. */
@@ -539,7 +591,7 @@ int __stdcall VvfpSkinToneBorn(int game, const void *child, const void *mother, 
         return 0;
     }
     if (first != NULL) {
-        tone = st_drawn_tone((unsigned char)VvfpSkinToneOf(game, first));
+        tone = st_drawn_tone((unsigned char)(VvfpSkinToneOf(game, first) & 0xFF));
     }
     if (tone == 0) {
         tone = VvfpSkinTonePending(game, mother);
@@ -558,7 +610,12 @@ int __stdcall VvfpSkinToneBorn(int game, const void *child, const void *mother, 
     }
     i = hl_index((const unsigned char *)child);
     mine = i >= 0 ? g_look[i] : 0;
+    if (i < 0) {
+        return 0;
+    }
+    g_second[i] = (unsigned char)tone;          /* born with it */
     if (!hl_set((const unsigned char *)child, (int)((mine & 0xF0u) | (unsigned int)tone))) {
+        g_second[i] = 0;
         return 0;
     }
     if (last && mother != NULL) {

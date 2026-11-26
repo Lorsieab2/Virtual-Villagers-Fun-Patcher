@@ -151,6 +151,7 @@ static void pack(void) {
 
 static void new_session(void) {
     memset(g_look, 0, sizeof g_look);
+    memset(g_second, 0, sizeof g_second);
     memset(g_look_id, 0, sizeof g_look_id);
     memset(g_roster, 0, sizeof g_roster);
     memset(g_stable, 0, sizeof g_stable);
@@ -279,13 +280,33 @@ int main(void) {
     }
     file_path(1, path);
     got = read_file(path, file, sizeof file);
-    check(got == 12u + COUNT * 9u && memcmp(file, "VST1", 4) == 0 && *(unsigned int *)(file + 4) == GAME
-          && *(unsigned int *)(file + 8) == COUNT, "the file: 'VST1', the game, the count, 12 + count x 9 bytes");
+    check(got == 12u + COUNT * 10u && memcmp(file, "VST2", 4) == 0 && *(unsigned int *)(file + 4) == GAME
+          && *(unsigned int *)(file + 8) == COUNT, "the file: 'VST2', the game, the count, 12 + count x 10 bytes");
     ok = 1;
     for (i = 0; i < 12; ++i) {
-        ok = ok && (file[12 + COUNT * 8 + i] & 0x0F) == VvfpSkinToneOf(GAME, rec(i));
+        ok = ok && (file[12 + COUNT * 8 + i] & 0x0F) == VvfpSkinToneGet(GAME, rec(i))
+             && file[12 + COUNT * 9 + i] == VvfpSkinToneGet(GAME, rec(i))
+             && VvfpSkinToneBirth(GAME, rec(i)) == VvfpSkinToneGet(GAME, rec(i));
     }
-    check(ok, "the file holds each villager's tone");
+    check(ok, "the file holds each villager's tone, and the same as their birth tone");
+    {
+        /* The first layout, 'VST1' (one byte each): still read; the tones it holds are the birth tones. */
+        static unsigned char old[4096];
+        HANDLE h;
+        DWORD wrote;
+        memcpy(old, file, 12u + COUNT * 9u);
+        memcpy(old, "VST1", 4);
+        old[12 + COUNT * 8 + 3] = 6;
+        h = CreateFileA(path, GENERIC_WRITE, 0, NULL, CREATE_ALWAYS, 0, NULL);
+        WriteFile(h, old, 12u + COUNT * 9u, &wrote, NULL);
+        CloseHandle(h);
+        new_session();
+        check(tone(3) == 6 && VvfpSkinToneBirth(GAME, rec(3)) == 6, "a 'VST1' file is read: its tones, and they are the birth tones");
+        later();
+        (void)VvfpSkinToneSet(GAME, rec(3), 6);
+        got = read_file(path, file, sizeof file);
+        check(got == 12u + COUNT * 10u && memcmp(file, "VST2", 4) == 0, "and it is written again as 'VST2'");
+    }
     a = tone(3);
     b = tone(7);
     new_session();
@@ -302,13 +323,21 @@ int main(void) {
     pack();
     new_session();
     check(tone(1) == k && tone(5) == b && tone(2) == a, "after a pack, each tone is still its villager's");
+    check(VvfpSkinToneBirth(GAME, rec(1)) == k && VvfpSkinToneBirth(GAME, rec(5)) == b, "and so is each birth tone");
 
     printf("Chosen in Change Appearance\n");
-    check(VvfpSkinToneSet(GAME, rec(0), 9) == 1 && tone(0) == 9, "a tone is set");
+    k = VvfpSkinToneBirth(GAME, rec(0));
+    check(VvfpSkinToneSet(GAME, rec(0), k == 9 ? 8 : 9) == 1 && tone(0) == (k == 9 ? 8 : 9), "a tone is set");
+    check(VvfpSkinToneBirth(GAME, rec(0)) == k, "the birth tone is not changed by it");
+    new_session();
+    check(VvfpSkinToneBirth(GAME, rec(0)) == k && tone(0) == (k == 9 ? 8 : 9), "both are in the file");
+    check(VvfpSkinToneReset(GAME, rec(0)) == 1 && tone(0) == k, "Reset to birth tone puts it back");
+    (void)VvfpSkinToneSet(GAME, rec(0), 9);
     check(VvfpSkinToneSet(GAME, rec(0), 11) == 0 && VvfpSkinToneSet(GAME, rec(0), 0) == 0 && tone(0) == 9,
           "a number that is no tone is refused");
     check(VvfpSkinToneSet(GAME, rec(0), VVFP_SKIN_TONE_GAMES_OWN) == 1 && tone(0) == 0
-          && VvfpSkinToneOf(GAME, rec(0)) == VVFP_SKIN_TONE_GAMES_OWN, "Default: drawn with the game's own art, and kept");
+          && (VvfpSkinToneOf(GAME, rec(0)) & 0xFF) == VVFP_SKIN_TONE_GAMES_OWN
+          && VvfpSkinToneBirth(GAME, rec(0)) == k, "Default: drawn with the game's own art, and kept; the birth tone stays");
     later();
     check(tone(0) == 0, "a chosen Default is not given a random tone again");
     {
@@ -325,8 +354,11 @@ int main(void) {
 
     printf("The Revive read and write\n");
     a = VvfpSkinToneOf(GAME, rec(1));
-    check(a == 8 && VvfpSkinToneGive(GAME, rec(2), a) == 1 && VvfpSkinToneOf(GAME, rec(2)) == 8,
-          "a tone read with VvfpSkinToneOf is handed to another villager with VvfpSkinToneGive");
+    check((a & 0xFF) == 8 && (a >> 8) == VvfpSkinToneBirth(GAME, rec(1)) && VvfpSkinToneGive(GAME, rec(2), a) == 1
+          && VvfpSkinToneOf(GAME, rec(2)) == a,
+          "what VvfpSkinToneOf reads (tone and birth tone) is handed to another villager with VvfpSkinToneGive");
+    check(VvfpSkinToneGive(GAME, rec(2), 0x10000 | a) == 0 && VvfpSkinToneGive(GAME, rec(2), (11 << 8) | 3) == 0,
+          "a number that is not one of its own is refused");
 
     printf("Babies\n");
     /* rec 0 is the father (tone 2), rec 1 the mother (tone 8): the head rule gives 4, 5 or 6 on 95%. */
@@ -361,7 +393,8 @@ int main(void) {
         gone(0);                                /* ... and then he is gone */
         villager(20, "Promised", 0, father_name, (const char *)rec(1) + LAYOUT[GAME].name);
         villager(21, "Twin", 0, father_name, (const char *)rec(1) + LAYOUT[GAME].name);
-        check(tone(20) == t, "the newborn gets exactly the tone rolled at the conception, the father gone or not");
+        check(tone(20) == t && VvfpSkinToneBirth(GAME, rec(20)) == t,
+              "the newborn gets exactly the tone rolled at the conception, the father gone or not; it is the birth tone");
         check(tone(21) == t, "a twin is the same");
         later();
         check(VvfpSkinTonePending(GAME, rec(1)) == 0, "the promise is spent");
@@ -385,8 +418,8 @@ int main(void) {
     /* A New Home's way: the birth is told. */
     t = VvfpSkinToneConceived(GAME, rec(1), rec(2));
     villager(23, "Told", 0, "", "");
-    check(VvfpSkinToneBorn(GAME, rec(23), rec(1), NULL, 0) == t && VvfpSkinToneOf(GAME, rec(23)) == t,
-          "a birth that is told gives the promised tone at once");
+    check(VvfpSkinToneBorn(GAME, rec(23), rec(1), NULL, 0) == t && VvfpSkinToneOf(GAME, rec(23)) == (t | (t << 8)),
+          "a birth that is told gives the promised tone at once, and it is the birth tone");
     villager(24, "ToldTwin", 0, "", "");
     check(VvfpSkinToneBorn(GAME, rec(24), rec(1), rec(23), 1) == t && VvfpSkinTonePending(GAME, rec(1)) == 0,
           "the second baby copies the first, and the last one spends the promise");

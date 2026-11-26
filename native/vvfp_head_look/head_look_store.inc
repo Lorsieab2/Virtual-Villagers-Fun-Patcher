@@ -50,7 +50,13 @@
 #include "../shared/sex_change.h"       /* ...and so does a sex change (VvfpVillagerSexChanged) */
 
 /* An includer may keep a per-villager value of its own in the same shape (native/vvfp_gender_presentation: 0 or 1,
-   its own magic, folder and name, no first layout); every default below is the Head Looks' own. */
+   its own magic, folder and name, no first layout); every default below is the Head Looks' own.
+
+   HL_SECOND (native/vvfp_skin_tones: a villager's birth tone beside their tone): a second byte per villager,
+   g_second, which follows its villager exactly as the first does and is written after it -- the file is then
+   12 + count * 10 bytes.  The includer also defines HL_MAGIC_ONE_BYTE, the magic of its own earlier
+   one-byte file (12 + count * 9 bytes), still read, and HL_SECOND_OF(v), what the second byte of such a
+   file's value v is taken to be.  Without HL_SECOND nothing below is compiled differently. */
 #ifndef HL_MAGIC
 #define HL_MAGIC 0x324C4856u            /* 'VHL2' */
 #endif
@@ -68,7 +74,12 @@
 #define HL_FILE_SLOT_AT (sizeof "Head Looks - Save " - 1)
 #endif
 #define HL_HEADER 12u
+#ifdef HL_SECOND
+#define HL_FILE_BYTES(count) (HL_HEADER + (DWORD)(count) * 10u)
+#define HL_FILE_BYTES_ONE_BYTE(count) (HL_HEADER + (DWORD)(count) * 9u)
+#else
 #define HL_FILE_BYTES(count) (HL_HEADER + (DWORD)(count) * 9u)
+#endif
 #define HL_FILE_BYTES_V1(count) (HL_HEADER + (DWORD)(count) * 5u)
 #define HL_FILE_MAX HL_FILE_BYTES(HL_MAX)
 #define HL_SYNC_MS 250u
@@ -77,6 +88,9 @@
 #endif
 
 static unsigned char g_look[HL_MAX];          /* by record: 0 Auto, 1 Young, 2 Old */
+#ifdef HL_SECOND
+static unsigned char g_second[HL_MAX];        /* by record: the includer's second byte */
+#endif
 static unsigned int g_look_id[HL_MAX];        /* the identity each look was kept for */
 static unsigned int g_roster[HL_MAX];         /* who held each record at the last look */
 static unsigned int g_stable[HL_MAX];         /* ...and what a rename leaves of it */
@@ -159,6 +173,12 @@ static int hl_valid(const unsigned char *data, DWORD len, void *ctx) {
     memcpy(&magic, data, 4);
     memcpy(&game, data + 4, 4);
     memcpy(&count, data + 8, 4);
+#ifdef HL_SECOND
+    if (game == (unsigned int)hl_game() && (count == 150u || count == 256u) && count <= HL_MAX
+        && magic == HL_MAGIC_ONE_BYTE && len == HL_FILE_BYTES_ONE_BYTE(count)) {
+        return 1;
+    }
+#endif
     return game == (unsigned int)hl_game() && (count == 150u || count == 256u) && count <= HL_MAX
         && ((magic == HL_MAGIC && len == HL_FILE_BYTES(count))
             || (HL_READS_V1 && magic == HL_MAGIC_V1 && len == HL_FILE_BYTES_V1(count)));
@@ -170,8 +190,13 @@ static int hl_publish(void) {
     static unsigned int ids[HL_MAX];
     char path[MAX_PATH];
     unsigned int header[3];
+#ifdef HL_SECOND
+    const void *parts[5];
+    DWORD sizes[5];
+#else
     const void *parts[4];
     DWORD sizes[4];
+#endif
     int i, nothing, slots = hl_slots();
     if (!g_have_roster || !vv_sidecar_gate_ready(&g_gate, g_slot) || !hl_path(g_slot, path)) {
         return 0;
@@ -190,7 +215,12 @@ static int hl_publish(void) {
     if (!vv_foreign_before_write(&g_foreign, path, vv_table_any(g_look, slots), &nothing)) {
         return nothing;
     }
+#ifdef HL_SECOND
+    parts[4] = g_second; sizes[4] = (DWORD)slots;
+    return vv_sidecar_publish(&g_gate, path, parts, sizes, 5);
+#else
     return vv_sidecar_publish(&g_gate, path, parts, sizes, 4);
+#endif
 }
 
 /* Move each look to where its villager is in `live` (mask_follow.h): `stored` the identity each look was
@@ -203,6 +233,19 @@ static int hl_follow(const unsigned int *stored, const unsigned int *stored_rost
     int changed = in_play
         ? vv_mask_follow_in_play(slots, g_look, stored, stored_roster, live, 0, moved, moved_id)
         : vv_mask_follow(slots, g_look, stored, stored_roster, live, 0, moved, moved_id);
+#ifdef HL_SECOND
+    {
+        /* The second byte goes wherever the first went: the same identities, the same moves. */
+        static unsigned char second_moved[HL_MAX];
+        static unsigned int second_id[HL_MAX];
+        if (in_play) {
+            (void)vv_mask_follow_in_play(slots, g_second, stored, stored_roster, live, 0, second_moved, second_id);
+        } else {
+            (void)vv_mask_follow(slots, g_second, stored, stored_roster, live, 0, second_moved, second_id);
+        }
+        memcpy(g_second, second_moved, (size_t)slots);
+    }
+#endif
     memcpy(g_look, moved, (size_t)slots);
     memcpy(g_look_id, moved_id, (size_t)slots * sizeof(unsigned int));
     return changed;
@@ -219,6 +262,9 @@ static int hl_load(int slot, const unsigned int *live, int *rewrite) {
     int status, kept, i, renamed;
     memset(g_look, 0, sizeof g_look);
     memset(g_look_id, 0, sizeof g_look_id);
+#ifdef HL_SECOND
+    memset(g_second, 0, sizeof g_second);
+#endif
     g_foreign = 0;
     *rewrite = 0;
     vv_sidecar_gate_bind(&g_gate, slot);
@@ -242,7 +288,11 @@ static int hl_load(int slot, const unsigned int *live, int *rewrite) {
     memset(filesnap, 0, sizeof filesnap);
     memset(fileids, 0, sizeof fileids);
     memcpy(filesnap, g_file + HL_HEADER, (size_t)kept * sizeof(unsigned int));
+#ifdef HL_SECOND
+    if (magic == HL_MAGIC || magic == HL_MAGIC_ONE_BYTE) {    /* both name each value's villager */
+#else
     if (magic == HL_MAGIC) {
+#endif
         memcpy(fileids, g_file + HL_HEADER + count * 4u, (size_t)kept * sizeof(unsigned int));
         looks_at = HL_HEADER + count * 8u;
     } else {
@@ -264,6 +314,10 @@ static int hl_load(int slot, const unsigned int *live, int *rewrite) {
         if (g_look[i] == 0) {
             fileids[i] = 0;
         }
+#ifdef HL_SECOND
+        g_second[i] = g_look[i] == 0 ? 0
+            : magic == HL_MAGIC ? g_file[looks_at + count + (unsigned int)i] : (unsigned char)HL_SECOND_OF(g_look[i]);
+#endif
     }
     /* A 'VHL1' file is written again in this layout, and one read through rename pairs under the names
        its villagers have now. */

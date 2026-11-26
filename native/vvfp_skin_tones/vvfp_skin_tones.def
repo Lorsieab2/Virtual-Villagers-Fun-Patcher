@@ -8,6 +8,8 @@ EXPORTS
     VvfpSkinToneGet=_VvfpSkinToneGet@8
     VvfpSkinToneOf=_VvfpSkinToneOf@8
     VvfpSkinToneGive=_VvfpSkinToneGive@12
+    VvfpSkinToneBirth=_VvfpSkinToneBirth@8
+    VvfpSkinToneReset=_VvfpSkinToneReset@8
     VvfpSkinToneSet=_VvfpSkinToneSet@12
     VvfpSkinToneSetMany=_VvfpSkinToneSetMany@16
     VvfpSkinToneConceived=_VvfpSkinToneConceived@12

@@ -67,6 +67,7 @@ class Table(unittest.TestCase):
         self.assertEqual([n.strip().strip('"') for n in names.split(",")], [row[0] for row in tones.TONE_TABLE])
         store = (ROOT / "native" / "vvfp_skin_tones" / "vvfp_skin_tones.c").read_text(encoding="utf-8")
         self.assertIn(f"#define HL_MAGIC 0x{tones.MAGIC:08X}u", store)
+        self.assertIn(f"#define HL_MAGIC_ONE_BYTE 0x{tones.MAGIC_ONE_BYTE:08X}u", store)
         self.assertIn(f'#define HL_KIND "{tones.FOLDER}"', store)
 
 
@@ -238,17 +239,25 @@ class File(unittest.TestCase):
         values[9] = (4 << 4) | 2                # tone 2, carrying a baby of tone 4
         ids[20] = 0x7777
         values[20] = tones.TONE_GAMES_OWN
-        data = tones.pack(5, roster, ids, values)
-        self.assertEqual(len(data), 12 + 150 * 9)
-        self.assertEqual(data[:4], b"VST1")
-        game, got_roster, got_ids, got_values = tones.unpack(data)
-        self.assertEqual((game, list(got_roster), list(got_ids), list(got_values)), (5, roster, ids, values))
+        births = [0] * 150
+        births[3], births[9] = 5, 2
+        data = tones.pack(5, roster, ids, values, births)
+        self.assertEqual(len(data), 12 + 150 * 10)
+        self.assertEqual(data[:4], b"VST2")
+        game, got_roster, got_ids, got_values, got_births = tones.unpack(data)
+        self.assertEqual((game, list(got_roster), list(got_ids), list(got_values), list(got_births)),
+                         (5, roster, ids, values, births))
+        self.assertEqual(tones.birth_tones_by_identity(data), {0x1234: 5, 0x9999: 2})
+        # The first layout: no birth bytes; the tones it holds are the birth tones.
+        old = b"VST1" + data[4:12 + 150 * 9]
+        self.assertEqual(tones.unpack(old)[3], tuple(values))
+        self.assertEqual(tones.birth_tones_by_identity(old), {0x1234: 7, 0x9999: 2})
         self.assertEqual(tones.tones_by_identity(data), {0x1234: 7, 0x9999: 2, 0x7777: 0})
         self.assertEqual(tones.pending_baby_tone(values[9]), 4)
         self.assertEqual(tones.pending_baby_tone(values[3]), 0)
 
     def test_another_shape_is_refused(self) -> None:
-        good = tones.pack(2, [0] * 256, [0] * 256, [0] * 256)
+        good = tones.pack(2, [0] * 256, [0] * 256, [0] * 256, [0] * 256)
         for bad in (good[:-1], good + b"\0", b"VHL2" + good[4:], good[:4] + struct.pack("<I", 6) + good[8:], b""):
             with self.assertRaises(ValueError):
                 tones.unpack(bad)

@@ -6,7 +6,9 @@
    owner's ten, Porcelain to Ebony (2026-11-26).  15: the game's own art ("Default"), chosen in Change
    Appearance.
 
-   THE KEPT BYTE (one per villager, in the Head Looks' file shape with the magic 'VST1'): the low four bits
+   THE KEPT BYTES (two per villager, in the Head Looks' file shape with the magic 'VST2').  The second is
+   the villager's BIRTH TONE: the tone they were born with or first given (0: none), which "Reset to birth
+   tone" puts back.  Of the first, the low four bits
    are the villager's tone; the high four are, on a carrying mother, HER BABY'S tone, rolled once at the
    conception (0: none).  The held baby is drawn with it and the newborn is given it unchanged (the owner:
    "baby sprites need skin tones too", decided at the conception so it never changes).
