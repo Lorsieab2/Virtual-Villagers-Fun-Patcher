@@ -119,7 +119,8 @@ class TheRows(unittest.TestCase):
                 self.assertNotIn(pid, gui.DEFAULT_OFF_FUN_PATCH_IDS)
 
     def test_started_from_the_third_word(self) -> None:
-        self.assertEqual(patcher.STARTUP_LOADER_COMPANIONS_3[-1], DLL_NAME)
+        # In the append-only third word (later companions come after it; position = bit).
+        self.assertIn(DLL_NAME, patcher.STARTUP_LOADER_COMPANIONS_3)
         header = (ROOT / "native" / "shared" / "startup_companions_3.h").read_text(encoding="utf-8")
         self.assertIn(f'"{DLL_NAME}",', header)
         record = json.loads((ROOT / "data" / "more_companions_companion.json").read_text(encoding="utf-8"))
