@@ -99,7 +99,9 @@ RULES = (
          "years. Every \"N%\" below is exact to within 0.07 percentage points (the game's random numbers run 0 to "
          "32,767, which 100 does not divide evenly)."),
     Line("With the patcher's \"Story / Cheat Upgrades\" (in this game): Pick Island Event and Pick Gong of Wonder "
-         "Outcome choose the next event or Gong result and its rolls instead of the chances above.",
+         "Outcome choose the next event or Gong result and its rolls instead of the chances above. "
+         "Pick Island Event's Override box also lets it choose an event whose own condition fails now: the event "
+         "happens with the villagers you have, and only truly impossible ones stay closed.",
          only_with=STORY),
 )
 

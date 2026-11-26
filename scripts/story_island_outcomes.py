@@ -299,6 +299,127 @@ UNLOCKED: dict[str, dict[int, dict]] = {
         25: {"needs": []}, 33: {"needs": ["room"]},  # developer-dead, work
     },
 }
+# Pick Island Event's override (the owner, 2026-11-25, all five games): "would
+# be nice to have an override toggle" -- "it safely uses the available people
+# in the village" -- "none of the usual requirements should apply, unless it's
+# literally technically impossible (population counter above the max ...
+# regardless of population huts etc)".  With the picker's override ticked, an
+# event listed here may be picked while its own condition fails:
+#
+# * "pass" (A New Home, The Lost Children): the event's own condition is passed
+#   for the one roll, as an unlock is (story_vv1.inc / story_vv2.inc).  What
+#   every island event needs (a living adult; the village's first island event
+#   is an encounter / a two-choice event) still holds, and so does any villager
+#   the event's own code looks for (those events are NOT listed: their code
+#   finds the villager itself, so a village without one can not have them).
+# * "cast" (The Secret City, The Tree of Life, New Believers): the event's own
+#   condition still runs first and keeps every villager it picks; a field it
+#   leaves empty is filled with a living villager of the kind the condition
+#   picks -- read from the game's own picker calls by emulating each condition
+#   in a village of every kind (adult man, adult woman, children, elders,
+#   Heathens) -- or, when the village has none of that kind, the nearest kind
+#   it has (story_override.inc OV_FALLBACK).  +4 is the villager the event is
+#   about, +0xC its second villager; the two are never the same villager.  A
+#   Heathen is cast only into a part the event itself gives a Heathen, and
+#   then only an ordinary one (never a puzzle's Heathen, never sick).
+# * "flag": (count, base) -- the condition's own roll of the event's variant
+#   (object +0x10 = rand(count) + base), which a condition that fails early
+#   never makes: made by the companion when it was not.
+# * "room": how many villager records the event can fill.  The game's room
+#   test (its population cap and the housing / collection gates) does not
+#   apply; the village's free records (the real limit, 150 or 256) must hold
+#   that many, else the event stays refused.
+# * "refuse": the event can not be forced safely, in the player's words.
+#
+# Every cast event was run in emulation (tests/test_pick_island_event_override.py):
+# its condition false, the cast villager(s) in place, its popup's own methods
+# and its apply for every choice -- complete, no invalid access.
+OV_KINDS = {"any": 1, "adult": 2, "child": 3, "woman": 4, "man": 5, "female": 6, "male": 7,
+            "heathen": 8, "heathen_child": 9, "heathen_man": 10}
+OVERRIDE: dict[str, dict[int, dict]] = {
+    "vv1": {
+        3: {"pass": True},              # A Plague of Locusts: sets the crops to 0 (0x427F73)
+        4: {"pass": True},              # The Measles Epidemic: each living child falls sick (none: nobody)
+        12: {"pass": True, "room": 3},  # The Barrel O` Babies: up to three creator calls (0x428263..)
+        (1 << 6) | 0: {"pass": True},   # The Trapped Whale: spirituality +1, never past 3
+        (1 << 6) | 4: {"pass": True},   # The Visitor: medicine +1, never past 3
+    },
+    "vv2": {
+        15: {"pass": True},             # Where Are The Infants?: the mother with an infant is still needed
+        16: {"pass": True},             # A Dangerous Mission: up to eight adults leave (0x433E62)
+        21: {"pass": True, "room": 3},  # The Barrel O` Babies: up to three creator calls
+        25: {"pass": True, "room": 2},  # Old Friends: two creator calls (0x434467, 0x4344A3)
+        (1 << 6) | 0: {"pass": True},   # The Ancient Gold Coin: culture +1, never past 3
+        (1 << 6) | 1: {"pass": True},   # The Cursed Idol: the food is clamped at 0 (0x420690)
+        (1 << 6) | 4: {"pass": True, "room": 1},   # The Savage Child
+        (1 << 6) | 18: {"pass": True},  # The Spyglass: exploration +1, never past 3
+    },
+    "vv3": {
+        7: {"room": 1},
+        15: {"cast": {4: "man"}},
+        16: {"cast": {4: "adult"}}, 17: {"cast": {4: "adult"}}, 18: {"cast": {4: "adult"}},
+        19: {"cast": {4: "adult"}}, 20: {"cast": {4: "adult"}}, 21: {"cast": {4: "adult"}},
+        22: {"cast": {4: "adult"}},
+        23: {"cast": {4: "any"}, "flag": (2, 0)},
+        24: {"cast": {4: "child"}}, 25: {"cast": {4: "adult"}}, 26: {"cast": {4: "adult"}},
+        27: {"cast": {4: "child"}},
+        28: {"cast": {4: "woman"}, "flag": (4, 1)},
+        29: {"cast": {4: "child"}}, 30: {"cast": {4: "child"}},
+        31: {"cast": {4: "adult"}}, 32: {"cast": {4: "adult"}}, 33: {"cast": {4: "adult"}},
+        34: {"cast": {4: "woman", 0xC: "man"}}, 35: {"cast": {4: "man", 0xC: "woman"}},
+        36: {"cast": {4: "any", 0xC: "man"}},
+        37: {"cast": {4: "any"}}, 38: {"cast": {4: "adult"}}, 39: {"cast": {4: "adult"}},
+        40: {"cast": {4: "man"}, "flag": (2, 0)},
+        41: {"cast": {4: "adult"}}, 42: {"cast": {4: "woman"}}, 43: {"cast": {4: "woman"}},
+        44: {"cast": {4: "adult"}}, 45: {"cast": {4: "adult"}}, 46: {"cast": {4: "child"}},
+        47: {"refuse": "a tribal chief: the event's own code looks the chief up and speaks through them"},
+        56: {"cast": {4: "any"}},
+        57: {"room": 1},
+    },
+    "vv4": {
+        6: {"room": 1},
+        12: {"cast": {4: "any"}}, 13: {"cast": {4: "any"}}, 14: {"cast": {4: "any"}},
+        15: {"cast": {4: "child"}},
+        18: {},                          # The Cold Snap: the apply needs no fire (emulated)
+        25: {"room": 3},
+        28: {"cast": {4: "woman"}, "room": 3},
+        29: {"cast": {4: "any"}}, 30: {"cast": {4: "any"}}, 31: {"cast": {4: "child"}},
+        32: {"cast": {4: "adult"}}, 33: {"cast": {4: "adult"}},
+        34: {"refuse": "a mother with a baby: the event is about her own baby"},
+        35: {"cast": {4: "adult"}, "flag": (2, 0)},
+        36: {"cast": {4: "any"}}, 37: {"cast": {4: "child"}},
+        38: {"cast": {4: "any"}}, 39: {"cast": {4: "any"}}, 40: {"cast": {4: "any"}},
+        41: {"cast": {4: "any"}}, 42: {"cast": {4: "any"}}, 43: {"cast": {4: "any"}},
+        44: {"cast": {4: "any"}},
+        45: {"cast": {4: "adult"}, "flag": (2, 0)},
+        46: {"cast": {4: "adult"}, "flag": (2, 0)},
+        47: {"cast": {4: "adult", 0xC: "child"}},
+        48: {"cast": {4: "adult"}},
+        49: {"cast": {4: "any"}},
+    },
+    "vv5": {
+        5: {"cast": {4: "any"}}, 11: {"cast": {4: "any"}}, 12: {"cast": {4: "any"}},
+        13: {"cast": {4: "child", 0xC: "heathen_child"}},
+        14: {"cast": {4: "female", 0xC: "male"}},
+        15: {}, 16: {}, 17: {},          # The Cold Snap, Army Ants!, Aphid Infestation!: no fire / crops needed
+        24: {"cast": {4: "child"}},
+        26: {"room": 3}, 27: {"room": 3}, 30: {"room": 3}, 31: {"room": 1}, 33: {"room": 3},
+        34: {"cast": {4: "female", 0xC: "heathen_child"}},
+        35: {"cast": {4: "any"}},
+        36: {"cast": {4: "child", 0xC: "heathen_child"}},
+        37: {"cast": {4: "adult", 0xC: "heathen_child"}, "flag": (2, 0)},
+        38: {"cast": {4: "child", 0xC: "heathen_child"}},
+        39: {"cast": {4: "heathen_man", 0xC: "adult"}},
+        40: {"cast": {4: "adult"}, "flag": (2, 0)},
+        41: {"cast": {4: "adult"}},      # Trick Or Trade: the food is never taken below 0 (emulated)
+        42: {"cast": {4: "child"}}, 43: {"cast": {4: "any"}},
+        44: {"cast": {4: "heathen"}},
+        45: {"cast": {4: "any"}}, 46: {"cast": {4: "adult"}},
+        47: {"cast": {4: "female", 0xC: "heathen_child"}},
+        55: {"cast": {4: "child"}},
+    },
+}
+
 DEAD_NOTES: dict[str, dict[int, str]] = {
     "vv1": {s: "Never happens in the original game (its condition always fails); its code and "
                "text are complete and it works. With Restore Missing Island Events ticked it also "

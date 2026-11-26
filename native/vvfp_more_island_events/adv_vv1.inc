@@ -376,6 +376,7 @@ static int __cdecl v1_choose(void *dialog) {
     unsigned char *world = VV1_WORLD();
     const adv_flow *picked;
     adv_log_reset();                   /* an encounter is drawn: whatever was ours is over */
+    mp_relax_reset();
     v12_op = 0;
     mb_op_forget();
     __try {

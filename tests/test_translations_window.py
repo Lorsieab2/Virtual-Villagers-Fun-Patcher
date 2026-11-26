@@ -648,6 +648,56 @@ class RecycleBinCallTests(TempTranslations):
     """vv_translations._shell_recycle: SHFileOperationW, FO_DELETE with FOF_ALLOWUNDO, through ctypes (Windows
     mocked: no file reaches the real Recycle Bin)."""
 
+    def setUp(self) -> None:
+        super().setUp()
+        tr._recycle_bin_roots.clear()            # every test asks Windows afresh
+        self.addCleanup(tr._recycle_bin_roots.clear)
+
+    @unittest.skipUnless(os.name == "nt", "Windows only")
+    def test_many_files_one_drive_question_and_one_call(self) -> None:
+        """The owner (2026-11-25): Delete Player Slot asked "is there a Recycle Bin?" once per file (a third of
+        a second each).  Now: one question for the drive, one SHFileOperationW for every path."""
+        seen, shell32 = self.fake_shell32()
+        files = [self.temp / f"f{n}.txt" for n in range(50)]
+        with mock.patch("ctypes.WinDLL", return_value=shell32), \
+                mock.patch.object(tr, "_drive_is_fixed", return_value=True):
+            tr._shell_recycle(files)
+            tr._shell_recycle(files[:3])         # a fixed drive: never asked again in this run
+        self.assertEqual(len(seen.roots), 1)
+        self.assertEqual(len(seen.ops), 2)
+        self.assertEqual(seen.lists[0], [str(f.resolve()) for f in files])
+        self.assertTrue(seen.ops[0][1] & 0x40)                                  # FOF_ALLOWUNDO, every time
+
+    @unittest.skipUnless(os.name == "nt", "Windows only")
+    def test_the_drive_question_asked_early_is_not_asked_again(self) -> None:
+        """Delete Player Slot asks while the player reads the list; the delete then only sends the files.  A
+        drive with no Recycle Bin asked early is still refused when the files are sent."""
+        seen, shell32 = self.fake_shell32()
+        with mock.patch("ctypes.WinDLL", return_value=shell32), \
+                mock.patch.object(tr, "_drive_is_fixed", return_value=True):
+            tr.prepare_recycle_bin(self.temp).join(10)
+            self.assertIsNone(tr.prepare_recycle_bin(self.temp))         # answered: nothing more to ask
+            tr._shell_recycle([self.temp / "a.txt"])
+        self.assertEqual(len(seen.roots), 1)
+        self.assertEqual(len(seen.ops), 1)
+        tr._recycle_bin_roots.clear()
+        seen, shell32 = self.fake_shell32(query_result=-2147024893)
+        with mock.patch("ctypes.WinDLL", return_value=shell32), \
+                mock.patch.object(tr, "_drive_is_fixed", return_value=True):
+            tr.prepare_recycle_bin(self.temp).join(10)                   # no error escapes the early question
+            with self.assertRaises(tr.RecycleBinUnavailable):
+                tr._shell_recycle([self.temp / "a.txt"])
+        self.assertEqual(seen.ops, [])
+
+    @unittest.skipUnless(os.name == "nt", "Windows only")
+    def test_a_drive_that_is_not_fixed_is_asked_every_time(self) -> None:
+        seen, shell32 = self.fake_shell32()
+        with mock.patch("ctypes.WinDLL", return_value=shell32), \
+                mock.patch.object(tr, "_drive_is_fixed", return_value=False):
+            tr._shell_recycle([self.temp / "a.txt", self.temp / "b.txt"])
+            tr._shell_recycle([self.temp / "a.txt"])
+        self.assertEqual(len(seen.roots), 2)
+
     def fake_shell32(self, query_result=0, op_result=0, aborted=False):
         seen = SimpleNamespace(roots=[], ops=[])
 
@@ -656,8 +706,19 @@ class RecycleBinCallTests(TempTranslations):
             return query_result
 
         def operation(op):
+            import ctypes
             obj = op._obj
             seen.ops.append((obj.wFunc, obj.fFlags, obj.pFrom))
+            # The whole double-NUL-ended list (reading pFrom stops at the first NUL).
+            address = ctypes.c_void_p.from_buffer(obj, type(obj).pFrom.offset).value
+            text, at = [], 0
+            while True:
+                part = ctypes.wstring_at(address + at * ctypes.sizeof(ctypes.c_wchar))
+                if not part:
+                    break
+                text.append(part)
+                at += len(part) + 1
+            seen.lists = getattr(seen, "lists", []) + [text]
             obj.fAnyOperationsAborted = aborted
             return op_result
 

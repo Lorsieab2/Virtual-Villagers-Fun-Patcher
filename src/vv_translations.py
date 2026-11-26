@@ -30,6 +30,7 @@ import re
 import shutil
 import struct
 import tempfile
+import threading
 from dataclasses import dataclass, field
 from pathlib import Path
 
@@ -830,11 +831,78 @@ class RecycleBinUnavailable(OSError):
     """The file cannot go to the Recycle Bin (none on that drive, or Windows refused): it is left in place."""
 
 
+# Drives already seen to have a Recycle Bin in this run (fixed drives only: a removable or network drive can be
+# swapped under the same letter, so it is asked again every time).  SHQueryRecycleBinW adds up the whole Recycle
+# Bin, so it takes a noticeable time -- the owner (2026-11-25): Delete Player Slot asked it once PER FILE, about a
+# third of a second each, minutes for a slot of a thousand files.  Now: once per drive per call, and a fixed
+# drive once per run.
+_recycle_bin_roots: set[str] = set()
+_recycle_bin_lock = threading.Lock()         # one question at a time: a check already asking is waited for
+DRIVE_FIXED = 3
+
+
+def _drive_is_fixed(root: str) -> bool:
+    import ctypes  # noqa: PLC0415
+    try:
+        return ctypes.windll.kernel32.GetDriveTypeW(ctypes.c_wchar_p(root)) == DRIVE_FIXED
+    except (AttributeError, OSError):
+        return False
+
+
+def _drive_root(path) -> str:
+    return (os.path.splitdrive(str(path))[0] + "\\").casefold()
+
+
+def _check_recycle_bins(shell32, paths) -> None:
+    """Raises RecycleBinUnavailable when the drive of any of ``paths`` has no Recycle Bin (SHQueryRecycleBinW
+    fails): each drive asked once, a fixed drive once per run."""
+    import ctypes  # noqa: PLC0415
+    from ctypes import wintypes  # noqa: PLC0415
+
+    class SHQUERYRBINFO(ctypes.Structure):
+        _fields_ = [("cbSize", wintypes.DWORD), ("i64Size", ctypes.c_longlong), ("i64NumItems", ctypes.c_longlong)]
+
+    query = shell32.SHQueryRecycleBinW
+    query.argtypes = [ctypes.c_wchar_p, ctypes.POINTER(SHQUERYRBINFO)]
+    query.restype = ctypes.c_long
+    with _recycle_bin_lock:
+        for root in dict.fromkeys(_drive_root(path) for path in paths):
+            if root in _recycle_bin_roots:
+                continue
+            info = SHQUERYRBINFO()
+            info.cbSize = ctypes.sizeof(SHQUERYRBINFO)
+            result = query(root, ctypes.byref(info))
+            if result != 0:
+                raise RecycleBinUnavailable(
+                    f"the drive {root.upper()} has no Recycle Bin (Windows error 0x{result & 0xFFFFFFFF:08X})")
+            if _drive_is_fixed(root):
+                _recycle_bin_roots.add(root)
+
+
+def prepare_recycle_bin(path) -> threading.Thread | None:
+    """Ask, off the main thread, whether the drive of ``path`` has a Recycle Bin, so the question is already
+    answered when the files are sent (Delete Player Slot asks it while the player reads the list).  Only
+    reads; a drive with no Recycle Bin is still refused when the files are sent."""
+    if os.name != "nt" or _drive_root(path) in _recycle_bin_roots:
+        return None
+
+    def ask() -> None:
+        import ctypes  # noqa: PLC0415
+        try:
+            _check_recycle_bins(ctypes.WinDLL("shell32"), [path])
+        except OSError:
+            pass                                 # said again, and refused, when the files are sent
+
+    thread = threading.Thread(target=ask, name="Recycle Bin check", daemon=True)
+    thread.start()
+    return thread
+
+
 def _shell_recycle(paths: list[Path]) -> None:
-    """SHFileOperationW(FO_DELETE) with FOF_ALLOWUNDO: the files go to the Recycle Bin.  Raises
-    RecycleBinUnavailable, and deletes nothing, when the drive has no Recycle Bin (SHQueryRecycleBinW fails) --
-    Windows would otherwise delete them for good.  FOF_WANTNUKEWARNING makes Windows ask rather than destroy a
-    file it cannot recycle."""
+    """SHFileOperationW(FO_DELETE) with FOF_ALLOWUNDO: the files go to the Recycle Bin, every path in ONE call.
+    Raises RecycleBinUnavailable, and deletes nothing, when a drive has no Recycle Bin (SHQueryRecycleBinW
+    fails, asked once per drive) -- Windows would otherwise delete them for good.  FOF_WANTNUKEWARNING makes
+    Windows ask rather than destroy a file it cannot recycle."""
     import ctypes  # noqa: PLC0415
     from ctypes import wintypes  # noqa: PLC0415
 
@@ -842,25 +910,12 @@ def _shell_recycle(paths: list[Path]) -> None:
         raise RecycleBinUnavailable("the Recycle Bin needs Windows")
     shell32 = ctypes.WinDLL("shell32")
 
-    class SHQUERYRBINFO(ctypes.Structure):
-        _fields_ = [("cbSize", wintypes.DWORD), ("i64Size", ctypes.c_longlong), ("i64NumItems", ctypes.c_longlong)]
-
     class SHFILEOPSTRUCTW(ctypes.Structure):
         _fields_ = [("hwnd", wintypes.HWND), ("wFunc", wintypes.UINT), ("pFrom", ctypes.c_wchar_p),
                     ("pTo", ctypes.c_wchar_p), ("fFlags", ctypes.c_ushort), ("fAnyOperationsAborted", wintypes.BOOL),
                     ("hNameMappings", ctypes.c_void_p), ("lpszProgressTitle", ctypes.c_wchar_p)]
 
-    query = shell32.SHQueryRecycleBinW
-    query.argtypes = [ctypes.c_wchar_p, ctypes.POINTER(SHQUERYRBINFO)]
-    query.restype = ctypes.c_long
-    for path in paths:
-        root = os.path.splitdrive(str(path))[0] + "\\"
-        info = SHQUERYRBINFO()
-        info.cbSize = ctypes.sizeof(SHQUERYRBINFO)
-        result = query(root, ctypes.byref(info))
-        if result != 0:
-            raise RecycleBinUnavailable(
-                f"the drive {root} has no Recycle Bin (Windows error 0x{result & 0xFFFFFFFF:08X})")
+    _check_recycle_bins(shell32, paths)
     FO_DELETE, FOF_SILENT, FOF_NOCONFIRMATION, FOF_ALLOWUNDO, FOF_NOERRORUI, FOF_WANTNUKEWARNING = (
         3, 0x4, 0x10, 0x40, 0x400, 0x4000)
     op = SHFILEOPSTRUCTW()
