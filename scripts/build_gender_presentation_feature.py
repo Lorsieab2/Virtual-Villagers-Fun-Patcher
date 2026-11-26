@@ -27,15 +27,6 @@ DLL = ROOT / "assets" / "gender_presentation" / DLL_NAME
 SOURCE = ROOT / "native" / "vvfp_gender_presentation" / "vvfp_gender_presentation.c"
 GAMES = (1, 2, 3, 4, 5)
 
-# Each game's conception routine and the site the companion splices in it (vvfp_gender_presentation.c CONCEPTION).
-CONCEPTION = {
-    1: (0x43BBC3, "E8D8E5FFFF", "the room check of the conception routine 0x43BBC0"),
-    2: (0x44B983, "E888F9FFFF", "the room check of the conception routine 0x44B980"),
-    3: (0x455AB8, "E873A30000", "the room check of the conception routine 0x455AB0"),
-    4: (0x45E7B0, "538A5C2420", "the entry of the conception routine 0x45E7B0"),
-    5: (0x465E00, "538A5C2420", "the entry of the conception routine 0x465E00"),
-}
-
 # The draw routines each game's sites are in (the DLL's SITES comments; tests/test_gender_presentation.py).
 ROUTINES = {
     1: "the Villager Details portrait 0x437340, a dialog's figure 0x4375F0, the village 0x437790 and the map 0x4388E0",
@@ -56,11 +47,10 @@ DESCRIPTION = (
     "Golden Child, and story villagers keep the game's own look. The choice is kept in the save's own Gender "
     "Presentation file and follows each villager (through deaths, reloads, renames and a sex change); Back Up Saves "
     "copies it and Start Over clears it. Custom Island Events can set or clear it too (the \"presentation\" change). "
-    "**Only villagers born female carry:** one born female who changed to male goes on carrying; one born male never "
-    "conceives on their own, even after changing to female (Change sex says so), but a Custom Island Event can still "
-    "give them a baby with a partner you choose. In New Believers the Heathen Mommy is the exception: whatever sex the "
-    "game gives her, she always has her baby and holds it, and a Heathen Mommy who was left without it is given it "
-    "at her next change of action. "
+    "**Babies are never blocked for any sex:** a villager of either sex can carry and hold a baby wherever the game "
+    "or another patch gives them one, and a carrying parent who changes sex goes on carrying. In New Believers the "
+    "Heathen Mommy, whatever sex the game gives her, always has her baby and holds it; a Heathen Mommy who was left "
+    "without it is given it at her next change of action. "
     "**On in Owner's Defaults; off in the normal defaults and in Select All.** Change Appearance is in the Origins "
     "upgrades: " + ORIGINS_BASE_SENTENCE + " **Works the same with every other patch and in every population mode.** "
     "**Not yet seen in a running game** (checked by emulation of each game's own draw code). The companion is \""
@@ -104,21 +94,26 @@ def row(game: int, dll_sha: str) -> dict:
             "The Custom Island Event's \"presentation\" change (code 23, docs/event-collection/cie-v6-binary.md 31) "
             "sets or clears it through the same companion.",
             "The birth sex: the first sex change keeps the sex the villager was born with in the same file "
-            "(VvfpBornFemale; else the save's Sex Changes log). " + CONCEPTION[game][2][0].upper()
-            + CONCEPTION[game][2][1:] + " is spliced: when the game's own code makes a villager born male conceive, "
-            "the conception does not happen, exactly as when the village has no room (a call from outside the "
-            "executable -- the Custom Island Event's pregnancy with a partner the player chooses -- is never "
-            "refused). Island events and puzzles that write a pregnancy themselves are not covered.",
+            "(VvfpBornFemale; else the save's Sex Changes log), for the records only: it decides nothing about "
+            "babies, and no conception routine is touched (the owner, 2026-11-25: the patcher never blocks babies, "
+            "male or female; v1.35.97 to v1.35.100 refused the game's own conception for a carrier born male).",
         ] + ([
-            "New Believers' Heathen Mommy (a Heathen, role +0x1CFC 17) is never refused: the Heathen Mommy Puzzle "
-            "Restoration's new-village cave (0x494620) makes her with a random sex and then her infant through the "
-            "forced conception 0x465E00, so a Mommy born male has the infant and holds it as one born female does "
-            "(the carried-item draw 0x4724C3 / 0x4701C0 reads no sex). The activity stop's expecting test 0x47354C is "
-            "spliced too: a living Heathen Mommy with no infant (+0x1C4C 0 -- made while the guard refused a male "
-            "Mommy's, or made the Mommy by a Custom Island Event) is given it there by the cave's own call (lineage 1, "
-            "skill 1, value 50, \"Unknown\", head 2, body 2, forced; one infant, the twins and triplets counters put "
-            "back), so the stop hands her the baby (0x47356B, SetCarrying 0x466420 with 3) as it does every expecting "
-            "Heathen.",
+            "New Believers' Heathen Mommy (a Heathen, role +0x1CFC 17): the Heathen Mommy Puzzle Restoration's "
+            "new-village cave (0x494620) makes her with a random sex and then her infant through the forced "
+            "conception 0x465E00; a Mommy of either sex holds the infant (the carried-item draw 0x4724C3 / 0x4701C0 "
+            "reads no sex). The activity stop's expecting test 0x47354C is spliced: a living Heathen Mommy with no "
+            "infant (+0x1C4C 0 -- made while the old guard refused a male Mommy's, or made the Mommy by a Custom "
+            "Island Event) is given it there by the cave's call (skill 1, value 50, forced; one infant, the twins and "
+            "triplets counters put back), so the stop hands her the baby (0x47356B, SetCarrying 0x466420 with 3) as it "
+            "does every expecting Heathen.",
+            "The infant's other parent is always named (the owner, 2026-11-25): a living adult Heathen of either sex, "
+            "never the Mommy, of her own family (the same last name) when there is one, else any, at random (the "
+            "game's rand 0x403660) -- the lineage, name, head and body the conception routine takes. With the Heathen "
+            "Mommy Puzzle Restoration in the game, the cave's call of 0x465E00 at 0x49465D (its bytes from 0x494650 "
+            "checked) comes to the companion first, which puts that parent into the arguments in place of the game's "
+            "\"Unknown\"; an infant that already has \"Unknown\" (made before this) is given one at the Mommy's "
+            "activity stop (+0x1C0C, +0x1C10, +0x1C2C, +0x1C30: the fields the routine writes from them). Only a camp "
+            "with no other adult Heathen keeps \"Unknown\".",
         ] if game == 5 else []),
         "explicit_non_changes": [
             "No executable byte is patched: the companion splices the reads at run time, only after verifying every "
@@ -140,13 +135,14 @@ def row(game: int, dll_sha: str) -> dict:
              "routine": "a read of the villager sex field in a villager draw routine",
              "installed_by": f"{DLL_NAME}, VvfpStartup (started by VVFP Startup.dll, second word)"}
             for va, stock in sites(game)
-        ] + [
-            {"va": f"0x{CONCEPTION[game][0]:06X}", "stock_bytes": CONCEPTION[game][1], "routine": CONCEPTION[game][2],
-             "installed_by": f"{DLL_NAME}, VvfpStartup (started by VVFP Startup.dll, second word)"}
         ] + ([
             {"va": "0x47354C", "stock_bytes": "399A4C1C0000",
              "routine": "the activity stop 0x473440's expecting test (the Heathen Mommy's infant)",
-             "installed_by": f"{DLL_NAME}, VvfpStartup (started by VVFP Startup.dll, second word)"}
+             "installed_by": f"{DLL_NAME}, VvfpStartup (started by VVFP Startup.dll, second word)"},
+            {"va": "0x49465D", "stock_bytes": "E89E17FDFF",
+             "routine": "the Heathen Mommy Puzzle Restoration cave's call of the conception routine 0x465E00 (patcher "
+                        "bytes; installed only when that row is in the game: the infant's named other parent)",
+             "installed_by": f"{DLL_NAME}, VvfpStartup (started by VVFP Startup.dll, second word)"},
         ] if game == 5 else []),
     }
 

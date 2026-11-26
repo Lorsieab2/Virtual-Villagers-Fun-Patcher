@@ -28,25 +28,16 @@
    Everything else that reads the sex -- breeding, names, pronouns, sounds, the statistics, every companion -- reads
    the record as before.
 
-   THE BIRTH SEX (the owner, 2026-11-15): only villagers born female carry.  The kept value's bits 1 and 2 say the
-   villager was born male / female -- written the first time their sex is changed (VvfpVillagerSexChanged: the sex
-   of the record `before` it), following them like the presentation (bit 0).  VvfpBornFemale answers from it, else
-   from the save's Sex Changes log (sex_change.h vv_sex_born_female_by_log), else the sex now.
-
-   NO CONCEPTION ON THEIR OWN FOR A VILLAGER BORN MALE.  Each game's conception routine is spliced (CONCEPTION
-   below): A New Home 0x43BBC0, The Lost Children 0x44B980 and The Secret City 0x455AB0 at their room check (the
-   call whose "no room" answer makes the routine return having changed nothing), The Tree of Life 0x45E7B0 and New
-   Believers 0x465E00 at their entry (their forced callers pass the room check by).  When the carrier was born male
-   the game's own conception does not happen -- the room check answers "no room" (VV1-VV3), or the routine
-   returns at once (VV4, VV5), exactly as a full village makes it -- UNLESS the routine was called from outside the
-   game's executable: the Custom Island Event's pregnancy with a partner the player chooses (Story / Cheat Upgrades
-   calls the routines of The Tree of Life and New Believers; in the other three it writes the fields itself and
-   never reaches them), so a player may still give them a baby.
+   THE BIRTH SEX.  The kept value's bits 1 and 2 say the villager was born male / female -- written the first time
+   their sex is changed (VvfpVillagerSexChanged: the sex of the record `before` it), following them like the
+   presentation (bit 0).  VvfpBornFemale answers from it, else from the save's Sex Changes log (sex_change.h
+   vv_sex_born_female_by_log), else the sex now.  It decides nothing about babies (the owner, 2026-11-25: "THE
+   PATCHERS DLL SHOULD NEVER BLOCK BABIES MALE OR FEMALE"): no game's conception routine is touched (BABIES below).
 
    INSTALLING.  VvfpStartup(game, shipped), on the game's own thread before the title screen: every site must hold its
    stock bytes, then all are written through the shared all-or-none writer (native/shared/install_sites.h), or none;
-   then the Change Appearance windows do not offer the checkbox (VvfpGenderPresentationInstalled 0).  The conception
-   sites are installed the same way, on their own (all or none): VvfpConceptionGuardInstalled. */
+   then the Change Appearance windows do not offer the checkbox (VvfpGenderPresentationInstalled 0).  New Believers'
+   Heathen Mommy site is part of the same install (VvfpHeathenMommyInfantInstalled). */
 /* The Golden Child may change sex: his draws stay a boy's (native/shared/sex_change.h, option 1). */
 #define VV_SEX_GC_OPTION1 1
 #include <windows.h>
@@ -438,46 +429,25 @@ static void gp_fill(const gp_site *sites, int count, vvfp_site_write *w) {
     g_sites = sites;
 }
 
-/* ---- CONCEPTION --------------------------------------------------------------------------------------------- */
+/* ---- BABIES: NEVER BLOCKED FOR ANY SEX ---------------------------------------------------------------------
 
-/* Each game's conception routine, its site and how its carrier is found:
-     VV1 0x43BBC0  thiscall on the records (edi = ecx), the carrier's index the first argument; the room check
-                   `call 0x43A1A0` at 0x43BBC3 (after `push edi`).
-     VV2 0x44B980  the same shape: `call 0x44B310` at 0x44B983.
-     VV3 0x455AB0  thiscall on the carrier (esi = ecx); `call 0x45FE30` at 0x455AB8 (after `push esi`).
-     VV4 0x45E7B0  thiscall on the carrier, ret 0x1C; its entry `push ebx / mov bl, [esp+0x20]` (5 bytes).
-     VV5 0x465E00  the same. */
-typedef struct {
-    unsigned int va;
-    unsigned char stock[5];
-    unsigned int target;            /* the room check (VV1-VV3), 0: an entry site */
-    unsigned int stride;            /* VV1, VV2: the records' stride (the carrier = edi + index * stride) */
-} gp_conception;
+   The owner (2026-11-25): "THE PATCHERS DLL SHOULD NEVER BLOCK BABIES MALE OR FEMALE" -- "VILLAGERS ARE VILLAGERS
+   REGARDLESS OF GENDER".  This companion no longer touches any game's conception routine (v1.35.97 to v1.35.100
+   it refused one for a carrier born male when the game's own code called it -- which also refused the Heathen
+   Mommy restoration's forced call for a male Mommy, so he held no baby).  The birth sex is still kept
+   (VvfpBornFemale) for the records; it decides nothing about babies.
 
-static const gp_conception CONCEPTION[6] = {
-    { 0 },
-    { 0x43BBC3u, { 0xE8, 0xD8, 0xE5, 0xFF, 0xFF }, 0x43A1A0u, 0x3D8u },
-    { 0x44B983u, { 0xE8, 0x88, 0xF9, 0xFF, 0xFF }, 0x44B310u, 0xE48Cu },
-    { 0x455AB8u, { 0xE8, 0x73, 0xA3, 0x00, 0x00 }, 0x45FE30u, 0u },
-    { 0x45E7B0u, { 0x53, 0x8A, 0x5C, 0x24, 0x20 }, 0u, 0u },
-    { 0x465E00u, { 0x53, 0x8A, 0x5C, 0x24, 0x20 }, 0u, 0u },
-};
-
-static int g_guard_installed;
-static unsigned int g_guard_target;     /* VV1-VV3: the room check; VV4, VV5: the entry's next instruction */
-static unsigned int g_image_end;        /* the executable's image: 0x400000 .. here */
-
-/* A caller inside the game's own executable: the game's conception, not the Custom Island Event's. */
-static int gp_from_game(unsigned int return_address) {
-    return return_address >= 0x400000u && return_address < g_image_end;
-}
-
-/* New Believers' Heathen Mommy (the owner, 2026-11-25: "the heathen mommy is supposed to hold a baby even if he's
-   male").  The Heathen creator makes her with a random sex (0x46FD20, sex -1: the Heathen Mommy Puzzle
-   Restoration's new-village cave at 0x494620, the stock camp's set-up the Heathen Aging companion repeats), and
-   her infant is the forced conception that follows (0x465E00, last argument 1) -- a role, not a conception the
-   game chose.  It is never refused: a Mommy born male holds the infant exactly as one born female does (the
-   carried-item draw 0x4724C3 / 0x4701C0 reads no sex). */
+   New Believers' Heathen Mommy.  The Heathen creator makes her with a random sex (0x46FD20, sex -1: the Heathen
+   Mommy Puzzle Restoration's new-village cave at 0x494620, the stock camp's set-up the Heathen Aging companion
+   repeats), and her infant is the forced conception that follows (0x465E00, last argument 1).  A Mommy left
+   without her infant -- made while the old guard refused it, or made the Mommy by a Custom Island Event status --
+   is given it at her next activity stop, before the stop's own test 0x47354C (`cmp [edx+0x1C4C], ebx`): the
+   restoration cave's call (0x465E00 forced: skill 1, value 50) with a named other parent -- a living adult Heathen
+   of either sex, the Mommy's own family first (gp_mommy_parent; the game's "Unknown", lineage 1, head 2, body 2 only
+   when the camp has no other adult Heathen) -- and an infant the cave gave "Unknown" is given that named parent
+   (the same four fields the routine writes from its arguments), one infant (the twins and triplets counters put back: Heathens never count), so the stop goes on to hand her the
+   baby as it does every Heathen who is expecting (0x47356B: push 3, SetCarrying 0x466420), male or female (the
+   carried-item draw 0x4724C3 / 0x4701C0 reads no sex).  Nothing else of hers changes. */
 #define GP_VV5_FACTION 0x1CECu         /* not 0: a Heathen */
 #define GP_VV5_ROLE 0x1CFCu
 #define GP_VV5_MOMMY 17
@@ -485,33 +455,6 @@ static int gp_from_game(unsigned int return_address) {
 #define GP_VV5_LITTER 0x1C50u
 #define GP_VV5_PROCESSED 0x1C3Cu
 #define GP_VV5_HEALTH 0x1C40u
-
-static int gp_vv5_mommy(const unsigned char *r) {
-    return g_game == 5 && r[GP_VV5_FACTION] != 0 && *(const int *)(r + GP_VV5_ROLE) == GP_VV5_MOMMY;
-}
-
-/* 1 when `carrier` is one of this game's villager records. */
-static int gp_is_record(const unsigned char *carrier) {
-    hl_locate();
-    return carrier != NULL && g_records != 0 && (unsigned int)(UINT_PTR)carrier >= g_records
-        && ((unsigned int)(UINT_PTR)carrier - g_records) % LAYOUT[g_game].stride == 0
-        && ((unsigned int)(UINT_PTR)carrier - g_records) / LAYOUT[g_game].stride < (unsigned int)g_count;
-}
-
-/* 1 when the conception must not happen: a carrier born male, the game's own call. */
-static int gp_conception_refused(const unsigned char *carrier, unsigned int routine_return) {
-    if (!gp_from_game(routine_return) || !gp_is_record(carrier) || gp_vv5_mommy(carrier)) {
-        return 0;
-    }
-    return !gp_born_female(carrier);
-}
-
-/* A Heathen Mommy left without her infant -- made while this guard refused the restoration's forced conception for
-   a Mommy born male (v1.35.97 to v1.35.101), or made the Mommy by a Custom Island Event status -- is given it at
-   her next activity stop, before the stop's own test 0x47354C (`cmp [edx+0x1C4C], ebx`): the restoration cave's
-   very call (0x465E00 forced: lineage 1, skill 1, value 50, "Unknown" 0x4B6AA0, head 2, body 2), one infant (the
-   twins and triplets counters put back: Heathens never count), so the stop goes on to hand her the baby as it does
-   every Heathen who is expecting (0x47356B: push 3, SetCarrying 0x466420).  Nothing else of hers changes. */
 #define GP_VV5_STOP_TEST 0x47354Cu
 #define GP_VV5_CONCEIVE 0x465E00u
 #define GP_VV5_UNKNOWN 0x4B6AA0u
@@ -522,19 +465,124 @@ static const unsigned char GP_VV5_UNKNOWN_TEXT[8] = { 'U', 'n', 'k', 'n', 'o', '
 typedef void (__fastcall *gp_conceive_fn)(void *carrier, void *edx, int lineage, int skill, int value,
                                          const char *father, int head, int body, int forced);
 static unsigned int g_stop_back = GP_VV5_STOP_TEST + 6;
+static int g_mommy_installed;
+
+static int gp_vv5_mommy(const unsigned char *r) {
+    return g_game == 5 && r[GP_VV5_FACTION] != 0 && *(const int *)(r + GP_VV5_ROLE) == GP_VV5_MOMMY;
+}
+
+/* 1 when `r` is one of this game's villager records. */
+static int gp_is_record(const unsigned char *r) {
+    hl_locate();
+    return r != NULL && g_records != 0 && (unsigned int)(UINT_PTR)r >= g_records
+        && ((unsigned int)(UINT_PTR)r - g_records) % LAYOUT[g_game].stride == 0
+        && ((unsigned int)(UINT_PTR)r - g_records) / LAYOUT[g_game].stride < (unsigned int)g_count;
+}
+
+/* The infant's other parent (the owner, 2026-11-25: "instead of unknown the parents should have names"; villagers are
+   villagers regardless of gender): a living adult Heathen of the camp, of either sex, never the Mommy -- one of the
+   Mommy's own family (the same last name, the Heathens' last names) when there is one, else any, at random (the
+   game's rand 0x403660).  NULL when the camp has no other adult Heathen. */
+#define GP_VV5_AGE 0x1B8Cu
+#define GP_VV5_LINEAGE 0x1B98u
+#define GP_VV5_NAME 0x1B9Cu
+#define GP_VV5_HEAD 0x1BB8u
+#define GP_VV5_BODY 0x1BBCu
+#define GP_VV5_BABY_LINEAGE 0x1C0Cu    /* what 0x465E00 writes from its arguments: lineage, name, body, head */
+#define GP_VV5_BABY_PARENT 0x1C10u
+#define GP_VV5_BABY_BODY 0x1C2Cu
+#define GP_VV5_BABY_HEAD 0x1C30u
+#define GP_VV5_ADULT 280               /* 14 years */
+#define GP_VV5_RAND 0x403660u          /* cdecl rand(n) */
+typedef int (__cdecl *gp_rand_fn)(int n);
+
+/* The last name (after the name's last space) into `out` (0x1A bytes); 0 when there is none. */
+static int gp_last_name(const unsigned char *r, char *out) {
+    int k, from = -1, n = 0;
+    for (k = 0; k < 0x19 && r[GP_VV5_NAME + k] != 0; ++k) {
+        if (r[GP_VV5_NAME + k] == ' ') {
+            from = k + 1;
+        }
+    }
+    if (from > 0) {
+        for (k = from; k < 0x19 && r[GP_VV5_NAME + k] != 0; ++k) {
+            out[n++] = (char)r[GP_VV5_NAME + k];
+        }
+    }
+    out[n] = 0;
+    return n > 0;
+}
+
+static int gp_same_last_name(const unsigned char *a, const unsigned char *b) {
+    char x[0x1A], y[0x1A];
+    return gp_last_name(a, x) && gp_last_name(b, y) && lstrcmpA(x, y) == 0;
+}
+
+static const unsigned char *gp_mommy_parent(const unsigned char *mommy) {
+    const unsigned char *any[HL_MAX], *family[HL_MAX];
+    int n_any = 0, n_family = 0, i, slots = hl_slots();
+    for (i = 0; i < slots; ++i) {
+        const unsigned char *c = hl_record(i);
+        if (c == NULL || c == mommy || !hl_present(c) || c[GP_VV5_FACTION] == 0
+            || *(const int *)(c + GP_VV5_HEALTH) <= 0 || *(const int *)(c + GP_VV5_AGE) < GP_VV5_ADULT
+            || c[GP_VV5_NAME] == 0) {
+            continue;
+        }
+        any[n_any++] = c;
+        if (gp_same_last_name(mommy, c)) {
+            family[n_family++] = c;
+        }
+    }
+    if (n_family > 0) {
+        return family[((gp_rand_fn)(UINT_PTR)GP_VV5_RAND)(n_family) % n_family];
+    }
+    return n_any > 0 ? any[((gp_rand_fn)(UINT_PTR)GP_VV5_RAND)(n_any) % n_any] : NULL;
+}
+
+/* An infant whose other parent is the restoration cave's "Unknown" (0x494620 passes the game's own "Unknown") gets
+   a named one: the fields 0x465E00 writes from its arguments, nothing else. */
+static void gp_mommy_name_parent(unsigned char *r) {
+    const unsigned char *p;
+    int k;
+    if (memcmp(r + GP_VV5_BABY_PARENT, GP_VV5_UNKNOWN_TEXT, sizeof GP_VV5_UNKNOWN_TEXT) != 0
+        || (p = gp_mommy_parent(r)) == NULL) {
+        return;
+    }
+    *(int *)(r + GP_VV5_BABY_LINEAGE) = *(const int *)(p + GP_VV5_LINEAGE);
+    for (k = 0; k < 0x18 && p[GP_VV5_NAME + k] != 0; ++k) {
+        r[GP_VV5_BABY_PARENT + k] = p[GP_VV5_NAME + k];
+    }
+    for (; k < 0x19; ++k) {
+        r[GP_VV5_BABY_PARENT + k] = 0;
+    }
+    *(int *)(r + GP_VV5_BABY_HEAD) = *(const int *)(p + GP_VV5_HEAD);
+    *(int *)(r + GP_VV5_BABY_BODY) = *(const int *)(p + GP_VV5_BODY);
+}
 
 static void __cdecl gp_mommy_infant(unsigned char *r) {
     __try {
         int twins, triplets;
+        const unsigned char *parent;
         if (!gp_is_record(r) || !gp_vv5_mommy(r) || !hl_present(r) || *(const int *)(r + GP_VV5_HEALTH) <= 0
-            || *(const int *)(r + GP_VV5_PREGNANT) != 0
             || memcmp((const void *)(UINT_PTR)GP_VV5_UNKNOWN, GP_VV5_UNKNOWN_TEXT, sizeof GP_VV5_UNKNOWN_TEXT) != 0) {
+            return;
+        }
+        if (*(const int *)(r + GP_VV5_PREGNANT) != 0) {
+            gp_mommy_name_parent(r);       /* the cave's "Unknown" named */
             return;
         }
         twins = *(volatile int *)(UINT_PTR)GP_VV5_TWINS;
         triplets = *(volatile int *)(UINT_PTR)GP_VV5_TRIPLETS;
-        ((gp_conceive_fn)(UINT_PTR)GP_VV5_CONCEIVE)(r, NULL, 1, 1, 50, (const char *)(UINT_PTR)GP_VV5_UNKNOWN, 2, 2,
-                                                    1);
+        parent = gp_mommy_parent(r);
+        if (parent != NULL) {
+            ((gp_conceive_fn)(UINT_PTR)GP_VV5_CONCEIVE)(r, NULL, *(const int *)(parent + GP_VV5_LINEAGE), 1, 50,
+                                                        (const char *)(parent + GP_VV5_NAME),
+                                                        *(const int *)(parent + GP_VV5_HEAD),
+                                                        *(const int *)(parent + GP_VV5_BODY), 1);
+        } else {                           /* no other adult Heathen at all: the cave's own "Unknown" */
+            ((gp_conceive_fn)(UINT_PTR)GP_VV5_CONCEIVE)(r, NULL, 1, 1, 50, (const char *)(UINT_PTR)GP_VV5_UNKNOWN,
+                                                        2, 2, 1);
+        }
         *(volatile int *)(UINT_PTR)GP_VV5_TWINS = twins;
         *(volatile int *)(UINT_PTR)GP_VV5_TRIPLETS = triplets;
         *(int *)(r + GP_VV5_LITTER) = 1;
@@ -559,103 +607,68 @@ static __declspec(naked) void gp_stop_stub(void) {
     }
 }
 
-/* The room check (VV1-VV3): `frame` [0..7] pushad, [8] the return into the routine, [9] the register the routine
-   pushed, [10] the routine's return, [11] its first argument.  Returns the room check to go to, or 0: "no room". */
-static unsigned int __cdecl gp_room_decide(unsigned int *frame) {
-    const gp_conception *c = &CONCEPTION[g_game];
-    const unsigned char *carrier = c->stride != 0
-        ? (const unsigned char *)(UINT_PTR)(frame[7 - R_EDI] + frame[11] * c->stride)
-        : (const unsigned char *)(UINT_PTR)frame[7 - R_ESI];
-    if (gp_conception_refused(carrier, frame[10])) {
-        frame[7 - R_EAX] = 0;
-        return 0;
-    }
-    return g_guard_target;
-}
+/* The Heathen Mommy Puzzle Restoration's cave (patcher bytes at 0x494620, present only with that row) calls
+   0x465E00 at 0x49465D after pushing the game's "Unknown" (0x494650: push 0x4B6AA0).  With the row in the game, that
+   call comes here first: a named other parent (gp_mommy_parent) goes into the arguments -- lineage, name, head,
+   body -- and the routine runs as the cave called it.  Installed on its own (the row may be absent), only when the
+   cave holds exactly the row's bytes from 0x494650 to the call. */
+#define GP_VV5_CAVE_PUSH 0x494650u
+#define GP_VV5_CAVE_CALL 0x49465Du
+static const unsigned char GP_VV5_CAVE_BYTES[13] = { 0x68, 0xA0, 0x6A, 0x4B, 0x00, 0x6A, 0x32, 0x6A, 0x01, 0x6A, 0x01,
+                                                     0x8B, 0xC8 };
+static const unsigned char GP_VV5_CAVE_CALL_STOCK[5] = { 0xE8, 0x9E, 0x17, 0xFD, 0xFF };
+static unsigned int g_conceive = GP_VV5_CONCEIVE;
 
-static void __cdecl gp_room_frame(unsigned int *regs, unsigned int *ret_at);
-
-static __declspec(naked) void gp_room_stub(void) {
-    __asm {
-        push 0                              ; the room check to go to (0: none)
-        pushad
-        lea eax, [esp + 0x24]               ; the return into the routine
-        push eax
-        lea eax, [esp + 4]
-        push eax
-        call gp_room_frame
-        add esp, 8
-        popad
-        cmp dword ptr [esp], 0
-        je refused
-        ret                                 ; to the room check, which returns into the routine
-    refused:
-        add esp, 4
-        ret                                 ; "no room": al = 0
+/* `args`: the routine's seven arguments (lineage, skill, value, name, head, body, forced). */
+static void __cdecl gp_cave_args(const unsigned char *r, unsigned int *args) {
+    __try {
+        const unsigned char *p;
+        if (!gp_is_record(r) || !gp_vv5_mommy(r) || (p = gp_mommy_parent(r)) == NULL) {
+            return;                        /* nobody else in the camp: the cave's own "Unknown" */
+        }
+        args[0] = (unsigned int)*(const int *)(p + GP_VV5_LINEAGE);
+        args[3] = (unsigned int)(UINT_PTR)(p + GP_VV5_NAME);
+        args[4] = (unsigned int)*(const int *)(p + GP_VV5_HEAD);
+        args[5] = (unsigned int)*(const int *)(p + GP_VV5_BODY);
+    } __except (EXCEPTION_EXECUTE_HANDLER) {
     }
 }
 
-/* `regs` pushad, `ret_at` the return into the routine (the frame above it). */
-static void __cdecl gp_room_frame(unsigned int *regs, unsigned int *ret_at) {
-    unsigned int frame[12];
-    int k;
-    for (k = 0; k < 8; ++k) {
-        frame[k] = regs[k];
-    }
-    frame[8] = ret_at[0];
-    frame[9] = ret_at[1];
-    frame[10] = ret_at[2];
-    frame[11] = ret_at[3];
-    regs[8] = gp_room_decide(frame);        /* the slot pushed first */
-    regs[7 - R_EAX] = frame[7 - R_EAX];
-}
-
-/* The entry (VV4, VV5): `regs` pushad, `ret_at` the routine's return.  1 when refused. */
-static int __cdecl gp_entry_frame(unsigned int *regs, unsigned int *ret_at) {
-    return gp_conception_refused((const unsigned char *)(UINT_PTR)regs[7 - R_ECX], ret_at[0]);
-}
-
-static __declspec(naked) void gp_entry_stub(void) {
+/* In place of the cave's `call 0x465E00` (the Mommy in ecx): the arguments named, then the routine, which returns
+   to the cave (ret 0x1C). */
+static __declspec(naked) void gp_cave_stub(void) {
     __asm {
         pushad
-        lea eax, [esp + 0x20]               ; the routine's return
+        lea eax, [esp + 0x24]              ; the first argument (above pushad and the return)
         push eax
-        lea eax, [esp + 4]
-        push eax
-        call gp_entry_frame
+        push ecx
+        call gp_cave_args
         add esp, 8
-        test eax, eax
         popad
-        jne refused
-        push ebx                            ; the displaced entry
-        mov bl, byte ptr [esp + 0x20]
-        jmp dword ptr [g_guard_target]
-    refused:
-        ret 0x1C                            ; returns at once, nothing written (as when there is no room)
+        jmp dword ptr [g_conceive]
     }
 }
 
-/* The conception site's write into `w`; 1 when there is one. */
-static int gp_guard_fill(vvfp_site_write *w) {
-    const gp_conception *c = &CONCEPTION[g_game];
-    const IMAGE_DOS_HEADER *dos = (const IMAGE_DOS_HEADER *)(UINT_PTR)0x400000u;
-    const IMAGE_NT_HEADERS32 *nt = (const IMAGE_NT_HEADERS32 *)(UINT_PTR)(0x400000u + (unsigned int)dos->e_lfanew);
-    if (c->va == 0) {
+static void gp_cave_install(void) {
+    vvfp_site_write w;
+    __try {
+        if (g_game != 5 || !g_installed
+            || memcmp((const void *)(UINT_PTR)GP_VV5_CAVE_PUSH, GP_VV5_CAVE_BYTES, sizeof GP_VV5_CAVE_BYTES) != 0) {
+            return;                        /* the row is not in the game (or not as it ships) */
+        }
+    } __except (EXCEPTION_EXECUTE_HANDLER) {
+        return;
+    }
+    vvfp_site_branch(&w, GP_VV5_CAVE_CALL, 5, GP_VV5_CAVE_CALL_STOCK, 0xE8, (const void *)gp_cave_stub);
+    (void)vvfp_install_sites(&w, 1);
+}
+
+/* New Believers: the Heathen Mommy's stop site into `w`; 1 when there is one. */
+static int gp_mommy_fill(vvfp_site_write *w) {
+    if (g_game != 5) {
         return 0;
     }
-    g_image_end = 0x400000u + nt->OptionalHeader.SizeOfImage;
-    if (c->target != 0) {
-        g_guard_target = c->target;
-        vvfp_site_branch(&w[0], c->va, 5, c->stock, 0xE8, (const void *)gp_room_stub);
-    } else {
-        g_guard_target = c->va + 5;
-        vvfp_site_branch(&w[0], c->va, 5, c->stock, 0xE9, (const void *)gp_entry_stub);
-    }
-    if (g_game == 5) {
-        /* the Heathen Mommy's infant at her activity stop (gp_mommy_infant), installed with the guard */
-        vvfp_site_branch(&w[1], GP_VV5_STOP_TEST, 6, GP_VV5_STOP_STOCK, 0xE9, (const void *)gp_stop_stub);
-        return 2;
-    }
+    vvfp_site_branch(&w[0], GP_VV5_STOP_TEST, 6, GP_VV5_STOP_STOCK, 0xE9, (const void *)gp_stop_stub);
     return 1;
 }
 
@@ -776,9 +789,10 @@ void __stdcall VvfpStartup(int game, unsigned int shipped) {
     g_game = game;
     count = TABLE[game].count;
     gp_fill(TABLE[game].sites, count, w);
-    count += gp_guard_fill(&w[count]);
-    /* One all-or-none install: the draws and the conception guard together. */
-    g_installed = g_guard_installed = vvfp_install_sites(w, count);
+    count += gp_mommy_fill(&w[count]);
+    /* One all-or-none install: the draws and (New Believers) the Heathen Mommy's infant together. */
+    g_installed = g_mommy_installed = vvfp_install_sites(w, count);
+    gp_cave_install();                  /* New Believers: the restoration cave's Mommy gets a named other parent */
     gp_gc_install();                    /* A New Home: the Golden Child may be born female (its own site) */
 }
 
@@ -787,8 +801,9 @@ int __stdcall VvfpGoldenChildBornFemaleInstalled(int game) {
     return g_game == 1 && game == 1 && g_gc_installed;
 }
 
-int __stdcall VvfpConceptionGuardInstalled(int game) {
-    return g_game != 0 && game == g_game && g_guard_installed;
+/* 1 when New Believers' Heathen Mommy is given her infant at her activity stop (installed with the draws). */
+int __stdcall VvfpHeathenMommyInfantInstalled(int game) {
+    return g_game == 5 && game == 5 && g_mommy_installed;
 }
 
 int __stdcall VvfpBornFemale(int game, const void *record) {

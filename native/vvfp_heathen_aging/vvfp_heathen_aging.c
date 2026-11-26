@@ -70,7 +70,8 @@
    random sex, the stock camp's Faith (0x470E60: -38 - rand(30), or the dead one's own when it was one of the
    five easy blue Faiths -5, -9, -16, -23, -30); a puzzle Heathen whose puzzle is not solved yet by a new one in the same role,
    set up exactly as the stock camp sets that role up (the Doctor, Chief with every skill 100, the three Masters;
-   the Heathen Mommy with her infant, its father an adult Heathen man when there is one).  Its Faith is written
+   the Heathen Mommy with her infant, its other parent a named adult Heathen of either sex, of her own family when
+   there is one: mommy_parent).  Its Faith is written
    after the creator (the creator's own SetFaith would run to-a-Heathen on a record still a believer: its "stopped
    believing" message and the Cause of Death companion's "Left the tribe" record).  The Cause of Death companion
    writes its Arrived record (VvfpCauseHeathenArrived).  A full table: the replacement waits (kept per save slot),
@@ -776,6 +777,43 @@ static unsigned char *random_man(const unsigned char *not_this) {
     return n > 0 ? men[ha_rand(n)] : NULL;
 }
 
+/* The last name (after the name's last space) into `out` (R_NAME_CAP + 1 bytes); 0 when there is none. */
+static int last_name(const unsigned char *r, char *out) {
+    unsigned int k, from = 0, n = 0;
+    for (k = 0; k < R_NAME_CAP && r[R_NAME + k] != 0; ++k) {
+        if (r[R_NAME + k] == ' ') {
+            from = k + 1;
+        }
+    }
+    if (from > 0) {
+        for (k = from; k < R_NAME_CAP && r[R_NAME + k] != 0; ++k) {
+            out[n++] = (char)r[R_NAME + k];
+        }
+    }
+    out[n] = 0;
+    return n > 0;
+}
+
+/* The Heathen Mommy's infant's other parent (the owner, 2026-11-25: "instead of unknown the parents should have
+   names"; villagers are villagers regardless of gender): a living adult Heathen of either sex, never the Mommy --
+   one of her own family (the same last name) when there is one, else any, at random.  NULL: nobody else. */
+static unsigned char *mommy_parent(const unsigned char *mommy) {
+    unsigned char *any[256], *family[256];
+    char mine[R_NAME_CAP + 1], theirs[R_NAME_CAP + 1];
+    unsigned int i;
+    int n = 0, f = 0, named = last_name(mommy, mine);
+    for (i = 0; i < g_slots && i < 256; ++i) {
+        unsigned char *r = rec_at((int)i);
+        if (r != mommy && r[R_FACTION] != 0 && living(r) && i32(r, R_AGE) >= ADULT && r[R_NAME] != 0) {
+            any[n++] = r;
+            if (named && last_name(r, theirs) && lstrcmpA(mine, theirs) == 0) {
+                family[f++] = r;
+            }
+        }
+    }
+    return f > 0 ? family[ha_rand(f)] : n > 0 ? any[ha_rand(n)] : NULL;
+}
+
 static void tell_arrived(int index, const char *how) {
     HMODULE module = GetModuleHandleA("VVFP Cause of Death.dll");
     cod_arrived_fn told = module != NULL
@@ -810,7 +848,7 @@ static int create_role(int role) {
             unsigned char *father;
             int twins = *(volatile int *)(UINT_PTR)G_TWINS, triplets = *(volatile int *)(UINT_PTR)G_TRIPLETS;
             r = rec_at(index);
-            father = random_man(r);
+            father = mommy_parent(r);
             if (father != NULL) {
                 ((tc7_fn)(UINT_PTR)G_CONCEIVE)(r, NULL, i32(father, R_LINEAGE), 1, 50, (int)(UINT_PTR)(father + R_NAME),
                                                i32(father, R_HEAD), i32(father, R_BODY), 1);

@@ -528,10 +528,30 @@ class Tribe(unittest.TestCase):
                 if role == 17:
                     carrier, cargs = v.conceived[0]
                     self.assertEqual(carrier, new, "the Heathen Mommy comes with her infant")
-                    self.assertEqual(v.cstring(cargs[3]), "Kalo", "its father an adult Heathen man")
+                    self.assertEqual(v.cstring(cargs[3]), "Kalo", "its other parent a named adult Heathen")
                     self.assertEqual(cargs[6], 1, "forced, as the stock set-up")
                     self.assertNotEqual(v.i32(new, PREGNANT), 0)
                     self.assertEqual(v.u32(TWINS), 0, "no statistics")
+
+    def test_the_new_mommys_other_parent_is_named_of_either_sex_her_family_first(self):
+        """The owner, 2026-11-25: "instead of unknown the parents should have names"; villagers are villagers
+        regardless of gender.  A living adult Heathen of either sex, never the Mommy, her own family first."""
+        cases = (
+            ((("Vaihi", 1, 400),), "Vaihi"),                                   # only a woman: she is named
+            ((("Tiny Mashudu", 1, 100), ("Kalo Peponi", 0, 400)), "Kalo Peponi"),   # never a child
+        )
+        for camp, expected in cases:
+            with self.subTest(expected=expected):
+                v = Village((TRIBE,))
+                v.unsolve(17)
+                for k, (name, sex, age) in enumerate(camp):
+                    v.villager(3 + k, heathen=True, sex=sex, name=name, age=age)
+                r = v.villager(2, heathen=True, role=17, sex=0, name="Ahi Mashudu")
+                _due_to_die(v, r)
+                v.life_tick()
+                carrier, cargs = v.conceived[0]
+                self.assertEqual(carrier, v.record(v.created[0][0]))
+                self.assertEqual(v.cstring(cargs[3]), expected)
 
     def test_a_solved_puzzles_role_is_never_made_again(self):
         v, r, _ = self._puzzle_dies(13, 16, solved=True)

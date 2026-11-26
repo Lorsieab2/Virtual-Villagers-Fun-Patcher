@@ -22,13 +22,12 @@ reload, a rename in play and a sex change, and is read back from the per-save fi
 slot; all or none; another game installs nothing; no other read of the field is in those routines (stock and
 rendered), and no patch moves a read out of them.
 
-THE BIRTH SEX AND CONCEPTION (the owner, 2026-11-15): only villagers born female carry.  The first sex change keeps
-the birth sex with the villager (VvfpBornFemale); each game's conception routine (A New Home 0x43BBC0, The Lost
-Children 0x44B980, The Secret City 0x455AB0 at their room check; The Tree of Life 0x45E7B0, New Believers 0x465E00
-at their entry) is run here: a carrier born male is refused when the game's own code calls it -- the room check
-answers "no room" without being asked (VV1-VV3), the routine returns at once with nothing written (VV4, VV5) --
-while one born female (now female, or now male and still carrying) conceives as before, and a call from outside the
-executable (the Custom Island Event's pregnancy with a chosen partner) is never refused.
+THE BIRTH SEX AND BABIES: the first sex change keeps the birth sex with the villager (VvfpBornFemale), for the records
+only.  The patcher never blocks babies for any sex (the owner, 2026-11-25): each game's conception routine (A New Home
+0x43BBC0, The Lost Children 0x44B980, The Secret City 0x455AB0 at their room check; The Tree of Life 0x45E7B0, New
+Believers 0x465E00 at their entry) keeps its stock bytes with the companion in, and runs for a carrier born male
+as for anyone.  New Believers' Heathen Mommy left without her infant is given it at her activity stop
+(NewBelieversHeathenMommy).
 
 The live effect in a running game is NOT verified here.
 """
@@ -411,33 +410,23 @@ class _Conception:
             return False
         return True
 
-    def test_installed(self):
-        g = self.game()
-        self.assertEqual(g.p.export("VvfpConceptionGuardInstalled", self.GAME), 1)
-        self.assertIn(g.p.read(CONCEPTION[self.GAME][1], 1), (b"\xE8", b"\xE9"))
+    def test_the_conception_routine_is_never_touched(self):
+        """The owner, 2026-11-25: "THE PATCHERS DLL SHOULD NEVER BLOCK BABIES MALE OR FEMALE"."""
+        routine, site, room, stride = CONCEPTION[self.GAME]
+        for exe in [stock_exe(self.GAME)] + [rendered(self.GAME, m) for m in MODES]:
+            stock = Game(self.GAME, exe, start=False, dll=False)
+            g = self.game(exe)
+            self.assertEqual(g.p.export("VvfpGenderPresentationInstalled", self.GAME), 1)
+            self.assertEqual(g.p.read(site, 5), stock.p.read(site, 5))
 
-    def test_born_male_never_conceives_on_their_own(self):
+    def test_born_male_conceives_as_anyone(self):
         g = self.game()
         g.villager(0, "Ana", female=True)
         r = self.born_male_now_female(g, 1)
-        self.assertEqual(g.p.export("VvfpBornFemale", self.GAME, r), 0)
-        before = g.p.read(r, g.g["stride"])
-        self.assertFalse(self.conceives(g, r, 1, GAME_CALLER), "the game's own conception: refused")
-        self.assertEqual(g.p.read(r, g.g["stride"]), before, "nothing written to the carrier")
-
-    def test_a_custom_island_event_may_still_give_them_a_baby(self):
-        g = self.game()
-        g.villager(0, "Ana", female=True)
-        r = self.born_male_now_female(g, 1)
-        self.assertTrue(self.conceives(g, r, 1, OUTSIDE_CALLER), "called from outside the executable: not refused")
-
-    def test_born_female_conceives_as_before(self):
-        g = self.game()
-        r = g.villager(0, "Ana", female=True)
-        g.villager(1, "Bea", female=True)
-        self.assertEqual(g.p.export("VvfpBornFemale", self.GAME, r), 1)
-        self.assertTrue(self.conceives(g, r, 0, GAME_CALLER))
-        # Born female, now male: still carries.
+        self.assertEqual(g.p.export("VvfpBornFemale", self.GAME, r), 0, "the birth sex is still kept")
+        self.assertTrue(self.conceives(g, r, 1, GAME_CALLER), "the game's own conception: never refused")
+        self.assertTrue(self.conceives(g, r, 1, OUTSIDE_CALLER), "a Custom Island Event's: never refused")
+        # Born female, now male: carries too.
         r2 = g.villager(2, "Kai")
         before = g.p.alloc(g.g["stride"])
         g.p.write(before, g.p.read(r2, g.g["stride"]))
@@ -446,6 +435,9 @@ class _Conception:
         g.p.export("VvfpVillagerSexChanged", self.GAME, 1, r2, before)
         self.assertEqual(g.p.export("VvfpBornFemale", self.GAME, r2), 1)
         self.assertTrue(self.conceives(g, r2, 2, GAME_CALLER))
+        # A man, never changed: the game's own code decides, as without the companion.
+        r3 = g.villager(3, "Moku")
+        self.assertTrue(self.conceives(g, r3, 3, GAME_CALLER))
 
     def test_the_birth_sex_follows_a_reload(self):
         g = self.game()
@@ -457,13 +449,6 @@ class _Conception:
         later.p.write(later.record(0), g.p.read(g.record(0), 2 * g.g["stride"]))
         self.assertEqual(later.p.export("VvfpBornFemale", self.GAME, later.record(1)), 0)
         self.assertEqual(later.get(1), 0, "the birth sex is not a presentation")
-
-    def test_every_mode_with_every_patch(self):
-        for mode in MODES:
-            with self.subTest(mode=mode):
-                g = self.game(rendered(self.GAME, mode))
-                self.assertEqual(g.p.export("VvfpConceptionGuardInstalled", self.GAME), 1)
-
 
 @_skip(1)
 class ConceptionANewHome(_Conception, unittest.TestCase):
@@ -499,12 +484,15 @@ CARRY, PREGNANT, LITTER, FACTION, ROLE, HEALTH = 0x1D0C, 0x1C4C, 0x1C50, 0x1CEC,
 class NewBelieversHeathenMommy(unittest.TestCase):
     """The owner, 2026-11-25: a male Heathen Mommy ("Esteemed Isolan Parent" with Guardians of Isola) drawn with no
     baby.  The Heathen creator gives the Mommy a random sex; the restoration cave 0x494620 then calls the forced
-    conception 0x465E00 from inside the executable, which the guard refused for a Mommy born male, so he had no
-    infant (+0x1C4C 0) and the activity stop handed him nothing (0x473556: SetCarrying -1).  Now the Mommy is never
-    refused, and one left without the infant is given it at her next stop, male or female."""
+    conception 0x465E00 from inside the executable, which the old guard refused for a Mommy born male, so he had no
+    infant (+0x1C4C 0) and the activity stop handed him nothing (0x473556: SetCarrying -1).  Now no conception is
+    refused for any sex, and a Mommy left without the infant is given it at her next stop, male or female."""
 
     def game(self, exe: bytes | None = None, **kw) -> Game:
-        return Game(5, exe if exe is not None else stock_exe(5), **kw)
+        g = Game(5, exe if exe is not None else stock_exe(5), **kw)
+        # The game's rand 0x403660 (cdecl rand(n); its CRT thread data is not in the emulator): the first choice.
+        g.p.stub(0x403660, lambda q: (0, 0))
+        return g
 
     def mommy(self, g: Game, i: int, *, female: bool, role: int = 17, faction: int = 1) -> int:
         r = g.villager(i, "Ahi Mashudu" if not female else "Ana Mashudu", female=female, age=400)
@@ -523,19 +511,105 @@ class NewBelieversHeathenMommy(unittest.TestCase):
               until=until)
         self.assertEqual(g.p.reg("eip"), until)
 
-    def stock_conception(self, record: bytes) -> bytes:
-        """The stock routine itself on a copy of `record`, called as the cave calls it: the record afterwards."""
+    def stock_conception(self, record: bytes, parent: tuple = (1, b"Unknown", 2, 2)) -> bytes:
+        """The stock routine itself on a copy of `record`, called as the cave calls it with the other parent
+        `parent` (lineage, name, head, body): the record afterwards."""
         g = self.game(dll=False)
         r = g.record(7)
         g.p.write(r, record)
+        name = g.p.alloc(0x20)
+        g.p.write(name, parent[1] + b"\0")
         esp = 0x0FF00000 - 0x4000
         from story_emulator import RETURN
-        g.p.write(esp, struct.pack("<8I", RETURN, 1, 1, 50, 0x4B6AA0, 2, 2, 1))
+        g.p.write(esp, struct.pack("<8I", RETURN, parent[0], 1, 50, name, parent[2], parent[3], 1))
         g.p.set_reg("esp", esp)
         g.p.set_reg("ecx", r)
         g.p.mu.emu_start(0x465E00, RETURN, count=5_000_000)
         return g.p.read(r, g.g["stride"])
 
+    def camp(self, g: Game, start: int = 10) -> dict:
+        """Around the Mommy: one adult Heathen of her family (a man), one of another family (a woman), a Heathen child
+        of her family, a believer of her family and a Heathen body of her family -- only the first two can be the
+        infant's other parent."""
+        out = {}
+        for k, (name, female, age, faction, health) in enumerate((
+                ("Akivi Mashudu", False, 400, 1, 90), ("Vaihi Salongo", True, 400, 1, 90),
+                ("Pua Mashudu", True, 100, 1, 90), ("Mino Mashudu", False, 600, 0, 90),
+                ("Hope Mashudu", True, 500, 1, 0))):
+            r = g.villager(start + k, name, female=female, age=age, head=5 + k)
+            g.p.write(r + FACTION, bytes([faction]))
+            g.p.put32(r + HEALTH, health)
+            g.p.put32(r + 0x1B98, 30 + k)                  # lineage
+            g.p.put32(r + 0x1BBC, 20 + k)                  # body
+            out[name] = r
+        return out
+
+    def parent_fields(self, g: Game, r: int) -> tuple:
+        return (g.p.u32(r + 0x1C0C), g.p.read(r + 0x1C10, 0x19).split(b"\0")[0], g.p.u32(r + 0x1C30),
+                g.p.u32(r + 0x1C2C))
+
+    def of(self, g: Game, r: int) -> tuple:
+        return (g.p.u32(r + 0x1B98), g.p.read(r + 0x1B9C, 0x19).split(b"\0")[0], g.p.u32(r + 0x1BB8),
+                g.p.u32(r + 0x1BBC))
+
+    def test_the_restoration_cave_names_the_other_parent(self):
+        for mode in MODES:
+            exe = rendered(5, mode)
+            g = self.game(exe)
+            with self.subTest(mode=mode):
+                stock = Game(5, exe, start=False, dll=False)
+                self.assertEqual(stock.p.read(0x49465D, 5), bytes.fromhex("E89E17FDFF"), "the row's cave")
+                self.assertNotEqual(g.p.read(0x49465D, 5), stock.p.read(0x49465D, 5), "the call comes to the DLL")
+                camp = self.camp(g)
+                r = self.mommy(g, 3, female=False)
+                esp = 0x0FF00000 - 0x4000
+                g.p.write(esp, struct.pack("<7I", 1, 1, 50, 0x4B6AA0, 2, 2, 1))   # the cave's pushes; its call pushes the return
+                g.p.set_reg("esp", esp)
+                g.p.set_reg("ecx", r)
+                g.p.mu.emu_start(0x49465D, MOMMY_CAVE_RETURN, count=5_000_000)
+                self.assertEqual(g.p.reg("esp"), esp + 0x1C, "the cave's call: ret 0x1C as before")
+                self.assertEqual(self.parent_fields(g, r), self.of(g, camp["Akivi Mashudu"]),
+                                 "her own family's adult Heathen, never Unknown")
+                self.assertNotEqual(g.p.u32(r + PREGNANT), 0)
+                # Without her family, any adult Heathen of either sex.
+                g2 = self.game(exe)
+                camp2 = self.camp(g2)
+                g2.p.write(camp2["Akivi Mashudu"] + FACTION, b"\0")
+                r2 = self.mommy(g2, 3, female=True)
+                g2.p.write(esp, struct.pack("<7I", 1, 1, 50, 0x4B6AA0, 2, 2, 1))   # the cave's pushes; its call pushes the return
+                g2.p.set_reg("esp", esp)
+                g2.p.set_reg("ecx", r2)
+                g2.p.mu.emu_start(0x49465D, MOMMY_CAVE_RETURN, count=5_000_000)
+                self.assertEqual(self.parent_fields(g2, r2), self.of(g2, camp2["Vaihi Salongo"]))
+        # The stock executable has no cave: nothing is installed there.
+        g = self.game()
+        self.assertEqual(g.p.export("VvfpGenderPresentationInstalled", 5), 1)
+
+    def test_an_unknown_other_parent_is_named_at_her_stop(self):
+        g = self.game()
+        camp = self.camp(g)
+        r = self.mommy(g, 3, female=False)
+        g.p.put32(r + PREGNANT, 400)
+        g.p.put32(r + LITTER, 1)
+        g.p.write(r + 0x1C10, b"Unknown".ljust(0x19, b"\0"))
+        g.p.put32(r + 0x1C0C, 1)
+        g.p.put32(r + 0x1C2C, 2)
+        g.p.put32(r + 0x1C30, 2)
+        before = g.p.read(r, g.g["stride"])
+        self.stop(g, r, STOP_HEATHEN_CARRY)
+        self.assertEqual(g.p.u32(r + CARRY), 3)
+        self.assertEqual(self.parent_fields(g, r), self.of(g, camp["Akivi Mashudu"]))
+        after = g.p.read(r, g.g["stride"])
+        changed = {i for i in range(len(after)) if after[i] != before[i]}
+        allowed = set(range(0x1C0C, 0x1C10 + 0x19)) | set(range(0x1C2C, 0x1C34)) | set(range(CARRY, CARRY + 4))
+        self.assertLessEqual(changed, allowed, "only the other parent's fields and the carried baby")
+        # A camp with nobody else keeps "Unknown".
+        g2 = self.game()
+        r2 = self.mommy(g2, 3, female=True)
+        g2.p.put32(r2 + PREGNANT, 400)
+        g2.p.write(r2 + 0x1C10, b"Unknown".ljust(0x19, b"\0"))
+        self.stop(g2, r2, STOP_HEATHEN_CARRY)
+        self.assertEqual(g2.p.read(r2 + 0x1C10, 8), b"Unknown\0")
     def test_the_cave_never_has_a_male_mommy_refused(self):
         g = self.game()
         conception = _Conception()
@@ -546,11 +620,11 @@ class NewBelieversHeathenMommy(unittest.TestCase):
         self.assertTrue(conception.conceives(g, male, 3, MOMMY_CAVE_RETURN), "a male Heathen Mommy: never refused")
         female = self.mommy(g, 4, female=True)
         self.assertTrue(conception.conceives(g, female, 4, MOMMY_CAVE_RETURN))
-        # Everyone else born male is still refused for the game's own call: an ordinary Heathen, a believer.
+        # Nobody else born male is refused either: an ordinary Heathen, a believer (the owner, 2026-11-25).
         heathen = self.mommy(g, 5, female=False, role=0)
-        self.assertFalse(conception.conceives(g, heathen, 5, MOMMY_CAVE_RETURN))
+        self.assertTrue(conception.conceives(g, heathen, 5, MOMMY_CAVE_RETURN))
         believer = self.mommy(g, 6, female=False, faction=0)
-        self.assertFalse(conception.conceives(g, believer, 6, GAME_CALLER))
+        self.assertTrue(conception.conceives(g, believer, 6, GAME_CALLER))
 
     def test_stock_a_mommy_without_the_infant_holds_nothing(self):
         g = self.game(dll=False)
@@ -584,19 +658,23 @@ class NewBelieversHeathenMommy(unittest.TestCase):
 
     def test_a_mommy_left_without_the_infant_is_given_it_at_her_stop(self):
         for exe_name, exe in [("stock", stock_exe(5))] + [(m, rendered(5, m)) for m in MODES]:
-            g = self.game(exe)
-            self.assertEqual(g.p.read(STOP_TEST, 1), b"\xE9", exe_name)
             for i, female in ((1, False), (2, True)):
                 with self.subTest(exe=exe_name, female=female):
+                    g = self.game(exe)
+                    self.assertEqual(g.p.read(STOP_TEST, 1), b"\xE9", exe_name)
+                    camp = self.camp(g)
+                    if female:
+                        g.p.write(camp["Akivi Mashudu"] + FACTION, b"\0")   # no family: any adult Heathen
                     r = self.mommy(g, i, female=female)
+                    parent = camp["Vaihi Salongo" if female else "Akivi Mashudu"]
                     before = g.p.read(r, g.g["stride"])
-                    expected = self.stock_conception(before)
+                    expected = self.stock_conception(before, self.of(g, parent))
                     counters = g.p.read(0x51D360, 0x28)
                     self.stop(g, r, STOP_HEATHEN_CARRY)
                     self.assertEqual(g.p.u32(r + CARRY), 3, "holds the baby")
                     self.assertEqual(g.p.u32(r + PREGNANT), 400)
                     self.assertEqual(g.p.u32(r + LITTER), 1)
-                    self.assertEqual(g.p.read(r + 0x1C10, 8), b"Unknown\0")
+                    self.assertEqual(self.parent_fields(g, r), self.of(g, parent), "a named other parent")
                     after = g.p.read(r, g.g["stride"])
                     # Every byte but the carried item is the stock routine's for the cave's own call.
                     self.assertEqual(after[:CARRY] + after[CARRY + 4:], expected[:CARRY] + expected[CARRY + 4:])
@@ -627,7 +705,7 @@ class NewBelieversHeathenMommy(unittest.TestCase):
             exe[pe.get_offset_from_rva(STOP_TEST + k - 0x400000)] ^= 0xFF
             g = self.game(bytes(exe))
             with self.subTest(byte=k):
-                self.assertEqual(g.p.export("VvfpConceptionGuardInstalled", 5), 0)
+                self.assertEqual(g.p.export("VvfpHeathenMommyInfantInstalled", 5), 0)
                 self.assertEqual(g.p.export("VvfpGenderPresentationInstalled", 5), 0)
                 self.assertNotEqual(g.p.read(0x465E00, 1), b"\xE9")
 

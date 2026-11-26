@@ -5,7 +5,7 @@
   "catalog_hidden": false,
   "game_id": "vv2",
   "name": "Change Sex and Gender Presentation",
-  "description": "Adds two choices to the per-villager Change Appearance window. **Change sex...** changes the sex the game keeps for the villager (the same head and body rows; a carrying parent goes on carrying), made at once after a warning; everything the patcher keeps for the villager follows them. **Gender presentation: use the other sex's look** keeps the villager's recorded sex and draws them with the other sex's heads and bodies (the same rows) everywhere the game draws villagers: the village, the map, Villager Details and the island event pictures. The preview shows it at once; OK keeps it, Cancel and Undo changes do not; it is free. Neither is offered for the Golden Child, and story villagers keep the game's own look. The choice is kept in the save's own Gender Presentation file and follows each villager (through deaths, reloads, renames and a sex change); Back Up Saves copies it and Start Over clears it. Custom Island Events can set or clear it too (the \"presentation\" change). **Only villagers born female carry:** one born female who changed to male goes on carrying; one born male never conceives on their own, even after changing to female (Change sex says so), but a Custom Island Event can still give them a baby with a partner you choose. In New Believers the Heathen Mommy is the exception: whatever sex the game gives her, she always has her baby and holds it, and a Heathen Mommy who was left without it is given it at her next change of action. **On in Owner's Defaults; off in the normal defaults and in Select All.** Change Appearance is in the Origins upgrades: **Runs on the Origins-exclusive base, which the patcher installs automatically with it**, so selecting this patch also adds the Origins Upgrades buttons to the Tech and Villager Details screens. **Works the same with every other patch and in every population mode.** **Not yet seen in a running game** (checked by emulation of each game's own draw code). The companion is \"VVFP Gender Presentation.dll\", started by VVFP Startup.dll; the save and the sex field are never written for the presentation.",
+  "description": "Adds two choices to the per-villager Change Appearance window. **Change sex...** changes the sex the game keeps for the villager (the same head and body rows; a carrying parent goes on carrying), made at once after a warning; everything the patcher keeps for the villager follows them. **Gender presentation: use the other sex's look** keeps the villager's recorded sex and draws them with the other sex's heads and bodies (the same rows) everywhere the game draws villagers: the village, the map, Villager Details and the island event pictures. The preview shows it at once; OK keeps it, Cancel and Undo changes do not; it is free. Neither is offered for the Golden Child, and story villagers keep the game's own look. The choice is kept in the save's own Gender Presentation file and follows each villager (through deaths, reloads, renames and a sex change); Back Up Saves copies it and Start Over clears it. Custom Island Events can set or clear it too (the \"presentation\" change). **Babies are never blocked for any sex:** a villager of either sex can carry and hold a baby wherever the game or another patch gives them one, and a carrying parent who changes sex goes on carrying. In New Believers the Heathen Mommy, whatever sex the game gives her, always has her baby and holds it; a Heathen Mommy who was left without it is given it at her next change of action. **On in Owner's Defaults; off in the normal defaults and in Select All.** Change Appearance is in the Origins upgrades: **Runs on the Origins-exclusive base, which the patcher installs automatically with it**, so selecting this patch also adds the Origins Upgrades buttons to the Tech and Villager Details screens. **Works the same with every other patch and in every population mode.** **Not yet seen in a running game** (checked by emulation of each game's own draw code). The companion is \"VVFP Gender Presentation.dll\", started by VVFP Startup.dll; the save and the sex field are never written for the presentation.",
   "output_tag": "Gender Presentation",
   "dependencies": [
     "vv2_enable_origins_exclusive_features"
@@ -15,7 +15,7 @@
     "Every read of the villager sex field inside the Villager Details portrait 0x445540, a villager's strip figure 0x445950, the village 0x445B50 and the map 0x4478E0 is spliced to the companion, which hands the game the villager's drawn sex: the other value when the villager's gender presentation is on, the field's own otherwise (a special villager, or anything that is not a villager record, always the field). Each routine then draws the villager exactly as it draws one of the other sex with the same head and body rows; nothing else that reads the sex (breeding, names, pronouns, sounds, statistics, the companions) changes.",
     "The choice is kept in \"Virtual Villagers Fun Patcher\\Save <S>\\Data\\Gender Presentation\\Gender Presentation - Save <S>.dat\" (the Head Looks' file shape, native/vvfp_head_look/head_look_store.inc, magic 'VGP1'), following each villager; Start Over deletes it (native/shared/save_reset.c).",
     "The Custom Island Event's \"presentation\" change (code 23, docs/event-collection/cie-v6-binary.md 31) sets or clears it through the same companion.",
-    "The birth sex: the first sex change keeps the sex the villager was born with in the same file (VvfpBornFemale; else the save's Sex Changes log). The room check of the conception routine 0x44B980 is spliced: when the game's own code makes a villager born male conceive, the conception does not happen, exactly as when the village has no room (a call from outside the executable -- the Custom Island Event's pregnancy with a partner the player chooses -- is never refused). Island events and puzzles that write a pregnancy themselves are not covered."
+    "The birth sex: the first sex change keeps the sex the villager was born with in the same file (VvfpBornFemale; else the save's Sex Changes log), for the records only: it decides nothing about babies, and no conception routine is touched (the owner, 2026-11-25: the patcher never blocks babies, male or female; v1.35.97 to v1.35.100 refused the game's own conception for a carrier born male)."
   ],
   "explicit_non_changes": [
     "No executable byte is patched: the companion splices the reads at run time, only after verifying every one holds its stock bytes; all are written or none (a different build installs none, and then the checkbox is not offered).",
@@ -27,7 +27,7 @@
     {
       "source": "assets/gender_presentation/VVFP Gender Presentation.dll",
       "destination": "VVFP Gender Presentation.dll",
-      "sha256": "CAB155AD1EA4DB44AC8618FA39EC3D8A8A0B737B0022CEFC2FCFB4270E4D7DC1"
+      "sha256": "388DA292AD31FF979BAA49C3CA1185A111589CA7EF4C315106B99307DA678D64"
     }
   ],
   "patches": [],
@@ -162,12 +162,6 @@
       "va": "0x448EA2",
       "stock_bytes": "8B843238050000",
       "routine": "a read of the villager sex field in a villager draw routine",
-      "installed_by": "VVFP Gender Presentation.dll, VvfpStartup (started by VVFP Startup.dll, second word)"
-    },
-    {
-      "va": "0x44B983",
-      "stock_bytes": "E888F9FFFF",
-      "routine": "the room check of the conception routine 0x44B980",
       "installed_by": "VVFP Gender Presentation.dll, VvfpStartup (started by VVFP Startup.dll, second word)"
     }
   ]
