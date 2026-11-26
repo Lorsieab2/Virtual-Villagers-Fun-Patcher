@@ -3361,10 +3361,9 @@ main villager):
   newcomer who looks just like them), CLONE OF <who> (an exact double; CLONE OF <who> (2) or TWO CLONES OF <who>
   makes two, never more). A family: NEW VILLAGER (adult man), NEW VILLAGER (adult woman), then
   NEW BABY OF THE NEWCOMERS. "newcomer" as <who> is the villager the event just made (and "previous newcomer" the one before).
-- PREGNANT <who> [WITH <who>], NURSING <who> [WITH <who>] (a new baby now): the carrier is born female and 18 or
-  older. Add (ANY BIRTH SEX) only when the story is magical (a spell, a blessing, an enchanted spring, a spirit, a
-  potion), or for NURSING when a father is caring for a baby. Add (TWINS), (TRIPLETS) or (TWINS OR TRIPLETS) for
-  more than one baby. PREGNANT <who> WITH <who> without (ANY BIRTH SEX) is a couple's pregnancy: the first is the
+- PREGNANT <who> [WITH <who>], NURSING <who> [WITH <who>] (a new baby now): the carrier is any sex, 18 or
+  older ((ANY BIRTH SEX) is still accepted but no longer needed). Add (TWINS), (TRIPLETS) or (TWINS OR TRIPLETS) for
+  more than one baby. PREGNANT <who> WITH <who> is a couple's pregnancy: the first is the
   one who carries (in a same-sex couple, the one the story calls the mother), and the player's "a man may carry the
   baby by chance" setting may let the partner carry instead, so write the story so either can.
 - NEW LOOK (head|body|both) <who>, OLD LOOK <who> (looks older), SEX CHANGE <who>, BODY SWAP <who> WITH <who>,
@@ -3511,7 +3510,7 @@ Use gameplay effects only when the story supports them, and only the effects lis
 Don't artificially balance every choice with one good outcome and one bad outcome.
 Some choices may have two good outcomes, two unfortunate outcomes, or two entirely different neutral outcomes.
 Death should be very rare, serious harm uncommon, and minor setbacks occasional, unless the particular event warrants otherwise.
-The patcher's casting rules: a pregnancy or a new baby (PREGNANT, NURSING) always goes to a villager born female and 18 or older, unless the story is magical or (for NURSING) a father caring for a baby, and then the effect says (ANY BIRTH SEX); in a couple's pregnancy (PREGNANT <who> WITH <who>, no (ANY BIRTH SEX)) the partner may carry instead by the player's chance setting. Events that can kill a villager or make one disappear only happen in villages of 61 or more.
+The patcher's casting rules: a pregnancy or a new baby (PREGNANT, NURSING) goes to a villager of any sex, 18 or older (villagers are villagers regardless of gender); in a couple's pregnancy (PREGNANT <who> WITH <who>) the partner may carry instead by the player's chance setting. Events that can kill a villager or make one disappear only happen in villages of 61 or more.
 8. Quality Requirements
 Before presenting the events, check that:
 

@@ -981,12 +981,11 @@ stay as recorded.
 - **Parent words:** the role-sex word pairs of section 5 (`(parent.mother/father)`, `(parent.mom/dad)`, add `'s` for
   the possessive) give the word of the role's sex as cast, so an event about a carrying father says "father" with no
   other change. Text written with the plain word "mother" stays as written (an owner's sentence is never rewritten).
-- **Only villagers born female carry** (the owner, 2026-11-15): a nursing_parent role, and the role a baby_lost
-  effect names, cast only a villager born female (`cg_carrier_role`, `cg_born_female`: "VVFP Gender Presentation.dll"
-  keeps the birth sex at the first change, else the save's Sex Changes log's first line for them, else the sex now).
-  One born female who changed to male goes on carrying and may be cast; one born male is never cast as a carrier,
-  even if a Custom Island Event gave them a baby. In the game a villager born male never conceives on their own
-  (that companion's conception guard); the Custom Island Event's pregnancy with a chosen partner still can.
+- **Any sex carries** (the owner, 2026-11-26: "Remove it, any sex"; the born-female rule of 2026-11-15 is gone): a
+  nursing_parent role, and the role a baby_lost effect names, cast a villager of any sex; a pregnant / nursing
+  effect makes a carrier of any sex (18 or more, not expecting). `any_birth_sex` (flags bit 0) and the procedural
+  slot flag bit 5 are still read and written, so old files load unchanged, but no longer change anything. No
+  companion blocks the game's own conceptions for any sex.
 - **A cross-sex body look** keeping the sex field is section 31 (code 23): the gender presentation.
 
 ## 30. An early birth, the parent lives (`deliver_early`, code 24)
@@ -1193,23 +1192,19 @@ codes that a `vv_cie_graph` without them does not know.) The run-time side (stor
   looks (head, body, sex) but its own likes, dislikes and skills, rolled from the game's lists (a lookalike, a double).
   Never for visitors who leave.
 - **`{"do": "pregnant", "role": r}`** and **`{"do": "nursing", "role": r}`**, optionally `"partner": p` and
-  `"any_birth_sex": true`: the role's villager becomes pregnant, or has a nursing baby now. The carrier is cast born
-  female (any current sex), 18 or older, and never a villager already pregnant or nursing (the engine checks the
+  `"any_birth_sex": true`: the role's villager becomes pregnant, or has a nursing baby now. The carrier is of any sex
+  (the owner, 2026-11-26), 18 or older, and never a villager already pregnant or nursing (the engine checks the
   carrier when the effect applies; one that cannot carry is a refused change). The partner is `p` (the event's
   recorded spouse or partner role) or, left out, an adult of the other birth sex. Parentage is recorded at conception
-  as usual. `any_birth_sex` (flags bit 0, value 1) lets a born-male villager carry: where the text involves magic (a
-  spell, a blessing, an enchanted spring, a spirit, a potion), or, for `nursing`, where the text has him caring for a
-  baby (his partner's, a single father, a deceased mother's child, a nursery or orphanage, an abandoned or rescued
-  infant, an adopted or refugee child, someone who cannot care for their child) or a villager who transitioned from
-  female to male. Otherwise born-male villagers never conceive from these events (Custom Island Events can, with Male
-  Pregnancy). `"partner_may_carry": true` (flags bit 3, value 8; needs `partner`): the carrier is still checked as
+  as usual. `any_birth_sex` (flags bit 0, value 1) is still read and written so old files load unchanged, but is no
+  longer needed and changes nothing. `"partner_may_carry": true` (flags bit 3, value 8; needs `partner`): the carrier is still checked as
   above, then, at the player's "a man may carry the baby by chance" percent (10 unless moved), the partner carries
   instead, of any birth sex, when they are 18 or older and not expecting already; else the carrier does. **Who
   carries is decided once, when the run starts (the cast made and the aliases drawn), before any page is written**
   (the owner, 2026-11-18; `story_graph.inc cg_partner_carry_decide`, `vv_cie_graph.partner_carry_pairs`): each
   such effect's pair once (an alias role as its member drawn), in effect order, one roll (none at 0 or 100 percent);
   on a yes the two roles' villagers change places for the whole run, so every page's names, pronouns and carrier
-  words name the villager who carries, the effect makes that villager carry (the born-female check skipped for them)
+  words name the villager who carries, the effect makes that villager carry
   and the conception records the other as the other parent. Another outcome's `nursing` for the swapped role (a
   foundling the couple takes in) also goes to the villager the page names, whatever their birth sex.
   The run's file (version 5) keeps the swap (`carry_swapped`): a loaded run keeps the choice whatever the setting
