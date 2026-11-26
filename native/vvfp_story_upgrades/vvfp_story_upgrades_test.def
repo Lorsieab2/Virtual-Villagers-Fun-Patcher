@@ -97,6 +97,7 @@ EXPORTS
     VvfpStoryStats DATA
     VvfpStoryOutcomeStats DATA
     VvfpStoryCustomTitle=_VvfpStoryCustomTitle@16
+    VvfpStorySetCustomTitle=_VvfpStorySetCustomTitle@12
     VvfpStoryAppearanceChanged=_VvfpStoryAppearanceChanged@16
     VvfpStoryTimeSkipNoticeShown=_VvfpStoryTimeSkipNoticeShown@4
     VvfpStoryCustomState=_VvfpStoryCustomState@4
@@ -313,6 +314,7 @@ EXPORTS
     VvfpStoryStats DATA
     VvfpStoryOutcomeStats DATA
     VvfpStoryCustomTitle=_VvfpStoryCustomTitle@16
+    VvfpStorySetCustomTitle=_VvfpStorySetCustomTitle@12
     VvfpStoryAppearanceChanged=_VvfpStoryAppearanceChanged@16
     VvfpStoryTimeSkipNoticeShown=_VvfpStoryTimeSkipNoticeShown@4
     VvfpStoryCustomState=_VvfpStoryCustomState@4

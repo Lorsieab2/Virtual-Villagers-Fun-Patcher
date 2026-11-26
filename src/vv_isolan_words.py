@@ -9,6 +9,7 @@ rewrite on, the companions write (native/shared/isolan_log_words.h, former_heath
     "Special villager: Esteemed Isolan Doctor" ...       the rewrite's OWN in-game names of the puzzle Heathens
                                                          (vv_guardians_role_titles, generated from its sm.xml)
     Arrived "How: Replaced an Isolan who died ..."       for "Replaced a Heathen ..."
+    Arrived "How: Arrived at the Isolan camp [with N other(s)]"   for "... the Heathen camp ..." (v1.35.101)
     Island Events "  <name>: Isolan no -> yes"           for "Heathen no -> yes"
     Village Statistics "Isolans Converted: N"            for "Heathens Converted: N"
 
@@ -17,6 +18,8 @@ Isolan" (vv_log_additions).  heathen_form() gives any of these words in the game
 reader keyed on the Heathen words reads either.
 """
 from __future__ import annotations
+
+import re
 
 from vv_guardians_role_titles import ROLE_TITLES
 
@@ -31,6 +34,20 @@ REPLACED = {
     "Replaced a Heathen who died of old age": "Replaced an Isolan who died of old age",
     "Replaced a Heathen lost in an island event": "Replaced an Isolan lost in an island event",
 }
+
+# Heathen Tribe Expansion and Evolution (v1.35.101; native/shared/heathen_evo.h HE_ARRIVED_*): a new Heathen's
+# Arrived record, "How: Arrived at the Heathen camp", or one of a group, "... with N other(s)" (N 1 to 3); the
+# rewrite's "Isolan camp".  Every such record also carries the Heathen Faction line, so no reader counts it.
+ARRIVED_ALONE = {"Arrived at the Heathen camp": "Arrived at the Isolan camp"}
+ARRIVED_GROUP = re.compile(r"^Arrived at the (Heathen|Isolan) camp with ([1-9]\d*) others?$")
+
+
+def is_heathen_arrival(how: str | None) -> bool:
+    """Whether an Arrived record's "How:" says a Heathen joined the camp (a replacement or a new arrival), in either
+    wording."""
+    how = (how or "").strip()
+    return (how in REPLACED or how in REPLACED.values() or how in ARRIVED_ALONE or how in ARRIVED_ALONE.values()
+            or ARRIVED_GROUP.match(how) is not None)
 
 FORMER_TITLES = {
     "Former Heathen (blue mask)": "Former Isolan (blue mask)",
@@ -54,6 +71,7 @@ _TO_HEATHEN = {
     NO_GRAVE_ISOLANS: NO_GRAVE_HEATHENS,
     CONVERTED_ROWS[1]: CONVERTED_ROWS[0],
     **{isolan: heathen for heathen, isolan in REPLACED.items()},
+    **{isolan: heathen for heathen, isolan in ARRIVED_ALONE.items()},
     **{isolan: heathen for heathen, isolan in FORMER_TITLES.items()},
     **{isolan: heathen for heathen, isolan in PUZZLE_TITLES.items()},
 }
@@ -67,6 +85,9 @@ def heathen_form(text: str | None) -> str | None:
     anything that is not one of the Guardians of Isola words as it is."""
     if text is None:
         return None
+    group = ARRIVED_GROUP.match(text.strip())
+    if group is not None and group.group(1) == "Isolan":
+        return text.strip().replace("the Isolan camp", "the Heathen camp", 1)
     return _TO_HEATHEN.get(text.strip(), text)
 
 

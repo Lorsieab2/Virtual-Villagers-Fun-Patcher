@@ -816,14 +816,25 @@ static int write_backfill(int game_id, const struct backfill_target *target) {
                         : "  Sex, head, body, likes and dislikes: unknown -- the grave does not keep them, and"
                           " the Village History log does not list this villager\n");
     }
+    /* New Believers' places 500-999 are the graves at the Shrine to the Ancestors ("VVFP Heathen Mausoleum.dll"),
+       every one a Heathen's (the faction at death decides where a body goes): the record is marked a Heathen's as
+       the burial's own Death record is ("Faction: Heathen", "Isolan" with the Guardians of Isola Rewrite), so no
+       reader counts it in the village.  (A Heathen's grave from before, in the believers' 0-499, keeps no faction:
+       the grave does not say.) */
+    char faction[32];
+    faction[0] = '\0';
+    if (game_id == GAME_VV5 && f->place >= VV_GRAVE_SHRINE_FIRST) {
+        _snprintf_s(faction, sizeof faction, _TRUNCATE, "  Faction: %s\n", vv5_heathen_word());
+    }
     written = _snprintf(text, sizeof text,
                         "  Name: %s\n"
+                        "%s"
                         "  Age at death: %d\n"
                         "  Cause of death: %s\n"
                         "  Grave: %s\n"
                         "  Epitaph: %s\n"
                         "%s%s%s\n",
-                        target->name, f->age, f->cause, f->grave,
+                        target->name, faction, f->age, f->cause, f->grave,
                         f->epitaph[0] ? f->epitaph : "(none)", looks, BACKFILL_NOTE, source);
     if (written < 0 || (size_t)written >= sizeof text) {
         return 0;

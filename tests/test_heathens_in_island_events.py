@@ -132,6 +132,18 @@ class Engine(unittest.TestCase):
                 r = self.run_with(self.ONE, heathens=(0,), patches=())
                 self.assertIsNotNone(r.queue6(data, strict=True), "no row: never a Heathen")
 
+    def test_the_heathen_tribe_expansion_row_stands_for_this_row(self):
+        """v1.35.101: "Heathen Tribe Expansion and Evolution" (vv5_heathen_tribe_evolution) folds this row in, so a
+        build that lists the new id casts Heathens as this row does (story_graph.inc cg_heathens_row), and More
+        Island Events hears the same through VvfpStoryHeathensRow."""
+        data = compiled(graph("allowed"))
+        r = self.run_with(self.ONE, heathens=(0,), patches=("vv5_heathen_tribe_evolution",))
+        self.assertIsNone(r.queue6(data, strict=True), "the new row: the Heathen is cast")
+        self.assertEqual(r.p.export("VvfpStoryHeathensRow", 5), 1)
+        self.assertEqual(r.p.export("VvfpStoryHeathensRow", 4), 0, "New Believers only")
+        r = self.run_with(self.ONE, heathens=(0,), patches=("vv5_heathen_tribe_evolution_rewrite_not",))
+        self.assertEqual(r.p.export("VvfpStoryHeathensRow", 5), 0, "only the row's own id")
+
     def test_an_only_role_takes_no_believer(self):
         data = compiled(graph("only"))
         r = self.run_with(self.ONE)

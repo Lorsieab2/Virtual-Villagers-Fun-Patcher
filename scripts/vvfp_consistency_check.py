@@ -1800,9 +1800,12 @@ def check_unaccounted(game_dir: Path, slot: int, game: int, rep: Report) -> int:
     rep.add(label, "OK", f"{len(deaths)} Death records, {len(unacc)} Unaccounted records for Save {slot}")
     global LAST_GRAVES
     # A New Believers Heathen's Death record ("  Faction: Heathen" / "Isolan": the Heathen Aging skeleton rows) is
-    # never a burial of the village (Heathens never count), as statistics_reconcile.inc reads it.
+    # never a burial of the village (Heathens never count), as statistics_reconcile.inc reads it.  Nor is a grave at
+    # the Shrine to the Ancestors (the Heathen Tribe Expansion's mud-hut graves, "VVFP Heathen Mausoleum.dll"), even
+    # in a record with no Faction line: "Grave: the Shrine to the Ancestors (...)" is only ever a Heathen's.
     LAST_GRAVES = sum(1 for d in deaths if (m := re.search(r"^  Grave: (.*)$", d, re.M)) and m.group(1).strip()
                       and not m.group(1).startswith("no grave")
+                      and not m.group(1).strip().startswith(SHRINE_GRAVE)
                       and not re.search(r"^  Faction: (?!Believer\s*$)\S", d, re.M))
     dead = {re.search(r"Name: (.*)", d).group(1).strip() for d in deaths if re.search(r"Name: (.*)", d)}
     for u in unacc:
@@ -1815,6 +1818,9 @@ def check_unaccounted(game_dir: Path, slot: int, game: int, rep: Report) -> int:
 
 
 LAST_GRAVES = 0
+# A Death record's grave at the Shrine to the Ancestors (New Believers, "VVFP Heathen Mausoleum.dll"; cod_vv345.inc):
+# "the Shrine to the Ancestors (<skill line>)", the same in either wording (Guardians of Isola too).
+SHRINE_GRAVE = "the Shrine to the Ancestors"
 
 
 def village_id(header: str) -> int:

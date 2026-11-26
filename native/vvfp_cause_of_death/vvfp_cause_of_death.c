@@ -91,6 +91,7 @@
 #include "identity_in_place.h"  /* a former Heathen whose likes change stays one (cod_former.inc) */
 #include "mask_line.h"         /* the mask a roster snapshot keeps */
 #include "heathen_word.h"      /* New Believers' "Faction:" word (Heathen, or the Guardians of Isola one) */
+#include "guardians_role_titles.h"   /* the camp roles' names, for the Took the role record (cod_arrivals.inc) */
 #include "save_folder.h"
 #include "patcher_files.h"
 #include "grave_backfill.h"
@@ -373,7 +374,7 @@ static unsigned int cod_name_hash(const unsigned char *record) {
 /* ---- The log -------------------------------------------------------------- */
 
 enum { LOG_DEATH = 2, LOG_DISAPPEARED = 3, LOG_EPITAPH = 4, LOG_UNACCOUNTED = 5, LOG_ARRIVED = 6,
-       LOG_LOST_BIRTH = 9 };
+       LOG_LOST_BIRTH = 9, LOG_ROLE = 12 };
 
 typedef int (__stdcall *write_record_fn)(int game, int kind, const void *record, int check,
                                          const char *before, const char *after, int detail);

@@ -1136,7 +1136,7 @@ HEATHEN_ROLES = ("Heathen Doctor", "Heathen Chief", "Heathen Master Scientist", 
 CONVERTED = "Converted from the Heathens"
 # With Guardians of Isola Rewrite the companions write "Converted from the Isolans", the Former Isolan titles and the
 # rewrite's own puzzle titles (the owner, 2026-11-23): every reader takes both (vv_isolan_words), as LEFT_RECORDS.
-from vv_isolan_words import CONVERTED_HOWS, heathen_form   # Heathen / Guardians of Isola's Isolan words  # noqa: E402
+from vv_isolan_words import CONVERTED_HOWS, heathen_form, is_heathen_arrival   # both wordings  # noqa: E402
 # A Birth record's heading is read by the shared scripts/vvfp_consistency_check.py is_birth_heading
 # ("Birth <n>" or an older log's plain "Birth"); the Arrived and Disappeared records' headings,
 # numbered or not, the same way.
@@ -1175,6 +1175,14 @@ def is_heathen_record(b) -> bool:
     return is_heathen_faction(b.value("Faction"))
 
 
+def _came_as_heathen(b) -> bool:
+    """Whether an Arrived record is a Heathen's coming to the camp -- "VVFP Heathen Aging.dll"'s replacements and,
+    with Heathen Tribe Expansion and Evolution, the new arrivals ("Arrived at the Heathen camp [with N other(s)]",
+    either wording) -- by its Faction line or its "How:".  Such a Heathen never came as a believer, so nothing of
+    theirs asks for a "Left the tribe" record or a believer's faction."""
+    return is_heathen_record(b) or is_heathen_arrival(b.value("How"))
+
+
 def _faction_of_title(title: str | None) -> str | None:
     """What a record's own Special villager line says of its faction then: a Heathen role title is
     only ever a current Heathen's, a former Heathen's titles only a believer's
@@ -1199,10 +1207,13 @@ def _faction_events(folder: Path, game: int, slot: int) -> tuple[set, set, set]:
             if not b.of(slot, game, villages):
                 continue
             if ARRIVED_HEADING.match(b.heading):
+                if _came_as_heathen(b):
+                    continue                  # a Heathen who joined the camp: no side to change from
                 (converted if (b.value("How") or "").strip() in CONVERTED_HOWS else believer).add(b.identity)
             elif DISAPPEARED_HEADING.match(b.heading) and b.value("What happened") in LEFT_RECORDS:
                 left.add(b.identity)
-            elif checker.is_birth_heading(b.heading) and not b.not_kept:   # src/vv_not_kept.py
+            elif (checker.is_birth_heading(b.heading) and not b.not_kept   # src/vv_not_kept.py
+                  and not is_heathen_record(b)):                           # a Heathen baby: born a Heathen
                 child = _sub_identity(b, "Child")
                 if child:
                     believer.add(child)
@@ -1285,9 +1296,11 @@ def _side_counts(folder: Path, game: int, slot: int, villages: set[str] | None,
             if not b.of(slot, game, villages):
                 continue
             if ARRIVED_HEADING.match(b.heading):
+                if _came_as_heathen(b):
+                    continue                      # joined the Heathens' camp: never came as a believer
                 add(b.identity, 1 if (b.value("How") or "").strip() in CONVERTED_HOWS else 0)
             elif checker.is_birth_heading(b.heading):
-                if not b.not_kept:                # never in the saved village (src/vv_not_kept.py)
+                if not b.not_kept and not is_heathen_record(b):   # a Heathen baby was never a believer
                     add(_sub_identity(b, "Child"), 0)
             elif DISAPPEARED_HEADING.match(b.heading):
                 what = b.value("What happened")
