@@ -60,6 +60,8 @@ DIFFICULTY, NONI, CROPS = 0x17D54, 0x17D58, 0x17D5C
 PICK_SITE, PICK_FRAME = 0x46F0BA, 0x10
 RAND, GAME, TEXTS, TEXT, STOP, START, POSITION, HEATHEN_AI = (
     0x403660, 0x425950, 0x450D40, 0x4506D0, 0x473440, 0x473590, 0x466350, 0x46E9E0)
+TEACHER = 0x43A810
+CURE_BEGIN, CURE_COUNT = 0x468C3C, 0x468D4D
 STEP, STEPS = 0x58, 0x50
 HE_LIFE_IDLE, HE_LIFE_UNIT, HE_LIFE_ROW, KEEP_SICK, HANDLED = 0, 1, 0x100, 1, 2
 CAMP, NONI_AREA, CROP_AREA, LAKE, POOLS, STATUE, LAB = 0x39, 0x1A, 0x52, 0x69, 0x7C, 0x45, 0x0E
@@ -119,6 +121,8 @@ class Camp(Machine):
         self.stub(START, self._start)
         self.stub(POSITION, self._position)
         self.stub(HEATHEN_AI, self._stock_ai)
+        self.teacher = 0                                    # 0x43A810: someone teaching at the nursery school
+        self.stub(TEACHER, lambda p: (self.teacher, 0))
         self.put32(MEDICINE, 1)
         for puzzle in range(32):                            # every puzzle unsolved unless a test solves it
             self.put32(PUZZLE_NEEDED + 4 * puzzle, 1)
@@ -245,13 +249,28 @@ class Camp(Machine):
         self.put32(obj + 8, project)
         self.put32(obj + 0x14, area)
         self.solve(project)
-        # The building's walk area stamped into a few cells of its own (x 1000.., y 1200 + 64 x site; the area
-        # bits only), as the game stamps a built building's area into the map.
+        self.stamp(area, site, cells)
+
+    def stamp(self, area: int, row: int, cells: int = 6) -> None:
+        """A walk area stamped into a few cells of its own (x 1000.., y 1200 + 64 x row; the area bits only), as
+        the game stamps a built building's area into the map."""
         for k in range(cells):
-            cell = (1200 // 8 + 8 * site) * 320 + 1000 // 8 + k
+            cell = (1200 // 8 + 8 * row) * 320 + 1000 // 8 + k
             word = self.u32(MAP + 4 * cell)
             self.put32(MAP + 4 * cell, (word & ~(0x7FF << 4)) | (area << 4))
         self.tick += 3000                                   # the companion looks at the map afresh
+
+    def drag_cure(self, healer: int, patient: int) -> None:
+        """The drag-a-healer cure 0x468C10 (thiscall on the healer), the game's code from its start to its end;
+        stood in for: its patient finder 0x4706F0 (answers `patient`), the skill check 0x46B270 (a pass), the
+        messages 0x413450, the behaviour starter 0x465580, the say step 0x474910 and the step pop 0x4733F0."""
+        self.stub(0x4706F0, lambda p: (patient, 0xC))
+        self.stub(0x46B270, lambda p: (1, 8))
+        self.stub(0x413450, lambda p: (0, 8))
+        self.stub(0x465580, lambda p: (0, 8))
+        self.stub(0x474910, lambda p: (0, 4))
+        self.stub(0x4733F0, lambda p: (0, 4))
+        self.call(0x468C10, ecx=healer)
 
     # ---- the game ---------------------------------------------------------------------------------------
     def unit(self, record: int, flags: int = HE_LIFE_UNIT | HE_LIFE_ROW) -> int:
@@ -574,11 +593,12 @@ class Facilities(_Base):
         r = camp.villager(3)
         camp.villager(4, heathen=False, skills=(50,) * 6)   # a believer whose record must not move
         camp.solve(14)                                      # the Believer Idol carved
-        camp.build(5, 24, 0x20)                             # the Nursery Hut
+        camp.build(5, 24, 0x20)                             # the Nursery Hut: never an adult's visit
         camp.build(4, 23, 0x11)                             # the Love Shack
         camp.build(3, 22, 0x10)                             # the Clothing Hut
-        stamped = {0x20: 5, 0x11: 4, 0x10: 3}
-        want = {TEXT_POOLS: POOLS, TEXT_STATUE: STATUE, TEXT_LAB: LAB, TEXT_NURSERY: 0x20}
+        camp.teacher = 1
+        stamped = {0x11: 4, 0x10: 3}
+        want = {TEXT_POOLS: POOLS, TEXT_STATUE: STATUE, TEXT_LAB: LAB}
         waiting_sites: set[int] = set()
         for _ in range(400):
             before = camp.snapshot([(r, STRIDE)])
@@ -598,6 +618,7 @@ class Facilities(_Base):
             elif text == TEXT_WAITING:                      # the Love Shack's or the Clothing Hut's door
                 self.assertLessEqual(types, {3, 4, 0x0B}, "no embrace, no clothes")
                 waiting_sites.add((walks[0][2] // 8 - 1200 // 8) // 8)
+            self.assertNotEqual(text, TEXT_NURSERY, "adults never go to the nursery")
             if not want and waiting_sites == {3, 4}:
                 break
         self.assertEqual(want, {})
@@ -612,6 +633,7 @@ class Facilities(_Base):
 
     def test_children_puzzle_heathens_and_believers_keep_the_stock_ai(self):
         camp = Camp(options="show_percent=100\n")
+        # (a child with nobody teaching at the nursery school: the stock children's routine)
         for record in (camp.villager(3, age=100), camp.villager(4, role=13), camp.villager(5, role=17)):
             camp.pick(record)
             self.assertEqual(camp.steps(record), [])
@@ -620,6 +642,112 @@ class Facilities(_Base):
         r = camp.villager(6)
         camp.pick(r)
         self.assertEqual(len(camp.stock_ai), 4)
+
+
+@unittest.skipIf(_skip(), _skip() or "")
+class AgeBands(_Base):
+    """The owner (2026-11-26): Heathens do only what believers of their age do.  Children (under 280 units): only
+    the nursery play, while someone teaches at the nursery school (0x46E433..0x46E472); adults and elders: every
+    adult action (no age test in the dispatcher, chooser or player's job); the Love Shack door: 360 to 999 (the
+    partner search 0x470A53 / 0x470A8F)."""
+
+    def _camp(self) -> Camp:
+        camp = Camp(options="show_percent=100\n")
+        for puzzle in (2, 5, 10, 14):
+            camp.solve(puzzle)
+        camp.build(4, 23, 0x11)                             # the Love Shack, its cells in row 4
+        camp.build(3, 22, 0x10)                             # the Clothing Hut, row 3
+        camp.stamp(0x22, 6)                                 # the nursery's play area, row 6
+        return camp
+
+    def _seen(self, camp: Camp, record: int, count: int) -> tuple[set[str], set[int]]:
+        texts, door_rows = set(), set()
+        for text, steps in self.picks(camp, record, count):
+            texts.add(text)
+            walks = self.walks(steps)
+            if text == TEXT_WAITING:
+                door_rows.add((walks[0][2] // 8 - 1200 // 8) // 8)
+        return texts, door_rows
+
+    def test_a_child_only_plays_in_the_nursery_while_someone_teaches(self):
+        camp = self._camp()
+        child = camp.villager(3, age=200)
+        texts, _ = self._seen(camp, child, 30)
+        self.assertEqual(texts, {""}, "nobody teaching: the stock children's routine")
+        self.assertEqual(len(camp.stock_ai), 30)
+        camp.teacher = 1
+        for text, steps in self.picks(camp, child, 30):
+            self.assertEqual(text, TEXT_NURSERY)
+            walks = self.walks(steps)
+            self.assertEqual(walks[0][2] // 8 - 1200 // 8, 8 * 6, "to the nursery's play area 0x22")
+            self.assertTrue(_inside(self.areas[CAMP], walks[-1][1], walks[-1][2]))
+        self.assertEqual(camp.u32(child + SKILLS + 4 * PARENTING), 0)
+
+    def test_adults_and_elders_never_go_to_the_nursery_and_elders_do_adult_work(self):
+        camp = self._camp()
+        camp.teacher = 1
+        for age in (280, 2000):
+            with self.subTest(age=age):
+                r = camp.villager(3, age=age)
+                texts, _ = self._seen(camp, r, 150)
+                self.assertNotIn(TEXT_NURSERY, texts)
+                self.assertTrue({TEXT_NONI, TEXT_CROPS, TEXT_FISH, TEXT_POOLS, TEXT_STATUE, TEXT_LAB, TEXT_EATING,
+                                 TEXT_PRAISING} <= texts, texts)
+
+    def test_the_love_shack_door_only_at_the_couples_ages(self):
+        camp = self._camp()
+        for age, love in ((280, False), (359, False), (360, True), (999, True), (1000, False), (1500, False)):
+            with self.subTest(age=age):
+                r = camp.villager(3, age=age)
+                _, rows = self._seen(camp, r, 150)
+                self.assertIn(3, rows, "the Clothing Hut door is any adult's")
+                self.assertEqual(4 in rows, love)
+
+
+@unittest.skipIf(_skip(), _skip() or "")
+class PeopleCured(_Base):
+    """The drag-a-healer cure 0x468C10 counts People Cured (0x468D4D); a patient who is a Heathen when the cure
+    begins never counts, with or without the Village Statistics row (whose own guard is left in place)."""
+
+    def _cure(self, camp: Camp, heathen: bool) -> int:
+        # (not disliking preference 4, which 0x468C83 tests before its own extra roll)
+        healer = camp.villager(8, heathen=False, skills=(0, 0, 80, 0, 0, 0), dislikes=(7, 8, 9))
+        patient = camp.villager(9, heathen=heathen)
+        camp.write(patient + SICK, b"\x01")
+        before = camp.u32(PEOPLE_CURED)
+        camp.drag_cure(healer, patient)
+        self.assertFalse(camp.sick(patient), "the game's own cure still cures")
+        return camp.u32(PEOPLE_CURED) - before
+
+    def test_a_heathen_patient_never_counts_and_a_believer_does(self):
+        camp = Camp()
+        self.assertEqual(camp.read(CURE_BEGIN, 1), b"\xE9")
+        self.assertEqual(camp.read(CURE_COUNT, 1), b"\xE9")
+        self.assertEqual(self._cure(camp, heathen=True), 0)
+        self.assertEqual(self._cure(camp, heathen=False), 1)
+
+    def test_without_the_row_nothing_changes_the_stock_count(self):
+        camp = Camp(row=False)
+        self.assertEqual(self._cure(camp, heathen=True), 1, "the stock game (no row) counts it")
+
+    def test_the_statistics_rows_guard_is_left_alone(self):
+        rows = with_requirements(5, ["vv5_write_village_statistics"])
+        exe = render(5, rows, "collection_progression")
+        camp = Camp(exe=exe)
+        self.assertEqual(camp.installed, 1)
+        begin, count = camp.read(CURE_BEGIN, 8), camp.read(CURE_COUNT, 7)
+        stock = Camp(exe=exe, row=False)
+        self.assertEqual((begin, count), (stock.read(CURE_BEGIN, 8), stock.read(CURE_COUNT, 7)),
+                         "the row's detours, never patched twice")
+        self.assertEqual(self._cure(camp, heathen=True), 0)
+        self.assertEqual(self._cure(camp, heathen=False), 1)
+
+    def test_other_bytes_at_a_cure_site_install_nothing(self):
+        exe = bytearray(stock_path(5).read_bytes())
+        exe[Camp._file_offset(bytes(exe), CURE_COUNT + 6)] = 0x02
+        camp = Camp(exe=bytes(exe))
+        self.assertEqual(camp.installed, 0)
+        self.assertEqual(camp.read(PICK_SITE, 8), bytes.fromhex("389AEC1C0000740D"), "all or none")
 
 
 @unittest.skipIf(_skip(), _skip() or "")

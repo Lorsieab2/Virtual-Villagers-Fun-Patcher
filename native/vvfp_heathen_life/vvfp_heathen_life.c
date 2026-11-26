@@ -77,10 +77,9 @@
           the statue      the Believer Idol, once carved (project 14), area 0x45 (where the believers show a baby
                           "the statue", 0x462430); Devotion practised;
           the science lab area 0x0E ("Researching (in the lab)", 0x45A890); Research practised;
-          the nursery     the Nursery Hut once built (project 24), its walk area (the building's +0x14, 0x20);
-                          Parenting practised;
           the Love Shack  once built (project 23), its walk area (+0x14, 0x11), "Waiting for someone" there: no
-                          embrace step (0x474CE0) and no conception;
+                          embrace step (0x474CE0) and no conception; only at the couples' ages (18 to 49: the
+                          partner search 0x470A53 / 0x470A8F, the embrace 0x468A00);
           the Clothing Hut once built (project 22), its walk area (+0x14, 0x10), "Waiting for someone": no
                           clothes (work event 90 is never queued);
           a building's area is used only while the map has cells for it (read from the live map 0x718EE8, the
@@ -91,6 +90,17 @@
         devotion at the mud hut: "Praising" (gesture 0x1E of animation 0x10, as 0x4598A0's) on the walkable ground
         in front of the hovel (2176..2271 x 1576..1599, the Memorial Actions at the Heathen Hovel row's points);
         Devotion practised.
+      AGE RULES (the owner, 2026-11-26: Heathens do only what believers of their age do).  Every action above is an
+      adult's (14 or older: the picker's child test 0x46F117 sends a believer child to the children's routine
+      0x46E3F0, an adult to the dispatcher, chooser and player's job, which test no age: elders do all of it), the
+      Love Shack's the couples' ages.  A Heathen CHILD gets only the nursery play believer children get and Heathen
+      children do not (0x46E447 skips them): walk area 0x22 with "Going to play in the nursery", while someone is
+      teaching at the nursery school (0x43A810, as 0x46E433 asks).  No adult visits the nursery.
+
+   3. PEOPLE CURED (decision 8: a Heathen's cure never counts, a believer healer's included).  The drag-a-healer
+      cure's +1 (0x468D4D) is skipped when its patient was a Heathen as the cure began (noted at 0x468C3C), the
+      Village Statistics row's own guard; when that row is applied its detours are already there and are left alone
+      (see SITE_CURE_BEGIN below).
       The Details text is the game's own for the look (the strings 0x450D40 / 0x4506D0 hold), and the record's
       behaviour id +0x1D10 is the Heathens' own camp wander 0x9C.  The stock Heathens' noni eating (behaviour 0x97,
       role 1) is vanilla and left alone.
@@ -98,7 +108,8 @@
    NOT LOGGED.  The believers' logs have no sickness, recovery or skill records, so none are written for Heathens.
    Nothing depends on a Heathen's sex.
 
-   SAFETY.  One splice (0x46F0BA, 8 bytes, stock bytes checked first: native/shared/install_sites.h).  Every step
+   SAFETY.  Three splices (0x46F0BA, 8 bytes; 0x468C3C, 8; 0x468D4D, 7 -- the last two only when the Statistics
+   row's are not there), stock bytes checked first, all or none (native/shared/install_sites.h).  Every step
    of ours runs under structured exception handling; a fault leaves the stock behaviour.  No debug output, no file
    written, no text shown. */
 #include <windows.h>
@@ -192,7 +203,6 @@
 /* Building sites in 0x4CBDC0 (CHouse1..3 0..2, CClothingHut 3, CLoveShack 4, CNurseryHut 5). */
 #define SITE_CLOTHING 3
 #define SITE_LOVE 4
-#define SITE_NURSERY 5
 
 /* The game's Details texts (each the believers' script's own). */
 #define T_NONI 0x232
@@ -201,17 +211,45 @@
 #define T_POOLS 0x18A
 #define T_HONORING 0x16E
 #define T_RESEARCH 0x163
-#define T_NURSERY 0x35
+/* A Heathen child's nursery play: the believer children's own line (0x460F00, "Going to play in the nursery").
+   The owner may swap it: this one define. */
+#define T_NURSERY_PLAY 0x35
 #define T_WAITING 0x192
 #define T_EATING 0x4C4
 #define T_SICK 0x157
 #define T_HEALING 0x194
 #define T_PRAISING 0x155
 
+#define A_NURSERY_PLAY 0x22            /* the believer children's nursery play walks here (0x460F29) */
+#define G_TEACHER 0x43A810u            /* al: someone is "Teaching at the nursery school" (0x4717A0(0x6F, 0)) */
+
+/* Age rules (the believers'): the picker 0x46F070 sends a child (age < 280, 0x46F117) to the children's routine
+   0x46E3F0 and every adult to the job dispatcher 0x46C540 / the chooser 0x46A3C0 / the player's job 0x46BCF0, which
+   hold no age test of their own (no compare of +0x1B8C anywhere in 0x469D00..0x46E8FA): every adult, elders
+   included, works, eats, honors and visits.  The Love Shack is the couples' (the partner search 0x470A10: both 18
+   or older, 0x470A53 / 0x468A00; the partner under 50, 0x470A8F). */
+#define LOVE_FIRST 360
+#define LOVE_LAST 1000
+
 #define SITE_PICKER 0x46F0BAu
 #define PICK_BELIEVER 0x46F0CFu
 #define PICK_HEATHEN 0x46F0C2u
 #define PICK_DONE 0x46F0C9u
+
+/* People Cured (decision 8: a Heathen's cure never counts).  The drag-a-healer cure 0x468C10 finds its patient
+   with 0x4706F0, which has no faction test, and adds 1 at 0x468D4D; the purple Heathen Doctor is converted
+   (0x468D0D) before the +1, so the faction is noted when the cure BEGINS, at the sickness test 0x468C3C, into the
+   routine's free local dword [esp+0x18], exactly as the Village Statistics row does it
+   (scripts/build_statistics_features.py).  With that row applied, the two sites already hold its detours (a jmp
+   to caves that start `push dword [esi+0x1CEC]; pop dword [esp+0x18]` and `cmp byte [esp+0x18], 0`): they are
+   left alone.  Any other bytes there: nothing at all is installed.  The catch-up cure 0x46E1A2 picks its patient
+   through 0x470B40, which takes believers only (0x470B7F), so its +1 at 0x46E202 never sees a Heathen. */
+#define SITE_CURE_BEGIN 0x468C3Cu
+#define CURE_SICK 0x468C61u
+#define CURE_NOT_SICK 0x468C44u
+#define SITE_CURE_COUNT 0x468D4Du
+#define CURE_COUNTED 0x468D54u
+#define G_PEOPLE_CURED 0x51D368u
 
 typedef void (__fastcall *tc0_fn)(void *self, void *unused_edx);
 typedef void (__fastcall *tc1_fn)(void *self, void *unused_edx, int a);
@@ -223,6 +261,7 @@ typedef int *(__fastcall *position_fn)(void *self, void *unused_edx, int *out);
 typedef void *(__cdecl *texts_fn)(void);
 typedef const char *(__fastcall *text_fn)(void *self, void *unused_edx, int id);
 typedef unsigned char *(__cdecl *game_fn)(void);
+typedef unsigned char (__cdecl *teacher_fn)(void);
 
 static int g_installed;
 static unsigned char *g_records;
@@ -562,7 +601,7 @@ static int building_area(int site) {
     return area;
 }
 
-enum { SHOW_NONI, SHOW_CROPS, SHOW_FISH, SHOW_POOLS, SHOW_STATUE, SHOW_LAB, SHOW_NURSERY, SHOW_LOVE, SHOW_CLOTHING,
+enum { SHOW_NONI, SHOW_CROPS, SHOW_FISH, SHOW_POOLS, SHOW_STATUE, SHOW_LAB, SHOW_LOVE, SHOW_CLOTHING,
        SHOW_MEAL, SHOW_DEVOTION, SHOW_COUNT };
 
 static void plan_practice(unsigned char *record, int which) {
@@ -573,16 +612,19 @@ static void plan_practice(unsigned char *record, int which) {
     }
 }
 
+/* An adult's show action (the age rules: see the header's AGE RULES; the caller has checked the adult test). */
 static int show(unsigned char *record) {
-    int open[SHOW_COUNT], areas[SHOW_COUNT], count = 0, choice, area;
+    int open[SHOW_COUNT], areas[SHOW_COUNT], count = 0, choice, area, age = i32(record, R_AGE);
     if (puzzle_done(P_FENCE)) { open[count] = SHOW_NONI; areas[count++] = A_NONI; }
     if (puzzle_done(P_FARM)) { open[count] = SHOW_CROPS; areas[count++] = A_CROPS; }
     if (puzzle_done(P_LAKE)) { open[count] = SHOW_FISH; areas[count++] = A_LAKE; }
     if (area_drawn(A_POOLS)) { open[count] = SHOW_POOLS; areas[count++] = A_POOLS; }
     if (puzzle_done(P_IDOL) && area_drawn(A_STATUE)) { open[count] = SHOW_STATUE; areas[count++] = A_STATUE; }
     if (area_drawn(A_LAB)) { open[count] = SHOW_LAB; areas[count++] = A_LAB; }
-    if ((area = building_area(SITE_NURSERY)) != 0) { open[count] = SHOW_NURSERY; areas[count++] = area; }
-    if ((area = building_area(SITE_LOVE)) != 0) { open[count] = SHOW_LOVE; areas[count++] = area; }
+    if (age >= LOVE_FIRST && age < LOVE_LAST && (area = building_area(SITE_LOVE)) != 0) {
+        open[count] = SHOW_LOVE;
+        areas[count++] = area;
+    }
     if ((area = building_area(SITE_CLOTHING)) != 0) { open[count] = SHOW_CLOTHING; areas[count++] = area; }
     open[count] = SHOW_MEAL; areas[count++] = A_CAMP;
     open[count] = SHOW_DEVOTION; areas[count++] = A_CAMP;
@@ -595,7 +637,6 @@ static int show(unsigned char *record) {
     case SHOW_POOLS: look_visit(record, T_POOLS, area); break;
     case SHOW_STATUE: look_visit(record, T_HONORING, area); plan_practice(record, SKILL_DEVOTION); break;
     case SHOW_LAB: look_visit(record, T_RESEARCH, area); plan_practice(record, SKILL_RESEARCH); break;
-    case SHOW_NURSERY: look_visit(record, T_NURSERY, area); plan_practice(record, SKILL_PARENTING); break;
     case SHOW_LOVE: look_visit(record, T_WAITING, area); break;
     case SHOW_CLOTHING: look_visit(record, T_WAITING, area); break;
     case SHOW_MEAL: look_meal(record); break;
@@ -618,7 +659,16 @@ static int __cdecl pick(unsigned char *record) {
         if (visiting(index)) {                            /* a doctor between visits: the stock AI */
             return 0;
         }
-        if (i32(record, R_AGE) < ADULT || i32(record, R_PREGNANT) != 0 || rnd(100) >= g_show_percent) {
+        if (i32(record, R_PREGNANT) != 0 || rnd(100) >= g_show_percent) {
+            return 0;
+        }
+        if (i32(record, R_AGE) < ADULT) {
+            /* A child: only what a believer child does that a Heathen child does not in stock -- play in the
+               nursery while an adult teaches at the nursery school (0x46E433..0x46E472; 0x43A810). */
+            if (((teacher_fn)(UINT_PTR)G_TEACHER)() && area_drawn(A_NURSERY_PLAY)) {
+                look_visit(record, T_NURSERY_PLAY, A_NURSERY_PLAY);
+                return 1;
+            }
             return 0;
         }
         return show(record);
@@ -824,10 +874,70 @@ __declspec(naked) static void pick_stub(void) {
 
 static const unsigned char PICK_STOCK[8] = { 0x38, 0x9A, 0xEC, 0x1C, 0x00, 0x00, 0x74, 0x0D };
 
+static const unsigned int g_cure_sick = CURE_SICK;
+static const unsigned int g_cure_not_sick = CURE_NOT_SICK;
+static const unsigned int g_cure_counted = CURE_COUNTED;
+
+/* In place of 0x468C3C's `cmp byte [esi+0x1C48], bl; jne 0x468C61` (esi the patient): the patient's faction, as
+   the cure begins, into the local [esp+0x18]; then the stock test. */
+__declspec(naked) static void cure_begin_stub(void) {
+    __asm {
+        push dword ptr [esi + 0x1CEC]
+        pop dword ptr [esp + 0x18]
+        cmp byte ptr [esi + 0x1C48], bl
+        jne patient_sick
+        jmp dword ptr [g_cure_not_sick]
+    patient_sick:
+        jmp dword ptr [g_cure_sick]
+    }
+}
+
+/* In place of 0x468D4D's `add dword [0x51D368], 1`: only a patient who was a believer when the cure began counts. */
+__declspec(naked) static void cure_count_stub(void) {
+    __asm {
+        cmp byte ptr [esp + 0x18], 0
+        jne not_counted
+        add dword ptr ds:[0x51D368], 1          ; G_PEOPLE_CURED
+    not_counted:
+        jmp dword ptr [g_cure_counted]
+    }
+}
+
+static const unsigned char CURE_BEGIN_STOCK[8] = { 0x38, 0x9E, 0x48, 0x1C, 0x00, 0x00, 0x75, 0x1D };
+static const unsigned char CURE_COUNT_STOCK[7] = { 0x83, 0x05, 0x68, 0xD3, 0x51, 0x00, 0x01 };
+/* The Village Statistics row's caves begin with these (scripts/build_statistics_features.py). */
+static const unsigned char STATS_BEGIN_CAVE[10] = { 0xFF, 0xB6, 0xEC, 0x1C, 0x00, 0x00, 0x8F, 0x44, 0x24, 0x18 };
+static const unsigned char STATS_COUNT_CAVE[5] = { 0x80, 0x7C, 0x24, 0x18, 0x00 };
+
+/* 1 when `va` holds a jmp (then nops to `length`) to a cave that begins with `cave`. */
+static int detoured_to(unsigned int va, int length, const unsigned char *cave, int cave_length) {
+    static const unsigned char nops[3] = { 0x90, 0x90, 0x90 };
+    const unsigned char *at = (const unsigned char *)(UINT_PTR)va;
+    unsigned char opcode = 0xE9;
+    if (!vvfp_site_holds(va, &opcode, 1) || length - 5 > 3 || !vvfp_site_holds(va + 5u, nops, length - 5)) {
+        return 0;
+    }
+    return vvfp_site_holds(va + 5u + *(const unsigned int *)(at + 1), cave, cave_length);
+}
+
+/* The People Cured guard: 2 sites of ours (stock bytes), 0 (the Statistics row's guard is there), -1 neither. */
+static int cure_guard(vvfp_site_write *sites) {
+    if (vvfp_site_holds(SITE_CURE_BEGIN, CURE_BEGIN_STOCK, 8) && vvfp_site_holds(SITE_CURE_COUNT, CURE_COUNT_STOCK, 7)) {
+        vvfp_site_branch(&sites[0], SITE_CURE_BEGIN, 8, CURE_BEGIN_STOCK, 0xE9, (const void *)cure_begin_stub);
+        vvfp_site_branch(&sites[1], SITE_CURE_COUNT, 7, CURE_COUNT_STOCK, 0xE9, (const void *)cure_count_stub);
+        return 2;
+    }
+    if (detoured_to(SITE_CURE_BEGIN, 8, STATS_BEGIN_CAVE, 10) && detoured_to(SITE_CURE_COUNT, 7, STATS_COUNT_CAVE, 5)) {
+        return 0;
+    }
+    return -1;
+}
+
 /* Called once by the patcher's start-up chain before WinMain. */
 void __stdcall VvfpStartup(int game, unsigned int shipped) {
-    vvfp_site_write site;
+    vvfp_site_write sites[3];
     unsigned int manager_rva;
+    int guard;
     (void)shipped;
     if (g_installed || game != HL_GAME || !vvfp_patcher_file_exists(HE_FLAG_ROW)) {
         return;
@@ -846,8 +956,12 @@ void __stdcall VvfpStartup(int game, unsigned int shipped) {
     if (g_seed == 0u) {
         g_seed = 0x9E3779B9u;
     }
-    vvfp_site_branch(&site, SITE_PICKER, 8, PICK_STOCK, 0xE9, (const void *)pick_stub);
-    if (vvfp_install_sites(&site, 1)) {
+    guard = cure_guard(&sites[1]);
+    if (guard < 0) {
+        return;                                           /* all or none: People Cured could not be guarded */
+    }
+    vvfp_site_branch(&sites[0], SITE_PICKER, 8, PICK_STOCK, 0xE9, (const void *)pick_stub);
+    if (vvfp_install_sites(sites, 1 + guard)) {
         g_installed = 1;
     }
 }
