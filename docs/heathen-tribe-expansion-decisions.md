@@ -32,3 +32,23 @@ die with skeletons they go in the mud hut memorial, only if their faction is Hea
 
 Also in scope: the Heathen tribe conception-log bug (forced conceptions skip the parentage hook) is fixed and
 checked live.
+
+## Second round (2026-11-26), the builders' questions
+
+Core (W-A):
+- A regrown camp after The Last Heathen gets a new Chief and Masters once it has 6 adults (eldest suitable; real roles).
+- **Owner: "for show masters = purple masks (no puzzles)".** For-show Masters wear the purple mask, no puzzle.
+- **Owner: "for show chief can be at most an esteemed elder. he can still do chief exclusve actions like spreading the word etc".** A for-show Chief's title tops out at Esteemed Elder; he can still do the Chief-exclusive actions such as Spreading the Word.
+- **Owner: "chief = he or she after the first one".** The original Heathen Chief is as the game makes him; every later Chief (and Master) can be any sex.
+- **Owner: "same sex yes, events may give them babies too".** Couples of any sex; natural conception stays woman + man; island events and Custom Island Events can give any couple a baby.
+- Groups 1/2/3/4 at 40/30/20/10%, adults 18-40, children 2-12; couples pair gradually (no log flood on install).
+- **Owner: "they should grow normally. (anyway we're gonna convert everyone so no point restricting)".** Decision 18 changed: no believers'-room reservation; Heathens grow normally in every population mode; only 10 records are kept free.
+- An unreadable couples file pauses that village's couples, births and arrivals (with a log note).
+
+Mausoleum (W-C), all as recommended:
+- Believers take a Heathen's body after 120 units, or at once when no able Heathen lives.
+- Heathens bury half the times asked; never puzzle Heathens, children, the sick or the expecting.
+- A drop on the hut opens the Heathen Mausoleum Screen; the hut opens once it holds a grave.
+- Heathen buriers also run with only "Former Villagers Among the Heathens Leave Skeletons".
+- With the Guardians of Isola rewrite: "the encampment memorial" instead of "the mud hut memorial".
+- The hut's file follows the main save only.
