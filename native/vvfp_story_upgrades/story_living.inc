@@ -912,8 +912,8 @@ static int lv_arm_entry(int game, int i, int origin, int cast) {
     return lv_arm_seed(game, lv_entry_seed[i], origin, cast) >= 0;
 }
 
-/* Pick Island Event's check of a living row: NULL when any of its variants casts now (STRICT), else the first
-   variant's refusal. */
+/* Pick Island Event's check of a living row: NULL when any of its variants casts now (STRICT; with the picker's
+   override, as the library buys it: story_more_events.inc sc_pick_override), else the first variant's refusal. */
 static const char *lv_check_entry(int game, int i) {
     const unsigned char *rec;
     const char *first_refusal = NULL;
@@ -929,7 +929,9 @@ static const char *lv_check_entry(int game, int i) {
         if (lv_excluded(game, lv_entry_seed[i], v)) {
             continue;
         }
-        refusal = lv_refusal(game, v, CG_CAST_STRICT, CG_ORIGIN_PICK);
+        cg_override_now = sc_pick_override;   /* the override: no puzzle requirement (story_more_events.inc) */
+        refusal = lv_refusal(game, v, sc_pick_override ? CG_CAST_PREFER : CG_CAST_STRICT, CG_ORIGIN_PICK);
+        cg_override_now = 0;
         if (refusal == NULL) {
             return NULL;
         }

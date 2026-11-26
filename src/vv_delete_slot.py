@@ -27,7 +27,11 @@ Order and safety
     * Refused while the game runs.  The player sees every file first (`Plan.preview`); what they confirmed is
       fingerprinted (each file's size and time, the slot list's bytes), and anything changed since refuses.
     * The save folder's own files go first, then each backup's, then the set-aside folders.  If Windows
-      refuses a batch, everything stops and the result says what went and what did not.
+      refuses a batch, everything stops and the result says what went and what did not (every file checked).
+    * Fast (the owner, 2026-11-25: "almost instant"): one Recycle Bin call for each of those parts, a folder
+      that holds nothing but the slot's files (no picture, no other file, no link), 30 or more, sent whole
+      as one item (Windows takes milliseconds for each file it recycles), and the drive's "is there a
+      Recycle Bin?" question asked once, while the player reads the list -- not once for every file as before.
     * The slot list "<stem>0.ldw" is written LAST ("NEW PLAYER", not in use) -- and also after a failure once
       the slot's save is gone, so the slot is never listed with no save behind it.
     * The slot's folders left empty are removed (empty folders only).
@@ -52,7 +56,10 @@ import vv_tribe_rename as rename
 TITLE = "Delete Player Slot"
 PICTURES = (".png", ".jpg", ".jpeg", ".bmp", ".gif")
 KIND_DELETED = "deleted"
-BATCH = 200                      # files per Recycle Bin call
+BATCH = 1000                     # files or whole folders per Recycle Bin call
+# A folder costs Windows about as much to recycle as 30 loose files (measured 2026-11-25: ~0.2 s a folder
+# whatever it holds, ~5 ms a file), so only a folder of at least that many of the slot's files goes whole.
+WHOLE_FOLDER_FROM = 30
 
 
 class DeleteError(cs.CopyError):
@@ -72,6 +79,7 @@ def is_picture(path: Path) -> bool:
 class Group:
     """Files recycled together: the save folder's own, one backup's, or one set-aside folder's."""
     where: str                                   # "" the save folder; else "Backups\\<folder>"
+    root: Path | None = None                     # the folder it was found in (never itself recycled)
     files: list[Path] = field(default_factory=list)
     pictures: list[Path] = field(default_factory=list)
     folders: list[Path] = field(default_factory=list)   # the slot's folders to remove once empty
@@ -142,7 +150,7 @@ def _index_lines(root: Path, long: dict[str, Path]) -> list[tuple[Path, str]]:
 
 def _discover(game: rename.GameSaves, root: Path, slot: int, where: str) -> Group:
     """Slot ``slot``'s files in the save folder (or the backup) ``root``."""
-    group = Group(where)
+    group = Group(where, root)
     found = {str(p).casefold(): p for p in ms.slot_everything(game, root, slot)}
     # A backup's long file is kept under a short name that can lose its extension (Codex review on #847):
     # what it IS comes from its own place in the save folder; the stored path is only where to recycle it.
@@ -191,7 +199,7 @@ def _set_aside_groups(folder: Path, slot: int) -> list[Group]:
         place = next((p for p in backups.iterdir() if p.name.casefold() == name), None) if backups.is_dir() else None
         if place is None or not place.is_dir() or vv_save_backup._is_link(place):
             continue
-        group = Group(f"{vv_save_backup.BACKUPS_FOLDER}\\{place.name}", aside=place)
+        group = Group(f"{vv_save_backup.BACKUPS_FOLDER}\\{place.name}", backups, aside=place)
         for path in lp.walk(place, link=vv_save_backup._is_link):
             (group.pictures if is_picture(path) else group.files).append(path)
         out.append(group)
@@ -338,6 +346,93 @@ def _shell(paths: list[Path]) -> None:
     vv_translations.recycle(paths)
 
 
+def warm_recycle_bin(folder: Path) -> None:
+    """Have Windows' "is there a Recycle Bin on this drive?" answered while the player reads the list (it adds
+    up the whole Recycle Bin, which can take a second or more), so the delete itself does not wait for it."""
+    import vv_translations
+    vv_translations.prepare_recycle_bin(folder)
+
+
+def _linked(entry: os.DirEntry) -> bool:
+    return entry.is_symlink() or getattr(entry.stat(follow_symlinks=False), "st_reparse_tag", 0) == 0xA0000003
+
+
+def _holds_no_file(folder: Path) -> bool:
+    """An empty folder (or only empty folders in it), no link anywhere."""
+    with os.scandir(lp.extended(folder)) as scan:
+        for entry in scan:
+            if _linked(entry) or not entry.is_dir(follow_symlinks=False) \
+                    or not _holds_no_file(folder / entry.name):
+                return False
+    return True
+
+
+def _recycle_items(root: Path | None, files: list[Path]) -> list[tuple[Path, list[Path]]]:
+    """What to hand Windows for ``files`` (all under ``root``), each with the files it holds: a folder below
+    ``root`` that holds nothing but those files -- at any depth: no other file, no picture, no link -- and at
+    least WHOLE_FOLDER_FROM of them goes whole, as ONE item; every other file goes by itself.  The same files
+    either way, and the result is still checked file by file.  Windows sends a folder to the Recycle Bin in one
+    step but takes several milliseconds for each file (the owner, 2026-11-25: Delete Player Slot must be
+    "almost instant"); ``root`` itself (the save folder, a backup, the Backups folder) is never sent."""
+    if root is None:
+        return [(p, [p]) for p in files]
+    # Plain strings, not Path arithmetic: a slot can be thousands of files.
+    prefix = str(root).rstrip("\\/") + os.sep
+    folded_prefix = prefix.casefold()
+    listed = {str(p).casefold() for p in files}
+    parts_of: list[list[str] | None] = []
+    ancestors: dict[str, int] = {}                # each folder holding listed files: how many, at any depth
+    for path in files:
+        text = str(path)
+        if not text.casefold().startswith(folded_prefix):
+            parts_of.append(None)
+            continue
+        parts = text[len(prefix):].split(os.sep)
+        parts_of.append(parts)
+        for depth in range(1, len(parts)):
+            key = (prefix + os.sep.join(parts[:depth])).casefold()
+            ancestors[key] = ancestors.get(key, 0) + 1
+    whole: dict[str, bool] = {}
+
+    def is_whole(folder: str) -> bool:
+        key = folder.casefold()
+        if key in whole:
+            return whole[key]
+        ok = True
+        try:
+            with os.scandir(lp.extended(folder)) as scan:
+                entries = list(scan)
+        except OSError:
+            entries, ok = [], False
+        for entry in entries:                    # every entry, so each folder inside is judged too
+            here = folder + os.sep + entry.name
+            try:
+                if _linked(entry):
+                    ok = False
+                elif entry.is_dir(follow_symlinks=False):
+                    if here.casefold() in ancestors:
+                        ok = is_whole(here) and ok
+                    elif not _holds_no_file(Path(here)):
+                        ok = False
+                elif here.casefold() not in listed:
+                    ok = False
+            except OSError:
+                ok = False
+        whole[key] = ok
+        return ok
+
+    items: dict[str, tuple[Path, list[Path]]] = {}
+    for path, parts in zip(files, parts_of):
+        place = path
+        for depth in range(1, len(parts or ())):
+            folder = prefix + os.sep.join(parts[:depth])
+            if ancestors[folder.casefold()] >= WHOLE_FOLDER_FROM and is_whole(folder):
+                place = Path(folder)
+                break
+        items.setdefault(str(place).casefold(), (place, []))[1].append(path)
+    return list(items.values())
+
+
 def delete_slot(game: rename.GameSaves, folder: Path, slot: int, processes=None, now: datetime | None = None,
                 expected: tuple | None = None, recycle=None) -> DeleteResult:
     """Send slot ``slot``'s files to the Recycle Bin (see the module's notes).  ``recycle`` replaces the
@@ -354,13 +449,15 @@ def delete_slot(game: rename.GameSaves, folder: Path, slot: int, processes=None,
     result = DeleteResult(folder, slot, plan.name, pictures=plan.pictures)
     for group in plan.groups:
         try:
-            for start in range(0, len(group.files), BATCH):
-                batch = group.files[start:start + BATCH]
-                send(batch)
-                left = [p for p in batch if lp.exists(p)]
+            items = _recycle_items(group.root, group.files)
+            for start in range(0, len(items), BATCH):
+                batch = items[start:start + BATCH]
+                send([place for place, _held in batch])
+                held = [p for _place, files in batch for p in files]
+                left = [p for p in held if lp.exists(p)]
                 if left:
                     raise OSError(f"{len(left)} file(s) were still there afterwards")
-                result.recycled += batch
+                result.recycled += held
             if group.aside is not None and not group.pictures:
                 _remove_empty([group.aside])
                 if not lp.exists(group.aside):

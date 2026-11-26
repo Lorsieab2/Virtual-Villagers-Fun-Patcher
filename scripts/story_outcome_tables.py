@@ -65,7 +65,39 @@ C_TYPES = [
     "typedef struct { int slot; unsigned short control_first; unsigned short control_count; "
     "unsigned char strength; unsigned char unlock; unsigned char unlock_need; "
     "const char *dead_note; } oc_event;",
+    "typedef struct { int slot; unsigned char pass; unsigned char cast4; unsigned char cast_c; "
+    "unsigned char flag_count; unsigned char flag_base; unsigned char room; const char *refuse; } ov_event;",
 ]
+
+
+def emit_override(game: str, events_order: list[int]) -> list[str]:
+    """The override table (story_island_outcomes.OVERRIDE; story_override.inc reads it)."""
+    tag = game.upper()
+    table = data.OVERRIDE.get(game, {})
+    unknown = set(table) - set(events_order)
+    if unknown:
+        raise SystemExit(f"{game}: override entries for unknown slots {sorted(unknown)}")
+    rows = []
+    for slot in events_order:
+        if slot not in table:
+            continue
+        e = table[slot]
+        cast = e.get("cast", {})
+        if set(cast) - {4, 0xC}:
+            raise SystemExit(f"{game} {slot}: only +4 and +0xC are cast")
+        if cast and game in ("vv1", "vv2"):
+            raise SystemExit(f"{game} {slot}: A New Home / The Lost Children pass, they do not cast")
+        if e.get("pass") and game not in ("vv1", "vv2"):
+            raise SystemExit(f"{game} {slot}: only A New Home / The Lost Children pass")
+        count, base = e.get("flag", (0, 0))
+        rows.append(f"    {{ {slot}, {1 if e.get('pass') else 0}, {data.OV_KINDS.get(cast.get(4), 0)}, "
+                    f"{data.OV_KINDS.get(cast.get(0xC), 0)}, {count}, {base}, {e.get('room', 0)}, "
+                    f"{_c(e.get('refuse'))} }},")
+    lines = [f"static const ov_event {tag}_OV_EVENTS[] = {{"]
+    lines.extend(rows or ["    { -1, 0, 0, 0, 0, 0, 0, NULL },"])
+    lines.append("};")
+    lines.append(f"#define {tag}_OV_EVENT_COUNT {len(rows)}")
+    return lines
 
 
 def _c(text):
@@ -311,7 +343,12 @@ def manifest_settings(game: str) -> dict:
              "values": "1 to 10" if kind == "linear" else "1-4, 5-7, 8-10"})
     result = {"events": out,
               "unlocked": sorted(s for s in data.UNLOCKED.get(game, {}) if s not in data.DEAD_NOTES.get(game, {})),
-              "developer_dead_offered": sorted(data.DEAD_NOTES.get(game, {}))}
+              "developer_dead_offered": sorted(data.DEAD_NOTES.get(game, {})),
+              "override": {
+                  "possible_with_override": sorted(s for s, e in data.OVERRIDE.get(game, {}).items()
+                                                   if not e.get("refuse")),
+                  "refused_with_override": {str(s): e["refuse"] for s, e in data.OVERRIDE.get(game, {}).items()
+                                            if e.get("refuse")}}}
     if data.GONG_CONTROLS.get(game):
         result["gong_of_wonder"] = [
             {"label": plain(c["label"]) or c["label"], "kind": c["kind"],

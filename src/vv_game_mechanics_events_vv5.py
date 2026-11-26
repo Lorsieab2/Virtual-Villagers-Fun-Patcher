@@ -63,7 +63,9 @@ RULES = (
          "100. A believer whose Faith falls to 0 or less becomes a Heathen; a Heathen above 0 joins the tribe (see "
          "Faith and Heathens)."),
     Line("With the patcher's \"Story / Cheat Upgrades\" (in this game): Pick Island Event chooses the next event "
-         "and, where the game rolls, the outcome.", only_with=STORY),
+         "and, where the game rolls, the outcome. "
+         "Its Override box also lets it choose an event whose own condition fails now: the event happens "
+         "with the villagers you have, and only truly impossible ones stay closed.", only_with=STORY),
 )
 
 EVENTS = (
