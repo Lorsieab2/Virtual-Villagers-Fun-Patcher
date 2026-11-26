@@ -494,9 +494,9 @@ CASES = [
     # The four Heathen aging rows (New Believers): the age credit's and the life tick's Heathen tests, to-a-Heathen
     # and The Spa's and The Cracked Mask's faction calls (the tribe row's flag file present).
     Case("Heathen Aging", "assets/heathen_aging/VVFP Heathen Aging.dll", (5,),
-         lambda g: [f"vv{g}_heathen_tribe_ages", f"vv{g}_all_heathens_leave_skeletons"],
+         lambda g: [f"vv{g}_heathen_tribe_evolution"],
          lambda m, g: (m.export("VvfpStartup", g, 0), m.export("VvfpHeathenAgingInstalled"))[1],
-         present=("VVFP Heathen Aging Tribe.txt",)),
+         present=("VVFP Heathen Tribe Evolution.txt",)),
     # The Heathens' graves at the mud hut (New Believers): the burial's roster write, the carry walk, the Heathen
     # AI's entry, the believers' body finder, the screen's four roster reads, its opener, the two lcmap loads, the
     # save's roster copy, the new village's clear and the load's roster read (the Former Villagers skeleton row's

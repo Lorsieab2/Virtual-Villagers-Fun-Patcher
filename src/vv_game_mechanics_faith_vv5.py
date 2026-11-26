@@ -29,7 +29,134 @@ FOG_LISTENING = "vv5_fog_of_doom_every_heathen_listens"
 FOG_NO_LIMIT = "vv5_fog_of_doom_no_restrictions"
 DEVOTION_FAITH = "vv5_devotion_builds_faith"
 FORMER_AGE = "vv5_former_villagers_keep_aging"
-TRIBE_AGES = "vv5_heathen_tribe_ages"
+FORMER_BONES = "vv5_former_villager_heathens_leave_skeletons"
+# Heathen Tribe Expansion and Evolution (v1.35.101; it folds Heathen Tribe Ages, Dies and Has Children, All Heathens
+# Leave Skeletons and Heathens can be selected in Island Events/Heathen-Exclusive Events).
+EVOLUTION = "vv5_heathen_tribe_evolution"
+
+
+def _setting_text(village, file_name: str) -> str | None:
+    """A file the patcher wrote beside the Heathen companions (the patcher's folder next to the game's exe), or None."""
+    exe = getattr(village, "exe", None)
+    if exe is None:
+        return None
+    try:
+        from pathlib import Path
+        import patcher_files
+        return (Path(exe).parent / patcher_files.PATCHER_FILES_FOLDER / file_name).read_bytes()[:4096].decode(
+            "ascii", "replace")
+    except (OSError, ImportError):
+        return None
+
+
+def _rate(village, file_name: str, zero_allowed: bool):
+    """The births or arrivals slider's number as the companion reads it (heathen_evo.h): 0.1 to 10 (0 allowed for the
+    arrivals), the default when there is no file; None when the game's folder is not known."""
+    text = _setting_text(village, file_name)
+    if text is None:
+        return None if getattr(village, "exe", None) is None else (0 if zero_allowed else 1)
+    if zero_allowed and text.strip() in ("0", "0.0"):
+        return 0
+    return gm.slider_number(village, file_name)
+
+
+def _option(village, key: str, fallback: int) -> int:
+    """A key of "VVFP Heathen Options.txt" (heathen_evo.h he_option), else `fallback`."""
+    text = _setting_text(village, "VVFP Heathen Options.txt") or ""
+    for line in text.splitlines():
+        name, eq, value = line.partition("=")
+        if eq and name.strip() == key and value.strip().lstrip("-").isdigit():
+            return int(value.strip())
+    return fallback
+
+
+def _times(n) -> str:
+    return "N times" if n is None else ("" if n == 1 else f"{n} times ")
+
+
+def _shrine_facts(add) -> None:
+    """The Shrine to the Ancestors ("VVFP Heathen Mausoleum.dll", native/vvfp_heathen_mausoleum)."""
+    # The burial write 0x473FA9 by the faction at death; the Heathen AI 0x46E9E0 (half the times asked); the
+    # believers' finder 0x46F146 (120 units, or no able Heathen); the carry walk 0x45B650; hotspot 0x0B.
+    add("The Shrine to the Ancestors: a Heathen's grave (decided by the faction at death) goes to the Heathens' own "
+        "table at the mud hut, 500 graves, never the Mausoleum's. An able adult Heathen (no puzzle role, not sick or "
+        "expecting) carries a Heathen's body to the mud hut and buries it, half the times it is asked; believers do "
+        "it, still to the mud hut, when no Heathen is able or the body has lain 120 age units (12 real-life hours on "
+        "Normal), once The Buried Mausoleum is solved. A full shrine: no grave, the body is gone. Clicking the mud "
+        "hut, or dropping a villager on it, opens the game's own Mausoleum screen titled \"Shrine to the Ancestors\" "
+        "once it holds a grave. Day of Honor, the Remembrance Ceremony and the everyday Honoring the dead count its "
+        "graves; the Village Statistics never do. Heathen graves already in the Mausoleum stay there.", sub=True)
+
+
+def _heathen_evolution_facts(add, village, where: str) -> None:
+    """Heathen Tribe Expansion and Evolution's rules (native/vvfp_heathen_aging, native/vvfp_heathen_life,
+    native/vvfp_heathen_mausoleum; native/shared/heathen_evo.h), with the village's own slider numbers when the
+    game's folder is known."""
+    births = _rate(village, "VVFP Heathen Tribe Births.txt", False)
+    arrivals = _rate(village, "VVFP Heathen Arrivals.txt", True)
+    show = _option(village, "show_percent", 25) if getattr(village, "exe", None) is not None else None
+    blue = (_option(village, "mask_orange_percent", 7) == 0 and _option(village, "mask_red_percent", 3) == 0)
+    name = gm.feature_name(EVOLUTION)
+    add(f"With \"{name}\" ({where}) the Heathen camp lives as a tribe of its own. Every Heathen ages as believers do "
+        "and can die of old age by the believers' own rule (each whole year past 1,100 age units, 55 years, or later "
+        "with Medicine: 10% for each year over), the puzzle Heathens too; a puzzle Heathen whose puzzle is unsolved "
+        "is replaced at once in the same role. Every Heathen who dies leaves a skeleton. A growing camp makes The "
+        "Last Heathen harder to reach, or impossible.", sub=True)
+    # Births: 1 in 2,400 x W / t a unit (heathen_evo.h HE_BIRTH_ROLL); the litter HE_TWINS/HE_TRIPLETS_IN_10000.
+    births_words = ("set by its slider" if births is None else f"at {births}x")
+    add(f"Births ({births_words}): each Heathen woman 14 to 45, not expecting and not the Heathen Mommy, in a couple "
+        "with a living adult Heathen man, has a chance each age unit of 1 in 2,400 x the number of such women / the "
+        "slider in tenths -- about one baby for the whole tribe every 240 age units (24 real-life hours on Normal, 12 "
+        f"on Fast, 40 on Slow) {_times(births)}as often. Twins 5.25%, triplets 1.75% (any Medicine level). Births go "
+        "on after The Last Heathen while a Heathen woman and man are alive. A Heathen is only made while 10 villager "
+        "records stay free.", sub=True)
+    # Arrivals: 1 in 4,800 / t a unit of the village's clock (HE_ARRIVAL_ROLL); groups 40/30/20/10%.
+    if arrivals == 0:
+        add("New arrivals: none (the arrivals slider is at 0).", sub=True)
+    else:
+        arrivals_words = "set by its slider" if arrivals is None else f"at {arrivals}x"
+        add(f"New arrivals ({arrivals_words}): a chance each age unit of 1 in 4,800 / the slider in tenths -- about one "
+            f"arrival every 480 age units (48 real-life hours on Normal) {_times(arrivals)}as often, before and after "
+            "The Last Heathen. An arrival is 1, 2, 3 or 4 Heathens (40%, 30%, 20%, 10%); half of the groups of two or "
+            "more are a couple with 0 to 2 children aged 2 to 12; the adults are 18 to 40.", sub=True)
+    add("Masks of arrivals and Heathen babies: " + ("all blue (\"Keep every new Heathen blue\")." if blue else
+        "90% blue, 7% orange, 3% red. The puzzle Heathens keep their own masks."), sub=True)
+    add("Couples: two living adult Heathens of either sex who are not kin (never parent and child, full or half "
+        "siblings) pair for life, at most one new couple at a time; a couple ends when one dies or joins the tribe. "
+        "A natural conception is a woman's and a man's; an island event may give any couple a baby.", sub=True)
+    add("A new Chief or Master: when the Heathen Chief or a Heathen Master dies after their puzzle is solved, the "
+        "eldest adult Heathen takes the role -- for show until The Last Heathen is solved (the role's skills, mask "
+        "and title), the real role after it; a regrown camp of 6 adults gets a real Chief and Masters. Any sex after "
+        "the first. A show Chief who joins the tribe becomes a real Retired Chief.", sub=True)
+    # Heathen Life's unit (vvfp_heathen_life.c): onset 0x465F50; damage 60 in 100, floor 21; recovery +1 (elders 20%);
+    # doctors by the skill check 0x46B270's rule; no healer: 1 in 240 a unit.
+    add("Sickness: an ordinary Heathen falls sick by the believers' own rule (Medicine 1: 4 in 1,440 a unit; "
+        "Medicine 2: 4 in 2,460; Medicine 3: 3 in 5,400; elders a further 15 in 1,000; on the easiest difficulty "
+        "half the units never roll). A sick Heathen loses 1 health on 61 rolls in 100, never below 21, so never dies "
+        "of it; one who is not sick gains 1 a unit (an elder on 1 roll in 5). The camp's doctor is the ordinary adult "
+        "Heathen with the best Healing (never the puzzle's Heathen Doctor): they walk to the patient and the "
+        "believers' Healing check decides (a roll of 0 to 99 at or under Healing + 33); with nobody able, a sick "
+        "Heathen gets well on their own on 1 unit in 240. Heathen cures never count in People Cured. Heathens never "
+        "eat from the food store and never starve.", sub=True)
+    show_words = "a share set in the row's Settings window" if show is None else f"{show}%"
+    add(f"Show actions ({show_words} of an idle ordinary adult Heathen's choices, when it is not raining; the rest "
+        "are the game's own Heathen life): harvesting noni once the Fence is built, crops once the Hydroponic Farm is "
+        "restored and fish once The Lake is solved -- taking nothing, carried to the encampment, not the granary; "
+        "visiting the pools, the Believer Idol once carved, the science lab, and the Love Shack and Clothing Hut doors "
+        "once built (no embrace, no clothes); a show meal; praying at the mud hut. Only what believers of their age "
+        "do: every show action is an adult's (14 or older; elders do them all), the Love Shack only at the couples' "
+        "ages (18 to 49); a Heathen child plays in the nursery only while someone teaches at the nursery school. A "
+        "sick Heathen rests at the encampment.", sub=True)
+    add("Skills: the skill of the show action just done (Devotion at the statue and the mud hut, Research at the lab), "
+        "or on 1 unit in 20 the skill of the Heathen's camp role, is practised by the believers' own check (a roll of "
+        "0 to 99 at or under the skill + 33, + 66 for one who likes learning, + 16 for one who dislikes it) and gain "
+        "((70 - skill) / 18, doubled for a liker, halved for a disliker), with "
+        "no technology bonus and no mastery trophies. A Heathen keeps their skills on joining the tribe.", sub=True)
+    _shrine_facts(add)
+    add("Heathens can be chosen for island events (the new ones and the game's own) and the Heathen-Exclusive Events "
+        "can happen, with Story / Cheat Upgrades. Every Heathen's conception, birth, couple, arrival, new role, death "
+        "and grave goes in the logs, marked as a Heathen. None of this has been seen in a running game yet.",
+        sub=True)
 # No game exe and no patch log was found for the save, so whether a patch is in the game cannot be read; the player
 # can name the game with the window's Browse... button.
 UNTOLD = gm.UNTOLD
@@ -239,17 +366,23 @@ def lines(village: gm.Village) -> list[gm.Fact]:
             "the Chief again.", sub=True)
     # The Heathen aging rows (native/vvfp_heathen_aging): the age credit's Heathen test 0x470077 and the life tick's
     # skip 0x472CB7, the believers' old-age rule 0x472FC6..0x47304A.
-    for row, who in ((TRIBE_AGES, "every Heathen, the puzzle Heathens too,"),
-                     (FORMER_AGE, "a villager who left the tribe for the Heathens")):
-        has = village.has(row)
+    evolution = village.has(EVOLUTION)
+    if evolution is not False:
+        _heathen_evolution_facts(add, village, "in this game" if evolution else UNTOLD)
+    if evolution is not True:
+        has = village.has(FORMER_AGE)
         if has is not False:
             where = "in this game" if has else UNTOLD
-            add(f"With \"{gm.feature_name(row)}\" ({where}) {who} ages as believers do and can die of old age by the "
-                "believers' own rule (each whole year past 1,100 age units, 55 years, or later with Medicine: 10% for "
-                "each year over); they still never eat, starve or fall sick. A camp Heathen who dies is replaced at once, "
-                "a puzzle Heathen in the same role while the puzzle is unsolved; a villager who left the tribe is "
-                "never replaced, and nobody is once The Last Heathen is solved.", sub=True)
-            break
+            add(f"With \"{gm.feature_name(FORMER_AGE)}\" ({where}) a villager who left the tribe for the Heathens "
+                "ages as believers do and can die of old age by the believers' own rule (each whole year past 1,100 "
+                "age units, 55 years, or later with Medicine: 10% for each year over); they still never eat, starve "
+                "or fall sick, and are never replaced.", sub=True)
+    bones = village.has(FORMER_BONES)
+    if bones is not False and evolution is not True:
+        add(f"With \"{gm.feature_name(FORMER_BONES)}\" ({'in this game' if bones else UNTOLD}) a villager who left "
+            "the tribe and dies a Heathen leaves a skeleton, buried at the mud hut in the Shrine to the Ancestors "
+            "(below); one who rejoined the tribe goes to the Mausoleum as always.", sub=True)
+        _shrine_facts(add)
     # The drop handler 0x443BF0's mask test 0x443D4D (orange +0x1CED, red +0x1CEE turned away at 0x44402D; the rest
     # get Heathen action 6 and believer action 0x27); the sermon's end, the work event 0x468DA0.
     add("Dropping a believer of 14 or more on a Heathen in the blue mask starts preaching: the believer is "

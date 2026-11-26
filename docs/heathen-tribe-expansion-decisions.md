@@ -51,7 +51,12 @@ checked live.
 4. Group sizes and ages as W-A chose; couples pair **gradually** (at most one new couple a look, as the village's
    clock moves), so the logs never flood.
 5. See decision 18 above.
-6. An unreadable couples file pauses that village's couples, births and arrivals. The log note is not written yet (W-A's report says why).
+6. An unreadable couples file pauses that village's couples, births and arrivals. **No log note is written (W-D,
+   v1.35.101):** VVFP Heathen Aging.dll leaves the file untouched and pauses that village's couples, Heathen births and
+   arrivals until it can be read. The Repairs log records repairs made, each as a numbered "Repair <n>" with a backup,
+   and nothing is repaired here; a note would also need the village's "Village: <name> (Save S)" header, which Heathen
+   Aging does not know, and would add the save-folder and log-numbering code to a companion built from one source
+   file. Nothing is lost: the file is never replaced while it cannot be read.
 7. Owner: "chief = he or she after the first one" and "later heathens after the first one can be any sex.
    including the mommy". Every later holder of a puzzle or special role (12-17: replacements, successors, the
    regrown camp's, the show roles) is of either sex; the original holders stay as the game makes them.

@@ -36,7 +36,7 @@ if HAVE_EMULATOR:
     from test_story_cie_graph_runtime_v6 import V6
 
 FACTION, ROLE, SICK = 0x1CEC, 0x1CFC, 0x1C48
-ROW = "vv5_heathens_in_island_events"
+ROW = "vv5_heathen_tribe_evolution"   # folds Heathens can be selected in Island Events (v1.35.101)
 
 
 def graph(heathens: str, effects=None, auto: bool = True, roles: dict | None = None) -> dict:
@@ -141,6 +141,9 @@ class Engine(unittest.TestCase):
         self.assertIsNone(r.queue6(data, strict=True), "the new row: the Heathen is cast")
         self.assertEqual(r.p.export("VvfpStoryHeathensRow", 5), 1)
         self.assertEqual(r.p.export("VvfpStoryHeathensRow", 4), 0, "New Believers only")
+        # a game patched before v1.35.101 lists the folded row's own id: still the row
+        r = self.run_with(self.ONE, heathens=(0,), patches=("vv5_heathens_in_island_events",))
+        self.assertIsNone(r.queue6(data, strict=True), "the folded row's old id: the Heathen is cast")
         r = self.run_with(self.ONE, heathens=(0,), patches=("vv5_heathen_tribe_evolution_rewrite_not",))
         self.assertEqual(r.p.export("VvfpStoryHeathensRow", 5), 0, "only the row's own id")
 

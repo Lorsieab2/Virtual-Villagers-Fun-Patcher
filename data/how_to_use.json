@@ -1190,21 +1190,17 @@
     {
       "ids": ["vv5_heathen_tribe_evolution"],
       "guide": [
-        "New Believers. Off by default and in Select All; Owner's Defaults ticks it, with new arrivals at 1x. Its Settings... button holds the sliders.",
+        "New Believers. Off by default; Owner's Defaults ticks it, with new arrivals at 1x. Select All does not tick it. Settings... holds the sliders.",
         "A growing camp makes The Last Heathen harder to reach, or impossible: it is solved only when no Heathen is left.",
-        "Every Heathen ages and can die of old age; an unsolved puzzle's Heathen is replaced at once in the same role.",
-        "Two adult Heathens who are not kin pair for life (either sex). A woman with a man has babies: about one for the tribe",
-        "every 24 real hours on Normal at 1x (0.1-10x Heathen Tribe Births); twins and triplets now and then. Births go on after The Last Heathen.",
-        "New Heathens arrive (0-10x New Heathen Arrivals; none unless set): at 1x about every 48 real hours, one to four at a time.",
-        "Newcomers and babies are mostly blue (90% blue, 7% orange, 3% red; all blue with the option).",
+        "Every Heathen ages and can die of old age; an unsolved puzzle's Heathen is replaced at once. Heathens pair for life (either sex, never kin).",
+        "Babies: about one for the tribe every 24 real hours on Normal at 1x (0.1-10x Heathen Tribe Births), also after The Last Heathen.",
+        "New Heathens arrive (0-10x New Heathen Arrivals; none unless set): at 1x about every 48 real hours, one to four, mostly blue-masked.",
         "A new Chief or Master takes a dead one's place after the puzzle: for show until The Last Heathen, the real role after it.",
         "Heathens fall sick and Heathen doctors heal them; a sick Heathen never dies of it. Their cures never count in People Cured.",
-        "Idle adults sometimes harvest (taking nothing), visit buildings, eat for show or pray at the mud hut (25% by default).",
-        "Skills grow by practice. Heathens bury their dead at the mud hut: click it to see the Shrine to the Ancestors.",
-        "Heathens can be chosen for island events; Heathen-Exclusive Events can happen. Every Heathen record is marked in the logs.",
-        "Heathens never count in the Village Statistics. It replaces Heathen Tribe Ages, Dies and Has Children, All Heathens",
-        "Leave Skeletons and Heathens can be selected in Island Events: an old selection with any of them ticks this row.",
-        "Needs Story / Cheat Upgrades for island events and show titles. Not yet seen in a running game."
+        "Idle adults sometimes harvest (taking nothing), visit buildings, eat for show or pray at the mud hut. Skills grow by practice.",
+        "Heathens bury their dead at the mud hut: click it to see the Shrine to the Ancestors. Heathens never count in the Village Statistics.",
+        "It replaces Heathen Tribe Ages, Dies and Has Children, All Heathens Leave Skeletons and Heathens in island events (an old selection ticks it).",
+        "Island events need Story / Cheat Upgrades; Heathen-Exclusive Events the Isola Grand Event Collection too. Not yet seen in a running game."
       ]
     },
     {
@@ -1590,8 +1586,8 @@
         "0.1-10x Tech Cost (all five games), Classic VV Difficulty, Change Sex and Gender Presentation, More Frequent Island Events,",
         "The Golden Child May Be Born Female (50:50), One-Time Collectibles Appear Again, Village Solidarity, Esteemed Elders in Every Game,",
         "Fog of Doom Lets Red and Orange Heathens Listen, No Restrictions on Fog of Doom Conversions, Former Villagers Keep Aging Among the Heathens,",
-        "Heathen Tribe Ages, Dies and Has Children, All Heathens Leave Skeletons, Former Villagers Among the Heathens Leave Skeletons, Max Divine Energy Continues to Increase,",
-        "the 0.1-10x sliders and the island event controls (Content Notes, every Content Filter, No Safeguards, Heathens in island events) are not ticked either."
+        "Heathen Tribe Expansion and Evolution, Former Villagers Among the Heathens Leave Skeletons, Max Divine Energy Continues to Increase,",
+        "the 0.1-10x sliders and the island event controls (Content Notes, every Content Filter, No Safeguards) are not ticked either."
       ]
     },
     "default_patches": {
@@ -1606,7 +1602,7 @@
         "Scrolling Popups, More Island Events, Isola Grand Event Collection, Every Island Event Can Happen, both Island Events Scale patches, One-Time Collectibles Appear Again,",
         "the 0.1-10x sliders and the island event controls. Respecting the Legacy of Isola, Heathens Keep Their Masks When Converted, Memorial Actions Can Also Occur at the Heathen Hovel,",
         "Shrine to the Ancestors, both Fog of Doom patches, Practicing Devotion Builds Faith and Divine Energy, Esteemed Elders in Every Game,",
-        "the four Heathen aging patches, Revive Buried/Disappeared Villagers, Max Divine Energy Continues to Increase."
+        "the three Heathen aging patches, Revive Buried/Disappeared Villagers, Max Divine Energy Continues to Increase."
       ]
     },
     "owners_defaults": {
@@ -1617,7 +1613,7 @@
         "Use Unicode Font (overrides in-game fonts) is off too: Render Unicode with In-Game Fonts is ticked instead.",
         "Move the \"Playing in the dirt\" Spot is off too: Puddle Play Moves to the Lake Shore is ticked instead.",
         "Yellow Breadfruit Refills Partially Every Time is off too.",
-        "Heathen Tribe Ages, Dies and Has Children and All Heathens Leave Skeletons are off too.",
+        "Heathen Tribe Expansion and Evolution is ticked, with New Heathen Arrivals at 1x.",
         "That includes Story / Cheat Upgrades, Respecting the Legacy of Isola and 256 Villagers (Experimental), which uses its own save folder.",
         "It ticks the harder-game patches too, Classic VV Difficulty and 0.1-10x Tech Cost included, and sets both sliders to 2.",
         "Story / Cheat Upgrades cost Tech Points is off here (the upgrades are free). So is Island Events Scale With Stored Food and Tech Points.",

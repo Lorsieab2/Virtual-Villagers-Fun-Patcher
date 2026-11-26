@@ -232,6 +232,13 @@ def add_gui_rows(strings: list[dict]) -> None:
         strings.append({"stem": f"vvfp.gui/difficulty_sliders.{name}", "english": english,
                         "games": ["vv1", "vv2", "vv3", "vv4", "vv5"], "mechanism": "b", "context": context,
                         "notes": "a patcher window"})
+    # Heathen Tribe Expansion and Evolution's Settings window (New Believers, v1.35.101): its intro and labels.
+    for name, english in zip(("intro", "births", "arrivals_tick", "arrivals", "show", "keep_blue"),
+                             gui.HEATHEN_SETTINGS_TEXTS):
+        strings.append({"stem": f"vvfp.gui/heathen_evolution.{name}", "english": english, "games": ["vv5"],
+                        "mechanism": "b",
+                        "context": "Heathen Tribe Expansion and Evolution's Settings window (New Believers)",
+                        "notes": "a patcher window"})
     import vv_game_mechanics
     strings.append({"stem": "vvfp.gui/game_mechanics.minimum_detail", "english": vv_game_mechanics.MINIMUM_DETAIL,
                     "games": ["vv1", "vv2", "vv3", "vv4", "vv5"], "mechanism": "b",

@@ -107,6 +107,19 @@ slots instead (see the 256 VILLAGERS (EXPERIMENTAL) section below).
    "VV4 Nursery School Divisor Parity" and/or
    "Enable Origins Tech, Details, and Village-Wide Upgrades" and/or the
    experimental "256 Villagers (Experimental)".
+   Also optional for New Believers (off by default, on in Owner's Defaults):
+   "Heathen Tribe Expansion and Evolution". The Heathen camp ages, pairs, has
+   babies, takes in newcomers, falls sick and is healed by its own doctors,
+   practises its skills and buries its dead at the mud hut (click the hut to
+   see the Shrine to the Ancestors). A growing camp makes The Last Heathen
+   harder to reach, or impossible. Its Settings... button holds "0.1-10x
+   Heathen Tribe Births" (1 unless moved), "0-10x New Heathen Arrivals" (tick
+   "New Heathens arrive" and set the number; none by default, 1 in Owner's
+   Defaults), the share of show actions (25%) and "Keep every new Heathen
+   blue". Patch again after changing them. It replaces "Heathen Tribe Ages,
+   Dies and Has Children", "All Heathens Leave Skeletons" and "Heathens can be
+   selected in Island Events/Heathen-Exclusive Events"; a saved selection with
+   any of them ticks it.
 8. Optional for any game: check that game's "Write Village Statistics to Text
    File" feature. It refreshes a separate "Village Statistics - Save N.txt"
    file after each successful save of slots 1 through 5.
@@ -793,12 +806,20 @@ with the line "Faction: Heathen" ("Faction: Isolan" with the Guardians of
 Isola Rewrite), as the Village History and Village Population records are:
 - Arrived: the camp's Heathens, made with a new village's founders ("How:
   Founder"), Barrel O' Babies! (heathens), a Custom Island Event's Heathens,
-  and the Heathen who replaces one who died of old age.
+  the Heathen who replaces one who died of old age, and (with "Heathen Tribe
+  Expansion and Evolution") a new arrival: "How: Arrived at the Heathen camp"
+  or "... with 2 others" for a group ("the Isolan camp" with the Guardians of
+  Isola Rewrite).
 - Death and Disappeared: a Heathen who dies (with "Former Villagers Keep
-  Aging Among the Heathens" or "Heathen Tribe Ages, Dies and Has Children")
-  or disappears.
+  Aging Among the Heathens" or "Heathen Tribe Expansion and Evolution") or
+  disappears. A Heathen buried at the mud hut has "Grave: the Shrine to the
+  Ancestors (...)", or "no grave (the Shrine to the Ancestors was full)".
 - Conception and Birth: a Heathen woman's pregnancy, and a baby born among
-  the Heathens (with "Heathen Tribe Ages, Dies and Has Children").
+  the Heathens (with "Heathen Tribe Expansion and Evolution").
+- Couple formed (Births and Conceptions log): two Heathens who pair for life,
+  both with their ages and looks.
+- Took the role (Births log): a Heathen who becomes the camp's new Chief or
+  a new Master.
 - Appearance changed and Name changed, for a Heathen.
 A believer's records never have the line. "Left the tribe: became a Heathen"
 is the villager's own record of leaving, so it is not marked; a Heathen who
@@ -1625,48 +1646,77 @@ by the believers' own rule. They still never eat, starve or fall sick. The
 camp's own Heathens and the puzzle Heathens do not age with this patch. A
 former villager who dies is not replaced, so leaving never grows the camp.
 What is left
-is decided by the two skeleton patches; with neither they disappear, no
-grave. Deaths go in the Deaths log. Heathens never count in the Village
+is decided by Heathen Tribe Expansion and Evolution or Former Villagers Among
+the Heathens Leave Skeletons; with neither they disappear, no grave. Deaths go in the Deaths log. Heathens never count in the Village
 Statistics. Villagers who left before this patch are recognised by the
 parents on their record.
 
-HEATHEN TRIBE AGES, DIES AND HAS CHILDREN (NEW BELIEVERS)
+HEATHEN TRIBE EXPANSION AND EVOLUTION (NEW BELIEVERS)
 
-Off by default, in Owner's Defaults and in Select All. Every Heathen ages
-and can die of old age by the believers' own rule: the camp's Heathens,
-villagers who left you, and the puzzle Heathens too (the Heathen Doctor, the
-Heathen Chief, the three Masters and the Heathen Mommy). When a camp Heathen
-dies a new one joins at once in the same camp role and mask, and a puzzle
-Heathen whose puzzle is not solved is replaced in the same role, set up as
-the game sets it up (the Heathen Mommy with her infant), so every puzzle can
-still be solved; a solved puzzle's Heathen never comes back. A villager who
-left your tribe is not replaced. Once The Last Heathen is solved nobody is
-replaced and no Heathen baby is conceived or born: the camp empties over
-time. With no Heathen alive none is ever made; island events and Barrel
-O' Babies still add Heathens as in the game.
-Heathen couples
-have children: about one baby for the whole tribe every 24 real-life hours
-on Normal speed (12 on Fast, 40 on Slow), from the women aged 14 to 45 with a
-man in the camp, only while at least 10 places stay free for your
-own village's babies; the children grow up in the camp. With Former
-Villagers Keep Aging Among the Heathens also ticked nobody ages twice.
-
-ALL HEATHENS LEAVE SKELETONS (NEW BELIEVERS)
-
-Off by default, in Owner's Defaults and in Select All. Only matters with a
-Heathen aging patch ticked. Every Heathen who dies of old age leaves a
-skeleton; your believers bury it with Burying the dead (once The Buried
-Mausoleum is solved), which gives a normal grave. Cannot be ticked with
-Former Villagers Among the Heathens Leave Skeletons: ticking one unticks the
-other.
+Off by default and in Select All; on in Owner's Defaults, with new arrivals
+at 1x. A growing camp makes The Last Heathen harder to reach, or impossible:
+it is solved only when no Heathen is left. The Heathen camp lives as a tribe
+of its own:
+- Every Heathen ages and can die of old age by the believers' own rule, the
+  puzzle Heathens too; a puzzle Heathen whose puzzle is not solved is
+  replaced at once in the same role, so every puzzle can still be solved.
+- Two adult Heathens who are not kin (never parent and child, full or half
+  siblings) pair for life, until one dies or joins your tribe; a couple can
+  be of either sex. A woman in a couple with a man has babies: at 1x about
+  one baby for the whole tribe every 24 real-life hours on Normal speed (12
+  on Fast, 40 on Slow); twins 5.25%, triplets 1.75%. Births go on after The
+  Last Heathen while a Heathen woman and man are alive.
+- New Heathens arrive (none unless set): at 1x about one arrival every 48
+  real-life hours on Normal, one to four Heathens, sometimes a couple with up
+  to two children, also after The Last Heathen. Newcomers and babies are
+  mostly blue: 90% blue, 7% orange, 3% red.
+- When the Heathen Chief or a Master dies after their puzzle is solved, the
+  eldest adult Heathen takes the role: for show until The Last Heathen (the
+  role's skills, mask and title), the real role after it. Any sex after the
+  first. A show Chief who joins your tribe becomes a real Retired Chief.
+- Heathens fall sick by the believers' rule; ordinary Heathens with Healing
+  skill heal them, never the puzzle's Heathen Doctor; with nobody able they
+  get well on their own. A sick Heathen never dies of it and never drops
+  below 21 health. Heathen cures never count in People Cured. They never eat
+  from your food store and never starve.
+- Idle adult Heathens sometimes do a show action (25% of their choices by
+  default): harvesting noni, crops or fish once the puzzle that opens each
+  is solved, taking nothing and carrying it to the encampment; visiting the
+  pools, the Believer Idol, the science lab, the farm plots, and the Love
+  Shack and Clothing Hut doors once built (no embrace, no clothes); a show
+  meal; praying at the mud hut. Only what believers of their age do:
+  children play in the nursery while someone teaches there.
+- Skills grow by practice, Devotion included (no tech bonus, no trophies); a
+  Heathen keeps them on joining your tribe.
+- Every Heathen who dies leaves a skeleton. Heathens bury their own dead at
+  the mud hut (believers do it, still to the mud hut, when no Heathen can,
+  once The Buried Mausoleum is solved). Click the mud hut, or drop a villager
+  on it, to see the Shrine to the Ancestors: the game's own Mausoleum screen
+  with the Heathens' graves. A villager who left you and died a Heathen goes
+  there; one who rejoined goes to your Mausoleum. Day of Honor, the
+  Remembrance Ceremony and Honoring the dead count the Shrine's graves.
+- Heathens can be chosen for island events and the Heathen-Exclusive Events
+  can happen (needs Story / Cheat Upgrades; the Heathen-Exclusive Events also
+  the Isola Grand Event Collection).
+Every Heathen record in the logs is marked as a Heathen. Heathens never count
+in the Village Statistics. Heathens always leave 10 villager records free.
+Its Settings... button holds 0.1-10x Heathen Tribe Births, 0-10x New Heathen
+Arrivals (tick "New Heathens arrive"), the share of show actions and Keep
+every new Heathen blue; patch again after changing them. It replaces "Heathen
+Tribe Ages, Dies and Has Children", "All Heathens Leave Skeletons" and
+"Heathens can be selected in Island Events/Heathen-Exclusive Events": a saved
+selection with any of them ticks it. Not yet seen in a running game.
 
 FORMER VILLAGERS AMONG THE HEATHENS LEAVE SKELETONS (NEW BELIEVERS)
 
 Off by default and in Select All; on in Owner's Defaults only. Only
-matters with a Heathen aging patch ticked. Only villagers who had left your
-tribe leave a skeleton when they die among the Heathens; your believers bury
-it. Other Heathens leave nothing. Cannot be ticked with All Heathens Leave
-Skeletons: ticking one unticks the other.
+matters with Former Villagers Keep Aging Among the Heathens or Heathen Tribe
+Expansion and Evolution ticked. Only villagers who had left your tribe leave
+a skeleton when they die among the Heathens. Heathens bury it at the mud hut,
+in the Shrine to the Ancestors (believers do it when no Heathen can, once The
+Buried Mausoleum is solved); click the hut to see its graves. Other Heathens
+leave nothing. With Heathen Tribe Expansion and Evolution ticked every
+Heathen leaves a skeleton anyway, so this row then changes nothing more.
 
 PUDDLE PLAY MOVES TO THE LAKE SHORE (NEW BELIEVERS)
 

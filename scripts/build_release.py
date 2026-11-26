@@ -160,13 +160,14 @@ FILES = [
     "assets/devotion_faith/VVFP Devotion Faith.dll",
     # Esteemed Elders in Every Game (A New Home, The Lost Children, The Tree of Life): the companion.
     "assets/esteemed_elders/VVFP Esteemed Elders.dll",
-    # The four Heathen aging rows (New Believers): the companion and each row's flag file.
+    # The Heathen aging rows and Heathen Tribe Expansion and Evolution (New Believers): the companions and each row's
+    # flag file (the folded rows' flags are retired: no row ships them since v1.35.101).
     "assets/heathen_aging/VVFP Heathen Aging.dll",
     "assets/heathen_aging/VVFP Heathen Aging Former.txt",
-    "assets/heathen_aging/VVFP Heathen Aging Tribe.txt",
-    "assets/heathen_aging/VVFP Heathen Aging Events.txt",
     "assets/heathen_aging/VVFP Heathen Skeletons Former.txt",
-    "assets/heathen_aging/VVFP Heathen Skeletons All.txt",
+    "assets/heathen_aging/VVFP Heathen Tribe Evolution.txt",
+    "assets/heathen_life/VVFP Heathen Life.dll",
+    "assets/heathen_mausoleum/VVFP Heathen Mausoleum.dll",
     # X Buttons to Remove Chosen Founders (The Tree of Life, New Believers): the companion.
     "assets/founder_x_buttons/VVFP Founder X Buttons.dll",
     # Max Divine Energy Continues to Increase (New Believers): the companion.
@@ -383,11 +384,10 @@ FILES = [
     "data/vv2_esteemed_elders_feature.json",
     "data/vv4_esteemed_elders_feature.json",
     "data/vv5_esteemed_elders_feature.json",
-    # The four Heathen aging rows (New Believers).
+    # The Heathen aging rows and Heathen Tribe Expansion and Evolution (New Believers).
     "data/vv5_former_villagers_keep_aging_feature.json",
-    "data/vv5_heathen_tribe_ages_feature.json",
+    "data/vv5_heathen_tribe_evolution_feature.json",
     "data/vv5_former_villager_heathens_leave_skeletons_feature.json",
-    "data/vv5_all_heathens_leave_skeletons_feature.json",
     # X Buttons to Remove Chosen Founders (The Tree of Life, New Believers).
     "data/vv4_founder_x_buttons_feature.json",
     "data/vv5_founder_x_buttons_feature.json",
@@ -646,7 +646,6 @@ FILES = [
     "data/vv5_island_event_filter_f26_feature.json",
     "data/vv5_island_event_filter_f27_feature.json",
     "data/vv5_island_event_filter_f28_feature.json",
-    "data/vv5_heathens_in_island_events_feature.json",
     "data/vv5_classic_vv_difficulty_feature.json",
     "data/vv5_respecting_the_legacy_of_isola_feature.json",
     # The two bitmap fonts of every game: glyph coordinates and addresses only, never a picture.
