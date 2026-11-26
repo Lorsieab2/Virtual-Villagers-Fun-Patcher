@@ -38,25 +38,29 @@ CELL_W, CELL_H = 40, 65
 EIGHT = np.ones((3, 3), bool)
 
 # ---- the tones: ONE table ---------------------------------------------------------------------------
-# The owner, 2026-11-26: "skin tone = monk skin tone scale, with some redder shades etc!".
-# The ten Monk Skin Tone Scale colours (checked against the published list, 2026-11-26) plus four redder
-# shades, in the scale's own order, light to dark, the redder shades put in by lightness.  Each colour is where the LIT MID-SKIN lands.  Tone 0 (the
-# game's own art) is not in the table.  Change, add or remove rows here and nothing else changes.
+# The owner, 2026-11-26: "skin tone = monk skin tone scale, with some redder shades etc!", then "id like the
+# tones to be more distinct. the dark tones should be really naturally dark."
+# Fourteen tones, light to dark: the ten Monk Skin Tone Scale colours and four redder shades.  Each row is
+# (name, the published hex or None, OKLab lightness, chroma, hue in degrees) of the LIT MID-SKIN.  The
+# lightness is an even ramp (so neighbours read as different in the village); hue stays close to each Monk
+# colour's own, and the redder shades are clearly redder.  Where a Monk row is not its published hex, the
+# tone table picture and tone_notes() say by how much.  Tone 0 (the game's own art) is not in the table.
+# Change, add or remove rows here and nothing else changes.
 TONE_TABLE = [
-    ("Monk 1", "#f6ede4"),
-    ("Monk 2", "#f3e7db"),
-    ("Monk 3", "#f7ead0"),
-    ("Monk 4", "#eadaba"),
-    ("Warm light", "#e8bfa4"),
-    ("Monk 5", "#d7bd96"),
-    ("Warm medium", "#c08a68"),
-    ("Monk 6", "#a07e56"),
-    ("Warm brown", "#96593c"),
-    ("Monk 7", "#825c43"),
-    ("Monk 8", "#604134"),
-    ("Warm deep", "#5c3024"),
-    ("Monk 9", "#3a312a"),
-    ("Monk 10", "#292420"),
+    ("Monk 1", "#f6ede4", 0.940, 0.020, 68.0),
+    ("Monk 2", "#f3e7db", 0.890, 0.034, 62.0),
+    ("Monk 3", "#f7ead0", 0.840, 0.050, 84.0),
+    ("Monk 4", "#eadaba", 0.790, 0.058, 80.0),
+    ("Warm light", None, 0.740, 0.072, 50.0),
+    ("Monk 5", "#d7bd96", 0.690, 0.070, 76.0),
+    ("Warm medium", None, 0.640, 0.088, 48.0),
+    ("Monk 6", "#a07e56", 0.590, 0.076, 70.0),
+    ("Warm brown", None, 0.540, 0.094, 42.0),
+    ("Monk 7", "#825c43", 0.490, 0.070, 56.0),
+    ("Monk 8", "#604134", 0.440, 0.062, 46.0),
+    ("Warm deep", None, 0.390, 0.078, 36.0),
+    ("Monk 9", "#3a312a", 0.340, 0.058, 54.0),
+    ("Monk 10", "#292420", 0.290, 0.050, 48.0),
 ]
 
 
@@ -64,12 +68,9 @@ def _hex(text):
     return tuple(int(text[i:i + 2], 16) for i in (1, 3, 5))
 
 # REPLACE (the owner, 2026-11-26: "instead of overlaying on the grayscale it replaces it").  All in OKLCh.
-L_FLOOR, L_CEIL = 0.20, 0.985           # no skin pixel darker or lighter than this (OKLab lightness)
+L_FLOOR, L_CEIL = 0.17, 0.985           # no skin pixel darker or lighter than this (OKLab lightness)
 GIVE = 0.8                              # of a side the floor or ceiling squeezes, this much goes to the other
 SHADOW_CHROMA = 0.22                    # chroma grows by up to this share in the deepest shadow; never shrinks
-DEEP_MIN_CHROMA = 0.050                 # the scale's two darkest are nearly grey: as skin they get at least
-DEEP_HUE_FROM = "Monk 8"                # this chroma and this row's hue (the scale's own brown)
-DEEP_BELOW_L = 0.36                     # ... when a tone is darker than this and greyer than DEEP_MIN_CHROMA
 
 
 # ---- colour ------------------------------------------------------------------------------------------
@@ -157,20 +158,30 @@ def hsv(a: np.ndarray):
 
 def _tones():
     """TONE_TABLE as (name, L, chroma, hue, what, note) in OKLCh, in the table's own order.  `note` says
-    where the colour used differs from the table's hex (the two darkest Monk colours, warmed)."""
-    rows = []
-    for what, text in TONE_TABLE:
-        L, a, b = to_oklab(np.array(_hex(text), float))
-        rows.append([what, float(L), float(np.hypot(a, b)), float(np.degrees(np.arctan2(b, a))), ""])
-    brown = next(r[3] for r in rows if r[0] == DEEP_HUE_FROM)
-    for r in rows:
-        if r[1] < DEEP_BELOW_L and r[2] < DEEP_MIN_CHROMA:
-            r[2], r[3] = DEEP_MIN_CHROMA, brown
-            r[4] = "warmed: the published colour is nearly grey"
-    return [(f"Tone {i}", r[1], r[2], r[3], r[0], r[4]) for i, r in enumerate(rows, 1)]
+    how far a Monk row is from its published hex (OKLab delta E), or that the shade is the patcher's own."""
+    out = []
+    for i, (what, text, L, chroma, hue) in enumerate(TONE_TABLE, 1):
+        note = "a redder shade, not in the Monk scale"
+        if text:
+            h = np.radians(hue)
+            away = float(np.linalg.norm(to_oklab(np.array(_hex(text), float))
+                                        - np.array([L, chroma * np.cos(h), chroma * np.sin(h)])))
+            note = f"published {text}" + (f", moved by dE {away:.3f}" if away >= 0.005 else ", exact")
+        out.append((f"Tone {i}", L, chroma, hue, what, note))
+    return out
 
 
 TONES = _tones()
+
+
+def tone_lab(tone):
+    h = np.radians(tone[3])
+    return np.array([tone[1], tone[2] * np.cos(h), tone[2] * np.sin(h)])
+
+
+def tone_steps():
+    """OKLab delta E from each tone's mid-skin to the next one's."""
+    return [float(np.linalg.norm(tone_lab(a) - tone_lab(b))) for a, b in zip(TONES, TONES[1:])]
 
 
 # ---- the skin mask (A New Home; measured 2026-11-06, docs of draft PR #707) ---------------------------
@@ -425,19 +436,31 @@ def grid(rows, cols, draw, row_labels, col_labels, title, path, zoom, size, labe
 
 
 def swatches(path):
+    """The tone table: the ramp of mid-skin swatches with the delta E to the next, then each tone's
+    shadow / own colour / highlight, then where each row stands against its published hex."""
     font = _font()
-    sw = 44
-    out = Image.new("RGB", (16 + sw * len(TONES), 96), (245, 242, 235))
+    sw = 62
+    steps = tone_steps()
+    out = Image.new("RGB", (16 + sw * len(TONES), 190 + 15 * len(TONES)), (245, 242, 235))
     d = ImageDraw.Draw(out)
-    d.text((8, 4), "The tone table: shadow, the tone itself, highlight (Monk Skin Tone Scale + four redder shades)",
-           fill=(20, 20, 20), font=font)
+    d.text((8, 4), "Tone ramp: each tone's mid-skin, and the OKLab delta E to the next tone", fill=(20, 20, 20), font=font)
+    for j, tone in enumerate(TONES):
+        mid = tuple(int(x) for x in shade(np.array([0.0]), tone, 0.14, 0.07)[0].round())
+        d.rectangle((8 + j * sw, 22, 8 + (j + 1) * sw - 1, 62), fill=mid)
+        d.text((8 + j * sw + 2, 64), f"{j + 1} {tone[4]}", fill=(20, 20, 20), font=_font(9))
+        if j < len(steps):
+            d.text((8 + (j + 1) * sw - 14, 78), f"{steps[j]:.3f}", fill=(120, 30, 30), font=_font(9))
+    d.text((8, 96), "Shadow, the tone itself, highlight", fill=(20, 20, 20), font=font)
     for j, tone in enumerate(TONES):
         for i, g in enumerate((-0.14, 0.0, 0.07)):
             c = tuple(int(x) for x in shade(np.array([g]), tone, 0.14, 0.07)[0].round())
-            d.rectangle((8 + j * sw, 22 + i * 20, 8 + (j + 1) * sw - 3, 22 + (i + 1) * 20 - 2), fill=c)
+            d.rectangle((8 + j * sw, 112 + i * 20, 8 + (j + 1) * sw - 3, 112 + (i + 1) * 20 - 2), fill=c)
+    for j, tone in enumerate(TONES):
         mid = tuple(int(x) for x in shade(np.array([0.0]), tone, 0.14, 0.07)[0].round())
-        d.text((8 + j * sw, 84), str(j + 1), fill=(20, 20, 20), font=font)
-        print(f"{tone[0]} ({tone[4]}): OKLCh {tone[1]:.3f} {tone[2]:.3f} {tone[3]:.0f}  sRGB {mid}  {tone[5]}")
+        line = (f"{tone[0]} ({tone[4]}): L {tone[1]:.2f} C {tone[2]:.3f} h {tone[3]:.0f}  "
+                f"#{mid[0]:02x}{mid[1]:02x}{mid[2]:02x}  {tone[5]}")
+        d.text((8, 180 + 15 * j), line, fill=(20, 20, 20), font=_font(10))
+        print(line + (f"  next dE {steps[j]:.3f}" if j < len(steps) else ""))
     out.save(path)
     print("wrote", path)
 
