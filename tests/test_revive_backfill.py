@@ -110,7 +110,7 @@ def record_for(game, name, sex, head, body, likes, dislikes, age, seed=1, father
     """A record whose every saved byte is set, with these identity fields (the snapshot's data of it)."""
     age_at, sex_at, name_at, cap, head_at, body_at, likes_at, dislikes_at, slots, father_at, mother_at = rb.LAYOUT[game]
     r = bytearray(((k * 29 + seed * 53) & 0x7F) | 1 for k in range(STRIDE[game]))
-    r[name_at:name_at + cap] = name.encode().ljust(cap, b"\0")
+    r[name_at:name_at + cap] = (name if isinstance(name, bytes) else name.encode()).ljust(cap, b"\0")
     struct.pack_into("<i", r, sex_at, sex)
     struct.pack_into("<i", r, head_at, head)
     struct.pack_into("<i", r, body_at, body)
@@ -331,6 +331,26 @@ class Rules(unittest.TestCase):
         with mock.patch("vv_log_additions.person_blocks", return_value=[first, second]):   # Log 9, then Log 10
             people = rb.departed(self.folder, game, 1)
         self.assertEqual([(p.name, p.age) for p in people], [("Ana Rua", 400)])
+    def test_one_letter_and_accented_names_are_found_too(self):
+        # Codex, PR #880: the checker's table search wants a capital and two letters; a save whose last entries are
+        # named "Q" and "Émile" (Windows-1252, as the games keep it) gave nothing.  The tables are now found with the
+        # entries' own name rule, a gap between them included.
+        import vv_log_tools as tools
+        checker = tools.load_checker()
+        for game in (2, 3, 4, 5):
+            male, female = rb.SEX_VALUES[game]
+            with self.subTest(game=game):
+                size = checker.STOCK_SAVE.get(game, 0x40000)
+                save = bytearray(size)
+                stride = checker.LAYOUTS[game].stride
+                q = record_for(game, b"Q", male, 3, 4, (), (), 300, seed=2)
+                emile = record_for(game, "\u00c9mile".encode("cp1252"), female, 0, 0, (), (), 500, seed=3)
+                self._place(game, save, 30832, q)
+                self._place(game, save, 30832 + 2 * stride, emile)      # a slot between them never saved
+                found = rb.save_entries(game, bytes(save))
+                self.assertIn(q, found)
+                self.assertIn(emile, found)
+                self.assertEqual(sorted(rb.Snapshot(game, d).identity()[0] for d in found), ["Q", "\u00c9mile"])
     def test_the_file_layout_is_the_dlls(self):
         header = (ROOT / "native" / "shared" / "revive_snapshot.h").read_text(encoding="utf-8")
         self.assertIn("#define VV_RS_MAGIC 0x31535256u", header)

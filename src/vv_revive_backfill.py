@@ -235,10 +235,9 @@ def save_entries(game: int, data: bytes) -> list[bytes]:
         return out
     # The saved tables are found by their entries themselves, never by the roster the game loads (Codex, PR #880):
     # the loaded roster ends at the end-of-list flag, so a tribe that died out loads nobody, and the 256 extension
-    # may hold only stale entries.  The main table is the save's longest run of plausible entries (the checker's
-    # table_start: names, looks, an age -- the present flags are not read), walked back to its first entry; the
-    # extension (The Secret City to New Believers, after the stock save's length) is found the same way in the
-    # bytes past that length.  Every slot of each is read; the plausibility checks keep the villagers.
+    # may hold only stale entries.  The main table is the save's longest run of plausible entries at the stride (no
+    # present flag is read), and every plausible entry on its stride is read; the extension (The Secret City to New
+    # Believers, after the stock save's length) is found the same way in the bytes past that length.
     lay = checker.LAYOUTS[game]
     stock_end = checker.STOCK_SAVE.get(game, len(data))
     seen: set[bytes] = set()
@@ -257,25 +256,48 @@ def save_entries(game: int, data: bytes) -> list[bytes]:
         d = entry_to_data(game, e)
         return d if _plausible(game, d) else None
 
-    def scan(first: int, slots: int, low: int) -> None:
-        while first - lay.stride >= low and entry_at(first - lay.stride) is not None:
-            first -= lay.stride
-        for k in range(slots):
-            d = entry_at(first + k * lay.stride)
+
+    # Where each table starts is found with the same name rule as the entries themselves (Codex, PR #880): any name
+    # the patcher lets a villager have -- one letter, accented or made with In-Game Fonts' letters -- not only the
+    # game's own names (the checker's table_start / NAME_RE want a capital and two letters, so a save whose last
+    # entries had such names gave none).  Every place a name could start, its sex and looks in range (a quick look
+    # first), whose whole entry is plausible, is a candidate; the longest run of them at the stride is the table.
+    male, female = SEX_VALUES[game]
+
+    def quick(p: int) -> bool:
+        if p + lay.gender < 0 or p + max(lay.head, lay.body) + 4 > len(data):
+            return False
+        sex, head, body = (struct.unpack_from("<i", data, p + off)[0] for off in (lay.gender, lay.head, lay.body))
+        return sex in (male, female) and 0 <= head < 64 and 0 <= body < 64
+
+    def table_in(low: int, high: int, slots: int) -> None:
+        found: set[int] = set()
+        for m in checker.ANY_NAME_RE.finditer(data, low, high):
+            for p in range(m.start(), m.end() - 1):   # a match can start on a letter just before the name
+                if p - ENTRY_FROM_NAME[game] >= low and quick(p) and entry_at(p) is not None:
+                    found.add(p)
+        best, best_length = None, 0
+        for p in sorted(found):
+            if p - lay.stride in found:
+                continue                             # not the first of its run
+            length = 1
+            while p + length * lay.stride in found:
+                length += 1
+            if length > best_length:
+                best, best_length = p, length
+        if best is None:
+            return
+        # Every entry on the table's own stride, gaps between them (a record never saved) included.
+        line = sorted(p for p in found if (p - best) % lay.stride == 0)
+        for p in line[:slots]:
+            d = entry_at(p)
             if d is not None and d not in seen:
                 seen.add(d)
                 out.append(d)
 
-    main_area = data[:stock_end] if game != 2 else data
-    first = checker.table_start(main_area, lay, [])
-    if first is not None:
-        scan(first, {2: 256}.get(game, 150), 0)
+    table_in(0, stock_end if game != 2 else len(data), {2: 256}.get(game, 150))
     if game != 2 and len(data) > stock_end:
-        # (a match can start on a letter just before the name: every place inside it is tried)
-        found = next((p for m in checker.NAME_RE.finditer(data, stock_end) for p in range(m.start(), m.end() - 1)
-                      if p - ENTRY_FROM_NAME[game] >= stock_end and entry_at(p) is not None), None)
-        if found is not None:
-            scan(found, 256 - 150, stock_end + ENTRY_FROM_NAME[game])
+        table_in(stock_end, len(data), 256 - 150)
     return out
 
 
