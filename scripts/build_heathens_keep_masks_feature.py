@@ -3,7 +3,7 @@ masks when converted - when a heathen converts their mask stays on their head (a
 using Change Appearance)", "Oh and the player can always Change Appearance to change it or take it off if they want
 to."; default on in Owner's Defaults only).
 
-The companion "VVFP Heathens Keep Masks.dll" (native/vvfp_heathens_keep_masks) splices ten sites at run time, all
+The companion "VVFP Heathens Keep Masks.dll" (native/vvfp_heathens_keep_masks) splices eleven sites at run time, all
 or none, and puts the mask a converting Heathen wears into the Origins companion's mask table -- the store Change
 Appearance keeps a believer's mask in -- then has that companion write its Village Masks file.  And (the owner,
 2026-11-22) a believer who goes back to the Heathens is drawn in the mask they wore as a Heathen before (blue,
@@ -63,6 +63,10 @@ SITES = (
      "the render's role read `mov eax, [esi+0x1CFC]` for the mask art (12 and 14-16 purple, 13 the Chief's, the "
      "table 0x472B60): a Master's role (14) or the Chief's (13) for one who went back wearing purple or the "
      "Chief's mask, for that draw only; goes on at 0x4728CC"),
+    (0x41632F, "C681ED1C000000",
+     "Outreach?'s \"Offer a tour\" (applyChoice 0x416310, choice 0) `mov byte [ecx+0x1CED], 0`, which makes the "
+     "envoy (ecx, [event+4]) no longer an orange Heathen: an ordinary orange Heathen's orange mask is first put in "
+     "the Origins store as theirs, then the byte is cleared as in the stock game; goes on at 0x416336"),
 )
 
 
@@ -81,6 +85,8 @@ def description() -> str:
         "their own mask again -- the one they wore as a Heathen before, blue, orange, red, purple or the Chief's "
         "-- but act exactly like an ordinary Heathen in a blue mask: you can talk to them, they listen, and they "
         "can be converted again like any blue one (never a Master or the Chief again). "
+        "An island event never takes a Heathen's mask: when \"Outreach?\" (Offer a tour) calms an orange Heathen, "
+        "they act like a blue Heathen from then on but keep wearing their orange mask, and keep it if they join. "
         "**Heathens who "
         "joined the tribe before this patch keep the look they have now.** **Works the same with every other "
         "patch and in every population mode.** The companion is \"VVFP Heathens Keep Masks.dll\", started by VVFP Startup.dll; it "
@@ -158,13 +164,20 @@ def row(dll_sha: str) -> dict:
             "faction setter 0x466880 themselves when their SetFaith did not convert (the Faith already past 0): VVFP "
             "Story Upgrades.dll first calls this companion's VvfpHeathensKeepMasksFaction (story_graph.inc "
             "cg_keep_masks_faction), which does what the splices do at the game's own calls.",
+            "Outreach? (the owner, 2026-11-25: \"island events should keep masks on the villager if they have "
+            "them\"): \"Offer a tour\" clears the envoy's orange byte +0x1CED (0x41632F), which in the stock game "
+            "turned an orange Heathen's mask blue (and a conversion by the tour's Faith +20 at 0x4163AB then kept "
+            "the blue one). At that instruction an ordinary orange Heathen (no puzzle role 12-17) has Orange (2) put "
+            "in the Origins mask table (VvfpMaskKeep); the byte is still cleared, so they behave as the blue Heathen "
+            "the tour made them, and the render's kind test draws their orange mask (as for a Heathen who went "
+            "back); joining the tribe, they keep the orange mask.",
             "Repair Saves & Logs > Restore Heathen Masks... (src/vv5_heathen_masks_restore.py) gives villagers who "
             "went back before this their own mask in the Village Masks file, and clears an orange or red kind byte "
             "an older build left in the save (backed up first, the save written last), only for villagers the "
             "Former Heathens file or the logs prove were believers.",
         ],
         "explicit_non_changes": [
-            "No executable byte is patched: the companion splices the ten sites at run time, only after verifying "
+            "No executable byte is patched: the companion splices the eleven sites at run time, only after verifying "
             "their stock bytes, all or none; each conversion splice makes the very instruction it replaced, every "
             "register and flag as they were, the setter seeing its stock return address; each drawing splice keeps "
             "every register (eax at the role read is the value the game loads there) and sets the zero flag as the "

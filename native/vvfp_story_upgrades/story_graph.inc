@@ -6832,6 +6832,7 @@ static const char *const CG_RENAME_OWNERS[] = {
     "VVFP VV2 Origins Icons.dll", "VVFP VV4 Origins Icons.dll", "VVFP Cause of Death.dll", "VVFP Faith Loss.dll",
     "VVFP Last Names.dll", "VVFP VV1 Parentage.dll", "VVFP Parentage Export.dll", "VVFP Population Export.dll",
     "VVFP Gender Presentation.dll",
+    "VVFP Heathens Keep Masks.dll",     /* the mask a convert wore as a Heathen, kept for when they go back */
 };
 
 int __stdcall VvfpVillagersRenamed(int game, int slot, int count, const void *const *records,
@@ -7218,6 +7219,9 @@ static void cg_life_effect(const ce_adapter *a, int game, const unsigned char *e
         if (other == NULL || other == record || a->name_bytes > (int)sizeof tmp) {
             return;
         }
+        /* Both identities change (the names, and The Secret City's the Likes too): each keeps the mask on their
+           own head (story_common.inc story_identity_before). */
+        story_identity_before(game, record, other);
         lstrcpynA(names[0], (const char *)record + a->off_name, (int)sizeof names[0]);
         lstrcpynA(names[1], (const char *)other + a->off_name, (int)sizeof names[1]);
         memcpy(tmp, record + a->off_name, (size_t)a->name_bytes);
@@ -7240,6 +7244,7 @@ static void cg_life_effect(const ce_adapter *a, int game, const unsigned char *e
             *dx = *dy;
             *dy = t;
         }
+        story_identity_after(game);
         recs[0] = record;
         recs[1] = other;
         olds[0] = names[0];
@@ -7258,10 +7263,14 @@ static void cg_life_effect(const ce_adapter *a, int game, const unsigned char *e
         unsigned int fixed = cg_u16(e + 12);
         lstrcpynA(was, (const char *)record + a->off_name, (int)sizeof was);
         int k = cg_pre_find(e), of = (int)cg_u32(e + 4) - 1;
-        if (of >= 0 && of < cg_g.n_role ? cg.name[of][0] == '\0' || !cg_rename_fixed(a, record, cg.name[of])
-            : fixed != CG_NONE && cg_s(&cg_g, fixed)[0] != '\0' ? !cg_rename_fixed(a, record, cg_s(&cg_g, fixed))
-            : k >= 0 && cg_pre[k].name[0] != '\0' ? !ce_write_name(record + a->off_name, a->name_bytes, cg_pre[k].name)
-            : !cg_rename_from_list(a, game, record, 1)) {
+        int renamed;
+        story_identity_before(game, record, NULL);   /* the mask stays on the renamed villager */
+        renamed = of >= 0 && of < cg_g.n_role ? cg.name[of][0] != '\0' && cg_rename_fixed(a, record, cg.name[of])
+            : fixed != CG_NONE && cg_s(&cg_g, fixed)[0] != '\0' ? cg_rename_fixed(a, record, cg_s(&cg_g, fixed))
+            : k >= 0 && cg_pre[k].name[0] != '\0' ? ce_write_name(record + a->off_name, a->name_bytes, cg_pre[k].name)
+            : cg_rename_from_list(a, game, record, 1);
+        story_identity_after(game);
+        if (!renamed) {
             return;
         }
         recs[0] = record;
@@ -7280,9 +7289,12 @@ static void cg_life_effect(const ce_adapter *a, int game, const unsigned char *e
         const void *recs[1];
         const char *olds[1];
         lstrcpynA(was, (const char *)record + a->off_name, (int)sizeof was);
+        story_identity_before(game, record, NULL);   /* the mask stays on the villager who lost the name */
         if (!ce_write_name(record + a->off_name, a->name_bytes, "?")) {
+            story_identity_after(game);
             return;
         }
+        story_identity_after(game);
         recs[0] = record;
         olds[0] = was;
         cg_tell_renamed(game, 1, recs, olds);
