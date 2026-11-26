@@ -267,6 +267,16 @@ class File(unittest.TestCase):
                          Path("X") / "Save 3" / "Data" / "Skin Tones" / "Skin Tones - Save 3.dat")
 
 
+class Tools(unittest.TestCase):
+    """The patcher's tools take the file with its slot (Back Up Saves: tests/test_save_backup.py; the
+    renames: tests/test_last_names_masks_worn.py)."""
+
+    def test_copy_slot_copies_it_under_the_new_slot(self) -> None:
+        import vv_copy_slot
+        source = tones.file_path(Path("Virtual Villagers Fun Patcher"), 2)
+        self.assertEqual(vv_copy_slot.target_relative(source, 2, 5),
+                         tones.file_path(Path("Virtual Villagers Fun Patcher"), 5))
+
 class Harness(unittest.TestCase):
     def test_the_dll_on_real_files(self) -> None:
         script = ROOT / "scripts" / "build_skin_tone_harness.ps1"

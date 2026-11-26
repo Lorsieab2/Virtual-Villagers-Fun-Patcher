@@ -1526,6 +1526,10 @@ def plan_renames(folder: Path, game: int, slot: int, renames: dict[tuple, str],
                      game, worn_map, worn_conflicts, "the head looks")
     _plan_look_store(result, _data_file(folder, "Gender Presentation", f"Gender Presentation - Save {slot}.dat"),
                      (b"VGP1",), game, worn_map, worn_conflicts, "the gender presentations")
+    # The skin tones (native/vvfp_skin_tones): the same store with two bytes a villager ('VST2': the tone and
+    # the birth tone), or one in its first layout ('VST1').
+    _plan_look_store(result, _data_file(folder, "Skin Tones", f"Skin Tones - Save {slot}.dat"), (b"VST2", b"VST1"),
+                     game, worn_map, worn_conflicts, "the skin tones", value_bytes={b"VST2": 2})
     if game == 1:
         _plan_vv1_parentage(result, folder, data_dir, slot, people, renames, asked, by_name)
     _plan_unaccounted(result, game, slot, data_dir, renames, asked, by_name,
@@ -1709,11 +1713,12 @@ def _worn_identity(data, at: int, f: Fields) -> int:
 
 
 def _plan_look_store(result: Plan, path: Path, magics: tuple[bytes, ...], game: int, mapping: dict[int, int],
-                     conflicts: dict[int, str], what: str) -> None:
+                     conflicts: dict[int, str], what: str, value_bytes: dict[bytes, int] | None = None) -> None:
     """A per-villager file of the Head Looks' store (native/vvfp_head_look/head_look_store.inc: u32 magic, game,
     count; u32 roster[count], u32 id[count], u8 value[count]; or its first layout 'VHL1': the roster and the
     values): every identity renamed carried in the roster and the ids, every other byte as it was.  A file that is
-    not exactly its own format of this game is left as it is."""
+    not exactly its own format of this game is left as it is.  `value_bytes`: the bytes a villager's value takes
+    under each magic that keeps more than one (the skin tones' second byte)."""
     if not path.is_file() or not mapping:
         return
     original = path.read_bytes()
@@ -1722,7 +1727,7 @@ def _plan_look_store(result: Plan, path: Path, magics: tuple[bytes, ...], game: 
         return
     count = struct.unpack_from("<I", original, 8)[0]
     ids = 1 if original[:4] == b"VHL1" else 2              # the first layout keeps the roster alone
-    if count not in (150, 256) or len(original) != 12 + count * (4 * ids + 1):
+    if count not in (150, 256) or len(original) != 12 + count * (4 * ids + (value_bytes or {}).get(original[:4], 1)):
         result.notes.append(f"{path.name} is damaged (its length does not match its count); left as it is.")
         return
     used = {struct.unpack_from("<I", original, 12 + 4 * k)[0] for k in range(ids * count)}
