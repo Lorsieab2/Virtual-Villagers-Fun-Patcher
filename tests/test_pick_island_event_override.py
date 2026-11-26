@@ -328,6 +328,22 @@ class CastTests(unittest.TestCase):
         d = Delivery("vv5", 14, who=("girl",))                      # The Daredevil Jump: a female and a male
         self.assertFalse(d.deliver())
 
+    def test_overlapping_parts_find_the_pair_that_exists(self):
+        # Codex P2: The Medical Emergency casts "any" then "man".  With the only man first in the records, the first
+        # part must not take him: the woman takes it and the man the second part -- picker and delivery both.
+        if not have_stock("vv3"):
+            self.skipTest("needs The Secret City")
+        for _ in range(8):                                          # the first part's pick is random
+            d = Delivery("vv3", 36, who=("man", "woman"))
+            why = d.g.proc.alloc(400)
+            self.assertEqual(d.g.proc.export("VvfpStoryProbeOverridePossible", 3, _position("vv3", 36), why), 1,
+                             d.g.proc.cstring(why))
+            self.assertTrue(d.deliver())
+            self.assertEqual((d.people[d.field(4)], d.people[d.field(0xC)]), ("woman", "man"))
+        # one villager only: still refused, with the two-villagers words
+        d = Delivery("vv3", 36, who=("man",))
+        self.assertFalse(d.deliver())
+
     def test_trick_or_trade_never_takes_the_food_below_zero(self):
         if not have_stock("vv5"):
             self.skipTest("needs New Believers")

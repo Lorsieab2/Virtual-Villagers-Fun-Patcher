@@ -164,6 +164,41 @@ static unsigned char *ov_find_villager(int game, int kind, const unsigned char *
     return NULL;
 }
 
+/* A villager for the first part (`kind4`) that still leaves a different villager for the second (`kind_c`), so
+   two parts whose kinds overlap (e.g. "any" then "man" with one man) never refuse a pair that exists.  The random
+   pick (`choose` 1) is tried first; when it takes the only villager the second part could have, every villager of
+   the first part's kind (in its fallback order) is tried in turn.  NULL: no such pair. */
+static unsigned char *ov_find_first_of_pair(int game, int kind4, int kind_c, int choose) {
+    const ce_adapter *a = ce_adapter_for(game);
+    unsigned char *first = ov_find_villager(game, kind4, NULL, NULL, choose);
+    int k;
+    if (first == NULL || kind_c == 0 || ov_find_villager(game, kind_c, first, NULL, 0) != NULL) {
+        return first;
+    }
+    if (a == NULL) {
+        return NULL;
+    }
+    for (k = 0; k < 3 && OV_FALLBACK[kind4][k] != 0; ++k) {
+        int want = OV_FALLBACK[kind4][k];
+        int found_kind = 0;
+        int i;
+        for (i = 0; i < a->record_count; ++i) {
+            unsigned char *r = a->record(i);
+            if (!ov_matches(game, a, r, want)) {
+                continue;
+            }
+            found_kind = 1;
+            if (ov_find_villager(game, kind_c, r, NULL, 0) != NULL) {
+                return r;
+            }
+        }
+        if (found_kind) {
+            break;                      /* ov_find_villager casts only from the first kind the village has */
+        }
+    }
+    return NULL;
+}
+
 /* What the village has none of, in the player's words. */
 static const char *ov_kind_words(int kind) {
     switch (kind) {
@@ -204,10 +239,13 @@ static const char *ov_refusal(int game, const ov_event *e, char *why, int cap) {
         return why;
     }
     if (e->cast4 != 0) {
-        first = ov_find_villager(game, e->cast4, NULL, NULL, 0);
-        if (first == NULL) {
+        if (ov_find_villager(game, e->cast4, NULL, NULL, 0) == NULL) {
             lstrcpynA(why, ov_kind_words(e->cast4), cap);
             return why;
+        }
+        first = ov_find_first_of_pair(game, e->cast4, e->cast_c, 0);
+        if (first == NULL) {
+            first = ov_find_villager(game, e->cast4, NULL, NULL, 0);   /* no pair: the second part says why */
         }
     }
     if (e->cast_c != 0 && ov_find_villager(game, e->cast_c, first, NULL, 0) == NULL) {
@@ -308,7 +346,8 @@ static int ov_cast(int game, int slot, void *object) {
     first = *(unsigned char **)(o + 4);
     second = *(unsigned char **)(o + 0xC);
     if (e->cast4 && first == NULL) {
-        first = ov_find_villager(game, e->cast4, e->cast_c ? second : NULL, NULL, 1);
+        first = e->cast_c && second == NULL ? ov_find_first_of_pair(game, e->cast4, e->cast_c, 1)
+                                            : ov_find_villager(game, e->cast4, e->cast_c ? second : NULL, NULL, 1);
     }
     if (e->cast_c && (second == NULL || second == first)) {
         second = ov_find_villager(game, e->cast_c, first, NULL, 1);
