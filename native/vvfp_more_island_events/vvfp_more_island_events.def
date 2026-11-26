@@ -27,6 +27,7 @@ EXPORTS
     VvfpMoreIslandEventsPickCount=_VvfpMoreIslandEventsPickCount@0
     VvfpMoreIslandEventsPickInfo=_VvfpMoreIslandEventsPickInfo@20
     VvfpMoreIslandEventsPickSingle=_VvfpMoreIslandEventsPickSingle@4
+    VvfpMoreIslandEventsPickInfoOverride=_VvfpMoreIslandEventsPickInfoOverride@20
     VvfpDolphinsPossible=_VvfpDolphinsPossible@0
     VvfpDolphinsState=_VvfpDolphinsState@4
     VvfpDolphinsPage=_VvfpDolphinsPage@8

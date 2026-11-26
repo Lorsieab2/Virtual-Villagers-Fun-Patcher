@@ -232,6 +232,15 @@ class TheStorySide(unittest.TestCase):
             pr.write(pr.arg(3), b"two villagers\0")
             return possible[k], 20
         p.stub(stubs["Info"], info)
+        # Pick Island Event's override (More Island Events' .def @20): every entry possible with it.
+        stubs["InfoOverride"] = p.alloc(16)
+        self.override_asked = []
+
+        def info_override(pr):
+            self.override_asked.append(pr.arg(0))
+            value, pop = info(pr)
+            return (1 if value != 0xFFFFFFFF else value), pop
+        p.stub(stubs["InfoOverride"], info_override)
         prior_module = p.api_handlers.get("GetModuleHandleA")
         prior_proc = p.api_handlers.get("GetProcAddress")
 
@@ -245,7 +254,8 @@ class TheStorySide(unittest.TestCase):
             if pr.arg(0) == FAKE_MORE:
                 name = pr.cstring(pr.arg(1))
                 return {"VvfpMoreIslandEventsInstalled": stubs["Installed"], "VvfpMoreIslandEventsPickCount":
-                        stubs["Count"], "VvfpMoreIslandEventsPickInfo": stubs["Info"]}.get(name, 0), 8
+                        stubs["Count"], "VvfpMoreIslandEventsPickInfo": stubs["Info"],
+                        "VvfpMoreIslandEventsPickInfoOverride": stubs["InfoOverride"]}.get(name, 0), 8
             return prior_proc(pr) if prior_proc else (0, 8)
         p.api_handlers["GetModuleHandleA"] = module
         p.api_handlers["GetProcAddress"] = proc
@@ -290,6 +300,30 @@ class TheStorySide(unittest.TestCase):
         p.export("VvfpStoryProbeMoreArm", 3, 0, 0)
         p.export("VvfpStoryProbeSetTick", 10 * 60 * 1000 + 1)
         self.assertEqual(p.export("VvfpStoryMoreEventDue", 3), 0xFFFFFFFF)
+
+    def test_the_override_reaches_more_island_events(self) -> None:
+        """Pick Island Event's override (v1.35.101): ticked, the list asks More Island Events' relaxed check and an
+        entry it allows is possible; a pick bought with it says so while it is due (VvfpStoryMoreEventOverride, which
+        More Island Events latches); bought without it, or once done, it says 0."""
+        for game in aa.GAMES:
+            with self.subTest(game=game):
+                p = self.process(game)
+                self.assertEqual(self.listed(p, game), [(0, 1), (1, 0)])
+                self.assertEqual(self.override_asked, [], "the relaxed check only with the box ticked")
+                p.export("VvfpStoryProbeMoreOverride", 1)
+                self.assertEqual(self.listed(p, game), [(0, 1), (1, 1)])
+                self.assertIn(1, self.override_asked)
+                p.export("VvfpStoryProbeMoreArm", game, 1, 0)
+                self.assertEqual(p.export("VvfpStoryMoreEventDue", game), 1)
+                self.assertEqual(p.export("VvfpStoryMoreEventOverride", game), 1)
+                other = 1 if game != 1 else 2
+                self.assertEqual(p.export("VvfpStoryMoreEventOverride", other), 0)
+                p.export("VvfpStoryMoreEventDone", game, 1)
+                self.assertEqual(p.export("VvfpStoryMoreEventOverride", game), 0)
+                p.export("VvfpStoryProbeMoreOverride", 0)
+                p.export("VvfpStoryProbeMoreArm", game, 0, 0)
+                self.assertEqual(p.export("VvfpStoryMoreEventDue", game), 0)
+                self.assertEqual(p.export("VvfpStoryMoreEventOverride", game), 0, "bought without the override")
 
     def test_a_stock_pick_is_never_a_more_pick(self) -> None:
         p = self.process(3)
