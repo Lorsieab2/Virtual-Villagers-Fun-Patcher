@@ -7,3 +7,5 @@ EXPORTS
     VvfpHeathenAgingEventGone=_VvfpHeathenAgingEventGone@16
     VvfpHeathenAgingEventPregnancy=_VvfpHeathenAgingEventPregnancy@20
     VvfpHeathenAgingAges=_VvfpHeathenAgingAges@4
+    VvfpHeathenAgingCoupleOf=_VvfpHeathenAgingCoupleOf@4
+    VvfpHeathenAgingEvolution=_VvfpHeathenAgingEvolution@0

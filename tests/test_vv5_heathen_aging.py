@@ -63,8 +63,12 @@ OLD = 1100
 
 
 class Village(Machine):
+    # The villager table (the 256 build's in tests/test_vv5_heathen_evolution.py).
+    manager, slots = MANAGER, 150
+
     def __init__(self, flags: tuple[str, ...], *, statistics_form: bool = False, cod: bool = True):
         exe = bytearray(stock_path(5).read_bytes())
+        self.edit_exe(exe)
         super().__init__(bytes(exe), DLL, present=flags)
         if statistics_form:
             # The Village Statistics rows' Oldest Villager guard (`jne` 0C -> 38 at 0x47007F), in this emulated
@@ -119,8 +123,15 @@ class Village(Machine):
         self.put32(MEDICINE, 1)
         for puzzle in range(32):                         # every puzzle unsolved unless a test solves it
             self.put32(PUZZLE_NEEDED + 4 * puzzle, 1)
+        self.before_start()
         self.installed = self.export("VvfpStartup", 5, 0)
         self.installed = self.export("VvfpHeathenAgingInstalled")
+
+    def edit_exe(self, exe: bytearray) -> None:
+        """The executable as this test runs it (a subclass may change it before it is mapped)."""
+
+    def before_start(self) -> None:
+        """Anything a subclass sets up before the companion starts."""
 
     def _documents(self, p):
         p.write(p.arg(1), b"C:\\Docs\0")
@@ -225,7 +236,7 @@ class Village(Machine):
 
     def _create(self, p):
         args = [struct.unpack("<i", p.read(p.reg("esp") + 4 + 4 * i, 4))[0] for i in range(9)]
-        for index in range(150):
+        for index in range(self.slots):
             if p.read(self.record(index) + PRESENT, 1) == b"\0":
                 break
         else:
@@ -266,7 +277,7 @@ class Village(Machine):
 
     # ---- records ------------------------------------------------------------------------------------------
     def record(self, index: int) -> int:
-        return RECORDS + index * STRIDE
+        return self.manager + 0x48 + index * STRIDE
 
     def villager(self, index: int, *, heathen: bool, age: int = 600, role: int = 0, sex: int = 0,
                  parents: bool = False, orange: int = 0, red: int = 0, name: str | None = None) -> int:
@@ -305,7 +316,7 @@ class Village(Machine):
         self.run(CREDIT_SITE, CREDIT_END)
 
     def life_tick(self) -> None:
-        self.call(LIFE_TICK, ecx=MANAGER)
+        self.call(LIFE_TICK, ecx=self.manager)
 
     def turn_heathen(self, record: int) -> None:
         self.call(TO_HEATHEN, ecx=record)
@@ -513,7 +524,7 @@ class Tribe(unittest.TestCase):
 
     def test_each_puzzle_heathen_is_replaced_in_the_same_role_while_the_puzzle_is_unsolved(self):
         stock = {12: (2, 70, -1, 400, -14), 14: (3, 90, -1, 540, -74), 15: (4, 90, -1, 540, -74),
-                 16: (0, 90, 0, 540, -74), 13: (2, 90, 0, 1000, -94), 17: (1, 70, -1, 400, -25)}
+                 16: (0, 90, -1, 540, -74), 13: (2, 90, -1, 1000, -94), 17: (1, 70, -1, 400, -25)}
         puzzles = {12: 1, 16: 5, 15: 9, 14: 13, 13: 16, 17: 17}
         for role, (skill, value, sex, age, faith) in stock.items():
             with self.subTest(role=role):
@@ -528,10 +539,30 @@ class Tribe(unittest.TestCase):
                 if role == 17:
                     carrier, cargs = v.conceived[0]
                     self.assertEqual(carrier, new, "the Heathen Mommy comes with her infant")
-                    self.assertEqual(v.cstring(cargs[3]), "Kalo", "its father an adult Heathen man")
+                    self.assertEqual(v.cstring(cargs[3]), "Kalo", "its other parent a named adult Heathen")
                     self.assertEqual(cargs[6], 1, "forced, as the stock set-up")
                     self.assertNotEqual(v.i32(new, PREGNANT), 0)
                     self.assertEqual(v.u32(TWINS), 0, "no statistics")
+
+    def test_the_new_mommys_other_parent_is_named_of_either_sex_her_family_first(self):
+        """The owner, 2026-11-25: "instead of unknown the parents should have names"; villagers are villagers
+        regardless of gender.  A living adult Heathen of either sex, never the Mommy, her own family first."""
+        cases = (
+            ((("Vaihi", 1, 400),), "Vaihi"),                                   # only a woman: she is named
+            ((("Tiny Mashudu", 1, 100), ("Kalo Peponi", 0, 400)), "Kalo Peponi"),   # never a child
+        )
+        for camp, expected in cases:
+            with self.subTest(expected=expected):
+                v = Village((TRIBE,))
+                v.unsolve(17)
+                for k, (name, sex, age) in enumerate(camp):
+                    v.villager(3 + k, heathen=True, sex=sex, name=name, age=age)
+                r = v.villager(2, heathen=True, role=17, sex=0, name="Ahi Mashudu")
+                _due_to_die(v, r)
+                v.life_tick()
+                carrier, cargs = v.conceived[0]
+                self.assertEqual(carrier, v.record(v.created[0][0]))
+                self.assertEqual(v.cstring(cargs[3]), expected)
 
     def test_a_solved_puzzles_role_is_never_made_again(self):
         v, r, _ = self._puzzle_dies(13, 16, solved=True)
@@ -571,6 +602,19 @@ class Tribe(unittest.TestCase):
 
 @unittest.skipIf(_skip(), _skip() or "")
 class Babies(unittest.TestCase):
+    def test_the_whole_tribe_shares_one_baby_in_240_units(self):
+        # The owner, 2026-11-25: "1 baby every 24 hours across the entire tribe" -- with three women who could
+        # conceive, each rolls 1 in 720, so the tribe still has about one baby in 240 units (24 h on Normal).
+        v = Village((TRIBE,))
+        v.villager(1, heathen=True, sex=0, name="Kalo")
+        for i in (2, 3, 4):
+            woman = v.villager(i, heathen=True, sex=1, name=f"Mele{i}")
+            v.put32(woman + AGE, 601)
+        v.rand_answers.extend([1, 1, 1])               # nobody conceives this unit
+        v.life_tick()
+        self.assertEqual(v.rand_calls[:3], [720, 720, 720])
+        self.assertEqual(v.conceived, [])
+
     def test_a_heathen_couple_has_a_heathen_baby_with_both_parents_recorded(self):
         v = Village((TRIBE,))
         man = v.villager(1, heathen=True, sex=0, name="Kalo")
@@ -578,9 +622,9 @@ class Babies(unittest.TestCase):
         v.put32(man + HEAD, 10)
         v.put32(woman + HEAD, 20)
         v.put32(woman + AGE, 601)
-        v.rand_answers.extend([0, 0])                  # conceive (1 in 400), pick the man
+        v.rand_answers.extend([0, 0])                  # conceive (1 in 240 x 1 woman), pick the man
         v.life_tick()
-        self.assertEqual(v.rand_calls[0], 400, "the owner (2026-11-23): 1 age unit in 400")
+        self.assertEqual(v.rand_calls[0], 240, "the owner (2026-11-25): one baby a tribe in 240 units (24 h)")
         self.assertEqual(len(v.conceived), 1)
         carrier, args = v.conceived[0]
         self.assertEqual((carrier, v.cstring(args[3]), args[6]), (woman, "Kalo", 1))
@@ -1216,7 +1260,8 @@ class TheRows(unittest.TestCase):
             self.skipTest("pefile is not installed")
         pe = pefile.PE(str(DLL))
         names = sorted(e.name.decode() for e in pe.DIRECTORY_ENTRY_EXPORT.symbols if e.name)
-        self.assertEqual(names, ["VvfpHeathenAgingAges", "VvfpHeathenAgingEventGone", "VvfpHeathenAgingEventPregnancy",
+        self.assertEqual(names, ["VvfpHeathenAgingAges", "VvfpHeathenAgingCoupleOf", "VvfpHeathenAgingEventGone",
+                                 "VvfpHeathenAgingEventPregnancy", "VvfpHeathenAgingEvolution",
                                  "VvfpHeathenAgingGrave", "VvfpHeathenAgingInstalled", "VvfpHeathenAgingVillageReset",
                                  "VvfpStartup"])
         for _, (name, flag, _) in ROWS.items():

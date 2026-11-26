@@ -1522,6 +1522,11 @@ def plan_renames(folder: Path, game: int, slot: int, renames: dict[tuple, str],
         # mothers by the same identity; version 2, the count at +12, 8-byte entries after a 20-byte header.
         _plan_u32_file(result, _data_file(folder, "Heathen Aging", f"Heathen Aging - Save {slot}.dat"),
                        b"VHA1", {2: 8}, game, 20, 0, title_map, "Heathen Aging", title_conflicts)
+        # ...and its Heathen Couples file (native/shared/heathen_evo.h section 5): the woman's and the man's
+        # identities at +0 and +4 of each 16-byte entry after a 20-byte header; version 1.
+        _plan_u32_file(result, _data_file(folder, "Heathen Couples", f"Heathen Couples - Save {slot}.dat"),
+                       b"VHC1", {1: 16}, game, 20, 0, title_map, "Heathen Couples", title_conflicts,
+                       more_fields=(4,))
     _plan_look_store(result, _data_file(folder, "Head Looks", f"Head Looks - Save {slot}.dat"), (b"VHL2", b"VHL1"),
                      game, worn_map, worn_conflicts, "the head looks")
     _plan_look_store(result, _data_file(folder, "Gender Presentation", f"Gender Presentation - Save {slot}.dat"),
@@ -1765,10 +1770,10 @@ def _split_titles_resolver(game: int, save: bytes, split: dict[int, list[tuple]]
 
 def _plan_u32_file(result: Plan, path: Path, magic: bytes, versions: dict[int, int], game: int, header: int,
                    field_at: int, mapping: dict[int, int], what: str,
-                   conflicts: dict[int, str], resolve=None) -> None:
-    """A file of `count` fixed entries whose u32 at `field_at` is an identity; `versions` gives each
-    version's entry size.  A file that is not exactly its own format of this game (magic, a known
-    version, the game at offset 8, header + count * entry bytes) is left as it is: games sharing a
+                   conflicts: dict[int, str], resolve=None, more_fields: tuple[int, ...] = ()) -> None:
+    """A file of `count` fixed entries whose u32 at `field_at` (and at each of `more_fields`) is an identity;
+    `versions` gives each version's entry size.  A file that is not exactly its own format of this game (magic, a
+    known version, the game at offset 8, header + count * entry bytes) is left as it is: games sharing a
     folder share these files' names (Codex, #553)."""
     if not path.is_file():
         return
@@ -1785,6 +1790,8 @@ def _plan_u32_file(result: Plan, path: Path, magic: bytes, versions: dict[int, i
         return
     buf = bytearray(original)
     changed = _replace_u32s(buf, header + field_at, count, entry, mapping, conflicts)
+    for more in more_fields:
+        changed += _replace_u32s(buf, header + more, count, entry, mapping, conflicts)
     for k in range(count if resolve is not None else 0):
         # Entries of an identity several villagers share, each tied to one of them.
         at = header + field_at + k * entry

@@ -159,6 +159,32 @@ static const tf_fix TF_FIXES[] = {
       "r {his/her} honest business practices. Also, one of the heathens produces a piece that was missing f"
       "rom the scrolls that was apparently stuck to his foot! Good thing they mentioned it! \n"
       "Your tribe gains 3000 tech points." },
+    /* sm/eSayAlreadyPregnant: the owner, 2026-11-26 (neutral words): later Heathen Mommies and Chiefs may be of either sex (Heathen Tribe Expansion), so the game's fixed "she" reads neutrally */
+    { 5, "eSayAlreadyPregnant", 0u,
+      "She's nursing a baby!",
+      "They're nursing a baby!" },
+    /* sm/eSayTakingCareOfBaby: the owner, 2026-11-26 (neutral words): later Heathen Mommies and Chiefs may be of either sex (Heathen Tribe Expansion), so the game's fixed "her" reads neutrally */
+    { 5, "eSayTakingCareOfBaby", 0u,
+      "Taking care of her baby",
+      "Taking care of their baby" },
+    /* sm/eSayHidingChild: the owner, 2026-11-26 (neutral words): later Heathen Mommies and Chiefs may be of either sex (Heathen Tribe Expansion), so the game's fixed "her" reads neutrally */
+    { 5, "eSayHidingChild", 0u,
+      "Hiding her child from invaders",
+      "Hiding their child from invaders" },
+    /* sm/eTTipStandAloneFirstPreg: the owner, 2026-11-26 (neutral words): later Heathen Mommies and Chiefs may be of either sex (Heathen Tribe Expansion), so the game's fixed "her" reads neutrally */
+    { 5, "eTTipStandAloneFirstPreg", 0u,
+      "Congratulations! The stork brought \n"
+      "a baby. Be careful! A mother \n"
+      "cares for her child until age two and \n"
+      "won't do much else.\n",
+      "Congratulations! The stork brought \n"
+      "a baby. Be careful! A parent \n"
+      "cares for their child until age two and \n"
+      "won't do much else.\n" },
+    /* sm/eSayChiefMumbles: the owner, 2026-11-26 (neutral words): later Heathen Mommies and Chiefs may be of either sex (Heathen Tribe Expansion), so the game's fixed "his" reads neutrally */
+    { 5, "eSayChiefMumbles", 0u,
+      "The heathen mumbles something about his daughter",
+      "The heathen mumbles something about their daughter" },
 };
 /* every fixed text with its terminator: the size of the companion's own writable copies */
-#define TF_POOL_SIZE 3471u
+#define TF_POOL_SIZE 3733u
