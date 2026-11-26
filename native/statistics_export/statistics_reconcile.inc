@@ -359,7 +359,10 @@ static void rc_visit_deaths(char *text, void *context) {
             record = rc_hash_line(record, line);
         }
         if (open && strncmp(line, "  Grave: ", 9) == 0) {
-            grave = strncmp(line + 9, "no grave", 8) != 0 && line[9] != '\0';
+            /* New Believers: a Heathen's grave at the mud hut ("VVFP Heathen Mausoleum.dll") is never one of
+               the memorial's and never counts (heathen_mausoleum.h HM_GRAVE_PREFIX). */
+            grave = strncmp(line + 9, "no grave", 8) != 0 && line[9] != '\0'
+                && strncmp(line + 9, "the mud hut memorial", 20) != 0;
         }
         if (open && rc_heathen_faction_line(line)) {
             heathen = 1;
@@ -373,8 +376,11 @@ static void rc_visit_deaths(char *text, void *context) {
 /* New Believers: a Heathen skeleton row of "VVFP Heathen Aging.dll" is shipped (its flag file in the patcher's
    folder): the memorial may hold Heathens' graves, which a grave cannot tell apart (it keeps no faction). */
 static int rc_heathen_graves_possible(int game) {
+    /* (The Heathen Tribe Expansion row folds All Heathens Leave Skeletons; with "VVFP Heathen Mausoleum.dll"
+       a new Heathen grave goes to the mud hut, but the ones buried before stay in the memorial: decision 12.) */
     return game == GAME_VV5 && (vvfp_patcher_file_exists("VVFP Heathen Skeletons All.txt")
-                                || vvfp_patcher_file_exists("VVFP Heathen Skeletons Former.txt"));
+                                || vvfp_patcher_file_exists("VVFP Heathen Skeletons Former.txt")
+                                || vvfp_patcher_file_exists("VVFP Heathen Tribe Evolution.txt"));
 }
 
 /* The Births and Conceptions log: this village's "Conception <n>" records

@@ -47,7 +47,17 @@
 #ifndef VV_HEATHEN_MAUSOLEUM_H
 #define VV_HEATHEN_MAUSOLEUM_H
 
-#include "heathen_evo.h"
+#include <windows.h>
+
+/* (The same names as heathen_evo.h, so a reader -- the Cause of Death, the statistics -- need not take that whole
+   header.) */
+#ifndef HE_MAUSOLEUM_DLL
+#define HE_MAUSOLEUM_DLL "VVFP Heathen Mausoleum.dll"
+#define HE_MAUSOLEUM_GRAVE_EXPORT "VvfpHeathenMausoleumIsHeathenGrave"
+#define HE_MAUSOLEUM_RESET_EXPORT "VvfpHeathenMausoleumVillageReset"
+typedef int (__stdcall *he_is_heathen_grave_fn)(int entry);
+typedef void (__stdcall *he_village_reset_fn)(int game, int slot);
+#endif
 
 #define HM_TABLE_BYTES 0xBB84u
 #define HM_BURIERS 0xB3B0u

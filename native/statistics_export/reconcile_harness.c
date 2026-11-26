@@ -359,7 +359,11 @@ static void write_files(int buried, int twins, int chiefs) {
             "Death 8\r\n  Name: Ika\r\n  Faction: Isolan\r\n  Age at death: 1210\r\n  Cause of death: Old age\r\n"
             "  Grave: Untrained\r\n\r\n"
             "Death 9\r\n  Name: Pua\r\n  Faction: Believer\r\n  Age at death: 1000\r\n  Cause of death: Old age\r\n"
-            "  Grave: no grave (never buried: the game removed the body)\r\n\r\n");
+            "  Grave: no grave (never buried: the game removed the body)\r\n\r\n"
+            /* A Heathen buried at the mud hut ("VVFP Heathen Mausoleum.dll"): never counted, even with no
+               Faction line -- the grave is not the memorial's. */
+            "Death 10\r\n  Name: Hutu\r\n  Age at death: 1220\r\n  Cause of death: Old age\r\n"
+            "  Grave: the mud hut memorial (Untrained)\r\n\r\n");
     }
     /* In the odd games the logs are where an older build kept them, "Deaths": the reconcile reads them
        there and never moves them (native/shared/save_layout.h). */
