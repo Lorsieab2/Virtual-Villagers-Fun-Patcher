@@ -58,7 +58,9 @@ DESCRIPTION = (
     "copies it and Start Over clears it. Custom Island Events can set or clear it too (the \"presentation\" change). "
     "**Only villagers born female carry:** one born female who changed to male goes on carrying; one born male never "
     "conceives on their own, even after changing to female (Change sex says so), but a Custom Island Event can still "
-    "give them a baby with a partner you choose. "
+    "give them a baby with a partner you choose. In New Believers the Heathen Mommy is the exception: whatever sex the "
+    "game gives her, she always has her baby and holds it, and a Heathen Mommy who was left without it is given it "
+    "at her next change of action. "
     "**On in Owner's Defaults; off in the normal defaults and in Select All.** Change Appearance is in the Origins "
     "upgrades: " + ORIGINS_BASE_SENTENCE + " **Works the same with every other patch and in every population mode.** "
     "**Not yet seen in a running game** (checked by emulation of each game's own draw code). The companion is \""
@@ -107,7 +109,17 @@ def row(game: int, dll_sha: str) -> dict:
             "the conception does not happen, exactly as when the village has no room (a call from outside the "
             "executable -- the Custom Island Event's pregnancy with a partner the player chooses -- is never "
             "refused). Island events and puzzles that write a pregnancy themselves are not covered.",
-        ],
+        ] + ([
+            "New Believers' Heathen Mommy (a Heathen, role +0x1CFC 17) is never refused: the Heathen Mommy Puzzle "
+            "Restoration's new-village cave (0x494620) makes her with a random sex and then her infant through the "
+            "forced conception 0x465E00, so a Mommy born male has the infant and holds it as one born female does "
+            "(the carried-item draw 0x4724C3 / 0x4701C0 reads no sex). The activity stop's expecting test 0x47354C is "
+            "spliced too: a living Heathen Mommy with no infant (+0x1C4C 0 -- made while the guard refused a male "
+            "Mommy's, or made the Mommy by a Custom Island Event) is given it there by the cave's own call (lineage 1, "
+            "skill 1, value 50, \"Unknown\", head 2, body 2, forced; one infant, the twins and triplets counters put "
+            "back), so the stop hands her the baby (0x47356B, SetCarrying 0x466420 with 3) as it does every expecting "
+            "Heathen.",
+        ] if game == 5 else []),
         "explicit_non_changes": [
             "No executable byte is patched: the companion splices the reads at run time, only after verifying every "
             "one holds its stock bytes; all are written or none (a different build installs none, and then the "
@@ -131,7 +143,11 @@ def row(game: int, dll_sha: str) -> dict:
         ] + [
             {"va": f"0x{CONCEPTION[game][0]:06X}", "stock_bytes": CONCEPTION[game][1], "routine": CONCEPTION[game][2],
              "installed_by": f"{DLL_NAME}, VvfpStartup (started by VVFP Startup.dll, second word)"}
-        ],
+        ] + ([
+            {"va": "0x47354C", "stock_bytes": "399A4C1C0000",
+             "routine": "the activity stop 0x473440's expecting test (the Heathen Mommy's infant)",
+             "installed_by": f"{DLL_NAME}, VvfpStartup (started by VVFP Startup.dll, second word)"}
+        ] if game == 5 else []),
     }
 
 

@@ -490,6 +490,148 @@ class ConceptionNewBelievers(_Conception, unittest.TestCase):
     GAME = 5
 
 
+MOMMY_CAVE_RETURN = 0x494662     # the Heathen Mommy restoration cave's call of 0x465E00 returns here
+STOP_TEST, STOP_NOT_EXPECTING, STOP_HEATHEN_CARRY = 0x47354C, 0x47355D, 0x473572
+CARRY, PREGNANT, LITTER, FACTION, ROLE, HEALTH = 0x1D0C, 0x1C4C, 0x1C50, 0x1CEC, 0x1CFC, 0x1C40
+
+
+@_skip(5)
+class NewBelieversHeathenMommy(unittest.TestCase):
+    """The owner, 2026-11-25: a male Heathen Mommy ("Esteemed Isolan Parent" with Guardians of Isola) drawn with no
+    baby.  The Heathen creator gives the Mommy a random sex; the restoration cave 0x494620 then calls the forced
+    conception 0x465E00 from inside the executable, which the guard refused for a Mommy born male, so he had no
+    infant (+0x1C4C 0) and the activity stop handed him nothing (0x473556: SetCarrying -1).  Now the Mommy is never
+    refused, and one left without the infant is given it at her next stop, male or female."""
+
+    def game(self, exe: bytes | None = None, **kw) -> Game:
+        return Game(5, exe if exe is not None else stock_exe(5), **kw)
+
+    def mommy(self, g: Game, i: int, *, female: bool, role: int = 17, faction: int = 1) -> int:
+        r = g.villager(i, "Ahi Mashudu" if not female else "Ana Mashudu", female=female, age=400)
+        g.p.write(r + FACTION, bytes([faction]))
+        g.p.put32(r + ROLE, role)
+        g.p.put32(r + HEALTH, 90)
+        g.p.put32(r + 0x1C3C, 400)                       # the processed age
+        g.p.write(r + 0x1C60, struct.pack("<f", 70.0))   # Parenting, as the cave's creator gives her
+        g.p.put32(r + 0x1C04, 0xFFFFFFFF)
+        g.p.put32(r + CARRY, 0xFFFFFFFF)                  # after a load: nothing carried (0x46525E)
+        return r
+
+    def stop(self, g: Game, r: int, until: int) -> None:
+        """The activity stop from its expecting test, with the stopped record in edx (and ecx), ebx 0."""
+        g.run(STOP_TEST, regs={"edx": r, "ecx": r, "ebx": 0, "esi": 0x1234, "edi": 0x5678, "ebp": 0x9ABC},
+              until=until)
+        self.assertEqual(g.p.reg("eip"), until)
+
+    def stock_conception(self, record: bytes) -> bytes:
+        """The stock routine itself on a copy of `record`, called as the cave calls it: the record afterwards."""
+        g = self.game(dll=False)
+        r = g.record(7)
+        g.p.write(r, record)
+        esp = 0x0FF00000 - 0x4000
+        from story_emulator import RETURN
+        g.p.write(esp, struct.pack("<8I", RETURN, 1, 1, 50, 0x4B6AA0, 2, 2, 1))
+        g.p.set_reg("esp", esp)
+        g.p.set_reg("ecx", r)
+        g.p.mu.emu_start(0x465E00, RETURN, count=5_000_000)
+        return g.p.read(r, g.g["stride"])
+
+    def test_the_cave_never_has_a_male_mommy_refused(self):
+        g = self.game()
+        conception = _Conception()
+        conception.GAME = 5
+        conception.assertEqual, conception.assertTrue = self.assertEqual, self.assertTrue
+        male = self.mommy(g, 3, female=False)
+        self.assertEqual(g.p.export("VvfpBornFemale", 5, male), 0)
+        self.assertTrue(conception.conceives(g, male, 3, MOMMY_CAVE_RETURN), "a male Heathen Mommy: never refused")
+        female = self.mommy(g, 4, female=True)
+        self.assertTrue(conception.conceives(g, female, 4, MOMMY_CAVE_RETURN))
+        # Everyone else born male is still refused for the game's own call: an ordinary Heathen, a believer.
+        heathen = self.mommy(g, 5, female=False, role=0)
+        self.assertFalse(conception.conceives(g, heathen, 5, MOMMY_CAVE_RETURN))
+        believer = self.mommy(g, 6, female=False, faction=0)
+        self.assertFalse(conception.conceives(g, believer, 6, GAME_CALLER))
+
+    def test_stock_a_mommy_without_the_infant_holds_nothing(self):
+        g = self.game(dll=False)
+        for i, female in ((1, False), (2, True)):
+            with self.subTest(female=female):
+                r = self.mommy(g, i, female=female)
+                self.stop(g, r, STOP_NOT_EXPECTING)
+                self.assertEqual(g.p.u32(r + CARRY), 0xFFFFFFFF, "SetCarrying -1: no baby")
+
+    def test_stock_carry_and_draw_read_no_sex(self):
+        # An expecting Heathen of either sex is handed the baby by the stock stop ...
+        g = self.game(dll=False)
+        for i, female in ((1, False), (2, True)):
+            with self.subTest(female=female):
+                r = self.mommy(g, i, female=female)
+                g.p.put32(r + PREGNANT, 400)
+                g.p.put32(r + LITTER, 1)
+                self.stop(g, r, STOP_HEATHEN_CARRY)
+                self.assertEqual(g.p.u32(r + CARRY), 3)
+        # ... and the carried-item draw (the village draw's call 0x4724C3..0x472551 and the item draw 0x4701C0)
+        # never reads the sex field.
+        from capstone import CS_ARCH_X86, CS_MODE_32, Cs
+        from capstone import x86
+        img = _image(stock_exe(5))
+        md = Cs(CS_ARCH_X86, CS_MODE_32)
+        md.detail = True
+        for start, end in ((0x4701C0, 0x470267), (0x4724C3, 0x472551), (0x466420, 0x46646E), (0x473440, 0x473583)):
+            for ins in md.disasm(img[start - 0x400000:end - 0x400000], start):
+                self.assertFalse(any(o.type == x86.X86_OP_MEM and o.mem.disp == 0x1B90 for o in ins.operands),
+                                 hex(ins.address))
+
+    def test_a_mommy_left_without_the_infant_is_given_it_at_her_stop(self):
+        for exe_name, exe in [("stock", stock_exe(5))] + [(m, rendered(5, m)) for m in MODES]:
+            g = self.game(exe)
+            self.assertEqual(g.p.read(STOP_TEST, 1), b"\xE9", exe_name)
+            for i, female in ((1, False), (2, True)):
+                with self.subTest(exe=exe_name, female=female):
+                    r = self.mommy(g, i, female=female)
+                    before = g.p.read(r, g.g["stride"])
+                    expected = self.stock_conception(before)
+                    counters = g.p.read(0x51D360, 0x28)
+                    self.stop(g, r, STOP_HEATHEN_CARRY)
+                    self.assertEqual(g.p.u32(r + CARRY), 3, "holds the baby")
+                    self.assertEqual(g.p.u32(r + PREGNANT), 400)
+                    self.assertEqual(g.p.u32(r + LITTER), 1)
+                    self.assertEqual(g.p.read(r + 0x1C10, 8), b"Unknown\0")
+                    after = g.p.read(r, g.g["stride"])
+                    # Every byte but the carried item is the stock routine's for the cave's own call.
+                    self.assertEqual(after[:CARRY] + after[CARRY + 4:], expected[:CARRY] + expected[CARRY + 4:])
+                    self.assertEqual(g.p.read(0x51D360, 0x28), counters, "Heathens never count")
+                    # The next stop changes nothing more.
+                    self.stop(g, r, STOP_HEATHEN_CARRY)
+                    self.assertEqual(g.p.read(r, g.g["stride"]), after)
+
+    def test_nobody_else_is_given_an_infant(self):
+        g = self.game()
+        cases = {"ordinary Heathen": dict(role=0), "believer": dict(faction=0)}
+        for i, (what, kw) in enumerate(cases.items(), start=1):
+            with self.subTest(what):
+                r = self.mommy(g, i, female=True, **kw)
+                before = g.p.read(r, g.g["stride"])
+                self.stop(g, r, STOP_NOT_EXPECTING)
+                self.assertEqual(g.p.read(r, g.g["stride"]), before)
+        r = self.mommy(g, 5, female=False)
+        g.p.put32(r + HEALTH, 0)                          # a body
+        before = g.p.read(r, g.g["stride"])
+        self.stop(g, r, STOP_NOT_EXPECTING)
+        self.assertEqual(g.p.read(r, g.g["stride"]), before)
+
+    def test_the_stop_site_is_all_or_nothing(self):
+        for k in range(6):
+            exe = bytearray(stock_exe(5))
+            pe = pefile.PE(data=bytes(exe))
+            exe[pe.get_offset_from_rva(STOP_TEST + k - 0x400000)] ^= 0xFF
+            g = self.game(bytes(exe))
+            with self.subTest(byte=k):
+                self.assertEqual(g.p.export("VvfpConceptionGuardInstalled", 5), 0)
+                self.assertEqual(g.p.export("VvfpGenderPresentationInstalled", 5), 0)
+                self.assertNotEqual(g.p.read(0x465E00, 1), b"\xE9")
+
+
 @_skip(1)
 class ANewHome(_Draws, unittest.TestCase):
     GAME = 1

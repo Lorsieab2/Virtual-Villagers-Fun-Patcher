@@ -472,18 +472,91 @@ static int gp_from_game(unsigned int return_address) {
     return return_address >= 0x400000u && return_address < g_image_end;
 }
 
+/* New Believers' Heathen Mommy (the owner, 2026-11-25: "the heathen mommy is supposed to hold a baby even if he's
+   male").  The Heathen creator makes her with a random sex (0x46FD20, sex -1: the Heathen Mommy Puzzle
+   Restoration's new-village cave at 0x494620, the stock camp's set-up the Heathen Aging companion repeats), and
+   her infant is the forced conception that follows (0x465E00, last argument 1) -- a role, not a conception the
+   game chose.  It is never refused: a Mommy born male holds the infant exactly as one born female does (the
+   carried-item draw 0x4724C3 / 0x4701C0 reads no sex). */
+#define GP_VV5_FACTION 0x1CECu         /* not 0: a Heathen */
+#define GP_VV5_ROLE 0x1CFCu
+#define GP_VV5_MOMMY 17
+#define GP_VV5_PREGNANT 0x1C4Cu        /* the processed age at conception, 0: none */
+#define GP_VV5_LITTER 0x1C50u
+#define GP_VV5_PROCESSED 0x1C3Cu
+#define GP_VV5_HEALTH 0x1C40u
+
+static int gp_vv5_mommy(const unsigned char *r) {
+    return g_game == 5 && r[GP_VV5_FACTION] != 0 && *(const int *)(r + GP_VV5_ROLE) == GP_VV5_MOMMY;
+}
+
+/* 1 when `carrier` is one of this game's villager records. */
+static int gp_is_record(const unsigned char *carrier) {
+    hl_locate();
+    return carrier != NULL && g_records != 0 && (unsigned int)(UINT_PTR)carrier >= g_records
+        && ((unsigned int)(UINT_PTR)carrier - g_records) % LAYOUT[g_game].stride == 0
+        && ((unsigned int)(UINT_PTR)carrier - g_records) / LAYOUT[g_game].stride < (unsigned int)g_count;
+}
+
 /* 1 when the conception must not happen: a carrier born male, the game's own call. */
 static int gp_conception_refused(const unsigned char *carrier, unsigned int routine_return) {
-    if (!gp_from_game(routine_return) || carrier == NULL) {
-        return 0;
-    }
-    hl_locate();
-    if (g_records == 0 || (unsigned int)(UINT_PTR)carrier < g_records
-        || ((unsigned int)(UINT_PTR)carrier - g_records) % LAYOUT[g_game].stride != 0
-        || ((unsigned int)(UINT_PTR)carrier - g_records) / LAYOUT[g_game].stride >= (unsigned int)g_count) {
+    if (!gp_from_game(routine_return) || !gp_is_record(carrier) || gp_vv5_mommy(carrier)) {
         return 0;
     }
     return !gp_born_female(carrier);
+}
+
+/* A Heathen Mommy left without her infant -- made while this guard refused the restoration's forced conception for
+   a Mommy born male (v1.35.97 to v1.35.101), or made the Mommy by a Custom Island Event status -- is given it at
+   her next activity stop, before the stop's own test 0x47354C (`cmp [edx+0x1C4C], ebx`): the restoration cave's
+   very call (0x465E00 forced: lineage 1, skill 1, value 50, "Unknown" 0x4B6AA0, head 2, body 2), one infant (the
+   twins and triplets counters put back: Heathens never count), so the stop goes on to hand her the baby as it does
+   every Heathen who is expecting (0x47356B: push 3, SetCarrying 0x466420).  Nothing else of hers changes. */
+#define GP_VV5_STOP_TEST 0x47354Cu
+#define GP_VV5_CONCEIVE 0x465E00u
+#define GP_VV5_UNKNOWN 0x4B6AA0u
+#define GP_VV5_TWINS 0x51D380u
+#define GP_VV5_TRIPLETS 0x51D384u
+static const unsigned char GP_VV5_STOP_STOCK[6] = { 0x39, 0x9A, 0x4C, 0x1C, 0x00, 0x00 };
+static const unsigned char GP_VV5_UNKNOWN_TEXT[8] = { 'U', 'n', 'k', 'n', 'o', 'w', 'n', 0 };
+typedef void (__fastcall *gp_conceive_fn)(void *carrier, void *edx, int lineage, int skill, int value,
+                                         const char *father, int head, int body, int forced);
+static unsigned int g_stop_back = GP_VV5_STOP_TEST + 6;
+
+static void __cdecl gp_mommy_infant(unsigned char *r) {
+    __try {
+        int twins, triplets;
+        if (!gp_is_record(r) || !gp_vv5_mommy(r) || !hl_present(r) || *(const int *)(r + GP_VV5_HEALTH) <= 0
+            || *(const int *)(r + GP_VV5_PREGNANT) != 0
+            || memcmp((const void *)(UINT_PTR)GP_VV5_UNKNOWN, GP_VV5_UNKNOWN_TEXT, sizeof GP_VV5_UNKNOWN_TEXT) != 0) {
+            return;
+        }
+        twins = *(volatile int *)(UINT_PTR)GP_VV5_TWINS;
+        triplets = *(volatile int *)(UINT_PTR)GP_VV5_TRIPLETS;
+        ((gp_conceive_fn)(UINT_PTR)GP_VV5_CONCEIVE)(r, NULL, 1, 1, 50, (const char *)(UINT_PTR)GP_VV5_UNKNOWN, 2, 2,
+                                                    1);
+        *(volatile int *)(UINT_PTR)GP_VV5_TWINS = twins;
+        *(volatile int *)(UINT_PTR)GP_VV5_TRIPLETS = triplets;
+        *(int *)(r + GP_VV5_LITTER) = 1;
+        if (*(const int *)(r + GP_VV5_PREGNANT) == 0) {   /* a processed age of 0: still expecting */
+            *(int *)(r + GP_VV5_PREGNANT) = *(const int *)(r + GP_VV5_PROCESSED) > 0
+                ? *(const int *)(r + GP_VV5_PROCESSED) : 1;
+        }
+    } __except (EXCEPTION_EXECUTE_HANDLER) {
+    }
+}
+
+/* In place of `cmp dword [edx+0x1C4C], ebx` (the stopped record in edx): every register kept, the test redone. */
+static __declspec(naked) void gp_stop_stub(void) {
+    __asm {
+        pushad
+        push edx
+        call gp_mommy_infant
+        add esp, 4
+        popad
+        cmp dword ptr [edx + 0x1C4C], ebx
+        jmp dword ptr [g_stop_back]
+    }
 }
 
 /* The room check (VV1-VV3): `frame` [0..7] pushad, [8] the return into the routine, [9] the register the routine
@@ -577,6 +650,11 @@ static int gp_guard_fill(vvfp_site_write *w) {
     } else {
         g_guard_target = c->va + 5;
         vvfp_site_branch(&w[0], c->va, 5, c->stock, 0xE9, (const void *)gp_entry_stub);
+    }
+    if (g_game == 5) {
+        /* the Heathen Mommy's infant at her activity stop (gp_mommy_infant), installed with the guard */
+        vvfp_site_branch(&w[1], GP_VV5_STOP_TEST, 6, GP_VV5_STOP_STOCK, 0xE9, (const void *)gp_stop_stub);
+        return 2;
     }
     return 1;
 }
@@ -685,7 +763,7 @@ static void gp_gc_install(void) {
 /* ---- exports ---------------------------------------------------------------------------------------------- */
 
 void __stdcall VvfpStartup(int game, unsigned int shipped) {
-    vvfp_site_write w[GP_N(GP_STUBS) + 1];
+    vvfp_site_write w[GP_N(GP_STUBS) + 2];
     static const struct { const gp_site *sites; int count; } TABLE[6] = {
         { NULL, 0 }, { VV1_SITES, (int)GP_N(VV1_SITES) }, { VV2_SITES, (int)GP_N(VV2_SITES) },
         { VV3_SITES, (int)GP_N(VV3_SITES) }, { VV4_SITES, (int)GP_N(VV4_SITES) }, { VV5_SITES, (int)GP_N(VV5_SITES) },
