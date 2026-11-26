@@ -40,8 +40,11 @@ checked live.
 2. **For-show roles.** Owner: "for show masters = purple masks (no puzzles)" and "for show chief can be at most an
    esteemed elder. he can still do chief exclusve actions like spreading the word etc". A show Master wears the
    purple mask and a show Chief the Chief's mask, through the Origins mask store that "Heathens Keep Their Masks
-   When Converted" draws (without those two rows: orange / red). The show Chief's title is at most "Esteemed
-   Elder". Spreading the Word for a show Chief is not built: see W-A's report (it needs a new splice).
+   When Converted" draws (without those two rows: orange / red). **Corrected:** while a Heathen, a show Chief's
+   title is the original Chief's own ("Heathen Chief", or the Guardians of Isola Rewrite's), not "Esteemed Elder"
+   (owner: "while still a Heathen, his title is the same as the original chief"). **Chosen: "Real role when he
+   converts"**: a show Chief who joins the tribe gets role 13 and is a real (second) Retired Chief, with the game's
+   "Retired Chief" title and Spreading the Word; any sex.
 3. **Same-sex couples: yes.** Owner: "same sex yes, events may give them babies too". Any two adult Heathens may
    pair (kin rules still apply); a natural conception stays a woman's and a man's; island events may give any
    couple a baby.
@@ -52,3 +55,8 @@ checked live.
 7. Owner: "chief = he or she after the first one" and "later heathens after the first one can be any sex.
    including the mommy". Every later holder of a puzzle or special role (12-17: replacements, successors, the
    regrown camp's, the show roles) is of either sex; the original holders stay as the game makes them.
+8. **Neutral words** (owner's choice): the game's own text that fixes "she/her" for the Heathen Mommy, and the Chief
+   line a later Chief says, read neutrally ("They're nursing a baby!", "Taking care of their baby", "Hiding their
+   child from invaders", "A parent cares for their child until age two", "... about their daughter"), in the stock
+   wording (Fix Vanilla Bugs' text fixes) and the Guardians of Isola wording (the rewrite's own sm.xml). The mid-game
+   story page about the original Chief's own past ("Our chief... he had a daughter") stays as written.

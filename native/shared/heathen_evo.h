@@ -82,8 +82,10 @@
      VvfpStorySetCustomTitle ("VVFP Story Upgrades.dll", NEW -- not built yet; Story Upgrades owns the Custom
        Titles file and is its only writer):
          int __stdcall VvfpStorySetCustomTitle(int game, int index, const char *title);
-       sets the cosmetic Chief's or Master's custom title (decision 6).  Until it exists no title is set (the
-       skills, the mask and the Took the role record still are).
+       sets the for-show Chief's or Master's custom title (decision 6): the original's own title text; `title`
+       NULL takes the custom title off (a show Chief who converts becomes a real Retired Chief and shows the
+       game's own title).  Until it exists no title is set (the skills, the mask and the Took the role record
+       still are).
 
    5. THE DATA FILES (per save slot, beside the saves: Documents\LDW\<exe>\Virtual Villagers Fun Patcher\Save <S>\
       Data\...), each written through native/shared/sidecar_io.h (atomic; an unreadable file is never replaced, an

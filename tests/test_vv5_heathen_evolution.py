@@ -144,7 +144,8 @@ class Evo(Village):
         self.stub(stubs + 0x10, lambda p: (self.couples_logged.append((p.arg(2), p.arg(3))), (1, 16))[1])
         self.stub(stubs + 0x20, lambda p: (self.roles_logged.append((p.arg(1), p.arg(2))), (0, 12))[1])
         self.stub(stubs + 0x30, self._life)
-        self.stub(stubs + 0x40, lambda p: (self.titles.append((p.arg(1), p.cstring(p.arg(2)))), (1, 12))[1])
+        self.stub(stubs + 0x40, lambda p: (self.titles.append((p.arg(1), p.cstring(p.arg(2)) if p.arg(2) else "")),
+                                           (1, 12))[1])
 
     def _conception(self, p):
         mother = p.arg(2)
@@ -732,7 +733,7 @@ class Roles(unittest.TestCase):
 
     def test_for_show_before_the_last_heathen(self):
         for role, puzzle, skills, mask, title in (
-                (13, 16, (100.0,) * 6, (0, 1), "Esteemed Elder"),
+                (13, 16, (100.0,) * 6, (0, 1), "Heathen Chief"),
                 (16, 5, (90.0, 0, 0, 0, 0, 0), (1, 0), "Heathen Master Farmer"),
                 (14, 13, (0, 0, 0, 90.0, 0, 0), (1, 0), "Heathen Master Scientist"),
                 (15, 9, (0, 0, 0, 0, 90.0, 0), (1, 0), "Heathen Master Builder")):
@@ -759,20 +760,33 @@ class Roles(unittest.TestCase):
         v.life_tick()
         self.assertEqual(v.roles_logged, [(3, 13), (4, 13)])
 
-    def test_a_role_for_show_ends_when_its_holder_converts(self):
-        v = Evo(story=True)
-        v.solve(16)
-        holder = self._camp(v, 13)
-        _due_to_die(v, holder)
-        v.life_tick()
-        heir = v.record(3)
-        v.write(heir + FACTION, b"\x00")                  # preached to: a believer
-        v.look(4)
-        v.write(heir + FACTION, b"\x01")                  # and a Heathen again
-        v.look(4)
-        _due_to_die(v, heir)
-        v.life_tick()
-        self.assertEqual(v.roles_logged, [(3, 13)], "no longer the camp's Chief: nothing passes on")
+    def test_a_show_chief_who_converts_is_a_real_retired_chief(self):
+        """The owner, 2026-11-26: "Real role when he converts" -- role 13 on the believer (the game's own "Retired
+        Chief" title and Spreading the Word), the show title taken off; any sex.  A show Master who converts just
+        stops being one."""
+        for role, puzzle, sex in ((13, 16, 1), (13, 16, 0), (15, 9, 1)):
+            with self.subTest(role=role, sex=sex):
+                v = Evo(story=True)
+                v.solve(puzzle)
+                holder = self._camp(v, role)
+                v.put32(v.record(3) + SEX, sex)
+                _due_to_die(v, holder)
+                v.life_tick()
+                heir = v.record(3)
+                v.write(heir + FACTION, b"\x00")              # preached to: a believer
+                v.look(4)
+                if role == 13:
+                    self.assertEqual(v.i32(heir, ROLE), 13, "a real Retired Chief")
+                    self.assertEqual(v.titles[-1], (3, ""), "the show title taken off")
+                else:
+                    self.assertEqual(v.i32(heir, ROLE), 2, "an ordinary believer")
+                    self.assertEqual(len(v.titles), 1)
+                v.write(heir + FACTION, b"\x01")              # a Heathen again: no longer a show holder
+                v.put32(heir + ROLE, 2)
+                v.look(4)
+                _due_to_die(v, heir)
+                v.life_tick()
+                self.assertEqual(v.roles_logged, [(3, role)], "nothing passes on")
 
     def test_the_real_role_after_the_last_heathen(self):
         v = Evo()

@@ -1435,9 +1435,10 @@ static int store_mask(unsigned char *record, int mask) {
    holding no role; the owner: every later holder "can be any sex") takes it -- the real role after The Last
    Heathen (its stock set-up: the Chief all six skills 100, a Master 90 in the role's skill; the role's own mask
    art), else for show (the same skills; a Master the purple mask and the Chief the Chief's mask through the
-   store above, else orange / red; the title through Story Upgrades when it can set one -- a Master's the role's,
-   the Chief's at most "Esteemed Elder", the owner: "for show chief can be at most an esteemed elder"; kept in
-   the file); then its "Took the role" record.  1 when someone took it. */
+   store above, else orange / red; the title through Story Upgrades when it can set one -- the very title the
+   original shows, "Heathen Chief" / "Heathen Master ..." or the Guardians of Isola Rewrite's own (the owner,
+   2026-11-26: "while still a Heathen, his title is the same as the original chief"); kept in the file); then its
+   "Took the role" record.  1 when someone took it. */
 static int pass_role(int role, const unsigned char *dead) {
     static const int SKILL_OF[4] = { -1, 3, 4, 0 };     /* 13 all, 14 Research, 15 Building, 16 Farming */
     unsigned char *heir = NULL;
@@ -1474,7 +1475,7 @@ static int pass_role(int role, const unsigned char *dead) {
         }
         known_put(identity(heir), KIND_ROLE + (unsigned int)(role - 13));
         if (title != NULL) {
-            (void)title(HA_GAME, rec_index(heir), role == 13 ? "Esteemed Elder" : vv5_role_title(role));
+            (void)title(HA_GAME, rec_index(heir), vv5_role_title(role));   /* the original's own title */
         }
     }
     log_role(rec_index(heir), role);
@@ -1511,18 +1512,37 @@ static void regrown_roles(void) {
     }
 }
 
-/* A role for show belongs to a living Heathen: one who converted or is gone no longer holds it. */
+/* A role for show belongs to a living Heathen: one who converted or is gone no longer holds it.  A show Chief who
+   joined the tribe becomes a real Retired Chief (the owner, 2026-11-26: "Real role when he converts"): role 13 on
+   the believer -- the game then titles them "Retired Chief" and gives them the Retired Chief's actions, Spreading
+   the Word among them (the scheduler 0x46F1DD tests the role on each believer) -- and the show title is taken off
+   (Story Upgrades' setter with no title).  Every reader of role 13 on a believer reads that one record (the
+   panel title 0x442ED2, the grave 0x464D69, the scheduler 0x46F1DD, 0x469EA5); the role finder 0x470690 looks at
+   Heathens only, so a second Retired Chief is found by nothing that looks for "the" Chief. */
 static void roles_follow(void) {
     int k;
     for (k = g_known_count; k-- > 0;) {
         if (g_known[k].kind >= KIND_ROLE && g_known[k].kind <= KIND_LAST) {
             unsigned int i, who = g_known[k].identity;
             int heathen = 0;
+            unsigned char *believer = NULL;
             for (i = 0; i < g_slots && !heathen; ++i) {
-                const unsigned char *r = rec_at((int)i);
-                heathen = r[R_FACTION] != 0 && living(r) && identity(r) == who;
+                unsigned char *r = rec_at((int)i);
+                if (living(r) && identity(r) == who) {
+                    heathen = r[R_FACTION] != 0;
+                    believer = heathen ? NULL : r;
+                }
             }
             if (!heathen) {
+                if (believer != NULL && g_known[k].kind == KIND_ROLE) {
+                    HMODULE story = GetModuleHandleA(HE_STORY_DLL);
+                    he_set_title_fn title = story != NULL
+                        ? (he_set_title_fn)(void *)GetProcAddress(story, HE_TITLE_EXPORT) : NULL;
+                    *(int *)(believer + R_ROLE) = 13;
+                    if (title != NULL) {
+                        (void)title(HA_GAME, rec_index(believer), NULL);
+                    }
+                }
                 known_drop(who, g_known[k].kind);
             }
         }
