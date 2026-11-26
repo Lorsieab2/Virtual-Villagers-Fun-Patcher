@@ -145,22 +145,6 @@ typedef struct {
 static rvs_side rvs_kept[RECORDS_MAX];
 static int rvs_cursor;
 
-/* The Secret City's robe (Codex, PR #880): the robing 0x45FBC0 writes body 29 at 0x45FBDE, and VVFP Original
-   Look.dll folds that write into the original it keeps (ol_game_body), so a Chief's kept original is the robe too.
-   The body each villager had while they were not the Chief is kept here, by who they are WITHOUT the body (the
-   robe changes it): a Chief who dies has it as their original body. */
-#define RVS_ROBE 29
-static struct {
-    unsigned int who;                 /* rvs_who_but_body; 0 none */
-    int body;
-} rvs_unrobed[RECORDS_MAX];
-
-static unsigned int rvs_who_but_body(const unsigned char *record) {
-    unsigned int h = cod_name_hash(record);
-    h = (h ^ (unsigned int)*(const int *)(record + REC[g_game].sex)) * 16777619u;
-    h = (h ^ (unsigned int)*(const int *)(record + REC[g_game].head)) * 16777619u;
-    return h != 0 ? h : 1u;
-}
 
 /* Who a record holds, for the kept answers: the name, sex, head and body (never 0). */
 static unsigned int rvs_who(const unsigned char *record) {
@@ -216,10 +200,6 @@ static void revive_tick(void) {
         record = cod_record(index);
         if (record != NULL && rec_present(record) && !rec_lookalike(record)) {
             rvs_keep(index, record);
-            if (g_game == 3 && record[0xE80] == 0 && *(const int *)(record + REC[3].body) != RVS_ROBE) {
-                rvs_unrobed[index].who = rvs_who_but_body(record);   /* not the Chief: their own body */
-                rvs_unrobed[index].body = *(const int *)(record + REC[3].body);
-            }
         }
     }
 }
@@ -257,18 +237,8 @@ static void revive_note(int index, const unsigned char *record) {
     } else if (rec_present(record)) {
         rvs_sidecars(e, index, record);
     }
-    /* The Secret City: a Chief's original body is the one they had before the robe (above). */
-    if (g_game == 3 && index >= 0 && index < RECORDS_MAX && record[0xE80] != 0 && rvs_unrobed[index].who != 0u
-        && rvs_unrobed[index].who == rvs_who_but_body(record)
-        && (!(e->flags & VV_RS_ORIGINAL) || e->original_body == RVS_ROBE || e->original_body < 0)) {
-        e->original_head = *(const int *)(record + REC[3].head);
-        e->original_body = rvs_unrobed[index].body;
-        e->original_mask = (e->flags & VV_RS_ORIGINAL) ? e->original_mask : -1;
-        e->flags |= VV_RS_ORIGINAL;
-    }
     if (index >= 0 && index < RECORDS_MAX) {
         rvs_kept[index].who = 0u;     /* the record is free: whoever takes it next is asked afresh */
-        rvs_unrobed[index].who = 0u;
     }
     vv_rs_seal(e);
     rvs_pending_slot[rvs_pending_count] = install_state == 1 ? cod_slot() : 0;
@@ -364,7 +334,6 @@ static void revive_reset(int slot) {
     }
     rvs_pending_count = 0;
     memset(rvs_kept, 0, sizeof rvs_kept);
-    memset(rvs_unrobed, 0, sizeof rvs_unrobed);
     if (slot == rvs.slot) {
         vv_sidecar_gate_bind(&rvs.gate, -1);
         rvs.slot = 0;

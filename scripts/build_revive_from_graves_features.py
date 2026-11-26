@@ -44,8 +44,8 @@ SPECIAL = {
     "vv2": (" An Esteemed Elder whose complete record was kept comes back an Esteemed Elder (their totem stays the"
             " only one); from the logs only, as an ordinary villager."),
     "vv3": (" A Tribal Chief whose complete record was kept comes back the Tribal Chief while no other Chief lives;"
-            " otherwise as an ordinary villager wearing their own original body, not the robe (the owner,"
-            " 2026-11-26); from the logs only, as an ordinary villager."),
+            " otherwise, or from the logs only, they keep the robe but are not the Chief: only the living Chief has"
+            " the Chief's powers (the owner, 2026-11-26)."),
     "vv4": "",
     "vv5": (" A Heathen whose death or disappearance the logs record (\"Faction: Heathen\") is listed and comes back as a"
             " Heathen in the camp, through the game's own Heathen creator, with their Faith, masks and every other"

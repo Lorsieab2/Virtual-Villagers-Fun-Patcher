@@ -75843,51 +75843,6 @@
    "route": "key"
   },
   {
-   "stem": "vvfp.story/story_revive.rv_chief_body_note.s0",
-   "english": "Another Tribal Chief lives, so they come back as an ordinary villager in their own body from before the robe.\r\n",
-   "games": [
-    "vv1",
-    "vv2",
-    "vv3",
-    "vv4",
-    "vv5"
-   ],
-   "mechanism": "b",
-   "context": "VVFP Story Upgrades.dll",
-   "notes": "a patcher window",
-   "route": "key"
-  },
-  {
-   "stem": "vvfp.story/story_revive.rv_chief_body_note.s1",
-   "english": "Another Tribal Chief lives, so they come back as an ordinary villager in their own body from before the robe, as their children's records keep it.\r\n",
-   "games": [
-    "vv1",
-    "vv2",
-    "vv3",
-    "vv4",
-    "vv5"
-   ],
-   "mechanism": "b",
-   "context": "VVFP Story Upgrades.dll",
-   "notes": "a patcher window",
-   "route": "key"
-  },
-  {
-   "stem": "vvfp.story/story_revive.rv_chief_body_note.s2",
-   "english": "Another Tribal Chief lives, so they come back as an ordinary villager. Their body from before the robe was not kept, so the game picks one as it does for a new villager.\r\n",
-   "games": [
-    "vv1",
-    "vv2",
-    "vv3",
-    "vv4",
-    "vv5"
-   ],
-   "mechanism": "b",
-   "context": "VVFP Story Upgrades.dll",
-   "notes": "a patcher window",
-   "route": "key"
-  },
-  {
    "stem": "vvfp.story/story_revive.rv_missed_note.s0",
    "english": "\r\n\r\nSome of what the patcher keeps for them could not be written now (their head look, gender presentation, story traits, mask or custom title): every other detail is back. Set it again in Change Appearance or the Custom Island Event.",
    "games": [

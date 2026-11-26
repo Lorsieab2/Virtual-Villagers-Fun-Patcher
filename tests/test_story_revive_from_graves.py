@@ -1178,62 +1178,28 @@ class MudHutAndChiefTests(unittest.TestCase):
         self.assertEqual(removed, [1])                    # the companion's own Remove, of their grave alone
         self.assertEqual(r.v.byte(made, 0x1CEC), 1)       # back a Heathen
 
-    def test_a_secret_city_chief_back_while_another_chief_lives_wears_their_own_body(self):
-        if not have_stock("vv3"):
-            self.skipTest("no stock executable")
-        import vv_revive_backfill as rb
-        r = Revive("vv3")
-        snap = Snap(r, 9)
-        snap.gone()
-        holder = r.v.put(3, sex="m", years=50, name="Now Chief", body=29)
-        r.p.write(holder + 0xE80, b"\1")
-        file = rb.parse(struct.pack("<4I", 0x31535256, 1, 3, 1) + snap.entry, 3)
-        s = file[0]
-        data = bytearray(s.data)
-        k = 0
-        for off, size in rb.SAVED[3]:
-            if off <= 0xE80 < off + size:
-                data[k + 0xE80 - off] = 1                 # they were the Tribal Chief
-                break
-            k += size
-        k = 0
-        for off, size in rb.SAVED[3]:
-            if off <= 0xDF4 < off + size:
-                data[k + 0xDF4 - off:k + 0xDF4 - off + 4] = struct.pack("<i", 29)   # in the robe
-                break
-            k += size
-        s.data, s.flags, s.original = bytes(data), s.flags | 0x20, (5, 11, 0)       # VV_RS_ORIGINAL: body 11
-        file_bytes = rb.build(3, [s])
-        at = r.p.alloc(len(file_bytes) + 16)
-        r.p.write(at, file_bytes)
-        r.p.export("VvfpStoryProbeReviveSnapshotFile", at, len(file_bytes))
-        text = death(1, "Ana Rua", 1300, "Female", 5, 29, likes="ants, turnips", dislikes="the ocean")
-        self.assertEqual(r.load(text), 1)
-        answer, made = r.buy(0)
-        self.assertEqual((answer, r.p.export("VvfpStoryProbeReviveRestored")), (1, 1))
-        self.assertEqual(r.v.byte(made, 0xE80), 0)        # not the Chief: one lives
-        self.assertEqual(r.v.i32(made, 0xDF4), 11)        # their own body, not the robe
 
 @emulated
 class RobedChiefTests(unittest.TestCase):
-    """Codex, PR #880: VVFP Original Look.dll folds the robing write (0x45FBDE) into the original it keeps, so a
-    robed Chief's kept original is the robe (29) too.  Beside a living Chief they come back in their pre-robe body:
-    their children's records keep it; else the body the game's creator gives a new villager."""
+    """The owner (2026-11-26): "Vv3 duplicate chiefs may keep the robe body. But only the current chief has the
+    powers".  A Tribal Chief revived while another Chief lives keeps the robe (body 29) but not the Chief flag
+    (+0xE80): the game's own Chief search 0x45EF30 -- the record present, alive, with the flag (0x45EF40..0x45EF54),
+    as every Chief-only reader of the flag -- still finds only the living Chief.  With no Chief alive they come back
+    the Chief.  Either way they are never listed or sold again (rv_in_village tells them without the body)."""
 
-    def _chief(self, original_body, child=False):
+    CHIEF_SEARCH = 0x45EF30
+
+    def _chief(self, other_chief=True):
         import vv_revive_backfill as rb
         if not have_stock("vv3"):
             self.skipTest("no stock executable")
         r = Revive("vv3")
         snap = Snap(r, 9)
         snap.gone()
-        holder = r.v.put(3, sex="m", years=50, name="Now Chief", body=29)
-        r.p.write(holder + 0xE80, b"\1")
-        if child:
-            kid = r.v.put(4, sex="f", years=20, name="Kid Rua", head=8, body=9)
-            r.p.write(kid + 0xE11, b"Ana Rua\0")             # her mother, as her birth copied her on
-            r.p.put32(kid + 0xE34, 5)                         # the mother's head...
-            r.p.put32(kid + 0xE38, 11)                        # ...and body, before the robe
+        holder = None
+        if other_chief:
+            holder = r.v.put(3, sex="m", years=50, name="Now Chief", body=29)
+            r.p.write(holder + 0xE80, b"\1")
         s = rb.parse(struct.pack("<4I", 0x31535256, 1, 3, 1) + snap.entry, 3)[0]
         data = bytearray(s.data)
         for at, value in ((0xE80, b"\1"), (0xDF4, struct.pack("<i", 29))):   # the Chief, in the robe
@@ -1243,49 +1209,40 @@ class RobedChiefTests(unittest.TestCase):
                     data[k + at - off:k + at - off + len(value)] = value
                     break
                 k += size
-        s.data, s.flags, s.original = bytes(data), s.flags | 0x20, (5, original_body, 0)
+        s.data = bytes(data)
         file_bytes = rb.build(3, [s])
         a = r.p.alloc(len(file_bytes) + 16)
         r.p.write(a, file_bytes)
         r.p.export("VvfpStoryProbeReviveSnapshotFile", a, len(file_bytes))
-        self.assertEqual(r.load(death(1, "Ana Rua", 1300, "Female", 5, 29, likes="ants, turnips",
-                                      dislikes="the ocean")), 1)
-        return r
+        self.assertEqual(r.load(self._robed_text()), 1)
+        return r, holder
 
-    def test_their_kept_original_is_the_robe_and_a_childs_record_gives_their_own_body(self):
-        r = self._chief(29, child=True)                       # Original Look kept the robe
-        self.assertIn("as their children's records keep it", r.row(0)[2])
-        answer, made = r.buy(0)
-        self.assertEqual((answer, r.p.export("VvfpStoryProbeReviveChiefBody")), (1, 2))
-        self.assertEqual((r.v.byte(made, 0xE80), r.v.i32(made, 0xDF4)), (0, 11))
-
-    def test_with_nothing_kept_the_game_picks_a_body_as_for_a_new_villager(self):
-        r = self._chief(29)
-        self.assertIn("so the game picks one as it does for a new villager", r.row(0)[2])
-        answer, made = r.buy(0)
-        self.assertEqual((answer, r.p.export("VvfpStoryProbeReviveChiefBody")), (1, 0))
-        self.assertNotEqual(r.v.i32(made, 0xDF4), 29)         # never the robe
-        self.assertEqual(r.v.i32(made, 0xDF4), 4)              # the creator's (the fixture's creator gives body 4)
-
-    ROBED_DEATH = ("Ana Rua", 1300, "Female", 5, 29)
+    def _the_chief(self, r):
+        return r.p.call(self.CHIEF_SEARCH, [], ecx=r.v.base - 0x14)
 
     def _robed_text(self, extra=""):
-        name, age, sex, head, body = self.ROBED_DEATH
-        return death(1, name, age, sex, head, body, likes="ants, turnips", dislikes="the ocean", extra=extra)
+        return death(1, "Ana Rua", 1300, "Female", 5, 29, likes="ants, turnips", dislikes="the ocean", extra=extra)
 
-    def test_a_revived_robed_chief_is_never_offered_or_sold_again(self):
-        # Codex, PR #880: back beside a living Chief in another body, they are still the person in the village --
-        # the list (reloaded) and the purchase tell who they are without the robe's body.
-        r = self._chief(29)
+    def test_a_duplicate_chief_keeps_the_robe_without_the_chiefs_powers(self):
+        r, holder = self._chief()
         answer, made = r.buy(0)
-        self.assertEqual(answer, 1)
-        self.assertNotEqual(r.v.i32(made, 0xDF4), 29)
-        self.assertEqual(r.buy(0)[0], -3)                     # the same list: never bought twice
+        self.assertEqual((answer, r.p.export("VvfpStoryProbeReviveRestored")), (1, 1))
+        self.assertEqual((r.v.byte(made, 0xE80), r.v.i32(made, 0xDF4)), (0, 29))   # the robe, no flag
+        self.assertEqual(self._the_chief(r), holder)                               # the game's Chief: the living one
+        self.assertEqual(r.buy(0)[0], -3)                                          # never sold twice
         tech = r.tech()
-        self.assertEqual(r.load(self._robed_text()), 0)       # reopened: not offered
+        self.assertEqual(r.load(self._robed_text()), 0)                            # reopened: not offered
         self.assertEqual(r.tech(), tech)
 
-    def test_a_robed_chief_from_the_logs_only_is_never_in_the_robe_beside_a_chief(self):
+    def test_with_no_chief_alive_they_come_back_the_chief(self):
+        r, _holder = self._chief(other_chief=False)
+        answer, made = r.buy(0)
+        self.assertEqual(answer, 1)
+        self.assertEqual((r.v.byte(made, 0xE80), r.v.i32(made, 0xDF4)), (1, 29))
+        self.assertEqual(self._the_chief(r), r.v.record(made))
+        self.assertEqual(r.load(self._robed_text()), 0)
+
+    def test_a_robed_chief_from_the_logs_only_keeps_the_robe_without_the_flag(self):
         if not have_stock("vv3"):
             self.skipTest("no stock executable")
         r = Revive("vv3")
@@ -1294,16 +1251,11 @@ class RobedChiefTests(unittest.TestCase):
         r.p.export("VvfpStoryProbeReviveSnapshotFile", 0, 0)
         text = self._robed_text(extra="  Special villager: Tribal Chief\n")
         self.assertEqual(r.load(text), 1)
-        self.assertIn("so the game picks one as it does for a new villager", r.row(0)[2])
         answer, made = r.buy(0)
         self.assertEqual((answer, r.p.export("VvfpStoryProbeReviveRestored")), (1, 0))
-        self.assertEqual((r.v.byte(made, 0xE80), r.v.i32(made, 0xDF4)), (0, 4))   # the creator's body, no robe
-        self.assertEqual(r.load(text), 0)                      # reopened: not offered again
-    def test_their_own_pre_robe_body_kept_at_their_death(self):
-        r = self._chief(11)                                   # cod_revive.inc kept the body before the robe
-        self.assertIn("in their own body from before the robe.", r.row(0)[2])
-        answer, made = r.buy(0)
-        self.assertEqual((answer, r.p.export("VvfpStoryProbeReviveChiefBody"), r.v.i32(made, 0xDF4)), (1, 1, 11))
+        self.assertEqual((r.v.byte(made, 0xE80), r.v.i32(made, 0xDF4)), (0, 29))
+        self.assertEqual(self._the_chief(r), holder)
+        self.assertEqual(r.load(text), 0)
 
 if __name__ == "__main__":
     unittest.main()

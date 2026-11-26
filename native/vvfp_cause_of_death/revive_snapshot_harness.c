@@ -330,35 +330,6 @@ static int depart_keeps(int path, int keep) {
         && e->original_head == 4 && e->original_body == 11;
 }
 
-/* The Secret City's robe (Codex, PR #880): seen as an ordinary villager (body 11), then robed -- body 29, and VVFP
-   Original Look.dll's kept original the robe too (its hook on the robing write) -- then dead: the snapshot's original
-   body is the one from before the robe.  seen: the tick saw them before the robe. */
-static int robed_original(int seen) {
-    const int index = 7;
-    int k;
-    memset(rvs_kept, 0, sizeof rvs_kept);
-    memset(rvs_unrobed, 0, sizeof rvs_unrobed);
-    rvs_pending_count = 0;
-    fill(rec(index), 1);
-    rec(index)[0xE80] = 0;
-    *(int *)(rec(index) + REC[3].body) = 11;
-    fake_original_body = 11;
-    for (k = 0; seen && k <= (int)REC[3].slots / RVS_PER_TICK + 1; ++k) {
-        revive_tick();
-    }
-    rec(index)[0xE80] = 1;                       /* the robing 0x45FBC0 */
-    *(int *)(rec(index) + REC[3].body) = 29;
-    fake_original_body = 29;
-    for (k = 0; k <= (int)REC[3].slots / RVS_PER_TICK + 1; ++k) {
-        revive_tick();
-    }
-    rec(index)[REC[3].present] = 0;
-    roster_departed(index, rec(index));
-    memset(rec(index), 0, REC[3].stride);
-    fake_original_body = 11;
-    return rvs_pending_count == 1 ? rvs_pending[0].original_body : -1;
-}
-
 static void run_sidecars(void) {
     int path;
     printf("Virtual Villagers %d, what the patcher's files keep, every departure path\n", game);
@@ -371,11 +342,6 @@ static void run_sidecars(void) {
               PATH_NAMES[path]);
     }
     CHECK(!depart_keeps(PATH_BURIAL, 0), "(the control: asked only once the record is freed, they would be lost)");
-    if (game == 3) {
-        int seen = robed_original(1), never = robed_original(0);
-        CHECK(seen == 11, "a Tribal Chief seen before the robe keeps that body as their original (%d)", seen);
-        CHECK(never == 29, "(one never seen unrobed keeps what Original Look kept, the robe: %d; Revive then looks further)", never);
-    }
     rvs_test_export = NULL;
     rvs_pending_count = 0;
 }
