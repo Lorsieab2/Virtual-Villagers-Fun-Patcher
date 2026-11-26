@@ -1199,10 +1199,13 @@ def _faction_events(folder: Path, game: int, slot: int) -> tuple[set, set, set]:
             if not b.of(slot, game, villages):
                 continue
             if ARRIVED_HEADING.match(b.heading):
-                (converted if (b.value("How") or "").strip() in CONVERTED_HOWS else believer).add(b.identity)
+                if (b.value("How") or "").strip() in CONVERTED_HOWS:
+                    converted.add(b.identity)
+                elif not is_heathen_record(b):    # a Heathen's own arrival: never a believer's
+                    believer.add(b.identity)
             elif DISAPPEARED_HEADING.match(b.heading) and b.value("What happened") in LEFT_RECORDS:
                 left.add(b.identity)
-            elif checker.is_birth_heading(b.heading) and not b.not_kept:   # src/vv_not_kept.py
+            elif checker.is_birth_heading(b.heading) and not b.not_kept and not is_heathen_record(b):   # src/vv_not_kept.py
                 child = _sub_identity(b, "Child")
                 if child:
                     believer.add(child)
@@ -1285,9 +1288,15 @@ def _side_counts(folder: Path, game: int, slot: int, villages: set[str] | None,
             if not b.of(slot, game, villages):
                 continue
             if ARRIVED_HEADING.match(b.heading):
-                add(b.identity, 1 if (b.value("How") or "").strip() in CONVERTED_HOWS else 0)
+                # A Heathen's own Arrived record (the camp's founders, a replacement, the Heathen Mommy: "Faction:
+                # Heathen" / "Isolan", every log records the Heathens since 2026-11-23) never came as a believer.
+                if (b.value("How") or "").strip() in CONVERTED_HOWS:
+                    add(b.identity, 1)
+                elif not is_heathen_record(b):
+                    add(b.identity, 0)
             elif checker.is_birth_heading(b.heading):
-                if not b.not_kept:                # never in the saved village (src/vv_not_kept.py)
+                if not b.not_kept and not is_heathen_record(b):   # never in the saved village (src/vv_not_kept.py);
+                    # a baby born among the Heathens (its Birth record "Faction: Heathen") was never a believer
                     add(_sub_identity(b, "Child"), 0)
             elif DISAPPEARED_HEADING.match(b.heading):
                 what = b.value("What happened")
