@@ -1002,5 +1002,69 @@ class TheHeader(unittest.TestCase):
             self.assertIn(name, text)
 
 
+
+def _couples_path(slot: int) -> str:
+    return (f"C:\\Docs\\LDW\\Game\\Virtual Villagers Fun Patcher\\Save {slot}\\Data\\Heathen Couples\\"
+            f"Heathen Couples - Save {slot}.dat")
+
+
+class LockableEvo(Evo):
+    """An Evo whose files in `locked` exist but cannot be opened (the game or another program holds them)."""
+
+    def before_start(self) -> None:
+        super().before_start()
+        self.locked: set[str] = set()
+        opener = self.api_handlers["CreateFileA"]
+
+        def create(p):
+            if p.cstring(p.arg(0)) in self.locked:
+                self.last_error = 32                       # ERROR_SHARING_VIOLATION
+                return 0xFFFFFFFF, 28
+            return opener(p)
+        self.api_handlers["CreateFileA"] = create
+
+
+@unittest.skipIf(_skip(), _skip() or "")
+class ChangeTribe(unittest.TestCase):
+    """Codex, #883: a Change Tribe to a slot whose couples file is locked kept the last village's partner cache, so
+    the new village's women could conceive with the old village's pairings.  Every per-village piece is forgotten at
+    a slot change, and while the new slot's couples are unknown there is no couple, birth or arrival."""
+
+    def test_a_locked_couples_file_in_the_new_slot_pauses_everything_and_nothing_of_the_old_village_is_used(self):
+        v = LockableEvo(arrivals="10")
+        man, woman = _couple(v, 1, 2)
+        third = v.villager(3, heathen=True, sex=0, name="Ioane")
+        self.assertEqual(v.couple_of(2), 1, "village A: Mele and Kalo")
+        # Village B (slot 2): its own file pairs Mele with Ioane, and it is locked.
+        v.files[_couples_path(2)] = struct.pack("<5I", 0x31434856, 1, 5, 1, 2) + struct.pack(
+            "<4I", _identity(v, woman), _identity(v, third), 600, 0)
+        v.locked.add(_couples_path(2))
+        before = v.files[_couples_path(2)]
+        v.put32(v.save_manager + SLOT_FIELD, 2)
+        v.look(1)
+        self.assertEqual(v.couple_of(2), -1, "A's pairing is gone from the cache")
+        self.assertEqual(v.couple_of(1), -1)
+        v.put32(woman + AGE, v.i32(woman, AGE) + 1)
+        v.seed(first_output((2400, 0), (10000, 9000)))
+        v.life_tick()
+        self.assertEqual(v.conceived, [], "no birth while B's couples are unknown")
+        made = _force_arrival(v, *SINGLE, clock=1)
+        self.assertEqual(made, [], "no arrival either")
+        _clock(v, 3)
+        self.assertEqual(v.couples_logged[1:], [], "and no new couple")
+        self.assertEqual(v.files[_couples_path(2)], before, "the locked file is never replaced")
+        # Unlocked: B's own couple is read (the gate retries on its throttle).
+        v.locked.clear()
+        for _ in range(40):
+            v.look(1)
+            if v.couple_of(2) >= 0:
+                break
+        self.assertEqual(v.couple_of(2), 3, "B's own pairing: Mele and Ioane")
+        v.put32(woman + AGE, v.i32(woman, AGE) + 1)
+        v.seed(first_output((2400, 0), (10000, 9000)))
+        v.life_tick()
+        self.assertEqual([v.cstring(args[3]) for _c, args in v.conceived], ["Ioane"], "the father is B's partner")
+
+
 if __name__ == "__main__":
     unittest.main()

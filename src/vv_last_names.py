@@ -159,11 +159,12 @@ def grave_fingerprint(name: bytes, cap: int, age: int) -> int:
 
 
 def _rename_graves(buf: bytearray, game: int, renames: dict[tuple, str], ages: dict[tuple, int],
-                   result) -> list[tuple[int, bytes, bytes, int]]:
+                   result, table: tuple | None = None) -> list[tuple[int, bytes, bytes, int]]:
     """Each renamed dead villager's grave, matched by name and age at death (and looks, where the game
     keeps them on the grave): renamed in `buf`.  An unclear match is left alone and reported.  Returns
-    (place, old name, new name, age) for each grave renamed."""
-    base, slots, stride, cap, age_at, looks = GRAVES[game]
+    (place, old name, new name, age) for each grave renamed.  `table` is another grave table laid out as
+    GRAVES' entries (the Shrine to the Ancestors' file); the save's own by default."""
+    base, slots, stride, cap, age_at, looks = table or GRAVES[game]
     if len(buf) < base + slots * stride:
         return []
     graves = []
@@ -203,6 +204,60 @@ def _rename_graves(buf: bytearray, game: int, renames: dict[tuple, str], ages: d
         buf[at:at + cap] = encoded + bytes(cap - len(encoded))
         done.append((place, old, encoded, age))
     return done
+
+
+# New Believers' Shrine to the Ancestors ("VVFP Heathen Mausoleum.dll", native/shared/heathen_evo.h): the
+# Heathens' graves at the mud hut, kept per slot in Data\Heathen Mausoleum\Heathen Mausoleum - Save <S>.dat --
+# 'VHM1', version 1, game 5, count, slot (20 bytes), then `count` entries in the Roster of the Dead's own layout
+# (GRAVES[5]'s stride, name, age and looks).  Cause of Death's Graves Logged knows them as places 500-999.
+SHRINE_MAGIC = b"VHM1"
+SHRINE_HEADER = 20
+SHRINE_MAX = 500
+SHRINE_FIRST_PLACE = 500
+
+
+def _plan_shrine_graves(result, folder: Path, game: int, slot: int, renames: dict[tuple, str],
+                        ages: dict[tuple, int], save_renamed: list) -> list[tuple[int, bytes, bytes, int]]:
+    """The renamed dead villagers' graves in the Shrine to the Ancestors (the owner: data follows the villager),
+    matched by the save's graves' own rules.  A file that cannot be read, or is not a whole valid table for this
+    slot, is left as it is and reported (never replaced).  A grave whose name and age a renamed save grave also
+    had is left alone and reported: it could be either villager's.  Returns the renamed graves as Graves Logged
+    places (500 + the Shrine's place)."""
+    if game != 5:
+        return []
+    path = _data_file(folder, "Heathen Mausoleum", f"Heathen Mausoleum - Save {slot}.dat")
+    if not path.is_file():
+        return []
+    try:
+        original = path.read_bytes()
+    except OSError:
+        result.notes.append("The Shrine to the Ancestors' graves file could not be read, so its graves keep "
+                            "their names.")
+        return []
+    base, _slots, stride, cap, age_at, looks = GRAVES[5]
+    count = struct.unpack_from("<I", original, 12)[0] if len(original) >= SHRINE_HEADER else -1
+    if (len(original) < SHRINE_HEADER or original[:4] != SHRINE_MAGIC or _i32(original, 4) != 1
+            or _i32(original, 8) != 5 or _i32(original, 16) != slot or not 0 <= count <= SHRINE_MAX
+            or len(original) != SHRINE_HEADER + stride * count):
+        result.notes.append("The Shrine to the Ancestors' graves file is not one this tool can read, so its "
+                            "graves keep their names.")
+        return []
+    table = (SHRINE_HEADER, count, stride, cap, age_at, looks)
+    taken = {(old.split(b"\0", 1)[0], age) for _place, old, _new, age in save_renamed}
+    buf = bytearray(original)
+    done = []
+    for key, new in renames.items():
+        trial = bytearray(buf)
+        hits = _rename_graves(trial, game, {key: new}, ages, result, table)
+        if any((old.split(b"\0", 1)[0], age) in taken for _place, old, _new, age in hits):
+            result.notes.append(f"A grave of {key[0]} at the Shrine to the Ancestors could be more than one "
+                                "villager's, so it keeps its name.")
+            continue
+        buf = trial
+        done += hits
+    if done:
+        result.changes.append(Change(path, original, bytes(buf), "the Shrine to the Ancestors' graves"))
+    return [(SHRINE_FIRST_PLACE + place, old, new, age) for place, old, new, age in done]
 
 
 def _plan_grave_files(result, folder: Path, game: int, slot: int, renamed: list,
@@ -1500,8 +1555,12 @@ def plan_renames(folder: Path, game: int, slot: int, renames: dict[tuple, str],
         elif held[0][1] != old_title:
             title_map[old_title] = held[0][1]
     # The graves of the dead renamed (Number Duplicate Names, last names for the gone).
-    graves = _rename_graves(after, game, renames, _death_ages(folder, game, slot), result) if dead else []
+    death_ages = _death_ages(folder, game, slot) if dead else {}
+    graves = _rename_graves(after, game, renames, death_ages, result) if dead else []
     result.changes.append(Change(path, original, bytes(after), "the save"))
+    # New Believers' Shrine to the Ancestors keeps the Heathens' graves outside the save: the same rename there.
+    if dead:
+        graves = graves + _plan_shrine_graves(result, folder, game, slot, renames, death_ages, graves)
     _plan_grave_files(result, folder, game, slot, graves, _renamed_bodies(game, people, original, after, f.name_cap)
                       if dead else None)
 

@@ -565,6 +565,7 @@ static int g_couple_blocked;
 static int g_couple_dirty;
 static DWORD g_couple_synced_at;
 static unsigned int g_couple_buffer[(HE_COUPLES_HEADER + HE_COUPLES_MAX * sizeof(he_couple)) / 4u + 1u];
+static void forget_village_evo(void);  /* below, after every per-village piece it clears */
 
 static int couples_path(int slot, char *out, int make) {
     return data_path(slot, out, make, HE_COUPLES_FOLDER, HE_COUPLES_FILE);
@@ -683,7 +684,7 @@ static void keep_known(void) {
                 g_couple_synced_at = GetTickCount() - HA_WRITE_MS;
                 write_couples(g_file_slot);
             }
-            g_couple_count = 0;
+            forget_village_evo();          /* the couples, the partner cache and every other piece of it */
         }                                  /* (noted before any slot was known: this village's, kept) */
         g_dirty = g_known_count > 0;
         g_couple_dirty = g_couple_count > 0;
@@ -1581,6 +1582,21 @@ static void evo_pass(void) {
 static char g_mommy_parent_name[R_PARENT_NAME_CAP + 1];
 static int g_mommy_parent_head, g_mommy_parent_body;
 
+/* Everything the expansion keeps of one village, forgotten when the village changes (a Change Tribe, a load of
+   another slot, Start Over): the couples, the partner cache the life tick asks (rebuilt only by a throttled look,
+   which waits while the new slot's couples file is unreadable), the births' W, the dead Mommy's other parent.
+   Without this the new village's women could conceive with the old village's pairings (Codex, #883). */
+static void forget_village_evo(void) {
+    g_couple_count = 0;
+    g_couple_dirty = 0;
+    memset(g_partner, 0xFF, sizeof g_partner);
+    g_couple_women = 0;
+    g_mommy_parent_name[0] = 0;
+    g_mommy_parent_head = g_mommy_parent_body = 0;
+    g_clock_index = -1;
+    g_clock_units = 0;
+}
+
 /* The stock camp's set-up of each puzzle role (0x424AC0; the Heathen Mommy as the restored puzzle makes her). */
 static int create_role(int role) {
     int index;
@@ -1930,6 +1946,11 @@ static int tribe_women(void) {
 static void maybe_conceive_evo(unsigned char *woman) {
     unsigned char *man;
     int twins, triplets, babies, women = g_couple_women > 0 ? g_couple_women : 1;
+    /* The village's couples not known (no slot yet, or its couples file unreadable): no birth at all -- the
+       documented pause of couples, births and arrivals, and never a stale pairing. */
+    if (g_file_slot == 0 || g_couple_blocked) {
+        return;
+    }
     if (!could_conceive(woman) || (man = partner_man(woman)) == NULL
         || (unsigned int)he_below(HE_BIRTH_ROLL * (unsigned int)women) >= g_births_tenths || heathens_fit(1) < 1) {
         return;
@@ -2102,10 +2123,7 @@ void __stdcall VvfpHeathenAgingVillageReset(int game, int slot) {
     g_file_slot = 0;
     g_body_count = 0;
     g_roster_known = 0;
-    g_couple_count = 0;                    /* the couples too (their folder goes with the slot's) */
-    g_couple_dirty = 0;
-    g_clock_index = -1;
-    g_clock_units = 0;
+    forget_village_evo();                  /* the couples too (their folder goes with the slot's), the cache */
     memset(g_seen, 0, sizeof g_seen);
 }
 

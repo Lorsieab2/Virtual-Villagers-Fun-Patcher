@@ -105,6 +105,21 @@ class MudHutGraves(unittest.TestCase):
                 m.bury(1, "Hea", heathen=True)
                 self.assertEqual(m.deaths(), [("Hea", "no grave (the Shrine to the Ancestors was full)" if full
                                                else "the Shrine to the Ancestors (Untrained)")])
+                self.assertEqual(self.died_among_heathens(m), "Isolans",
+                                 "the companion really sees the rewrite in this emulation")
+        self.assertEqual(self.died_among_heathens(MudHut()), "Heathens", "and without it, the stock wording")
+
+    @staticmethod
+    def died_among_heathens(m: "MudHut") -> str:
+        """The wording Cause of Death picks by the same Guardians test (heathen_word.h): a Heathen who dies with nothing
+        left gets "no grave (died among the Heathens ...)" or "(... the Isolans ...)"."""
+        r = m.w.villager(3, "Kai", 640, 80)
+        m.g.p.write(r + FACTION, b"\x01")
+        m.g.tick()
+        m.g.p.write(r + m.w.l["present"], b"\x00")
+        m.g.p.export("VvfpCauseDiedAmongHeathens", 5, 3, 2)
+        grave = [e["Grave"] for e in m.g.of_kind(DEATH) if e["record"] == r][-1]
+        return "Isolans" if "Isolans" in grave else "Heathens" if "Heathens" in grave else grave
 
     def test_a_full_shrine_is_named_so(self):
         m = MudHut()
