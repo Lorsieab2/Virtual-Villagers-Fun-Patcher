@@ -47,9 +47,20 @@ static int rvs_path(int slot, char *out) {
 typedef int (__stdcall *rvs_record_fn)(int game, const void *record);
 typedef int (__stdcall *rvs_vv1_query_fn)(int index, int *out);
 
+#ifdef VVFP_TEST
+/* TEST build: the companions' exports the harness stands in for (NULL: the real lookup). */
+static FARPROC (*rvs_test_export)(const char *dll, const char *name);
+#endif
+
 /* An export of a companion already in the game (never loaded from here), or NULL. */
 static FARPROC rvs_export(const char *dll, const char *name) {
-    HMODULE module = GetModuleHandleA(dll);
+    HMODULE module;
+#ifdef VVFP_TEST
+    if (rvs_test_export != NULL) {
+        return rvs_test_export(dll, name);
+    }
+#endif
+    module = GetModuleHandleA(dll);
     return module != NULL ? GetProcAddress(module, name) : NULL;
 }
 
@@ -110,6 +121,88 @@ static void rvs_sidecars(vv_rs_entry *e, int index, const unsigned char *record)
     }
 }
 
+/* WHAT THE PATCHER'S FILES KEEP, ASKED WHILE THE VILLAGER IS STILL THERE (Codex, PR #880).  Every departure reaches
+   roster_departed once the game has freed the record -- A New Home's and The Lost Children's burial after the store
+   that frees it (cod_vv12.inc), the later three's with the presence byte cleared, a vanishing, a Heathen who died
+   among the Heathens -- and the companions answer only for a villager still in their roster: "VVFP Original
+   Look.dll"'s ol_get, for one, finds no freed record.  So the answers are taken while the record is present: the
+   per-frame tick (revive_tick) asks for a few records each frame (RVS_PER_TICK, every record within
+   slots / RVS_PER_TICK frames), bodies awaiting burial included, and keeps them by record with who they were
+   (rvs_who); a departure takes the record's kept answers when they are its villager's, else asks there and then
+   (a record still present). */
+#define RVS_PER_TICK 4
+
+typedef struct {
+    unsigned int who;                 /* rvs_who of the villager asked for; 0 none */
+    unsigned int flags;               /* VV_RS_HEAD_LOOK .. VV_RS_ORIGINAL */
+    int head_look, presentation, mask;
+    unsigned int traits;
+    int original_head, original_body, original_mask;
+    int parent_looks[4];
+    char father[VV_RS_NAME], mother[VV_RS_NAME];
+} rvs_side;
+
+static rvs_side rvs_kept[RECORDS_MAX];
+static int rvs_cursor;
+
+/* Who a record holds, for the kept answers: the name, sex, head and body (never 0). */
+static unsigned int rvs_who(const unsigned char *record) {
+    unsigned int h = cod_name_hash(record) ^ (cod_looks_hash(record) * 16777619u);
+    return h != 0 ? h : 1u;
+}
+
+static void rvs_side_from(rvs_side *s, const vv_rs_entry *e, unsigned int who) {
+    s->who = who;
+    s->flags = e->flags;
+    s->head_look = e->head_look;
+    s->presentation = e->presentation;
+    s->mask = e->mask;
+    s->traits = e->traits;
+    s->original_head = e->original_head;
+    s->original_body = e->original_body;
+    s->original_mask = e->original_mask;
+    memcpy(s->parent_looks, e->parent_looks, sizeof s->parent_looks);
+    memcpy(s->father, e->father, VV_RS_NAME);
+    memcpy(s->mother, e->mother, VV_RS_NAME);
+}
+
+static void rvs_side_to(vv_rs_entry *e, const rvs_side *s) {
+    e->flags |= s->flags;
+    e->head_look = s->head_look;
+    e->presentation = s->presentation;
+    e->mask = s->mask;
+    e->traits = s->traits;
+    e->original_head = s->original_head;
+    e->original_body = s->original_body;
+    e->original_mask = s->original_mask;
+    memcpy(e->parent_looks, s->parent_looks, sizeof e->parent_looks);
+    memcpy(e->father, s->father, VV_RS_NAME);
+    memcpy(e->mother, s->mother, VV_RS_NAME);
+}
+
+/* The answers for record `index` (present) asked now and kept. */
+static void rvs_keep(int index, const unsigned char *record) {
+    vv_rs_entry e;
+    vv_rs_begin(&e, g_game);
+    rvs_sidecars(&e, index, record);
+    rvs_side_from(&rvs_kept[index], &e, rvs_who(record));
+}
+
+/* The per-frame tick (VvfpCauseTick): RVS_PER_TICK records' answers asked and kept, round the table. */
+static void revive_tick(void) {
+    int k, slots = (int)REC[g_game].slots;
+    for (k = 0; k < RVS_PER_TICK && slots > 0; ++k) {
+        int index;
+        const unsigned char *record;
+        rvs_cursor = (rvs_cursor + 1) % (slots < RECORDS_MAX ? slots : RECORDS_MAX);
+        index = rvs_cursor;
+        record = cod_record(index);
+        if (record != NULL && rec_present(record) && !rec_lookalike(record)) {
+            rvs_keep(index, record);
+        }
+    }
+}
+
 /* A departure (roster_departed): the record `index` as the game frees it. */
 static void revive_note(int index, const unsigned char *record) {
     vv_rs_entry *e;
@@ -137,7 +230,15 @@ static void revive_note(int index, const unsigned char *record) {
     GetSystemTimeAsFileTime(&now);
     e->when_lo = now.dwLowDateTime;
     e->when_hi = now.dwHighDateTime;
-    rvs_sidecars(e, index, record);
+    /* The answers kept while they were present (the companions no longer answer for a freed record), else asked now. */
+    if (index >= 0 && index < RECORDS_MAX && rvs_kept[index].who != 0u && rvs_kept[index].who == rvs_who(record)) {
+        rvs_side_to(e, &rvs_kept[index]);
+    } else if (rec_present(record)) {
+        rvs_sidecars(e, index, record);
+    }
+    if (index >= 0 && index < RECORDS_MAX) {
+        rvs_kept[index].who = 0u;     /* the record is free: whoever takes it next is asked afresh */
+    }
     vv_rs_seal(e);
     rvs_pending_slot[rvs_pending_count] = install_state == 1 ? cod_slot() : 0;
     ++rvs_pending_count;
@@ -211,6 +312,7 @@ static void revive_reset(int slot) {
         DeleteFileA(path);
     }
     rvs_pending_count = 0;
+    memset(rvs_kept, 0, sizeof rvs_kept);
     if (slot == rvs.slot) {
         vv_sidecar_gate_bind(&rvs.gate, -1);
         rvs.slot = 0;

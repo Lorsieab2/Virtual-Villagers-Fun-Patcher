@@ -72,7 +72,8 @@ static struct { int size; int (__stdcall *slot)(void); } host = { 8, host_slot }
 static unsigned char *table;
 static unsigned char villager_a[0xF000], villager_b[0xF000], made[0xF000], backup[0xF000];
 
-static unsigned char *rec(int i) { return table + (size_t)i * REC[game].stride; }
+/* Record `i` where the companion reads it (cod_record): the table plus the game's first-record offset. */
+static unsigned char *rec(int i) { return table + REC[game].record_base + (size_t)i * REC[game].stride; }
 
 /* A villager whose every byte is set (`seed` makes each one its own), alive, with a name the matching can read. */
 static void fill(unsigned char *r, int seed) {
@@ -243,6 +244,98 @@ static void run(int index, int slots) {
     memset(rec(index), 0, stride);
 }
 
+/* ---- What the patcher's files keep, on every departure path (Codex, PR #880) --------------------------------
+   The companions answer only for a villager still present in their roster: these stand-ins answer as they do, and
+   nothing once the presence byte is cleared.  Each path frees the record before it reaches roster_departed, so the
+   answers must come from what the per-frame tick kept while the villager was there. */
+static int __stdcall fake_head_look(int g, const void *record) {
+    return ((const unsigned char *)record)[REC[g].present] ? 2 : 0;
+}
+static int __stdcall fake_presentation(int g, const void *record) {
+    return ((const unsigned char *)record)[REC[g].present] ? 1 : 0;
+}
+static int __stdcall fake_traits(int g, const void *record) {
+    return ((const unsigned char *)record)[REC[g].present] ? 1 : 0;
+}
+static int __stdcall fake_original(int g, const void *record, int *head, int *body, int *mask) {
+    if (!((const unsigned char *)record)[REC[g].present]) {
+        return 0;
+    }
+    *head = 4;
+    *body = 11;
+    *mask = 0;
+    return 1;
+}
+static FARPROC fake_export(const char *dll, const char *name) {
+    (void)dll;
+    if (lstrcmpA(name, "VvfpHeadLookGet") == 0) return (FARPROC)(void *)fake_head_look;
+    if (lstrcmpA(name, "VvfpGenderPresentationGet") == 0) return (FARPROC)(void *)fake_presentation;
+    if (lstrcmpA(name, "VvfpStoryTraitsOf") == 0) return (FARPROC)(void *)fake_traits;
+    if (lstrcmpA(name, "VvfpOriginalLookGet") == 0) return (FARPROC)(void *)fake_original;
+    return NULL;
+}
+
+enum { PATH_BURIAL, PATH_REMOVAL, PATH_UNRECOVERED, PATH_HEATHENS, PATH_COUNT };
+static const char *const PATH_NAMES[PATH_COUNT] = {
+    "a burial (the record freed first, as cod_vv12.inc / cod_vv345.inc see it)",
+    "an unburied body's removal after the store that frees it (A New Home, The Lost Children)",
+    "a Custom Island Event's death with no body (VvfpCauseDiedUnrecovered)",
+    "a Heathen who died among the Heathens (VvfpCauseDiedAmongHeathens)" };
+
+/* One departure by `path` of a villager whose files hold every value: the snapshot keeps them.  `keep`: the tick
+   ran while they were there (0: the control, the old behaviour). */
+static int depart_keeps(int path, int keep) {
+    const int index = 7;
+    unsigned int stride = REC[game].stride;
+    int k, before = rvs_pending_count;
+    const vv_rs_entry *e;
+    memset(rvs_kept, 0, sizeof rvs_kept);
+    fill(rec(index), 1);
+    if (keep) {
+        for (k = 0; k <= (int)REC[game].slots / RVS_PER_TICK + 1; ++k) {
+            revive_tick();               /* the per-frame tick while they live */
+        }
+    }
+    rec(index)[REC[game].present] = 0;   /* the game frees the record */
+    switch (path) {
+    case PATH_BURIAL:
+        roster_departed(index, rec(index));
+        break;
+    case PATH_REMOVAL:
+        *(int *)(rec(index) + REC[game].health) = 0;
+        cod_decayed(rec(index));
+        break;
+    case PATH_UNRECOVERED:
+        VvfpCauseDiedUnrecovered(game, index, NULL);
+        break;
+    default:
+        VvfpCauseDiedAmongHeathens(game, index, CAUSE_OLD_AGE);
+        break;
+    }
+    memset(rec(index), 0, stride);
+    if (rvs_pending_count != before + 1) {
+        return 0;
+    }
+    e = &rvs_pending[rvs_pending_count - 1];
+    return e->head_look == 2 && e->presentation == 1 && e->traits == 1u && (e->flags & VV_RS_ORIGINAL)
+        && e->original_head == 4 && e->original_body == 11;
+}
+
+static void run_sidecars(void) {
+    int path;
+    printf("Virtual Villagers %d, what the patcher's files keep, every departure path\n", game);
+    rvs_test_export = fake_export;
+    for (path = 0; path < PATH_COUNT; ++path) {
+        if ((path == PATH_REMOVAL && game > 2) || (path == PATH_HEATHENS && game != 5)) {
+            continue;
+        }
+        CHECK(depart_keeps(path, 1), "%s: the head look, presentation, traits and original look are kept",
+              PATH_NAMES[path]);
+    }
+    CHECK(!depart_keeps(PATH_BURIAL, 0), "(the control: asked only once the record is freed, they would be lost)");
+    rvs_test_export = NULL;
+    rvs_pending_count = 0;
+}
 int main(int argc, char **argv) {
     if (argc != 2) {
         printf("usage: revive_snapshot_harness <docs folder>\n");
@@ -261,6 +354,7 @@ int main(int argc, char **argv) {
         host_slot_value = SLOT;
         VvfpCauseTestSetup(game, &host, table);
         run(7, stock);
+        run_sidecars();
         if (game >= 3) {
             run(200, 256);
             REC[game].slots = (unsigned int)stock;

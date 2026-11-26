@@ -749,6 +749,7 @@ static const char *cw_words(unsigned int fingerprint);
 static void revive_note(int index, const unsigned char *record);
 static void revive_saved(int slot);
 static void revive_reset(int slot);
+static void revive_tick(void);
 
 #include "cod_roster.inc"
 #include "cod_gone.inc"
@@ -915,6 +916,8 @@ __declspec(dllexport) void __stdcall VvfpCauseTick(int game) {
     if (!cod_pass_starts(g_game)) {
         return;                       /* the same draw pass: the records are as the passes left them */
     }
+    revive_tick();                    /* what the patcher's files keep, while each villager is there (cod_revive.inc):
+                                         once a draw pass, never once a head drawn */
 #ifdef VVFP_TEST
     ++cod_test_passes;
 #endif
