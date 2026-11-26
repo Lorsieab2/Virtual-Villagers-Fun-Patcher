@@ -497,6 +497,14 @@ CASES = [
          lambda g: [f"vv{g}_heathen_tribe_ages", f"vv{g}_all_heathens_leave_skeletons"],
          lambda m, g: (m.export("VvfpStartup", g, 0), m.export("VvfpHeathenAgingInstalled"))[1],
          present=("VVFP Heathen Aging Tribe.txt",)),
+    # The Heathens' graves at the mud hut (New Believers): the burial's roster write, the carry walk, the Heathen
+    # AI's entry, the believers' body finder, the screen's four roster reads, its opener, the two lcmap loads, the
+    # save's roster copy, the new village's clear and the load's roster read (the Former Villagers skeleton row's
+    # flag file present; the Heathen Tribe Expansion row ships it too).
+    Case("Heathen Mausoleum", "assets/heathen_mausoleum/VVFP Heathen Mausoleum.dll", (5,),
+         lambda g: [f"vv{g}_former_villager_heathens_leave_skeletons"],
+         lambda m, g: (m.export("VvfpStartup", g, 0), m.export("VvfpHeathenMausoleumInstalled"))[1],
+         present=("VVFP Heathen Skeletons Former.txt",)),
     # More Frequent Island Events (all five games): the trigger's draws of the next wait (two in New Believers).
     Case("Island Frequency", "assets/island_frequency/VVFP Island Frequency.dll", (1, 2, 3, 4, 5),
          lambda g: [f"vv{g}_more_frequent_island_events"],
