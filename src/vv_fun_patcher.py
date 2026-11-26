@@ -313,9 +313,41 @@ ESTEEMED_ELDERS_FEATURE_PATHS = tuple(ROOT / "data" / f"vv{game}_esteemed_elders
 # Heathen Tribe Ages, Dies and Has Children, and the two skeleton rows (exclusive); one companion, "VVFP Heathen
 # Aging.dll", started by VVFP More Companions.dll from the third word, and a flag file per row;
 # scripts/build_heathen_aging_features.py.
+# Since v1.35.101 the tribe row and All Heathens Leave Skeletons are folded into "Heathen Tribe Expansion and
+# Evolution" (with Heathens can be selected in Island Events/Heathen-Exclusive Events): FOLDED_FUN_PATCH_IDS below;
+# scripts/build_heathen_tribe_evolution_feature.py.
 HEATHEN_AGING_FEATURE_PATHS = tuple(ROOT / "data" / f"vv5_{row}_feature.json" for row in (
-    "former_villagers_keep_aging", "heathen_tribe_ages", "former_villager_heathens_leave_skeletons",
-    "all_heathens_leave_skeletons"))
+    "former_villagers_keep_aging", "former_villager_heathens_leave_skeletons", "heathen_tribe_evolution"))
+# Rows folded into another (old id -> the row that does what it did).  A saved selection, a preset or a command line
+# naming an old id gets the new row (migrated_fun_patch_ids); the old rows are no longer in the catalog.
+FOLDED_FUN_PATCH_IDS = {
+    "vv5_heathen_tribe_ages": "vv5_heathen_tribe_evolution",
+    "vv5_all_heathens_leave_skeletons": "vv5_heathen_tribe_evolution",
+    "vv5_heathens_in_island_events": "vv5_heathen_tribe_evolution",
+}
+
+
+def migrated_fun_patch_ids(ids) -> list[str]:
+    """`ids` with every folded row's id replaced by the row that folds it (FOLDED_FUN_PATCH_IDS), in order, each
+    id once."""
+    result: list[str] = []
+    for patch_id in ids:
+        patch_id = FOLDED_FUN_PATCH_IDS.get(patch_id, patch_id)
+        if patch_id not in result:
+            result.append(patch_id)
+    return result
+
+
+# Files an earlier patcher shipped that no row ships any more, removed from a re-patched folder like any patcher
+# file a build does not include (_remove_unselected_companions), only when byte for byte the file it shipped: the
+# folded rows' flag files, which "VVFP Heathen Aging.dll" and "VVFP Heathen Mausoleum.dll" still honour.
+RETIRED_PATCHER_FILES: dict[str, tuple[tuple[str, str], ...]] = {
+    "vv5": (
+        ("VVFP Heathen Aging Tribe.txt", "7F1E6C60140BB449EB2547F82530AFDA5ED751C4E07E8F08EC54A5A51202AB51"),
+        ("VVFP Heathen Skeletons All.txt", "6265A08B6E27580333E93D748968C2776F6073B209625312C866AC9944F4D073"),
+        ("VVFP Heathen Aging Events.txt", "8E23B79D671B24BF68A3AC4292567B92258E286221FA9D6582A5E03DCD66935E"),
+    ),
+}
 # X Buttons to Remove Chosen Founders (The Tree of Life, New Believers; on by default, in Owner's Defaults and Select
 # All; the owner, 2026-11-24): on the "Select 5 villagers" screen an X beside each chosen villager sends them away so
 # another can be picked; companion only, "VVFP Founder X Buttons.dll", started by VVFP More Companions.dll from the
@@ -589,8 +621,9 @@ ISLAND_EVENT_CONTENT_FEATURE_PATHS = tuple(
 # Heathens can be selected in Island Events/Heathen-Exclusive Events (New Believers; the owner, 2026-11-23: off by
 # default, on in Owner's Defaults): a name in the installed patches' list only, which Story / Cheat Upgrades and More
 # Island Events read (docs/event-collection/cie-v6-binary.md 45); scripts/build_island_event_content_features.py.
+# Folded into "Heathen Tribe Expansion and Evolution" in v1.35.101 (FOLDED_FUN_PATCH_IDS): no row file of its own.
 HEATHENS_IN_ISLAND_EVENTS_ID = "vv5_heathens_in_island_events"
-HEATHENS_IN_ISLAND_EVENTS_FEATURE_PATHS = (ROOT / "data" / f"{HEATHENS_IN_ISLAND_EVENTS_ID}_feature.json",)
+HEATHENS_IN_ISLAND_EVENTS_FEATURE_PATHS = ()
 CLASSIC_DIFFICULTY_FEATURE_PATHS = tuple(
     ROOT / "data" / f"vv{n}_classic_vv_difficulty_feature.json" for n in (4, 5))
 # Respecting the Legacy of Isola (New Believers; off by default, on in Owner's Defaults and Select All): no bytes of
@@ -724,10 +757,9 @@ EXPERIMENTAL_FUN_PATCH_IDS = POPULATION_256_FEATURE_IDS
 # 2026-11-08: the spot patch is off by default, in Owner's Defaults and in Select All).  Island Events Scale With
 # Stored Food and Tech Points is the alternative to Island Events Scale With Population (like The Lost Children) in
 # A New Home, The Tree of Life and New Believers (the owner, 2026-11-12: off by default and in Owner's Defaults).
-# New Believers' All Heathens Leave Skeletons is the alternative to Former Villagers Among the Heathens Leave
-# Skeletons (the owner, 2026-11-23: off by default, in Owner's Defaults and in Select All).
-ALTERNATIVE_FUN_PATCH_IDS = frozenset({"vv3_fruit_trees_take_turns", "vv5_playing_in_the_dirt_spot",
-                                       "vv5_all_heathens_leave_skeletons"}
+# (New Believers' All Heathens Leave Skeletons was the alternative to Former Villagers Among the Heathens Leave
+# Skeletons until v1.35.101 folded it into Heathen Tribe Expansion and Evolution, which excludes nothing.)
+ALTERNATIVE_FUN_PATCH_IDS = frozenset({"vv3_fruit_trees_take_turns", "vv5_playing_in_the_dirt_spot"}
                                       | {f"vv{game}_unicode_font" for game in range(1, 6)}
                                       | {f"vv{game}_island_events_scale_with_stored_amounts" for game in (1, 4, 5)})
 VV2_PLAYTEST_DISABLED_FEATURE_ID = "vv2_enable_origins_exclusive_features"
@@ -10770,6 +10802,8 @@ def _result(
            if any(patch.id.endswith("_more_frequent_island_events") for patch in fun_patches) else {}),
         # The 0.1x-10x sliders' numbers, each only when its row is in the build.
         **_runtime_sliders_in(fun_patches),
+        # Heathen Tribe Expansion and Evolution's sliders and options, when that row is in the build.
+        **(_heathen_evolution_in(fun_patches) or {}),
     }
 
 
@@ -11070,6 +11104,8 @@ def _log_data(
            if any(patch.id.endswith("_more_frequent_island_events") for patch in fun_patches) else {}),
         # The 0.1x-10x sliders' numbers, each only when its row is in the build.
         **_runtime_sliders_in(fun_patches),
+        # Heathen Tribe Expansion and Evolution's sliders and options, when that row is in the build.
+        **(_heathen_evolution_in(fun_patches) or {}),
     }
 
 
@@ -11201,6 +11237,7 @@ def _copy_companion_files(
     _write_louder_flutes_choice(output_folder, fun_patches)
     _write_island_frequency_choice(output_folder, fun_patches)
     _write_runtime_slider_choices(output_folder, fun_patches)
+    _write_heathen_evolution_choices(output_folder, fun_patches)
     _write_player_events(output_folder, fun_patches)
     _write_village_solidarity_choice(output_folder, fun_patches)
     return copied
@@ -11488,6 +11525,96 @@ def _write_runtime_slider_choices(output_folder: Path, fun_patches: list[FunPatc
                     multiplier_text(_runtime_slider_values[slider.key]) + "\n", encoding="ascii", newline="\n")
 
 
+# "Heathen Tribe Expansion and Evolution" (New Believers, v1.35.101; scripts/build_heathen_tribe_evolution_feature.py):
+# the row's Settings window (the owner, 2026-11-19: patch settings behind a button) holds two sliders and two options,
+# written beside "VVFP Heathen Aging.dll" at each patch in the files native/shared/heathen_evo.h names, as the 0.1x-10x
+# sliders' numbers are (multiplier_text: "1", "0.5", "2.5"):
+#   "0.1-10x Heathen Tribe Births"  -> "VVFP Heathen Tribe Births.txt"  0.1 to 10, 1 unless moved (everywhere);
+#   "0-10x New Heathen Arrivals"    -> "VVFP Heathen Arrivals.txt"      0 (none) or 0.1 to 10; 0 in Default Patches,
+#                                                                       1 in Owner's Defaults (decision 3);
+#   the show-action percent and "Keep every new Heathen blue"
+#                                   -> "VVFP Heathen Options.txt"       key=value lines: show_percent (1 to 100, 25
+#                                                                       unless moved), and mask_orange_percent=0 /
+#                                                                       mask_red_percent=0 when every new Heathen is
+#                                                                       kept blue (else the owner's 7 / 3 stand).
+HEATHEN_EVOLUTION_ID = "vv5_heathen_tribe_evolution"
+HEATHEN_EVOLUTION_DLL = "VVFP Heathen Aging.dll"
+HEATHEN_BIRTHS_FILE = "VVFP Heathen Tribe Births.txt"
+HEATHEN_ARRIVALS_FILE = "VVFP Heathen Arrivals.txt"
+HEATHEN_OPTIONS_FILE = "VVFP Heathen Options.txt"
+HEATHEN_BIRTHS_NAME = "0.1-10x Heathen Tribe Births"
+HEATHEN_ARRIVALS_NAME = "0-10x New Heathen Arrivals"
+HEATHEN_BIRTHS_RANGE = MultiplierRange(10)
+HEATHEN_ARRIVALS_RANGE = MultiplierRange(10, 0)          # 0 is "none"
+HEATHEN_BIRTHS_DEFAULT = 1
+HEATHEN_ARRIVALS_DEFAULT = 0                             # Default Patches; Owner's Defaults sets 1
+HEATHEN_ARRIVALS_OWNERS_DEFAULT = 1
+HEATHEN_SHOW_PERCENT_RANGE = range(1, 101)
+HEATHEN_SHOW_PERCENT_DEFAULT = 25
+_heathen_evolution = {"births": HEATHEN_BIRTHS_DEFAULT, "arrivals": HEATHEN_ARRIVALS_DEFAULT,
+                      "show_percent": HEATHEN_SHOW_PERCENT_DEFAULT, "keep_blue": False}
+HEATHEN_EVOLUTION_NAME_FOR_ERRORS = "Heathen Tribe Expansion and Evolution"
+
+
+def set_heathen_evolution(births=None, arrivals=None, show_percent=None, keep_blue=None) -> dict:
+    """Choose the Heathen Tribe Expansion and Evolution row's settings for the next patch (each None: unchanged)."""
+    if births is not None:
+        _heathen_evolution["births"] = validate_multiplier(HEATHEN_BIRTHS_NAME, births, HEATHEN_BIRTHS_RANGE)
+    if arrivals is not None:
+        _heathen_evolution["arrivals"] = validate_multiplier(HEATHEN_ARRIVALS_NAME, arrivals, HEATHEN_ARRIVALS_RANGE)
+    if show_percent is not None:
+        if isinstance(show_percent, bool) or not isinstance(show_percent, int) \
+                or show_percent not in HEATHEN_SHOW_PERCENT_RANGE:
+            raise PatcherError(f"{HEATHEN_EVOLUTION_NAME_FOR_ERRORS}: the show-action percent must be a whole number "
+                               f"from 1 to 100, not {show_percent!r}. Nothing was written.")
+        _heathen_evolution["show_percent"] = show_percent
+    if keep_blue is not None:
+        _heathen_evolution["keep_blue"] = bool(keep_blue)
+    return dict(_heathen_evolution)
+
+
+def heathen_evolution() -> dict:
+    """The Heathen Tribe Expansion and Evolution row's settings now (set_heathen_evolution)."""
+    return dict(_heathen_evolution)
+
+
+def heathen_options_text(settings: dict | None = None) -> str:
+    """"VVFP Heathen Options.txt" for these settings (heathen_evo.h he_option: key=value lines, '#' comments)."""
+    chosen = _heathen_evolution if settings is None else settings
+    lines = ["# Virtual Villagers Fun Patcher: Heathen Tribe Expansion and Evolution's options (New Believers).",
+             f"show_percent={chosen['show_percent']}"]
+    if chosen["keep_blue"]:
+        lines += ["mask_orange_percent=0", "mask_red_percent=0"]
+    return "\n".join(lines) + "\n"
+
+
+def _heathen_evolution_in(fun_patches: list[FunPatch]) -> dict | None:
+    """The row's settings for the patch log, when the row is in the build."""
+    if not any(patch.id == HEATHEN_EVOLUTION_ID for patch in fun_patches):
+        return None
+    return {"heathen_tribe_births_multiplier": _heathen_evolution["births"],
+            "heathen_arrivals_multiplier": _heathen_evolution["arrivals"],
+            "heathen_show_percent": _heathen_evolution["show_percent"],
+            "heathen_keep_blue": _heathen_evolution["keep_blue"]}
+
+
+def _write_heathen_evolution_choices(output_folder: Path, fun_patches: list[FunPatch]) -> None:
+    """The row's sliders and options beside "VVFP Heathen Aging.dll", when the build ships the row."""
+    for feature in fun_patches:
+        if feature.id != HEATHEN_EVOLUTION_ID:
+            continue
+        for item in feature.raw.get("companion_files", []):
+            if item.get("destination") != HEATHEN_EVOLUTION_DLL:
+                continue
+            dll = patcher_files.long_path(output_folder / _safe_companion_destination(item["destination"]))
+            dll.parent.mkdir(parents=True, exist_ok=True)
+            (dll.parent / HEATHEN_BIRTHS_FILE).write_text(
+                multiplier_text(_heathen_evolution["births"]) + "\n", encoding="ascii", newline="\n")
+            (dll.parent / HEATHEN_ARRIVALS_FILE).write_text(
+                multiplier_text(_heathen_evolution["arrivals"]) + "\n", encoding="ascii", newline="\n")
+            (dll.parent / HEATHEN_OPTIONS_FILE).write_text(heathen_options_text(), encoding="ascii", newline="\n")
+
+
 # Village Solidarity's strength (the row's slider; the owner, 2026-11-17: the new sliders' range, 0.1x to 10x, 1x the
 # normal strength): written beside "VVFP Village Solidarity.dll" as "VVFP Village Solidarity.txt" ("1", "0.5",
 # "2.5"), which the companion reads at start (missing or unreadable: 1x).  The window's slider and the command line's
@@ -11577,6 +11704,10 @@ def _remove_unselected_companions(
     # The third word's chain companion is shipped by the patcher with the rows that need it, never by a record.
     more = _safe_companion_destination(MORE_COMPANIONS_DLL)
     candidates.setdefault(more.as_posix().casefold(), _more_companions_companion())
+    # Files of rows folded into another: removed when byte for byte what the older patcher shipped.
+    for destination, digest in RETIRED_PATCHER_FILES.get(build.id, ()):
+        retired = _safe_companion_destination(destination)
+        candidates.setdefault(retired.as_posix().casefold(), {"destination": destination, "sha256": digest})
     removed: list[dict[str, str]] = []
     long_staging = patcher_files.long_path(staging_folder)
 
@@ -14997,9 +15128,41 @@ def _add_fun_patch_args(parser: argparse.ArgumentParser) -> None:
     parser.add_argument(
         "--fun-patch",
         action="append",
-        choices=[patch.id for patch in load_public_fun_patches()],
+        # a folded row's old id is still accepted, as the row that folds it (FOLDED_FUN_PATCH_IDS)
+        choices=[patch.id for patch in load_public_fun_patches()] + sorted(FOLDED_FUN_PATCH_IDS),
         default=[],
         help="optional game-specific patch; may be supplied more than once",
+    )
+    # Heathen Tribe Expansion and Evolution's Settings window (New Believers): only with that row selected.
+    parser.add_argument(
+        "--heathen-tribe-births-multiplier",
+        type=multiplier_argument(HEATHEN_BIRTHS_RANGE),
+        default=None,
+        help=(f"{HEATHEN_BIRTHS_NAME}: the Heathen tribe's babies come this many times as often, a number "
+              f"{HEATHEN_BIRTHS_RANGE[0]} to {HEATHEN_BIRTHS_RANGE[-1]} (default {HEATHEN_BIRTHS_DEFAULT})"),
+    )
+    parser.add_argument(
+        "--heathen-arrivals-multiplier",
+        type=multiplier_argument(HEATHEN_ARRIVALS_RANGE),
+        default=None,
+        help=(f"{HEATHEN_ARRIVALS_NAME}: new Heathens arrive at the camp this many times as often as one arrival "
+              f"every 48 real hours on Normal, a number {HEATHEN_ARRIVALS_RANGE[0]} (none) to "
+              f"{HEATHEN_ARRIVALS_RANGE[-1]} (default {HEATHEN_ARRIVALS_DEFAULT})"),
+    )
+    parser.add_argument(
+        "--heathen-show-percent",
+        type=int,
+        choices=list(HEATHEN_SHOW_PERCENT_RANGE),
+        default=None,
+        metavar="1-100",
+        help=("Heathen Tribe Expansion and Evolution: the percent of an idle adult Heathen's choices that are a "
+              f"show action (default {HEATHEN_SHOW_PERCENT_DEFAULT})"),
+    )
+    parser.add_argument(
+        "--heathen-keep-blue",
+        action=argparse.BooleanOptionalAction,
+        default=None,
+        help="Heathen Tribe Expansion and Evolution: every new Heathen (arrivals, babies) wears the blue mask",
     )
     parser.add_argument(
         "--village-solidarity-strength",
@@ -15182,6 +15345,12 @@ def main() -> int:
                 set_runtime_slider_multiplier(slider.key, getattr(args, f"{slider.key}_multiplier"))
         if getattr(args, "village_solidarity_strength", None) is not None:
             set_village_solidarity_strength(args.village_solidarity_strength)
+        set_heathen_evolution(births=getattr(args, "heathen_tribe_births_multiplier", None),
+                              arrivals=getattr(args, "heathen_arrivals_multiplier", None),
+                              show_percent=getattr(args, "heathen_show_percent", None),
+                              keep_blue=getattr(args, "heathen_keep_blue", None))
+        if hasattr(args, "fun_patch"):
+            args.fun_patch = migrated_fun_patch_ids(args.fun_patch)
         if args.command == "identify":
             print(json.dumps(identify(args.exe).raw, indent=2))
         elif args.command == "dry-run":

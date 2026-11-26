@@ -5,19 +5,27 @@
   "catalog_hidden": false,
   "game_id": "vv5",
   "name": "Former Villagers Among the Heathens Leave Skeletons",
-  "description": "**Only matters with \"Former Villagers Keep Aging Among the Heathens\" or \"Heathen Tribe Ages, Dies and Has Children\" ticked**: in the normal game a Heathen never ages, so never dies of old age. When a villager who had left your tribe dies of old age among the Heathens, they leave a skeleton like any villager: your believers bury it with \"Burying the dead\" (once The Buried Mausoleum is solved), which gives a normal grave. Other Heathens who die leave nothing. **Cannot be ticked with \"All Heathens Leave Skeletons\"**: ticking one unticks the other. The Death record says how they died; **Heathens never count in the Village Statistics.**",
+  "description": "**Only matters with \"Former Villagers Keep Aging Among the Heathens\" or \"Heathen Tribe Expansion and Evolution\" ticked**: in the normal game a Heathen never ages, so never dies of old age. When a villager who had left your tribe dies of old age among the Heathens, they leave a skeleton like any villager. Heathens carry it to the mud hut and bury it there, in the Shrine to the Ancestors (believers do it, still to the mud hut, when no Heathen can, once The Buried Mausoleum is solved); click the mud hut, or drop a villager on it, to see the Shrine's graves on the game's own Mausoleum screen. One who rejoined your tribe before dying goes to your Mausoleum as always. Other Heathens who die leave nothing. **With \"Heathen Tribe Expansion and Evolution\" ticked every Heathen leaves a skeleton anyway, so this row then changes nothing more.** The Death record says how they died and names the grave; **Heathens never count in the Village Statistics.** The companion is \"VVFP Heathen Mausoleum.dll\"; it keeps its own small file per save, never writes a save.",
   "output_tag": "Former Villager Skeletons",
   "dependencies": [],
-  "conflicts": [
-    "vv5_all_heathens_leave_skeletons"
-  ],
+  "conflicts": [],
   "behavior_changes": [
-    "While this file is shipped, VVFP Heathen Aging.dll lets a former villager who dies of old age among the Heathens leave a body (SetHealth 0x4758B0(0, 2)) for the believers' burial; any other Heathen who dies leaves nothing."
+    "While this file is shipped, VVFP Heathen Aging.dll lets a former villager who dies of old age among the Heathens leave a body (SetHealth 0x4758B0(0, 2)) for the burial at the mud hut (below); any other Heathen who dies leaves nothing.",
+    "\"VVFP Heathen Mausoleum.dll\" (the Shrine to the Ancestors): a Heathen's grave -- decided by the faction at death: a camp Heathen, an arrival, a puzzle Heathen or a former villager who died a Heathen -- goes to a table of its own laid out as the game's Roster of the Dead (500 graves), written by the game's own writer, so its epitaph, cause and job are the game's.  A believer's grave, a converted former villager's included, goes to the Roster of the Dead as before.  A full table: no grave, the body gone, the Death record says so.",
+    "Heathens bury Heathens (decision 11): an able adult Heathen starts the game's own \"Burying the dead\" on a Heathen's body and carries it to the mud hut; believers bury it (once The Buried Mausoleum is solved) only when no Heathen can or it has lain 120 units, still to the mud hut.",
+    "The mud hut (hotspot 0x0B, registered and stamped after each map load) opens the game's own Mausoleum screen on the Shrine's table with a click or a villager dropped on it, once it holds a grave; the title says \"Shrine to the Ancestors\" (translatable), the art is the game's own.  Holding a villager over it shows \"<name> sees a heartfelt memorial shrine.\" (Fix Vanilla Bugs' hovel hover line).",
+    "The table is kept per save slot in \"Virtual Villagers Fun Patcher\\Save <S>\\Data\\Heathen Mausoleum\\Heathen Mausoleum - Save <S>.dat\" ('VHM1'), written only when the game saves the slot and read when it loads it; a new village clears it; Start Over forgets it (VVFP Save Reset.dll).",
+    "Day of Honor, the everyday Honoring the dead, the Remembrance Ceremony and Story / Cheat Upgrades' \"graves\" condition count the Shrine's graves too; the Village Statistics never do.  The Deaths log names the grave \"the Shrine to the Ancestors (...)\", or \"no grave (the Shrine to the Ancestors was full)\"."
   ],
   "explicit_non_changes": [
     "Nothing happens unless a Heathen aging row is ticked: in the stock game no Heathen dies of old age."
   ],
   "companion_files": [
+    {
+      "source": "assets/heathen_mausoleum/VVFP Heathen Mausoleum.dll",
+      "destination": "VVFP Heathen Mausoleum.dll",
+      "sha256": "E49CB9DC00675870162E9C92C025CF7CEF495240D896F7A2B2A1185F5674A4EB"
+    },
     {
       "source": "assets/heathen_aging/VVFP Heathen Skeletons Former.txt",
       "destination": "VVFP Heathen Skeletons Former.txt",
@@ -25,5 +33,125 @@
     }
   ],
   "patches": [],
-  "runtime_detours": []
+  "runtime_detours": [
+    {
+      "va": "0x473FA9",
+      "stock_bytes": "E8C20CFFFF",
+      "written_bytes": "E8XXXXXXXX",
+      "routine": "the burial's Roster of the Dead write (op 0x1D, 0x473F50): a Heathen's grave (the faction at death) goes to the Shrine to the Ancestors' own table, written by the game's own writer 0x464C70; a believer's to the Roster of the Dead as before",
+      "installed_by": "VVFP Heathen Mausoleum.dll, VvfpStartup (started by VVFP More Companions.dll, third word)"
+    },
+    {
+      "va": "0x45B650",
+      "stock_bytes": "6A14E80980FAFF83C4046A006A64B9BD0600005183C07D508BCEE8318F0100",
+      "written_bytes": "E9XXXXXXXX9090909090909090909090909090909090909090909090909090",
+      "routine": "the burial script 0x45B5D0's carry walk: a Heathen's body is carried to the mud hut, a believer's to the mausoleum door; the game's rand(20) drawn as in the stock script",
+      "installed_by": "VVFP Heathen Mausoleum.dll, VvfpStartup (started by VVFP More Companions.dll, third word)"
+    },
+    {
+      "va": "0x46E9E0",
+      "stock_bytes": "83EC2053568BF1",
+      "written_bytes": "E9XXXXXXXX9090",
+      "routine": "the Heathen AI's entry: an able adult Heathen (no puzzle role, not sick or expecting) starts the game's own \"Burying the dead\" on a Heathen's body nobody is burying, half the times it is asked",
+      "installed_by": "VVFP Heathen Mausoleum.dll, VvfpStartup (started by VVFP More Companions.dll, third word)"
+    },
+    {
+      "va": "0x46F146",
+      "stock_bytes": "E8F5170000",
+      "written_bytes": "E8XXXXXXXX",
+      "routine": "the believers' burial chooser's body finder: a Heathen's body only when no Heathen can bury it or it has lain 120 units -- still carried to the mud hut",
+      "installed_by": "VVFP Heathen Mausoleum.dll, VvfpStartup (started by VVFP More Companions.dll, third word)"
+    },
+    {
+      "va": "0x43F4F1",
+      "stock_bytes": "B9A8815400",
+      "written_bytes": "E8XXXXXXXX",
+      "routine": "the Mausoleum screen's roster count read: the table the screen shows",
+      "installed_by": "VVFP Heathen Mausoleum.dll, VvfpStartup (started by VVFP More Companions.dll, third word)"
+    },
+    {
+      "va": "0x43F735",
+      "stock_bytes": "B9A8815400",
+      "written_bytes": "E8XXXXXXXX",
+      "routine": "the Mausoleum screen's row draw read: the table the screen shows",
+      "installed_by": "VVFP Heathen Mausoleum.dll, VvfpStartup (started by VVFP More Companions.dll, third word)"
+    },
+    {
+      "va": "0x43FDC0",
+      "stock_bytes": "B9A8815400",
+      "written_bytes": "E8XXXXXXXX",
+      "routine": "the Mausoleum screen's click read: the table the screen shows",
+      "installed_by": "VVFP Heathen Mausoleum.dll, VvfpStartup (started by VVFP More Companions.dll, third word)"
+    },
+    {
+      "va": "0x43FED6",
+      "stock_bytes": "B9A8815400",
+      "written_bytes": "E8XXXXXXXX",
+      "routine": "the Mausoleum screen's hover read: the table the screen shows",
+      "installed_by": "VVFP Heathen Mausoleum.dll, VvfpStartup (started by VVFP More Companions.dll, third word)"
+    },
+    {
+      "va": "0x43CE24",
+      "stock_bytes": "E8D7FDFFFF",
+      "written_bytes": "E8XXXXXXXX",
+      "routine": "the mausoleum's own opener: the believers' Roster of the Dead, then 0x43CC00",
+      "installed_by": "VVFP Heathen Mausoleum.dll, VvfpStartup (started by VVFP More Companions.dll, third word)"
+    },
+    {
+      "va": "0x423E2B",
+      "stock_bytes": "E880370500",
+      "written_bytes": "E8XXXXXXXX",
+      "routine": "after the lcmap load: hotspot 0x0B registered (area-handler table 0x77DC80) and stamped on the mud hut's cells",
+      "installed_by": "VVFP Heathen Mausoleum.dll, VvfpStartup (started by VVFP More Companions.dll, third word)"
+    },
+    {
+      "va": "0x4246E1",
+      "stock_bytes": "E8CA2E0500",
+      "written_bytes": "E8XXXXXXXX",
+      "routine": "after the other lcmap load: the same",
+      "installed_by": "VVFP Heathen Mausoleum.dll, VvfpStartup (started by VVFP More Companions.dll, third word)"
+    },
+    {
+      "va": "0x424569",
+      "stock_bytes": "E832060400",
+      "written_bytes": "E8XXXXXXXX",
+      "routine": "the save's roster copy (0x4244F0): once the slot save is written, the Shrine's table is published to the slot's file, so the file always matches the save",
+      "installed_by": "VVFP Heathen Mausoleum.dll, VvfpStartup (started by VVFP More Companions.dll, third word)"
+    },
+    {
+      "va": "0x424733",
+      "stock_bytes": "E898040400",
+      "written_bytes": "E8XXXXXXXX",
+      "routine": "the new village's roster clear (0x4246A0): the Shrine's table is cleared too",
+      "installed_by": "VVFP Heathen Mausoleum.dll, VvfpStartup (started by VVFP More Companions.dll, third word)"
+    },
+    {
+      "va": "0x425849",
+      "stock_bytes": "E8A2F60300",
+      "written_bytes": "E8XXXXXXXX",
+      "routine": "the load's roster read (0x425640): the slot's Shrine file is read",
+      "installed_by": "VVFP Heathen Mausoleum.dll, VvfpStartup (started by VVFP More Companions.dll, third word)"
+    },
+    {
+      "va": "0x43F1DF",
+      "stock_bytes": "E8ACEBFCFF",
+      "written_bytes": "E8XXXXXXXX",
+      "routine": "the Mausoleum screen's title widget: \"Shrine to the Ancestors\" while it shows the Heathens' graves",
+      "installed_by": "VVFP Heathen Mausoleum.dll, VvfpStartup (started by VVFP More Companions.dll, third word)"
+    },
+    {
+      "va": "0x46B116",
+      "stock_bytes": "B9A8815400E8709DFFFF",
+      "written_bytes": "E8XXXXXXXX9090909090",
+      "routine": "the everyday \"Honoring the dead\" chooser's grave count: the believers' graves and the Shrine's",
+      "installed_by": "VVFP Heathen Mausoleum.dll, VvfpStartup (started by VVFP More Companions.dll, third word)"
+    },
+    {
+      "va": "0x414DB0",
+      "stock_bytes": "B9A8815400E8D6000500",
+      "written_bytes": "E8XXXXXXXX9090909090",
+      "routine": "the Day of Honor's \"two graves or more\": the same count",
+      "installed_by": "VVFP Heathen Mausoleum.dll, VvfpStartup (started by VVFP More Companions.dll, third word)"
+    }
+  ]
 }

@@ -238,9 +238,10 @@ def heathens_row(game: int) -> dict:
 
 
 def rows(game: int) -> list[dict]:
+    # heathens_row is no longer a row of its own: "Heathen Tribe Expansion and Evolution" folds it (v1.35.101;
+    # scripts/build_heathen_tribe_evolution_feature.py takes its island-event parts from heathens_row(5)).
     return ([notes_row(game), any_time_row(game)]
-            + [filter_row(game, f) for f in content.FILTER_IDS]
-            + ([heathens_row(game)] if game == 5 else []))
+            + [filter_row(game, f) for f in content.FILTER_IDS])
 
 
 def feature_path(record: dict) -> Path:

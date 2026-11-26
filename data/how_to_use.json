@@ -280,17 +280,6 @@
       ]
     },
     {
-      "ids": ["vv5_heathens_in_island_events"],
-      "guide": [
-        "New Believers. Off by default; Owner's Defaults ticks it. Select All does not tick it. In the Island Events section.",
-        "Ordinary Heathens can be chosen for the new island events' roles that allow them, and Heathen-Exclusive Events can happen.",
-        "A chief, the Retired Chief and the puzzles' Heathens are never chosen.",
-        "When only Heathens are in an event, food, tech points, buildings, goods and research happen to the Heathens' village and change nothing in yours.",
-        "Those lines end \"(no effect)\". Heathens never count in the Village Statistics.",
-        "Needs Story / Cheat Upgrades. The game's own island events are unchanged. Not yet tested in play."
-      ]
-    },
-    {
       "ids": ["vv1_island_events_any_time", "vv2_island_events_any_time", "vv3_island_events_any_time", "vv4_island_events_any_time", "vv5_island_events_any_time"],
       "guide": [
         "Off everywhere, Owner's Defaults too; Select All does not tick it. For masochists. In each game's patch list, right under Classic VV Difficulty where the game has it.",
@@ -1189,41 +1178,39 @@
         "their age goes up, their hair greys at the usual age, and they can die of old age by the believers' own rule.",
         "They still never eat, starve or fall sick. The camp's own Heathens and the puzzle Heathens do not age with this patch.",
         "A former villager who dies is not replaced, so leaving your tribe never grows the camp.",
-        "What is left is decided by All Heathens Leave Skeletons or Former Villagers Among the Heathens Leave Skeletons;",
+        "What is left is decided by Heathen Tribe Expansion and Evolution or Former Villagers Among the Heathens Leave Skeletons;",
         "with neither, they disappear from the camp, no grave. Deaths are logged; Heathens never count in the Village Statistics.",
         "Villagers who left before this patch are recognised by the parents on their record."
       ]
     },
     {
-      "ids": ["vv5_heathen_tribe_ages"],
+      "ids": ["vv5_heathen_tribe_evolution"],
       "guide": [
-        "Off by default, in Owner's Defaults and in Select All (Select All does not tick it). Nothing to click: it works on its own.",
-        "Every Heathen ages and can die of old age by the believers' own rule: the camp's Heathens, villagers who left you,",
-        "and the puzzle Heathens too (the Heathen Doctor, the Heathen Chief, the three Masters and the Heathen Mommy).",
-        "A camp Heathen who dies is replaced at once; a puzzle Heathen whose puzzle is not solved is replaced in the same role,",
-        "set up as the game sets that role up, so every puzzle can still be solved. A solved puzzle's Heathen never comes back.",
-        "The tribe has about one baby every 24 real hours on Normal (12 Fast, 40 Slow), only while room is",
-        "left for your own village's babies. Villagers who left you are not replaced; after The Last Heathen, or with none alive, no new Heathens.",
-        "With Former Villagers Keep Aging Among the Heathens also ticked, nobody ages twice. Heathens never count in statistics.",
-        "Not yet seen in a running game."
-      ]
-    },
-    {
-      "ids": ["vv5_all_heathens_leave_skeletons"],
-      "guide": [
-        "Off by default, in Owner's Defaults and in Select All (Select All does not tick it). Only matters with a Heathen aging patch ticked:",
-        "Former Villagers Keep Aging Among the Heathens or Heathen Tribe Ages, Dies and Has Children.",
-        "Every Heathen who dies of old age leaves a skeleton; your believers bury it with Burying the dead (once The Buried",
-        "Mausoleum is solved), which gives a normal grave. Cannot be ticked with Former Villagers Among the Heathens Leave Skeletons."
+        "New Believers. Off by default and in Select All; Owner's Defaults ticks it, with new arrivals at 1x. Its Settings... button holds the sliders.",
+        "A growing camp makes The Last Heathen harder to reach, or impossible: it is solved only when no Heathen is left.",
+        "Every Heathen ages and can die of old age; an unsolved puzzle's Heathen is replaced at once in the same role.",
+        "Two adult Heathens who are not kin pair for life (either sex). A woman with a man has babies: about one for the tribe",
+        "every 24 real hours on Normal at 1x (0.1-10x Heathen Tribe Births); twins and triplets now and then. Births go on after The Last Heathen.",
+        "New Heathens arrive (0-10x New Heathen Arrivals; none unless set): at 1x about every 48 real hours, one to four at a time.",
+        "Newcomers and babies are mostly blue (90% blue, 7% orange, 3% red; all blue with the option).",
+        "A new Chief or Master takes a dead one's place after the puzzle: for show until The Last Heathen, the real role after it.",
+        "Heathens fall sick and Heathen doctors heal them; a sick Heathen never dies of it. Their cures never count in People Cured.",
+        "Idle adults sometimes harvest (taking nothing), visit buildings, eat for show or pray at the mud hut (25% by default).",
+        "Skills grow by practice. Heathens bury their dead at the mud hut: click it to see the Shrine to the Ancestors.",
+        "Heathens can be chosen for island events; Heathen-Exclusive Events can happen. Every Heathen record is marked in the logs.",
+        "Heathens never count in the Village Statistics. It replaces Heathen Tribe Ages, Dies and Has Children, All Heathens",
+        "Leave Skeletons and Heathens can be selected in Island Events: an old selection with any of them ticks this row.",
+        "Needs Story / Cheat Upgrades for island events and show titles. Not yet seen in a running game."
       ]
     },
     {
       "ids": ["vv5_former_villager_heathens_leave_skeletons"],
       "guide": [
         "Off by default and in Select All (Select All does not tick it); on in Owner's Defaults only.",
-        "Only matters with Former Villagers Keep Aging Among the Heathens or Heathen Tribe Ages, Dies and Has Children ticked.",
-        "Only villagers who had left your tribe leave a skeleton when they die among the Heathens; your believers bury it",
-        "(once The Buried Mausoleum is solved). Other Heathens leave nothing. Cannot be ticked with All Heathens Leave Skeletons."
+        "Only matters with Former Villagers Keep Aging Among the Heathens or Heathen Tribe Expansion and Evolution ticked.",
+        "Only villagers who had left your tribe leave a skeleton when they die among the Heathens. Heathens bury it at the mud hut",
+        "(believers do, once The Buried Mausoleum is solved, when no Heathen can): click the hut to see the Shrine to the Ancestors.",
+        "Other Heathens leave nothing. With Heathen Tribe Expansion and Evolution ticked every Heathen leaves one anyway."
       ]
     },
     {
@@ -1574,6 +1561,10 @@
   },
   "controls": {
     "partner_carry_percent": {"title": "A man may carry the baby by chance", "guide": ["In a couple's pregnancy of a new island event that allows it, how often the man carries the baby instead: 0 to 100 percent, 10 unless moved.", "Drag the slider or type the number. 0: never by chance; an event's own reason, or a choice the player makes, still can.", "He must be 18 or older and not expecting already; otherwise the woman carries as usual. Owner's Defaults: 10. Not yet tested in play."]},
+    "heathen_tribe_births_multiplier": {"title": "0.1-10x Heathen Tribe Births", "guide": ["Heathen Tribe Expansion and Evolution (New Believers): how often the Heathen tribe has babies.", "At 1 about one baby for the whole tribe every 24 real hours on Normal speed (12 on Fast, 40 on Slow); 10 is ten times as often, -10 a tenth.", "Only women in a couple with a man have babies. 1 unless moved, Owner's Defaults too. Patch again after a change.", "A growing camp makes The Last Heathen harder to reach, or impossible."]},
+    "heathen_arrivals_multiplier": {"title": "0-10x New Heathen Arrivals", "guide": ["Heathen Tribe Expansion and Evolution (New Believers): new Heathens join the camp from elsewhere. Untick New Heathens arrive for none (0).", "At 1 about one arrival every 48 real hours on Normal speed: one to four Heathens, sometimes a couple with up to two children.", "10 is ten times as often, -10 a tenth. Arrivals keep coming after The Last Heathen. Off in Default Patches; 1 in Owner's Defaults.", "A growing camp makes The Last Heathen harder to reach, or impossible. Patch again after a change."]},
+    "heathen_show_percent": {"title": "Show actions", "guide": ["Heathen Tribe Expansion and Evolution (New Believers): of an idle adult Heathen's choices, the percent that are a show action:", "a harvest that takes nothing, a visit to a building, a show meal or praying at the mud hut. The rest are the game's own Heathen life.", "1 to 100, 25 unless moved (about 1 choice in 4). None of it changes anything of your believers'. Patch again after a change."]},
+    "heathen_keep_blue": {"title": "Keep every new Heathen blue", "guide": ["Heathen Tribe Expansion and Evolution (New Believers): every new arrival and every Heathen baby wears the blue mask.", "Unticked (the default), they are 90% blue, 7% orange and 3% red; the mask colour changes how a Heathen acts (red ones chase and scare).", "The puzzles' Heathens keep their own masks. Patch again after a change."]},
     "more_island_events_and_creator": {"title": "More Island Events and Creator", "guide": ["One tick for every island event the patcher adds: More Island Events and the Isola Grand Event Collection.", "Ticking it ticks both, with Story / Cheat Upgrades and Scrolling Popups; unticking it unticks both.", "Each can still be ticked on its own. Owner's Defaults, Select All and Classic VV Difficulty tick the whole row.", "Its Settings... button opens its own window: the partner-carry percent, the Custom Island Event Library, the content filters and Player Events."]},
     "island_event_content_filters": {
       "title": "Content Filters",
