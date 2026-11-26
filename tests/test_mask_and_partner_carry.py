@@ -134,7 +134,7 @@ class CompilerTakesPartnerMayCarry(unittest.TestCase):
                                                cg.partner_carry_pairs(g)),
                          {"subject": "Bob", "friend": "Ann", "midwife": "Cy"})
         engine = (ROOT / "native" / "vvfp_story_upgrades" / "story_graph.inc").read_text(encoding="utf-8")
-        self.assertIn("cg_partner_carry_decide(a, game);", engine, "decided at the cast")
+        self.assertIn("cg_partner_carry_decide(a);", engine, "decided at the cast")
         self.assertIn("unsigned int carry_swapped;", engine, "kept in the run's file")
 
     def test_with_the_other_flags(self) -> None:
@@ -270,7 +270,7 @@ class PlayerEventsImporter(unittest.TestCase):
 
     def test_the_ai_prompt_says_what_the_parser_does(self) -> None:
         text = pe.ai_prompt()
-        self.assertIn("PREGNANT <who> WITH <who> without (ANY BIRTH SEX) is a couple's pregnancy", text)
+        self.assertIn("PREGNANT <who> WITH <who> is a couple's pregnancy", text)
         self.assertIn("the partner may carry instead by the player's chance setting", text)
         # The format the prompt lists is the parser's: no new word, the couple is PREGNANT ... WITH ...
         self.assertIn("PREGNANT <who> [WITH <who>] [(ANY BIRTH SEX)]", pe.EFFECT_VOCABULARY)

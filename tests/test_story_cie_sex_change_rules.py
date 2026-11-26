@@ -11,9 +11,8 @@ test build of "VVFP Story Upgrades.dll" (tests/test_story_cie_graph_runtime_v6.p
     Presentation.dll" as the test build stands it in, in every game; a refusal when the companion is not in the
     game; never cast for the Golden Child, The Secret City's Tribal Chief, New Believers' story villagers; the
     compiler's encoding (a = 1 on, 0 off) and its refusal of anything but true / false;
-  * only a villager born female is cast as a carrier -- a nursing_parent role or the one a baby_lost effect names
-    (the owner, 2026-11-15): a carrier born male (a Custom Island Event gave them a baby) is never cast, one born
-    female who is male now is (the birth sex as the test build stands it in: VvfpStoryProbeGraphBornMale).
+  * a carrier -- a nursing_parent role or the one a baby_lost effect names -- is cast whatever the villager's sex
+    (the owner, 2026-11-26: "Remove it, any sex"; the born-female rule of 2026-11-15 is gone).
 """
 from __future__ import annotations
 
@@ -183,36 +182,33 @@ BABY_LOST_GRAPH = {
     "nodes": {"p": {"text": "(Parent) has a hard night.", "effects": [{"do": "baby_lost", "role": "parent"}]}}}
 
 
-class CarriersBornFemale(unittest.TestCase):
-    def _cast(self, game: str, graph: dict, born_male: int) -> str:
-        # Ana and Moku both carrying (Moku: a man, through a Custom Island Event or a change after conceiving).
-        r = rt.V6(game, [(0, "f", 30, "Ana", 0, True), (1, "m", 30, "Moku", 0, True)])
-        r.p.export("VvfpStoryProbeGraphBornMale", born_male)
+class CarriersOfAnySex(unittest.TestCase):
+    """The owner, 2026-11-26: "Remove it, any sex" -- a carrier (a nursing_parent role, or the one a baby_lost effect
+    names) is cast whatever the villager's sex, then or at birth."""
+
+    def _cast(self, game: str, graph: dict) -> str:
+        # Only Moku, a man (never changed), is carrying (a Custom Island Event gave him a baby).
+        r = rt.V6(game, [(0, "f", 30, "Ana", 0, False), (1, "m", 30, "Moku", 0, True)])
         r.rolls([1] * 40)
         result = r.queue6(rt.compiled(graph), strict=True)
         self.assertIsNone(result)
         return rt.norm(" ".join(t for _k, t, _l in r.walk_through()))
 
-    def test_a_nursing_parent_is_born_female(self):
+    def test_a_man_is_cast_as_the_nursing_parent(self):
         for game in GAME_IDS:
             if not have_stock(game):
                 continue
             with self.subTest(game=game):
-                graph = nursing_graph(game)
-                self.assertIn("Ana hums a lullaby.", self._cast(game, graph, 0b10), "Moku born male: never cast")
-                # Born female (now male, still carrying): may be cast; Ana born male: only Moku.
-                self.assertIn("Moku hums a lullaby.", self._cast(game, graph, 0b01))
+                self.assertIn("Moku hums a lullaby.", self._cast(game, nursing_graph(game)))
 
-    def test_baby_lost_reaches_only_one_born_female(self):
+    def test_a_man_is_cast_for_baby_lost(self):
         for game in GAME_IDS:
             if not have_stock(game):
                 continue
             with self.subTest(game=game):
                 graph = copy.deepcopy(BABY_LOST_GRAPH)
                 graph["games"] = [int(game[2])]
-                self.assertIn("Ana has a hard night.", self._cast(game, graph, 0b10))
-                self.assertIn("Moku has a hard night.", self._cast(game, graph, 0b01))
-
+                self.assertIn("Moku has a hard night.", self._cast(game, graph))
 
 class EngineRules(unittest.TestCase):
     def test_has_living_child_after_the_parent_s_sex_changed(self):

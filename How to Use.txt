@@ -1775,9 +1775,9 @@ window):
   same rows) everywhere the game draws villagers. The preview shows it at
   once; OK keeps it (free); Cancel and Undo changes do not.
 Neither is offered for the Golden Child, and story villagers keep the game's
-own look. Only villagers born female carry: one born female who changes to
-male goes on carrying; one born male never conceives on their own, but a
-Custom Island Event can still give them a baby with a partner you choose. The choice is kept in the save's own Gender Presentation file and
+own look. Babies are never blocked for any sex: a villager of either sex can
+carry and hold a baby, and a carrying parent who changes sex goes on
+carrying. The choice is kept in the save's own Gender Presentation file and
 follows the villager; Start Over clears it. On in Owner's Defaults only (off
 in the normal defaults and in Select All). Runs on the Origins-exclusive
 base, which the patcher installs automatically with it. Not yet seen in a

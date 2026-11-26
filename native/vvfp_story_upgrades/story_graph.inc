@@ -196,7 +196,8 @@ enum { CGE_FOOD = 1, CGE_TECH = 2, CGE_PAY = 3, CGE_KILL = 4, CGE_VANISH = 5, CG
        CGE_NEW_VILLAGER = 27,
        /* 28 / 29: the role's villager becomes pregnant by the game's own conception (the Custom Island Event's
           chosen-partner path, a->conceive), the partner role in the first value (255 none); 29 delivers at once
-          (a->deliver: nursing a newborn).  Flags bit 0: any birth sex (else the carrier was born female); always 18
+          (a->deliver: nursing a newborn).  Flags bit 0, "any birth sex", is still read but no longer needed: any sex
+          carries (the owner, 2026-11-26); always 18
           or more, never already expecting; no room: nothing. */
        CGE_PREGNANT = 28, CGE_NURSING = 29,
        /* 30: a copy of the role's villager by the game's own twins' copy routine (room asked first), always with a
@@ -2247,8 +2248,8 @@ static int cg_sex_change_role(int role) {
     return 0;
 }
 
-/* Is `role` a carrier: a nursing_parent role, or the one a baby_lost effect names (cie-v6-binary.md 22)?  Only a
-   villager born female is cast for it (the owner, 2026-11-15; cg_born_female). */
+/* Is `role` a carrier: a nursing_parent role, or the one a baby_lost effect names (cie-v6-binary.md 22)?  A villager
+   of any sex is cast for it (the owner, 2026-11-26: "Remove it, any sex"). */
 static int cg_carrier_role(int role) {
     const unsigned char *spec = cg_role_at(&cg_g, role);
     int i;
@@ -2265,26 +2266,8 @@ static int cg_carrier_role(int role) {
 }
 
 #ifdef VVFP_TEST
-/* The birth sex as the test build sees it: -1 the real rule; else bit i set: record i was born male. */
-static int test_graph_born_male = -1;
 static int test_graph_no_deliver;      /* 1: a nursing effect conceives only (VvfpStoryProbeGraphNoDeliver) */
 #endif
-
-/* Was the villager in record `r` (record index `index`) born female?  "VVFP Gender Presentation.dll" keeps the birth
-   sex (VvfpBornFemale); without it the save's Sex Changes log tells (native/shared/sex_change.h). */
-static int cg_born_female(int game, const unsigned char *r, int index) {
-    HMODULE dll;
-    vvfp_gp_born_female_fn born;
-#ifdef VVFP_TEST
-    if (test_graph_born_male >= 0) {
-        return index < 0 || index >= 31 || !(test_graph_born_male & (1 << index));
-    }
-#endif
-    (void)index;
-    dll = GetModuleHandleA(VVFP_GP_DLL);
-    born = dll != NULL ? (vvfp_gp_born_female_fn)(void *)GetProcAddress(dll, "VvfpBornFemale") : NULL;
-    return born != NULL ? born(game, r) == 1 : vv_sex_born_female_by_log(game, r);
-}
 
 #ifdef VVFP_TEST
 /* The gender presentation as the test build's words see it (35): -1 the real one; else bit i set: record i is drawn
@@ -2515,9 +2498,6 @@ static int cg_eligible(const ce_adapter *a, int game, int role, int index) {
     }
     if (cg_presentation_role(role) && vv_sex_change_refusal(game, r, index) != VV_SEX_OK) {
         return 0;                      /* nor any special villager for a gender presentation */
-    }
-    if (cg_carrier_role(role) && !cg_born_female(game, r, index)) {
-        return 0;                      /* only a villager born female is cast as a carrier */
     }
     if ((spec[1] & CG_ROLE_BELIEVERS) && cg_heathen(game, r) && !(game == 5 && (spec[13] & CG_ROLE_HEATHEN))
         && !row_heathen) {
@@ -3478,15 +3458,13 @@ static void cg_new_name(const ce_adapter *a, int game, int r) {
 /* 28 / 29, CG_FX_PARTNER_MAY_CARRY (the owner, 2026-11-18): who carries is decided ONCE, when the run starts (the
    cast made and the aliases drawn -- an alias role is its member -- before any page is written), so every page (names, pronouns, carrier words) names the villager who actually
    carries, and the effect makes the same one carry.  For each such effect with a partner role, in effect order, each
-   pair once: the carrier must pass the carrier's checks as the effect does (18 or more, not expecting, born female
-   unless any_birth_sex), the partner 18 or more and not expecting; then, at the player's chance
+   pair once: the carrier must pass the carrier's checks as the effect does (18 or more, not expecting), the partner 18 or more and not expecting; then, at the player's chance
    (cg_partner_carries: one roll, none at 0 or 100), the two roles' villagers change places for the rest of the run
    (record, identity, sex, name) and the carrier role is marked in cg.carry_swapped (the run's file keeps both, so a
-   loaded run keeps the choice).  The effect then skips the born-female check for a swapped carrier: the partner may
-   carry whatever their birth sex.  Nothing else is rolled at the effect. */
+   loaded run keeps the choice).  Nothing else is rolled at the effect. */
 static unsigned char *cg_villager(const ce_adapter *a, int r);
 
-static void cg_partner_carry_decide(const ce_adapter *a, int game) {
+static void cg_partner_carry_decide(const ce_adapter *a) {
     unsigned int decided = 0u;
     int i;
     for (i = 0; i < cg_g.n_effect; ++i) {
@@ -3510,7 +3488,6 @@ static void cg_partner_carry_decide(const ce_adapter *a, int game) {
         pr = cg_villager(a, p);
         if (cr == NULL || pr == NULL || !(a->caps & CAP_PREGNANT) || a->conceive == NULL
             || ce_age(a, cr) < 18 * 20 || *(const int *)(cr + a->off_pregnant) != 0
-            || (!(e[2] & CG_FX_ANY_BIRTH_SEX) && !cg_born_female(game, cr, cg.record[c]))
             || ce_age(a, pr) < 18 * 20 || *(const int *)(pr + a->off_pregnant) != 0
             || !cg_partner_carries(a)) {
             continue;
@@ -7112,15 +7089,13 @@ static void cg_life_effect(const ce_adapter *a, int game, const unsigned char *e
         int partner_carries = (e[2] & CG_FX_PARTNER_MAY_CARRY) && swapped_role;
         /* Codex on #814: the swap holds for the whole run, so another outcome's nursing baby for that role (a
            foundling the couple takes in: b247, b356) goes to the villager the page names, whatever their birth sex,
-           as the owner's rules let a father care for a baby; an unflagged pregnancy keeps the born-female rule. */
+           as the owner's rules let a father care for a baby. */
         int swapped_nursing = e[0] == CGE_NURSING && swapped_role;
         /* #784's log: the conception's record and the carrier line say the partner carries (the cast's swap) */
         int swapped = partner_carries || swapped_nursing;
         if (!(a->caps & CAP_PREGNANT) || a->conceive == NULL || ce_age(a, record) < 18 * 20
-            || *(const int *)(record + a->off_pregnant) != 0
-            || (!(e[2] & CG_FX_ANY_BIRTH_SEX) && !partner_carries && !swapped_nursing
-                && !cg_born_female(game, record, index))) {
-            return;                    /* not a carrier these events may have, or expecting already: nothing */
+            || *(const int *)(record + a->off_pregnant) != 0) {
+            return;                    /* under 18, or expecting already: nothing (any sex carries) */
         }
         if (other != 0xFF) {
             int at = -1;
@@ -9434,7 +9409,7 @@ static void cg_start_run(const ce_adapter *a, int game) {
     cg.answers = 0;
     cg.choice = -1;
     cg_draw_aliases(a, cg.bound);      /* version 6: before the first node (at the purchase for a question) */
-    cg_partner_carry_decide(a, game);  /* who carries: the cast and the aliases made, no page yet written */
+    cg_partner_carry_decide(a);        /* who carries: the cast and the aliases made, no page yet written */
     cg_walk(a, game, cg_g.start, &first, NULL, NULL);   /* its picks are the path's own */
     cg_path_add(&first, NULL, 0);
     cg_layout_from(a, game, 0, 0);
@@ -11812,11 +11787,6 @@ __declspec(dllexport) int __stdcall VvfpStoryProbeGraphHeadLook(int mode, int *o
         out[2 * i + 1] = test_graph_head_look_set[i][1];
     }
     return test_graph_head_looks;
-}
-
-/* The birth sex as the test build sees it: `born_male` -1 the real rule, else bit i: record i was born male. */
-__declspec(dllexport) void __stdcall VvfpStoryProbeGraphBornMale(int born_male) {
-    test_graph_born_male = born_male;
 }
 
 /* A nursing effect's birth left out (`on` 1): the conception alone, which the emulator can run. */
