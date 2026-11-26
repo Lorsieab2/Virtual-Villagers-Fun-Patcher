@@ -88,6 +88,12 @@ EDITS = {
     (5, "sm/eEventMysteriousStorytellerResultB"): [("island.Others", "island. Others"),
                                                    ("nature.They", "nature. They")],
     (5, "sm/eEventTheSealedBoxResultB"): [("for his honest", "for {his/her} honest")],
+    # The owner, 2026-11-26 (neutral words): later Heathen Mommies and Chiefs may be of either sex.
+    (5, "sm/eSayAlreadyPregnant"): [("She's", "They're")],
+    (5, "sm/eSayTakingCareOfBaby"): [("her baby", "their baby")],
+    (5, "sm/eSayHidingChild"): [("her child", "their child")],
+    (5, "sm/eTTipStandAloneFirstPreg"): [("A mother", "A parent"), ("for her child", "for their child")],
+    (5, "sm/eSayChiefMumbles"): [("his daughter", "their daughter")],
 }
 
 

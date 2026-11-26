@@ -2156,7 +2156,7 @@
         {
           "source": "assets/text_fixes/VVFP Text Fixes.dll",
           "destination": "VVFP Text Fixes.dll",
-          "sha256": "2C85FCD0B5571E4B9C15F29A159FE395840841F29ABA37623AF2004ECAEF7943"
+          "sha256": "D3EA17274020EA81E30C505210A2C697481BA038C7299C886795DFD99CF224B1"
         },
         {
           "source": "assets/herb_study/VVFP Herb Study.dll",
@@ -2947,7 +2947,7 @@
         {
           "source": "assets/text_fixes/VVFP Text Fixes.dll",
           "destination": "VVFP Text Fixes.dll",
-          "sha256": "2C85FCD0B5571E4B9C15F29A159FE395840841F29ABA37623AF2004ECAEF7943"
+          "sha256": "D3EA17274020EA81E30C505210A2C697481BA038C7299C886795DFD99CF224B1"
         },
         {
           "source": "assets/herb_study/VVFP Herb Study.dll",
@@ -3116,7 +3116,7 @@
         {
           "source": "assets/text_fixes/VVFP Text Fixes.dll",
           "destination": "VVFP Text Fixes.dll",
-          "sha256": "2C85FCD0B5571E4B9C15F29A159FE395840841F29ABA37623AF2004ECAEF7943"
+          "sha256": "D3EA17274020EA81E30C505210A2C697481BA038C7299C886795DFD99CF224B1"
         }
       ],
       "runtime_detours": [
@@ -3592,7 +3592,7 @@
         {
           "source": "assets/text_fixes/VVFP Text Fixes.dll",
           "destination": "VVFP Text Fixes.dll",
-          "sha256": "2C85FCD0B5571E4B9C15F29A159FE395840841F29ABA37623AF2004ECAEF7943"
+          "sha256": "D3EA17274020EA81E30C505210A2C697481BA038C7299C886795DFD99CF224B1"
         },
         {
           "source": "assets/vv4_frogs/VVFP VV4 Frogs.dll",
@@ -4560,8 +4560,8 @@
         {
           "source": "data/guardians_of_isola/new/Assets/sm.xml",
           "destination": "Assets/sm.xml",
-          "size": 149921,
-          "sha256": "B48B5242E513E58538EC37160EB04708CB8965C1F2C759ED606334B7486659C7",
+          "size": 149923,
+          "sha256": "BCDC46A7C24EFC672B3AA47A0EF285E55F894E6BB0206AB54B5F5DC839C4ECA6",
           "preimage_sha256": "D17229C44BBBE561BD0FFE3F94942B5321BC8642A38B99459DF162625A48F071",
           "restore_source": "data/guardians_of_isola/base/Assets/sm.xml",
           "restore_sha256": "D17229C44BBBE561BD0FFE3F94942B5321BC8642A38B99459DF162625A48F071"
@@ -6307,7 +6307,7 @@
         {
           "source": "assets/text_fixes/VVFP Text Fixes.dll",
           "destination": "VVFP Text Fixes.dll",
-          "sha256": "2C85FCD0B5571E4B9C15F29A159FE395840841F29ABA37623AF2004ECAEF7943"
+          "sha256": "D3EA17274020EA81E30C505210A2C697481BA038C7299C886795DFD99CF224B1"
         }
       ],
       "runtime_detours": [
