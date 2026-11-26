@@ -58,7 +58,7 @@ HEATHEN_FILE = "Heathen Mausoleum - Save {0}.dat"
 HUT = (2200, 1588)                 # a point at the mud hut (x, y)
 SITES = {0x473FA9: 5, 0x45B650: 31, 0x46E9E0: 7, 0x46F146: 5, 0x43F4F1: 5, 0x43F735: 5, 0x43FDC0: 5,
          0x43FED6: 5, 0x43CE24: 5, 0x423E2B: 5, 0x4246E1: 5, 0x424569: 5, 0x424733: 5, 0x425849: 5, 0x43F1DF: 5,
-         0x46B116: 10}
+         0x46B116: 10, 0x414DB0: 10}
 
 
 def _skip() -> str | None:
@@ -470,6 +470,23 @@ class Burial(unittest.TestCase):
         v.bury(v.record(3), burier)
         self.assertEqual(honoring_count(v), 3)
         self.assertEqual(honoring_count(Village(())), 0, "without the companion: the game's own count")
+
+    def test_the_day_of_honor_counts_the_heathens_graves_too(self):
+        """0x414DB0, the Day of Honor's "two graves or more" (the owner, 2026-11-26)."""
+        v = Village()
+        burier = v.villager(0, heathen=False)
+        v.dead(1, heathen=True, name="H1")
+        v.bury(v.record(1), burier)
+        self.assertEqual(v.call(0x414DB0) & 0xFF, 0, "one grave: not yet")
+        v.dead(2, heathen=True, name="H2")
+        v.bury(v.record(2), burier)
+        self.assertEqual(v.call(0x414DB0) & 0xFF, 1, "two Heathen graves at the Shrine to the Ancestors")
+        w = Village(())
+        burier = w.villager(0, heathen=False)
+        for i in (1, 2):
+            w.dead(i, heathen=True, name=f"H{i}")
+            w.bury(w.record(i), burier)
+        self.assertEqual(w.call(0x414DB0) & 0xFF, 1, "without the companion: two graves in the Roster of the Dead")
 
     def test_a_full_mud_hut_memorial_writes_no_grave(self):
         v = Village()

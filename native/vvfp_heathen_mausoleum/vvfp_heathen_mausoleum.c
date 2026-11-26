@@ -45,8 +45,10 @@
      0x46B116  the everyday "Honoring the dead" chooser's grave count: the believers' graves and the Heathens'
                (the owner, 2026-11-26: the same grave behaviour), so the honoring -- at the graves, or at the hovel
                with Memorial Actions Can Also Occur at the Heathen Hovel -- still happens in a village whose only
-               graves are Heathens'.  (The Day of Honor, the Remembrance Ceremony and the Story graph's grave
-               condition still count the Roster of the Dead: their ceremonies are at the Buried Mausoleum.)
+               graves are Heathens'.
+     0x414DB0  the Day of Honor's "two graves or more" (the owner, 2026-11-26): the same count.  (The Remembrance
+               Ceremony, "VVFP More Island Events.dll", and Story / Cheat Upgrades' "graves" condition add the
+               Shrine's graves themselves, through VvfpHeathenMausoleumCount: heathen_mausoleum.h hm_shrine_count.)
      0x43CE24  the mausoleum's own opener: the believers' roster again, then 0x43CC00.  (The area-0x0C handler
                0x47A3F0 also switches to scene 0x14, but no lcmap.dat cell carries id 0x0C: dead code.)
      0x423E2B, 0x4246E1   after each lcmap load (0x4775B0): hotspot 0x0B registered in the area-handler table
@@ -901,8 +903,9 @@ static const unsigned char CLEAR_STOCK[5] = { 0xE8, 0x98, 0x04, 0x04, 0x00 };
 static const unsigned char LOAD_STOCK[5] = { 0xE8, 0xA2, 0xF6, 0x03, 0x00 };
 static const unsigned char TITLE_STOCK[5] = { 0xE8, 0xAC, 0xEB, 0xFC, 0xFF };
 static const unsigned char HONOR_STOCK[10] = { 0xB9, 0xA8, 0x81, 0x54, 0x00, 0xE8, 0x70, 0x9D, 0xFF, 0xFF };
+static const unsigned char DAY_OF_HONOR_STOCK[10] = { 0xB9, 0xA8, 0x81, 0x54, 0x00, 0xE8, 0xD6, 0x00, 0x05, 0x00 };
 static const unsigned int VIEW_SITES[4] = { 0x43F4F1u, 0x43F735u, 0x43FDC0u, 0x43FED6u };
-#define HM_SITES 16
+#define HM_SITES 17
 
 void __stdcall VvfpStartup(int game, unsigned int shipped) {
     vvfp_site_write sites[HM_SITES];
@@ -936,6 +939,7 @@ void __stdcall VvfpStartup(int game, unsigned int shipped) {
     vvfp_site_branch(&sites[12], 0x424733u, 5, CLEAR_STOCK, 0xE8, (const void *)clear_stub);
     vvfp_site_branch(&sites[14], 0x43F1DFu, 5, TITLE_STOCK, 0xE8, (const void *)title_stub);
     vvfp_site_branch(&sites[15], 0x46B116u, 10, HONOR_STOCK, 0xE8, (const void *)honor_count_stub);
+    vvfp_site_branch(&sites[16], 0x414DB0u, 10, DAY_OF_HONOR_STOCK, 0xE8, (const void *)honor_count_stub);
     vvfp_site_branch(&sites[13], 0x425849u, 5, LOAD_STOCK, 0xE8, (const void *)load_stub);
     if (vvfp_install_sites(sites, HM_SITES)) {
         g_installed = 1;

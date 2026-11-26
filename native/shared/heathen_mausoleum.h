@@ -109,4 +109,14 @@ static __inline const unsigned char *hm_graves(int *count) {
     return at;
 }
 
+/* The number of Heathen graves at the Shrine to the Ancestors (0 without the companion).  The owner (2026-11-26): the
+   Day of Honor, the Remembrance Ceremony and Story / Cheat Upgrades' "graves" condition count them beside the Roster
+   of the Dead's (the Village Statistics never do). */
+static __inline int hm_shrine_count(void) {
+    HMODULE module = GetModuleHandleA(HE_MAUSOLEUM_DLL);
+    hm_count_fn counted = module != NULL ? (hm_count_fn)(void *)GetProcAddress(module, HM_COUNT_EXPORT) : NULL;
+    int n = counted != NULL ? counted() : 0;
+    return n > 0 ? n : 0;
+}
+
 #endif /* VV_HEATHEN_MAUSOLEUM_H */

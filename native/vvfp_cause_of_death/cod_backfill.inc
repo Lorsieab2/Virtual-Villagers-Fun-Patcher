@@ -48,7 +48,10 @@
 #define LOGGED_VERSION 1u
 #define LOGGED_HEADER 16u
 #define LOGGED_ENTRY 8u
-#define LOGGED_MAX V345_ENTRIES
+/* New Believers' places 500-999 are the Heathens' graves at the Shrine to the Ancestors ("VVFP Heathen
+   Mausoleum.dll", heathen_mausoleum.h; the owner, 2026-11-26: the same grave behaviour), entry place - 500 of its
+   table, so a Heathen buried there while the Deaths log was off gets its record too. */
+#define LOGGED_MAX (2 * V345_ENTRIES)
 
 /* The patcher's own data file for one kind of record, in that kind's own
    folder:  "<save folder>\Virtual Villagers Fun Patcher Data\<folder>\
@@ -79,7 +82,7 @@ static struct {
 static unsigned char logged_buffer[LOGGED_HEADER + LOGGED_MAX * LOGGED_ENTRY];
 
 static int cod_grave_places(void) {
-    return g_game <= 2 ? GRAVES : V345_ENTRIES;
+    return g_game <= 2 ? GRAVES : g_game == 5 ? 2 * V345_ENTRIES : V345_ENTRIES;
 }
 
 /* FORMAT (little-endian), exactly 16 + 8 * count bytes:
@@ -206,6 +209,13 @@ static unsigned char *test_gravestones;
 #endif
 
 static const unsigned char *backfill_entry(int place) {
+    if (place >= V345_ENTRIES) {
+        /* New Believers: the Shrine to the Ancestors' grave place - 500, or no grave there (NULL). */
+        int n = 0;
+        const unsigned char *shrine = g_game == 5 ? hm_graves(&n) : NULL;
+        int at = place - V345_ENTRIES;
+        return shrine != NULL && at < n ? shrine + (size_t)at * V345[5].entry_stride : NULL;
+    }
 #ifdef VVFP_TEST
     if (test_roster != NULL) {
         return test_roster + (size_t)place * V345[g_game].entry_stride;
@@ -276,11 +286,15 @@ static int backfill_gather(void) {
         }
         return n;
     }
-    for (place = 0; place < V345_ENTRIES; ++place) {
+    for (place = 0; place < cod_grave_places(); ++place) {
         const unsigned char *entry = backfill_entry(place);
         vv_grave_fact *f = &facts[n];
-        int age = *(const int *)(entry + V345[g_game].e_age);
+        int age;
         unsigned int capacity = v345_name_capacity();
+        if (entry == NULL) {
+            continue;                     /* (the Shrine to the Ancestors: no grave at that place) */
+        }
+        age = *(const int *)(entry + V345[g_game].e_age);
         if (!backfill_dug(entry) || !backfill_counted(age)) {
             continue;
         }
@@ -288,7 +302,7 @@ static int backfill_gather(void) {
         f->place = place;
         f->age = age;
         fact_name(f, entry, capacity);
-        v345_title(entry, f->grave);
+        v345_grave_words(entry, f->grave, VV_GRAVE_LINE);   /* "the Shrine to the Ancestors (...)" for a Heathen's */
         fact_fp[n] = v345_fingerprint(entry);
         ++n;
     }
