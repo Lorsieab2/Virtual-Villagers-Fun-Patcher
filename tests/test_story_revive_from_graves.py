@@ -919,6 +919,27 @@ class EveryDetailTests(unittest.TestCase):
                 self.assertEqual((answer, r.p.export("VvfpStoryProbeReviveRestored")), (1, 1))
                 self.assertEqual(self._same(r, made, snap), [])
                 self.assertEqual((r.v.i32(made, r.v.L["head"]), r.v.i32(made, r.v.L["body"])), (0, 0))
+    def test_revived_and_dead_again_their_shown_record_takes_the_one_backfill(self):
+        # Codex, PR #880: a backfilled snapshot (its age only no older than the death) could match both records of
+        # someone revived and dead again; the older, hidden record must never claim it from the shown one.
+        import vv_revive_backfill as rb
+        for game, mode, r in self._each(("collection_progression",)):
+            with self.subTest(game=game):
+                snap = Snap(r, 9, age=300)
+                snap.gone()
+                n = r.v.L["n"]
+                data = snap.entry[rb.ENTRY_HEAD.size:rb.ENTRY_HEAD.size + sum(size for _o, size in rb.SAVED[n])]
+                file = rb.build(n, [rb.Snapshot(n, data, rb.FROM_BACKUP, rb.EXACT_IDENTITY, 133_000_000_000_000_000)])
+                at = r.p.alloc(len(file) + 16)
+                r.p.write(at, file)
+                r.p.export("VvfpStoryProbeReviveSnapshotFile", at, len(file))
+                text = ana_death(age=1300) + death(2, "Ana Rua", 400, "Female", 5, 6, likes="ants, turnips",
+                                                   dislikes="the ocean")
+                self.assertEqual(r.load(text), 1)                        # one person: their newest record shown
+                self.assertIn("Death record: Death 2", r.row(0)[2])
+                self.assertEqual(r.p.export("VvfpStoryProbeReviveSnapshotOf", 0), 1)
+                answer, made = r.buy(0)
+                self.assertEqual((answer, r.p.export("VvfpStoryProbeReviveRestored")), (1, 1))
     def test_a_damaged_snapshot_file_is_never_used(self):
         for game, mode, r in self._each(("collection_progression",)):
             with self.subTest(game=game):

@@ -243,6 +243,57 @@ class Rules(unittest.TestCase):
         at = checker.VV1_BLOCK0 + 3 * checker.VV1_STRIDE
         save[at:at + 0x98] = zero
         self.assertIn(zero, rb.save_entries(1, bytes(save)))
+    # Codex, PR #880: the saved tables are found by their entries, never by the roster the game loads -- a tribe
+    # that died out loads nobody, and the 256 extension may hold stale entries only.
+    @staticmethod
+    def _entry(game: int, d: bytes) -> bytes:
+        """The saved entry the game's writer packs from a record's windows (entry_to_data's inverse), its present
+        flag 0: a stale copy the game never loads."""
+        if game in (1, 2):
+            return bytes(d)
+        if game in (3, 4):
+            return bytes(4) + bytes(d)
+        e = bytearray(0x118)
+        e[0x10:0xB8], e[0xB8:0xE0], e[0xE0:0xFC] = d[0:0xA8], d[0xA8:0xD0], d[0xD0:0xEC]
+        e[1:5], e[8:12], e[0x114:0x118] = d[0xEC:0xF0], d[0xF0:0xF4], d[0xF4:0xF8]
+        e[0xC:0x10], e[0xFC:0x114] = d[0xF8:0xFC], d[0xFC:0x114]
+        return bytes(e)
+
+    def _place(self, game: int, save: bytearray, name_at: int, d: bytes) -> None:
+        start = name_at - rb.ENTRY_FROM_NAME[game]
+        entry = self._entry(game, d)
+        self.assertEqual(rb.entry_to_data(game, entry), d)
+        save[start:start + len(entry)] = entry
+
+    def test_a_tribe_that_died_out_still_gives_its_stale_entries(self):
+        import vv_log_tools as tools
+        checker = tools.load_checker()
+        for game in (2, 3, 4, 5):
+            male, female = rb.SEX_VALUES[game]
+            with self.subTest(game=game):
+                size = checker.STOCK_SAVE.get(game, 0x40000)
+                save = bytearray(size)
+                stride = checker.LAYOUTS[game].stride
+                people = [record_for(game, f"Gone Villager{k}", (male, female)[k % 2], k, k + 1, (), (), 300 + k,
+                                     seed=k + 2) for k in range(3)]
+                for k, d in enumerate(people):
+                    self._place(game, save, 30832 + k * stride, d)
+                self.assertEqual(checker.villager_offsets(game, bytes(save), []) if game != 2 else [], [])
+                found = rb.save_entries(game, bytes(save))
+                for d in people:
+                    self.assertIn(d, found)
+
+    def test_a_stale_entry_in_the_256_extension_is_found(self):
+        import vv_log_tools as tools
+        checker = tools.load_checker()
+        for game in (3, 4, 5):
+            _male, female = rb.SEX_VALUES[game]
+            with self.subTest(game=game):
+                stride = checker.LAYOUTS[game].stride
+                save = bytearray(checker.STOCK_SAVE[game] + 20 + 3 * stride)
+                d = record_for(game, "Far Villager", female, 0, 0, (), (), 0, seed=9)
+                self._place(game, save, checker.STOCK_SAVE[game] + 20 + stride + rb.ENTRY_FROM_NAME[game], d)
+                self.assertIn(d, rb.save_entries(game, bytes(save)))
     def test_the_file_layout_is_the_dlls(self):
         header = (ROOT / "native" / "shared" / "revive_snapshot.h").read_text(encoding="utf-8")
         self.assertIn("#define VV_RS_MAGIC 0x31535256u", header)

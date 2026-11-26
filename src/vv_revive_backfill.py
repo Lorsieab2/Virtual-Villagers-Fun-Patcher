@@ -233,27 +233,43 @@ def save_entries(game: int, data: bytes) -> list[bytes]:
             if len(e) == 0x98 and _plausible(1, entry_to_data(1, e)):
                 out.append(entry_to_data(1, e))
         return out
+    # The saved tables are found by their entries themselves, never by the roster the game loads (Codex, PR #880):
+    # the loaded roster ends at the end-of-list flag, so a tribe that died out loads nobody, and the 256 extension
+    # may hold only stale entries.  The main table is the save's longest run of plausible entries (the checker's
+    # table_start: names, looks, an age -- the present flags are not read), walked back to its first entry; the
+    # extension (The Secret City to New Believers, after the stock save's length) is found the same way in the
+    # bytes past that length.  Every slot of each is read; the plausibility checks keep the villagers.
     lay = checker.LAYOUTS[game]
-    try:
-        names = checker.villager_offsets(game, data, [])
-    except ValueError:
-        return out
-    if not names:
-        return out
-    starts = [names[0]]
-    if game != 2 and len(data) > checker.STOCK_SAVE[game]:
-        extra = [p for p in names if p >= checker.STOCK_SAVE[game]]
-        if extra:
-            starts.append(extra[0])
-    slots = {2: 256}.get(game, 150)
-    for first in starts:
+    stock_end = checker.STOCK_SAVE.get(game, len(data))
+    seen: set[bytes] = set()
+
+    def entry_at(p: int) -> bytes | None:
+        start = p - ENTRY_FROM_NAME[game]
+        e = data[start:start + ENTRY_BYTES[game]]
+        if start < 0 or len(e) < ENTRY_BYTES[game] or not checker.plausible(data, p, lay, checker.ANY_NAME_RE):
+            return None
+        d = entry_to_data(game, e)
+        return d if _plausible(game, d) else None
+
+    def scan(first: int, slots: int, low: int) -> None:
+        while first - lay.stride >= low and entry_at(first - lay.stride) is not None:
+            first -= lay.stride
         for k in range(slots):
-            p = first + k * lay.stride
-            e = data[p - ENTRY_FROM_NAME[game]: p - ENTRY_FROM_NAME[game] + ENTRY_BYTES[game]]
-            if p - ENTRY_FROM_NAME[game] < 0 or len(e) < ENTRY_BYTES[game]:
-                break
-            if checker.plausible(data, p, lay, checker.ANY_NAME_RE) and _plausible(game, entry_to_data(game, e)):
-                out.append(entry_to_data(game, e))
+            d = entry_at(first + k * lay.stride)
+            if d is not None and d not in seen:
+                seen.add(d)
+                out.append(d)
+
+    main_area = data[:stock_end] if game != 2 else data
+    first = checker.table_start(main_area, lay, [])
+    if first is not None:
+        scan(first, {2: 256}.get(game, 150), 0)
+    if game != 2 and len(data) > stock_end:
+        # (a match can start on a letter just before the name: every place inside it is tried)
+        found = next((p for m in checker.NAME_RE.finditer(data, stock_end) for p in range(m.start(), m.end() - 1)
+                      if p - ENTRY_FROM_NAME[game] >= stock_end and entry_at(p) is not None), None)
+        if found is not None:
+            scan(found, 256 - 150, stock_end + ENTRY_FROM_NAME[game])
     return out
 
 

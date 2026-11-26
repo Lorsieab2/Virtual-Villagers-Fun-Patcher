@@ -981,6 +981,10 @@ static void rv_match_snaps(int game, const ce_adapter *a) {
         int best = -1, other = 0, captured = 0;
         p->snap = -1;
         p->snap_ambiguous = 0;
+        if (!p->listed) {
+            continue;                 /* an older record of someone listed again (or in the village): it never claims
+                                         a snapshot the shown record is to have (Codex, PR #880) */
+        }
         /* A capture at the departure always wins over a backfill (Repair Saves & Logs) of the same person. */
         for (k = 0; k < rv_snap_count && !captured; ++k) {
             captured = !rv_snap_claimed[k] && rv_snaps[k].source == VV_RS_CAPTURED && rv_snap_is(a, game, p, &rv_snaps[k]);
