@@ -40,6 +40,7 @@ from dataclasses import dataclass, field
 from pathlib import Path
 
 import vv_save_layout as layout
+from vv_game_text import decode_game_text
 
 DATA = "Virtual Villagers Fun Patcher Data"
 RELATIVE = DATA + r"\Revive Snapshots\Virtual Villagers {game} Revive Snapshots - Save {slot}.dat"
@@ -111,7 +112,8 @@ def _i32(game: int, data: bytes, offset: int) -> int | None:
 
 
 def _text(raw: bytes | None) -> str:
-    return raw.split(b"\0", 1)[0].decode("latin-1") if raw is not None else ""
+    """A name field: the games' text bytes as Windows-1252, as every reader of game text (vv_game_text)."""
+    return decode_game_text(raw.split(b"\0", 1)[0]) if raw is not None else ""
 
 
 def _fnv(data: bytes) -> int:
