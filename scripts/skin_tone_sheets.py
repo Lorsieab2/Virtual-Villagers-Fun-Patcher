@@ -621,17 +621,56 @@ def _clean(layer):
     return layer
 
 
-def build_workbench(art: Art, folder: Path, only=None):
+XCF_PINS = "_xcf"                       # in .generated.json: {sheet: the SHA-256 of the .xcf as this tool wrote it}
+
+
+def _file_sha(path: Path) -> str:
+    return hashlib.sha256(path.read_bytes()).hexdigest()
+
+
+def _manifest(folder: Path) -> dict:
+    path = folder / ".generated.json"
+    return json.loads(path.read_text(encoding="utf-8")) if path.is_file() else {}
+
+
+def changed_by_the_owner(game, folder: Path, stems) -> list[str]:
+    """The sheets whose .xcf is there and is NOT the file this tool wrote (its SHA-256 differs from the one
+    recorded, or none was recorded): the owner's work, never to be replaced."""
+    pins = _manifest(folder).get(XCF_PINS, {})
+    return [stem for stem in stems
+            if (folder / f"{game}_{stem}.xcf").is_file() and _file_sha(folder / f"{game}_{stem}.xcf") != pins.get(stem)]
+
+
+def build_workbench(game, images: Path, folder: Path, only=None):
     """<folder>/<game>_<sheet>.xcf for every sheet, and .generated.json (what each generated layer was, so
-    `import` can tell the owner's edits from untouched layers)."""
+    `import` can tell the owner's edits from untouched layers, and what each .xcf was when written).
+
+    NOTHING OF THE OWNER'S IS EVER REPLACED.  An .xcf that is not the file this tool wrote is the owner's: it
+    is first read as `import` reads it, so its edits are in "edits", and then it is left exactly as it is.
+    If it cannot be read it is left as it is too.  Only files still as written are made again.
+    Returns (written, kept, unread): the .xcf files written, the owner's sheets kept (and read), and the
+    owner's sheets kept that could not be read."""
     folder.mkdir(parents=True, exist_ok=True)
-    manifest_path = folder / ".generated.json"
-    manifest = json.loads(manifest_path.read_text(encoding="utf-8")) if manifest_path.is_file() else {}
+    stems = [Path(s["name"]).stem for s in sheets_of(game) if find_file(Path(images), s["name"])]
+    if only:
+        stems = [stem for stem in stems if stem in only]
+    theirs = changed_by_the_owner(game, folder, stems)
+    unread = []
+    if theirs:
+        try:
+            import_workbench(game, folder, theirs)
+        except (SystemExit, Exception) as problem:      # GIMP missing, a file it cannot open: keep, never replace
+            print(f"could not read the changed files ({problem}); they are left as they are")
+            unread = list(theirs)
+    edits = folder / "edits"
+    art = Art(game, images, edits if edits.is_dir() else None)     # after the import: the edits just kept apply
+    manifest = _manifest(folder)
+    pins = manifest.setdefault(XCF_PINS, {})
     with tempfile.TemporaryDirectory() as tmp:
-        files = []
+        files, made = [], []
         for name in art.specs:
             stem = Path(name).stem
-            if only and stem not in only:
+            if stem not in stems or stem in theirs:
                 continue
             work = Path(tmp) / stem
             work.mkdir()
@@ -655,21 +694,43 @@ def build_workbench(art: Art, folder: Path, only=None):
             top[mask] = 0
             put(top, "top.png", LAYER_TOP, True, True)
             manifest[stem] = record
-            files.append({"xcf": str(folder / f"{art.game}_{stem}.xcf"), "layers": layers})
-        run_gimp(_GIMP_BUILD, {"files": files})
-    manifest_path.write_text(json.dumps(manifest, indent=1), encoding="utf-8")
-    return [f["xcf"] for f in files]
+            made.append(stem)
+            files.append({"xcf": str(folder / f"{game}_{stem}.xcf"), "layers": layers})
+        if files:
+            run_gimp(_GIMP_BUILD, {"files": files})
+    for stem in made:
+        pins[stem] = _file_sha(folder / f"{game}_{stem}.xcf")
+    (folder / ".generated.json").write_text(json.dumps(manifest, indent=1), encoding="utf-8")
+    return [f["xcf"] for f in files], [stem for stem in theirs if stem not in unread], unread
 
 
-def import_workbench(game, folder: Path):
-    """Read every <game>_<sheet>.xcf back through GIMP; keep each mask and tone layer the owner changed
-    in <folder>/edits/<sheet>/ and drop the ones that are still as generated.  Returns what was kept."""
-    manifest = json.loads((folder / ".generated.json").read_text(encoding="utf-8"))
+def pin_as_written(game, folder: Path, not_after: float):
+    """For a workbench built before the .xcf files were pinned: pin every .xcf not modified after
+    `not_after` (the time its build ended) as the file this tool wrote.  One changed since is the owner's
+    and is left unpinned.  Returns the sheets pinned."""
+    manifest = _manifest(folder)
+    pins = manifest.setdefault(XCF_PINS, {})
+    done = []
+    for path in sorted(folder.glob(f"{game}_*.xcf")):
+        stem = path.stem[len(game) + 1:]
+        if stem not in pins and path.stat().st_mtime <= not_after:
+            pins[stem] = _file_sha(path)
+            done.append(stem)
+    (folder / ".generated.json").write_text(json.dumps(manifest, indent=1), encoding="utf-8")
+    return done
+
+
+def import_workbench(game, folder: Path, only=None):
+    """Read every <game>_<sheet>.xcf (or only the sheets in `only`) back through GIMP; keep each mask and
+    tone layer the owner changed in <folder>/edits/<sheet>/ and drop the ones that are still as generated.
+    Returns what was kept."""
+    manifest = _manifest(folder)
     edits = folder / "edits"
     kept = []
     with tempfile.TemporaryDirectory() as tmp:
         files = [{"xcf": str(path), "out": str(Path(tmp) / path.stem[len(game) + 1:])}
-                 for path in sorted(folder.glob(f"{game}_*.xcf"))]
+                 for path in sorted(folder.glob(f"{game}_*.xcf"))
+                 if not only or path.stem[len(game) + 1:] in only]
         if not files:
             raise SystemExit(f"no {game}_*.xcf in {folder}")
         run_gimp(_GIMP_EXPORT, {"files": files})
@@ -774,8 +835,12 @@ TO PUT YOUR EDITS IN THE PATCHER ITSELF (so every player gets them)
       assets\\skin_tones\\owner_edits\\<game>\\<sheet>\\
   as the skin pixels only: nothing of the game's own art goes with them.
 
-TO MAKE THE FILES AGAIN (your "edits" are applied; the .xcf files are replaced)
+TO MAKE THE FILES AGAIN (safe: nothing of yours is ever replaced)
       python scripts\\skin_tone_sheets.py workbench --game vv1 --images "<the game's Images folder>"
+  A file you have changed is never overwritten. It is read first, exactly as "import" reads it, so its
+  edits are kept in "edits", and then it is left as it is. Only files you have not touched are made
+  again (with your "edits" applied). To have one of your own files made again, delete it yourself first.
+  "import" is still how to bring "edits" up to date after you paint.
 """
 
 
@@ -828,8 +893,13 @@ def main() -> int:
     else:
         args.workbench.mkdir(parents=True, exist_ok=True)
         (args.workbench / "README.txt").write_text(README, encoding="utf-8")
-        for path in build_workbench(art, folder, args.only):
+        written, kept, unread = build_workbench(args.game, args.images, folder, args.only)
+        for path in written:
             print("wrote", path)
+        for stem in kept:
+            print("kept (changed by you; its edits are in \"edits\"):", f"{args.game}_{stem}.xcf")
+        for stem in unread:
+            print("kept (changed by you; it could NOT be read, nothing was done to it):", f"{args.game}_{stem}.xcf")
     return 0
 
 
