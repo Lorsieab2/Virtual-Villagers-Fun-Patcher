@@ -77,7 +77,9 @@ RULES = (
          "or removes its villager can pick the Golden Child; a Pick Island Event or Custom Island Event may still "
          "pick him, by design (the owner).", only_with=FIX),
     Line("With the patcher's \"Story / Cheat Upgrades\" (in this game): Pick Island Event chooses the next event "
-         "and its rolls instead of the chances above.", only_with=STORY),
+         "and its rolls instead of the chances above. "
+         "Its Override box also lets it choose an event whose own condition fails now: the event happens "
+         "with the villagers you have, and only truly impossible ones stay closed.", only_with=STORY),
 )
 
 EVENTS = (

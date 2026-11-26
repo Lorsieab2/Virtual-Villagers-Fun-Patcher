@@ -2273,6 +2273,26 @@ vv1	vvfp.story/story_graph.cg_encampment_kind.s0	content	yes		Honoring the dead 
 vv1	vvfp.story/story_graph.cg_encampment_kind.s1	content	yes		Reflecting (at the encampment)
 vv1	vvfp.story/story_graph.cg_encampment_kind.s2	content	yes		Honoring the dead or reflecting (at the encampment)
 vv1	vvfp.story/story_graph.cg_cond_words.s7	content	yes		fewer than %d graves
+vv1	vvfp.story/story_outcomes_ui.chooser_description.s2	key	yes		Normally not possible right now (it needs %s). With the override it happens anyway, with the villagers the village has: it may not make story sense, and its effects happen.
+vv1	vvfp.story/story_outcomes_ui.chooser_description.s3	key	yes		%s\r\n\r\nNot possible even with the override: %s
+vv1	vvfp.story/story_outcomes_ui.chooser_show.s0	key	yes		Normally not possible right now. With the override it happens anyway, with the villagers the village has: it may not make story sense, and its effects happen.
+vv1	vvfp.story/story_outcomes_ui.chooser_list_label.s0	key	yes		 (only with the override)
+vv1	vvfp.story/story_outcomes_ui.OV_WARNING.s0	key	yes		With the override ticked you can pick island events the game would not run right now. Such an event happens anyway, with the villagers your village has: it may not make story sense, and its effects (losses, sickness, villagers leaving, and so on) happen as the event says.\r\n\r\nEvents that are truly impossible (no villager the event's own code needs, or no room left in the game's villager records) stay closed.\r\n\r\nPress OK to turn the override on, or Cancel.
+vv1	vvfp.story/story_override.ov_kind_words.s0	key	yes		an adult
+vv1	vvfp.story/story_override.ov_kind_words.s1	key	yes		an adult woman
+vv1	vvfp.story/story_override.ov_kind_words.s2	key	yes		an adult man
+vv1	vvfp.story/story_override.ov_kind_words.s3	key	yes		a woman or girl
+vv1	vvfp.story/story_override.ov_kind_words.s4	key	yes		a man or boy
+vv1	vvfp.story/story_override.ov_kind_words.s5	key	yes		a Heathen who can take part (not a puzzle's Heathen, not sick)
+vv1	vvfp.story/story_override.ov_kind_words.s6	key	yes		a living villager
+vv1	vvfp.story/story_override.ov_refusal.s0	key	yes		it can not be forced safely: it needs %s.
+vv1	vvfp.story/story_override.ov_refusal.s1	key	yes		two different villagers for its two parts
+vv1	vvfp.story/story_override.ov_refusal.s2	key	yes		room in the game's villager records for %d more villagers (the village is at the most villagers the game can hold)
+vv1	vvfp.story/story_outcomes_ui.chooser_dialog.s7	key	yes		Override: allow events that are normally not possible
+vv1	vvfp.more_island_events/mie_pick.aspiring_adventurer.needs_override	key	yes		two villagers of 14 or more who may go (not nursing a baby, and none the game keeps out of island events)
+vv1	vvfp.more_island_events/mie_pick.cave_explorers.needs_override	key	yes		two villagers of 18 or more who may go (not nursing a baby, and none the game keeps out of island events)
+vv1	vvfp.more_island_events/mie_pick.remembrance_ceremony.needs_override	key	yes		at least one grave
+vv1	vvfp.more_island_events/mie_pick.the_rumblings.needs_override	key	yes		a finished hut
 vv1	vvfp.story/story_revive.rv_details.s28	key	yes		Special villager: %s. They come back in that role and its mask, set up as the game sets the role up and at the role's own age, %d (the Heathen Chief with every skill 100, the Heathen Mommy with her infant by a living adult Heathen) - unless a living Heathen holds the role now or its puzzle is solved: then as an ordinary Heathen, with every other detail.\r\n
 vv1	vvfp.story/story_revive.rv_details.s29	key	yes		 (kept: they come back with it where the game allows it)
 vv1	vvfp.story/story_revive.rv_details.s30	key	yes		Skills (kept at their death):\r\n
@@ -4999,6 +5019,26 @@ vv2	vvfp.story/story_graph.cg_encampment_kind.s0	content	yes		Honoring the dead 
 vv2	vvfp.story/story_graph.cg_encampment_kind.s1	content	yes		Reflecting (at the encampment)
 vv2	vvfp.story/story_graph.cg_encampment_kind.s2	content	yes		Honoring the dead or reflecting (at the encampment)
 vv2	vvfp.story/story_graph.cg_cond_words.s7	content	yes		fewer than %d graves
+vv2	vvfp.story/story_outcomes_ui.chooser_description.s2	key	yes		Normally not possible right now (it needs %s). With the override it happens anyway, with the villagers the village has: it may not make story sense, and its effects happen.
+vv2	vvfp.story/story_outcomes_ui.chooser_description.s3	key	yes		%s\r\n\r\nNot possible even with the override: %s
+vv2	vvfp.story/story_outcomes_ui.chooser_show.s0	key	yes		Normally not possible right now. With the override it happens anyway, with the villagers the village has: it may not make story sense, and its effects happen.
+vv2	vvfp.story/story_outcomes_ui.chooser_list_label.s0	key	yes		 (only with the override)
+vv2	vvfp.story/story_outcomes_ui.OV_WARNING.s0	key	yes		With the override ticked you can pick island events the game would not run right now. Such an event happens anyway, with the villagers your village has: it may not make story sense, and its effects (losses, sickness, villagers leaving, and so on) happen as the event says.\r\n\r\nEvents that are truly impossible (no villager the event's own code needs, or no room left in the game's villager records) stay closed.\r\n\r\nPress OK to turn the override on, or Cancel.
+vv2	vvfp.story/story_override.ov_kind_words.s0	key	yes		an adult
+vv2	vvfp.story/story_override.ov_kind_words.s1	key	yes		an adult woman
+vv2	vvfp.story/story_override.ov_kind_words.s2	key	yes		an adult man
+vv2	vvfp.story/story_override.ov_kind_words.s3	key	yes		a woman or girl
+vv2	vvfp.story/story_override.ov_kind_words.s4	key	yes		a man or boy
+vv2	vvfp.story/story_override.ov_kind_words.s5	key	yes		a Heathen who can take part (not a puzzle's Heathen, not sick)
+vv2	vvfp.story/story_override.ov_kind_words.s6	key	yes		a living villager
+vv2	vvfp.story/story_override.ov_refusal.s0	key	yes		it can not be forced safely: it needs %s.
+vv2	vvfp.story/story_override.ov_refusal.s1	key	yes		two different villagers for its two parts
+vv2	vvfp.story/story_override.ov_refusal.s2	key	yes		room in the game's villager records for %d more villagers (the village is at the most villagers the game can hold)
+vv2	vvfp.story/story_outcomes_ui.chooser_dialog.s7	key	yes		Override: allow events that are normally not possible
+vv2	vvfp.more_island_events/mie_pick.aspiring_adventurer.needs_override	key	yes		two villagers of 14 or more who may go (not nursing a baby, and none the game keeps out of island events)
+vv2	vvfp.more_island_events/mie_pick.the_climb.needs_override	key	yes		a villager of 18 or more who may go (not nursing a baby, and none the game keeps out of island events)
+vv2	vvfp.more_island_events/mie_pick.remembrance_ceremony.needs_override	key	yes		at least one grave
+vv2	vvfp.more_island_events/mie_pick.the_rumblings.needs_override	key	yes		a finished hut
 vv2	vvfp.story/story_revive.rv_details.s28	key	yes		Special villager: %s. They come back in that role and its mask, set up as the game sets the role up and at the role's own age, %d (the Heathen Chief with every skill 100, the Heathen Mommy with her infant by a living adult Heathen) - unless a living Heathen holds the role now or its puzzle is solved: then as an ordinary Heathen, with every other detail.\r\n
 vv2	vvfp.story/story_revive.rv_details.s29	key	yes		 (kept: they come back with it where the game allows it)
 vv2	vvfp.story/story_revive.rv_details.s30	key	yes		Skills (kept at their death):\r\n
@@ -7523,6 +7563,28 @@ vv3	vvfp.story/story_graph.cg_encampment_kind.s0	content	yes		Honoring the dead 
 vv3	vvfp.story/story_graph.cg_encampment_kind.s1	content	yes		Reflecting (at the encampment)
 vv3	vvfp.story/story_graph.cg_encampment_kind.s2	content	yes		Honoring the dead or reflecting (at the encampment)
 vv3	vvfp.story/story_graph.cg_cond_words.s7	content	yes		fewer than %d graves
+vv3	vvfp.story/story_outcomes_ui.chooser_description.s2	key	yes		Normally not possible right now (it needs %s). With the override it happens anyway, with the villagers the village has: it may not make story sense, and its effects happen.
+vv3	vvfp.story/story_outcomes_ui.chooser_description.s3	key	yes		%s\r\n\r\nNot possible even with the override: %s
+vv3	vvfp.story/story_outcomes_ui.chooser_show.s0	key	yes		Normally not possible right now. With the override it happens anyway, with the villagers the village has: it may not make story sense, and its effects happen.
+vv3	vvfp.story/story_outcomes_ui.chooser_list_label.s0	key	yes		 (only with the override)
+vv3	vvfp.story/story_outcomes_ui.OV_WARNING.s0	key	yes		With the override ticked you can pick island events the game would not run right now. Such an event happens anyway, with the villagers your village has: it may not make story sense, and its effects (losses, sickness, villagers leaving, and so on) happen as the event says.\r\n\r\nEvents that are truly impossible (no villager the event's own code needs, or no room left in the game's villager records) stay closed.\r\n\r\nPress OK to turn the override on, or Cancel.
+vv3	vvfp.story/story_override.ov_kind_words.s0	key	yes		an adult
+vv3	vvfp.story/story_override.ov_kind_words.s1	key	yes		an adult woman
+vv3	vvfp.story/story_override.ov_kind_words.s2	key	yes		an adult man
+vv3	vvfp.story/story_override.ov_kind_words.s3	key	yes		a woman or girl
+vv3	vvfp.story/story_override.ov_kind_words.s4	key	yes		a man or boy
+vv3	vvfp.story/story_override.ov_kind_words.s5	key	yes		a Heathen who can take part (not a puzzle's Heathen, not sick)
+vv3	vvfp.story/story_override.ov_kind_words.s6	key	yes		a living villager
+vv3	vvfp.story/story_override.ov_refusal.s0	key	yes		it can not be forced safely: it needs %s.
+vv3	vvfp.story/story_override.ov_refusal.s1	key	yes		two different villagers for its two parts
+vv3	vvfp.story/story_override.ov_refusal.s2	key	yes		room in the game's villager records for %d more villagers (the village is at the most villagers the game can hold)
+vv3	vvfp.story/story_tables.VV3_OV_EVENTS.s0	key	yes		a tribal chief: the event's own code looks the chief up and speaks through them
+vv3	vvfp.story/story_outcomes_ui.chooser_dialog.s7	key	yes		Override: allow events that are normally not possible
+vv3	vvfp.more_island_events/mie_pick.aspiring_adventurer.needs_override	key	yes		two villagers of 14 or more who may go (not nursing a baby, and none the game keeps out of island events)
+vv3	vvfp.more_island_events/mie_pick.troubling_signs.needs_override	key	yes		the Tribal Chief (not nursing a baby), nine other villagers of 18 or more who may be picked, and a name for the tribe
+vv3	vvfp.more_island_events/mie_pick.diving_for_treasure.needs_override	key	yes		two villagers of 18 or more who may be picked
+vv3	vvfp.more_island_events/mie_pick.remembrance_ceremony.needs_override	key	yes		at least one grave
+vv3	vvfp.more_island_events/mie_pick.the_rumblings.needs_override	key	yes		a finished hut
 vv3	vvfp.story/story_revive.rv_details.s28	key	yes		Special villager: %s. They come back in that role and its mask, set up as the game sets the role up and at the role's own age, %d (the Heathen Chief with every skill 100, the Heathen Mommy with her infant by a living adult Heathen) - unless a living Heathen holds the role now or its puzzle is solved: then as an ordinary Heathen, with every other detail.\r\n
 vv3	vvfp.story/story_revive.rv_details.s29	key	yes		 (kept: they come back with it where the game allows it)
 vv3	vvfp.story/story_revive.rv_details.s30	key	yes		Skills (kept at their death):\r\n
@@ -9861,6 +9923,28 @@ vv4	vvfp.story/story_graph.cg_encampment_kind.s0	content	yes		Honoring the dead 
 vv4	vvfp.story/story_graph.cg_encampment_kind.s1	content	yes		Reflecting (at the encampment)
 vv4	vvfp.story/story_graph.cg_encampment_kind.s2	content	yes		Honoring the dead or reflecting (at the encampment)
 vv4	vvfp.story/story_graph.cg_cond_words.s7	content	yes		fewer than %d graves
+vv4	vvfp.story/story_outcomes_ui.chooser_description.s2	key	yes		Normally not possible right now (it needs %s). With the override it happens anyway, with the villagers the village has: it may not make story sense, and its effects happen.
+vv4	vvfp.story/story_outcomes_ui.chooser_description.s3	key	yes		%s\r\n\r\nNot possible even with the override: %s
+vv4	vvfp.story/story_outcomes_ui.chooser_show.s0	key	yes		Normally not possible right now. With the override it happens anyway, with the villagers the village has: it may not make story sense, and its effects happen.
+vv4	vvfp.story/story_outcomes_ui.chooser_list_label.s0	key	yes		 (only with the override)
+vv4	vvfp.story/story_outcomes_ui.OV_WARNING.s0	key	yes		With the override ticked you can pick island events the game would not run right now. Such an event happens anyway, with the villagers your village has: it may not make story sense, and its effects (losses, sickness, villagers leaving, and so on) happen as the event says.\r\n\r\nEvents that are truly impossible (no villager the event's own code needs, or no room left in the game's villager records) stay closed.\r\n\r\nPress OK to turn the override on, or Cancel.
+vv4	vvfp.story/story_override.ov_kind_words.s0	key	yes		an adult
+vv4	vvfp.story/story_override.ov_kind_words.s1	key	yes		an adult woman
+vv4	vvfp.story/story_override.ov_kind_words.s2	key	yes		an adult man
+vv4	vvfp.story/story_override.ov_kind_words.s3	key	yes		a woman or girl
+vv4	vvfp.story/story_override.ov_kind_words.s4	key	yes		a man or boy
+vv4	vvfp.story/story_override.ov_kind_words.s5	key	yes		a Heathen who can take part (not a puzzle's Heathen, not sick)
+vv4	vvfp.story/story_override.ov_kind_words.s6	key	yes		a living villager
+vv4	vvfp.story/story_override.ov_refusal.s0	key	yes		it can not be forced safely: it needs %s.
+vv4	vvfp.story/story_override.ov_refusal.s1	key	yes		two different villagers for its two parts
+vv4	vvfp.story/story_override.ov_refusal.s2	key	yes		room in the game's villager records for %d more villagers (the village is at the most villagers the game can hold)
+vv4	vvfp.story/story_tables.VV4_OV_EVENTS.s0	key	yes		a mother with a baby: the event is about her own baby
+vv4	vvfp.story/story_outcomes_ui.chooser_dialog.s7	key	yes		Override: allow events that are normally not possible
+vv4	vvfp.more_island_events/mie_pick.aspiring_adventurer.needs_override	key	yes		two villagers of 14 or more who may go (not nursing a baby, and none the game keeps out of island events)
+vv4	vvfp.more_island_events/mie_pick.playful_dolphins.needs_override	key	yes		two villagers of 14 or more who may be picked
+vv4	vvfp.more_island_events/mie_pick.mysterious_mask.needs_override	key	yes		two to four children under 14 and five villagers of 18 or more who may be picked
+vv4	vvfp.more_island_events/mie_pick.remembrance_ceremony.needs_override	key	yes		at least one grave
+vv4	vvfp.more_island_events/mie_pick.the_rumblings.needs_override	key	yes		a finished hut
 vv4	vvfp.story/story_revive.rv_details.s28	key	yes		Special villager: %s. They come back in that role and its mask, set up as the game sets the role up and at the role's own age, %d (the Heathen Chief with every skill 100, the Heathen Mommy with her infant by a living adult Heathen) - unless a living Heathen holds the role now or its puzzle is solved: then as an ordinary Heathen, with every other detail.\r\n
 vv4	vvfp.story/story_revive.rv_details.s29	key	yes		 (kept: they come back with it where the game allows it)
 vv4	vvfp.story/story_revive.rv_details.s30	key	yes		Skills (kept at their death):\r\n
@@ -12241,6 +12325,25 @@ vv5	vvfp.story/story_graph.cg_encampment_kind.s0	content	yes		Honoring the dead 
 vv5	vvfp.story/story_graph.cg_encampment_kind.s1	content	yes		Reflecting (at the encampment)
 vv5	vvfp.story/story_graph.cg_encampment_kind.s2	content	yes		Honoring the dead or reflecting (at the encampment)
 vv5	vvfp.story/story_graph.cg_cond_words.s7	content	yes		fewer than %d graves
+vv5	vvfp.story/story_outcomes_ui.chooser_description.s2	key	yes		Normally not possible right now (it needs %s). With the override it happens anyway, with the villagers the village has: it may not make story sense, and its effects happen.
+vv5	vvfp.story/story_outcomes_ui.chooser_description.s3	key	yes		%s\r\n\r\nNot possible even with the override: %s
+vv5	vvfp.story/story_outcomes_ui.chooser_show.s0	key	yes		Normally not possible right now. With the override it happens anyway, with the villagers the village has: it may not make story sense, and its effects happen.
+vv5	vvfp.story/story_outcomes_ui.chooser_list_label.s0	key	yes		 (only with the override)
+vv5	vvfp.story/story_outcomes_ui.OV_WARNING.s0	key	yes		With the override ticked you can pick island events the game would not run right now. Such an event happens anyway, with the villagers your village has: it may not make story sense, and its effects (losses, sickness, villagers leaving, and so on) happen as the event says.\r\n\r\nEvents that are truly impossible (no villager the event's own code needs, or no room left in the game's villager records) stay closed.\r\n\r\nPress OK to turn the override on, or Cancel.
+vv5	vvfp.story/story_override.ov_kind_words.s0	key	yes		an adult
+vv5	vvfp.story/story_override.ov_kind_words.s1	key	yes		an adult woman
+vv5	vvfp.story/story_override.ov_kind_words.s2	key	yes		an adult man
+vv5	vvfp.story/story_override.ov_kind_words.s3	key	yes		a woman or girl
+vv5	vvfp.story/story_override.ov_kind_words.s4	key	yes		a man or boy
+vv5	vvfp.story/story_override.ov_kind_words.s5	key	yes		a Heathen who can take part (not a puzzle's Heathen, not sick)
+vv5	vvfp.story/story_override.ov_kind_words.s6	key	yes		a living villager
+vv5	vvfp.story/story_override.ov_refusal.s0	key	yes		it can not be forced safely: it needs %s.
+vv5	vvfp.story/story_override.ov_refusal.s1	key	yes		two different villagers for its two parts
+vv5	vvfp.story/story_override.ov_refusal.s2	key	yes		room in the game's villager records for %d more villagers (the village is at the most villagers the game can hold)
+vv5	vvfp.story/story_outcomes_ui.chooser_dialog.s7	key	yes		Override: allow events that are normally not possible
+vv5	vvfp.more_island_events/mie_pick.aspiring_adventurer.needs_override	key	yes		two villagers of 14 or more who may go (not nursing a baby, and none the game keeps out of island events)
+vv5	vvfp.more_island_events/mie_pick.remembrance_ceremony_nb.needs_override	key	yes		at least one grave
+vv5	vvfp.more_island_events/mie_pick.the_rumblings.needs_override	key	yes		a finished hut
 vv5	patch/0x4946dd	patch	yes		{name} sees a heartfelt memorial.
 vv5	patch/0x494818	patch	yes		{name} sees the decorated encampment.
 vv5	vvfp.story/story_revive.rv_details.s28	key	yes		Special villager: %s. They come back in that role and its mask, set up as the game sets the role up and at the role's own age, %d (the Heathen Chief with every skill 100, the Heathen Mommy with her infant by a living adult Heathen) - unless a living Heathen holds the role now or its puzzle is solved: then as an ordinary Heathen, with every other detail.\r\n

@@ -108,8 +108,11 @@ static int ts_possible(const ts_game *t) {
         return 0;
     }
     chief = t->chief();
-    return chief >= 0 && (t->population() >= TS_POPULATION_MIN || adv_no_safeguards(t->g->game)) && t->tribe(tribe, sizeof tribe)
-        && ts_candidates(t, chief, list, TS_MAX_RECORDS) >= TS_PICKS;
+    /* Pick Island Event's override (mp_relaxed): the population is not asked (as with No Safeguards), and the chief
+       need not wear the robe (ts_game.chief) -- the chief, the nine and the tribe's name are what the event uses. */
+    return chief >= 0
+        && (t->population() >= TS_POPULATION_MIN || adv_no_safeguards(t->g->game) || mp_relaxed(MIE_RELAX_TROUBLING))
+        && t->tribe(tribe, sizeof tribe) && ts_candidates(t, chief, list, TS_MAX_RECORDS) >= TS_PICKS;
 }
 
 /* ---- Words ----------------------------------------------------------------------------------------------------- */
@@ -213,7 +216,7 @@ static const char *ts_tallest_text(void) {
 
 /* The chief, the nine, every award and every page, for the popup about to be built (`g` lays the pages out); 0 when
    the event cannot happen. */
-static int ts_begin(const ts_game *t, const adv_game *g) {
+static int ts_begin_event(const ts_game *t, const adv_game *g) {
     static int list[TS_MAX_RECORDS];
     int n, k, set;
     memset(&ts, 0, sizeof ts);
@@ -268,6 +271,12 @@ static int ts_begin(const ts_game *t, const adv_game *g) {
         ts.ready &= ts_set(set)->count > 0;
     }
     return ts.ready;
+}
+
+static int ts_begin(const ts_game *t, const adv_game *g) {
+    int ready = ts_begin_event(t, g);
+    mp_relax_used(MIE_RELAX_TROUBLING);    /* an override pick is used once, begun or not */
+    return ready;
 }
 
 /* ---- The answer and the effects -------------------------------------------------------------------------------- */

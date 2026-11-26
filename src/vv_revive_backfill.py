@@ -256,11 +256,13 @@ def save_entries(game: int, data: bytes) -> list[bytes]:
 
 
 def _plausible(game: int, d: bytes) -> bool:
-    age, sex, name, cap, head, body, *_ = LAYOUT[game]
+    """A name, a sex, looks of the sheets and an age.  Head 0, body 0 and age 0 are valid values (the owner's rule:
+    "zero appearance and dead parents are valid"): only a missing field (None) or one out of range is not."""
     s = Snapshot(game, d)
-    who = s.identity()
-    return bool(who[0]) and who[1] in SEX_VALUES[game] and 0 <= (who[2] or -1) < 64 and 0 <= (who[3] or -1) < 64 \
-        and (s.age() or -1) >= 0
+    name, sex, head, body, _likes, _dislikes = s.identity()
+    age = s.age()
+    return (bool(name) and sex in SEX_VALUES[game] and head is not None and 0 <= head < 64
+            and body is not None and 0 <= body < 64 and age is not None and age >= 0)
 
 
 @dataclass
@@ -431,7 +433,7 @@ def plan(folder: Path, game: int, slot: int) -> tuple[list[Snapshot], Result]:
                 s = Snapshot(game, d, src.kind, EXACT_IDENTITY, src.when)
                 if not _is(person, s, False):
                     continue
-                age = s.age() or 0
+                age = s.age()           # never None here: _is required an age (0 is a valid one)
                 if best is None or age > best[0]:
                     best, unsure = (age, si, ei, s), False
                 elif age == best[0] and _keep(game, d) != _keep(game, best[3].data):

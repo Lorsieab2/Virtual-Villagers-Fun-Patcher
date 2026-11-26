@@ -805,6 +805,7 @@ static int t_ours(const void *object) {
    the stock draw is untouched. */
 static void __cdecl t_list(void) {
     adv_log_reset();                     /* an island event is being drawn: whatever was ours is over */
+    mp_relax_reset();
     g_cr_made = 0;
     __try {
         void **slot0 = (void **)(uintptr_t)g_tg->table;

@@ -63,7 +63,9 @@ RULES = (
     Line(f"Weather an event brings lasts like any other weather: {WEATHER}."),
     Line("A loss of food or tech points takes no more than there is. Health and skills stop at 0 and 100."),
     Line("With the patcher's \"Story / Cheat Upgrades\" (in this game): Pick Island Event chooses the next event "
-         "and, where the game rolls, the outcome.", only_with=STORY),
+         "and, where the game rolls, the outcome. "
+         "Its Override box also lets it choose an event whose own condition fails now: the event happens "
+         "with the villagers you have, and only truly impossible ones stay closed.", only_with=STORY),
     # VVFP VV4 Fruit Supply.dll (THE EVENT / ITS CHANCE in its source): the draw 0x4180A5 leaves slot 19 out; the
     # separate roll there (rand(100) < 20); the delivery at the scheduler's update 0x43FA32 through 0x418190.
     Line("With \"Yellow Fruit Trees are No Longer Unlimited\": the game's events are drawn exactly as above, each with "

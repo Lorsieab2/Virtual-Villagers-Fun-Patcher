@@ -905,6 +905,20 @@ class EveryDetailTests(unittest.TestCase):
                 answer, made = r.buy(0)
                 self.assertEqual((answer, r.p.export("VvfpStoryProbeReviveRestored")), (1, 1))
                 self.assertEqual(self._same(r, made, snap), [])
+    def test_head_0_body_0_and_age_0_come_back_from_their_snapshot(self):
+        # Codex, PR #880: zero appearance values and an age of 0 are valid (the owner's rule).
+        for game, mode, r in self._each(("collection_progression",)):
+            with self.subTest(game=game):
+                snap = Snap(r, 9, age=0, head=0, body=0)
+                snap.gone()
+                snapshot_file(r, [snap.entry])
+                text = death(1, "Ana Rua", 0, "Female", 0, 0, likes="ants, turnips", dislikes="the ocean")
+                self.assertEqual(r.load(text), 1)
+                self.assertEqual(r.p.export("VvfpStoryProbeReviveSnapshotOf", 0), 1)
+                answer, made = r.buy(0)
+                self.assertEqual((answer, r.p.export("VvfpStoryProbeReviveRestored")), (1, 1))
+                self.assertEqual(self._same(r, made, snap), [])
+                self.assertEqual((r.v.i32(made, r.v.L["head"]), r.v.i32(made, r.v.L["body"])), (0, 0))
     def test_a_damaged_snapshot_file_is_never_used(self):
         for game, mode, r in self._each(("collection_progression",)):
             with self.subTest(game=game):

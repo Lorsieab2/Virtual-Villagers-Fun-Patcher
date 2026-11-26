@@ -218,6 +218,31 @@ class Rules(unittest.TestCase):
         self.assertIn("not one this version reads", result.note)
         self.assertEqual(target.read_bytes(), b"not a snapshot file")
 
+    def test_head_0_body_0_and_age_0_are_valid_values(self):
+        # Codex, PR #880: `x or -1` read a valid 0 as missing and dropped the entry.  The owner's rule: zero appearance
+        # (and dead parents) are valid.  In every game's plausibility test, in a stale entry read from a save, and in a
+        # backup the backfill matches.
+        import vv_log_tools as tools
+        for game in range(1, 6):
+            male, female = rb.SEX_VALUES[game]
+            with self.subTest(game=game):
+                zero = record_for(game, "Zero Looks", female, 0, 0, (), (), 0, seed=3)
+                self.assertTrue(rb._plausible(game, zero))
+                result, target = self.run_backfill(
+                    game, [death_block("Zero Looks", "Female", 0, 0, 0, "(none)", "(none)")],
+                    [rb.Source(rb.FROM_BACKUP, 1, "backup", [zero])])
+                self.assertEqual(result.made, ["Zero Looks: backup"])
+                snaps = rb.parse(target.read_bytes(), game)
+                self.assertEqual(snaps[0].data, zero)
+                self.assertEqual(snaps[0].identity()[2:4], (0, 0))
+        # A New Home's save, read as the game lays it out: entry i at VV1_BLOCK0 + i * VV1_STRIDE, the entry the
+        # snapshot's data byte for byte; a stale copy (its flag not 1) with head 0, body 0 and age 0 is kept.
+        checker = tools.load_checker()
+        save = bytearray(checker.VV1_BLOCK0 + 256 * checker.VV1_STRIDE)
+        zero = record_for(1, "Zero Looks", 2, 0, 0, (), (), 0, seed=3)
+        at = checker.VV1_BLOCK0 + 3 * checker.VV1_STRIDE
+        save[at:at + 0x98] = zero
+        self.assertIn(zero, rb.save_entries(1, bytes(save)))
     def test_the_file_layout_is_the_dlls(self):
         header = (ROOT / "native" / "shared" / "revive_snapshot.h").read_text(encoding="utf-8")
         self.assertIn("#define VV_RS_MAGIC 0x31535256u", header)

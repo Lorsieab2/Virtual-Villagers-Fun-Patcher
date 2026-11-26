@@ -39,6 +39,16 @@
 #include "dolphin_text.inc"
 #include "mask_text.inc"
 #include "ceremony_text.inc"
+
+/* Pick Island Event's override (mie_pick.inc mp_relaxed): whether an event's story requirements are dropped now --
+   only for the pick the player bought with the picker's override ticked, or while the picker asks what the event
+   would need with it.  Each event's own test asks it with its kind; mp_relax_used after the event's begin. */
+enum { MIE_RELAX_NONE = 0, MIE_RELAX_CAVE, MIE_RELAX_CLIMB, MIE_RELAX_TROUBLING, MIE_RELAX_MASK,
+       MIE_RELAX_REMEMBRANCE, MIE_RELAX_RUMBLINGS };
+static int mp_relaxed(int kind);
+static void mp_relax_used(int kind);
+static void mp_relax_reset(void);
+
 #include "cave_core.inc"
 #include "climb_core.inc"
 #include "troubling_core.inc"

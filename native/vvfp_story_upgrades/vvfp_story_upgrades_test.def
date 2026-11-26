@@ -143,6 +143,7 @@ EXPORTS
     VvfpStoryProbeGraphLog=_VvfpStoryProbeGraphLog@16
     VvfpStoryProbeGraphSent=_VvfpStoryProbeGraphSent@12
     VvfpStoryMoreEventDue=_VvfpStoryMoreEventDue@4
+    VvfpStoryMoreEventOverride=_VvfpStoryMoreEventOverride@4
     VvfpStoryMoreEventDone=_VvfpStoryMoreEventDone@8
     VvfpStoryNoSafeguards=_VvfpStoryNoSafeguards@4
     VvfpStoryHeathensRow=_VvfpStoryHeathensRow@4
@@ -358,6 +359,7 @@ EXPORTS
     VvfpStoryProbeGraphLog=_VvfpStoryProbeGraphLog@16
     VvfpStoryProbeGraphSent=_VvfpStoryProbeGraphSent@12
     VvfpStoryMoreEventDue=_VvfpStoryMoreEventDue@4
+    VvfpStoryMoreEventOverride=_VvfpStoryMoreEventOverride@4
     VvfpStoryMoreEventDone=_VvfpStoryMoreEventDone@8
     VvfpStoryNoSafeguards=_VvfpStoryNoSafeguards@4
     VvfpStoryHeathensRow=_VvfpStoryHeathensRow@4
@@ -433,3 +435,10 @@ EXPORTS
     VvfpStoryProbeReviveSnapshotOf=_VvfpStoryProbeReviveSnapshotOf@4
     VvfpStoryProbeReviveRestored=_VvfpStoryProbeReviveRestored@0
     VvfpStoryProbeReviveRole=_VvfpStoryProbeReviveRole@0
+    VvfpStoryProbeSetOverride=_VvfpStoryProbeSetOverride@4
+    VvfpStoryProbeOverridePossible=_VvfpStoryProbeOverridePossible@12
+    VvfpStoryProbeOverrideEntry=_VvfpStoryProbeOverrideEntry@12
+    VvfpStoryProbeChooserOverride=_VvfpStoryProbeChooserOverride@4
+    VvfpStoryProbeChooserWhy=_VvfpStoryProbeChooserWhy@12
+    VvfpStoryProbeMoreOverride=_VvfpStoryProbeMoreOverride@4
+    VvfpStoryProbeOverrideArmed=_VvfpStoryProbeOverrideArmed@0
