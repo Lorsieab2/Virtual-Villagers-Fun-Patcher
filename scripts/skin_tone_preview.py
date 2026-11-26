@@ -37,39 +37,24 @@ from scipy import ndimage
 CELL_W, CELL_H = 40, 65
 EIGHT = np.ones((3, 3), bool)
 
-# ---- the tones: ONE table ---------------------------------------------------------------------------
-# The owner, 2026-11-26: "skin tone = monk skin tone scale, with some redder shades etc!", then "id like the
-# tones to be more distinct. the dark tones should be really naturally dark."
-# Fourteen tones, light to dark: the ten Monk Skin Tone Scale colours and four redder shades.  Each row is
-# (name, the published hex or None, OKLab lightness, chroma, hue in degrees) of the LIT MID-SKIN.  The
-# lightness is an even ramp (so neighbours read as different in the village); hue stays close to each Monk
-# colour's own, and the redder shades are clearly redder.  Where a Monk row is not its published hex, the
-# tone table picture and tone_notes() say by how much.  Tone 0 (the game's own art) is not in the table.
-# Change, add or remove rows here and nothing else changes.
-TONE_TABLE = [
-    ("Monk 1", "#f6ede4", 0.940, 0.020, 68.0),
-    ("Monk 2", "#f3e7db", 0.890, 0.034, 62.0),
-    ("Monk 3", "#f7ead0", 0.840, 0.050, 84.0),
-    ("Monk 4", "#eadaba", 0.790, 0.058, 80.0),
-    ("Warm light", None, 0.740, 0.072, 50.0),
-    ("Monk 5", "#d7bd96", 0.690, 0.070, 76.0),
-    ("Warm medium", None, 0.640, 0.088, 48.0),
-    ("Monk 6", "#a07e56", 0.590, 0.076, 70.0),
-    ("Warm brown", None, 0.540, 0.094, 42.0),
-    ("Monk 7", "#825c43", 0.490, 0.070, 56.0),
-    ("Monk 8", "#604134", 0.440, 0.062, 46.0),
-    ("Warm deep", None, 0.390, 0.078, 36.0),
-    ("Monk 9", "#3a312a", 0.340, 0.058, 54.0),
-    ("Monk 10", "#292420", 0.290, 0.050, 48.0),
-]
+# ---- the tones: ONE table, src/vv_skin_tones.py ----------------------------------------------------
+# Each row is (name, hex, OKLab lightness, chroma, hue in degrees) of the LIT MID-SKIN: the owner's ten,
+# Porcelain to Ebony.  Tone 0 (the game's own art, "Default") is not in the table.
+import sys as _sys
+_sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
+import vv_skin_tones as _model  # noqa: E402
+
+TONE_TABLE = list(_model.TONE_TABLE)
 
 
 def _hex(text):
     return tuple(int(text[i:i + 2], 16) for i in (1, 3, 5))
 
 # REPLACE (the owner, 2026-11-26: "instead of overlaying on the grayscale it replaces it").  All in OKLCh.
-L_FLOOR, L_CEIL = 0.17, 0.985           # no skin pixel darker or lighter than this (OKLab lightness)
-GIVE = 0.8                              # of a side the floor or ceiling squeezes, this much goes to the other
+L_FLOOR, L_CEIL = 0.14, 0.985           # no skin pixel darker or lighter than this (OKLab lightness)
+GIVE = 0.3                              # of a side the floor or ceiling squeezes, this much goes to the other
+SHADING = 0.65                          # how much of the art's own light and dark a tone keeps (the owner's
+                                        # reference is flatter than the art; 1 is the art's full shading)
 SHADOW_CHROMA = 0.22                    # chroma grows by up to this share in the deepest shadow; never shrinks
 
 
@@ -157,18 +142,9 @@ def hsv(a: np.ndarray):
 
 
 def _tones():
-    """TONE_TABLE as (name, L, chroma, hue, what, note) in OKLCh, in the table's own order.  `note` says
-    how far a Monk row is from its published hex (OKLab delta E), or that the shade is the patcher's own."""
-    out = []
-    for i, (what, text, L, chroma, hue) in enumerate(TONE_TABLE, 1):
-        note = "a redder shade, not in the Monk scale"
-        if text:
-            h = np.radians(hue)
-            away = float(np.linalg.norm(to_oklab(np.array(_hex(text), float))
-                                        - np.array([L, chroma * np.cos(h), chroma * np.sin(h)])))
-            note = f"published {text}" + (f", moved by dE {away:.3f}" if away >= 0.005 else ", exact")
-        out.append((f"Tone {i}", L, chroma, hue, what, note))
-    return out
+    """TONE_TABLE as (name, L, chroma, hue, what, note) in OKLCh: name "S5", what "Copper"."""
+    return [(f"S{i}", L, chroma, hue, what, f"{text}, exact")
+            for i, (what, text, L, chroma, hue) in enumerate(TONE_TABLE, 1)]
 
 
 TONES = _tones()
@@ -210,11 +186,16 @@ def colour_rule(a, cap=CORE[3], floor=CORE[2], highlight=True):
     return (a[..., 3] > 0) & (r >= g) & (g >= b) & boxes
 
 
-def row_cap(row, heads):
+def row_cap(row, heads, cell=(CELL_W, CELL_H), front=5):
     """(cap, floor): the row's own saturation limits, from its reference skin.  The floor keeps cream and
     off-white cloth (the white vest, the striped top) out of a BODY row's seeds; a face's pale highlight
     is real skin, so heads keep the plain floor and the highlight box."""
-    ref = row[15:22, 5 * CELL_W + 14:5 * CELL_W + 27] if heads else row
+    cw, ch = cell
+    # A head's reference skin: the cheeks and chin of its front-facing cell (40 x 65 cells: x 14..26,
+    # y 15..21; scaled for the big portrait heads).  None: the whole row.
+    ref = row
+    if heads and front is not None:
+        ref = row[ch * 15 // 65:ch * 22 // 65, front * cw + cw * 14 // 40:front * cw + cw * 27 // 40]
     m = colour_rule(ref)
     if not m.any():
         return CORE[3], HIGHLIGHT[2] if heads else BODY_FLOOR
@@ -223,16 +204,17 @@ def row_cap(row, heads):
     return float(np.clip(med + CAP_MARGIN, CAP_MIN, CAP_MAX)), floor
 
 
-def skin_mask(a, heads, exclude=(), cloth=None):
+def skin_mask(a, heads, exclude=(), cloth=None, cell=(CELL_W, CELL_H), front=5):
     """The skin pixels of sheet `a`.  `exclude` is a list of (row, x0, y0, x1, y1) cell rectangles
     (x, y within a cell; applied to every cell of that row) that are never skin: the numbers-only
-    exception table for hair or cloth painted in exactly the colours of skin.  cloth is {row: (near, also)}:
-    in that row a pixel within CLOTH_REACH of a 
-ear pixel that is also lso is never skin (CLOTH_RULES)."""
+    exception table for hair or cloth painted in exactly the colours of skin.  `cloth` is
+    {row: (near, also)}: in that row a pixel within CLOTH_REACH of a `near` pixel that is also `also`
+    is never skin.  `cell` is the sheet's cell size and `front` a head sheet's front-facing column."""
+    CELL_W, CELL_H = cell
     m = np.zeros(a.shape[:2], bool)
     for r in range(a.shape[0] // CELL_H):
         sl = slice(r * CELL_H, (r + 1) * CELL_H)
-        cap, floor = row_cap(a[sl], heads)
+        cap, floor = row_cap(a[sl], heads, cell, front)
         m[sl] = colour_rule(a[sl], cap, floor, heads)
     never = np.zeros_like(m)
     for row, x0, y0, x1, y1 in exclude:
@@ -308,18 +290,19 @@ def shade(offset, tone, down, up):
     always.  Chroma is the tone's own and grows a little into the shadows; it never shrinks, except where
     sRGB itself cannot hold it (oklch_to_rgb)."""
     _, L, chroma, hue = tone[:4]
+    offset, down, up = offset * SHADING, down * SHADING, up * SHADING
     s_down, s_up = tone_scales(L, down, up)
     out_L = np.clip(L + np.where(offset < 0, offset * s_down, offset * s_up), L_FLOOR, L_CEIL)
     depth = np.clip(-offset / max(down, 1e-6), 0, 1)
     return oklch_to_rgb(out_L, chroma * (1 + SHADOW_CHROMA * depth), hue)
 
 
-def recolour(a, mask, tone):
+def recolour(a, mask, tone, cell_h=CELL_H):
     """Sheet `a` with every skin (mask) pixel's colour replaced by the tone; nothing else is written."""
     L = to_oklab(a[..., :3])[..., 0]
     out = a.copy()
-    for r in range(a.shape[0] // CELL_H):
-        sl = slice(r * CELL_H, (r + 1) * CELL_H)
+    for r in range(a.shape[0] // cell_h):
+        sl = slice(r * cell_h, (r + 1) * cell_h)
         sel = mask[sl]
         if not sel.any():
             continue
@@ -447,7 +430,7 @@ def swatches(path):
     for j, tone in enumerate(TONES):
         mid = tuple(int(x) for x in shade(np.array([0.0]), tone, 0.14, 0.07)[0].round())
         d.rectangle((8 + j * sw, 22, 8 + (j + 1) * sw - 1, 62), fill=mid)
-        d.text((8 + j * sw + 2, 64), f"{j + 1} {tone[4]}", fill=(20, 20, 20), font=_font(9))
+        d.text((8 + j * sw + 2, 64), f"S{j + 1} {tone[4]}"[:13], fill=(20, 20, 20), font=_font(9))
         if j < len(steps):
             d.text((8 + (j + 1) * sw - 14, 78), f"{steps[j]:.3f}", fill=(120, 30, 30), font=_font(9))
     d.text((8, 96), "Shadow, the tone itself, highlight", fill=(20, 20, 20), font=font)

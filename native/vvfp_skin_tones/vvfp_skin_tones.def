@@ -1,0 +1,19 @@
+LIBRARY "VVFP Skin Tones"
+EXPORTS
+    VvfpStartup=_VvfpStartup@8
+    VvfpSkinToneInstalled=_VvfpSkinToneInstalled@4
+    VvfpSkinToneDrawn=_VvfpSkinToneDrawn@4
+    VvfpSkinToneSetDrawn=_VvfpSkinToneSetDrawn@8
+    VvfpSkinToneCount=_VvfpSkinToneCount@0
+    VvfpSkinToneGet=_VvfpSkinToneGet@8
+    VvfpSkinToneOf=_VvfpSkinToneOf@8
+    VvfpSkinToneGive=_VvfpSkinToneGive@12
+    VvfpSkinToneSet=_VvfpSkinToneSet@12
+    VvfpSkinToneSetMany=_VvfpSkinToneSetMany@16
+    VvfpSkinToneConceived=_VvfpSkinToneConceived@12
+    VvfpSkinTonePending=_VvfpSkinTonePending@8
+    VvfpSkinToneBorn=_VvfpSkinToneBorn@20
+    VvfpSkinToneInherit=_VvfpSkinToneInherit@20
+    VvfpSkinToneName=_VvfpSkinToneName@8
+    VvfpVillagersRenamed=_VvfpVillagersRenamed@20
+    VvfpVillagerSexChanged=_VvfpVillagerSexChanged@16
