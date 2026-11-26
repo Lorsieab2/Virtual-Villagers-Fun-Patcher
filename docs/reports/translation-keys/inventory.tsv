@@ -2308,6 +2308,7 @@ vv1	vvfp.story/story_revive.rv_role_age_note.s0	key	yes		 A puzzle Heathen (the 
 vv1	vvfp.story/story_revive.rv_chief_body_note.s0	key	yes		Another Tribal Chief lives, so they come back as an ordinary villager in their own body from before the robe.\r\n
 vv1	vvfp.story/story_revive.rv_chief_body_note.s1	key	yes		Another Tribal Chief lives, so they come back as an ordinary villager in their own body from before the robe, as their children's records keep it.\r\n
 vv1	vvfp.story/story_revive.rv_chief_body_note.s2	key	yes		Another Tribal Chief lives, so they come back as an ordinary villager. Their body from before the robe was not kept, so the game picks one as it does for a new villager.\r\n
+vv1	vvfp.story/story_revive.rv_missed_note.s0	key	yes		\r\n\r\nSome of what the patcher keeps for them could not be written now (their head look, gender presentation, story traits, mask or custom title): every other detail is back. Set it again in Change Appearance or the Custom Island Event.
 vv1	vvfp.gui/rename_tribe.long_name_note	content	yes		Allowed. This name is longer than the game keeps in its save, so the save keeps a short form of it. The game shows the whole name only with "Render Unicode with In-Game Fonts" or "Use Unicode Font" patched in; otherwise it shows the short form (for example "Alexandria Montg...").
 vv1	vvfp.gui/difficulty_sliders.title	content	yes		Difficulty Sliders
 vv1	vvfp.gui/difficulty_sliders.button	content	yes		Difficulty Sliders...
@@ -2318,7 +2319,6 @@ vv1	vvfp.gui/difficulty_sliders.guide_2	content	yes		They are grouped by game, w
 vv1	vvfp.gui/difficulty_sliders.guide_3	content	yes		Each reads -10 to 10: 10 is 10 times, -10 a tenth, -2 half, and 1, the middle, the normal game. A number saved above 10 is 10.
 vv1	vvfp.gui/difficulty_sliders.guide_4	content	yes		One number is shared by every game that has the patch. Patch again after changing a slider.
 vv1	vvfp.gui/game_mechanics.minimum_detail	content	yes		Minimal Detail
-vv1	vvfp.story/story_revive.rv_missed_note.s0	key	yes		\r\n\r\nSome of what the patcher keeps for them could not be written now (their head look, gender presentation, story traits, mask or custom title): every other detail is back. Set it again in Change Appearance or the Custom Island Event.
 vv2	vvfp.appearance/appearance_extras.vvfp_ax_reset_all_ask.s0	content	yes		Original look not known for any villager. Nothing was changed.
 vv2	vvfp.appearance/appearance_extras.vvfp_ax_reset_all_ask.s1	content	yes		OK will put %d %s back to the original head, body and mask, with head look Auto, and then apply anything else chosen here.
 vv2	vvfp.appearance/appearance_extras.vvfp_ax_reset_all_ask.s2	content	yes		villager
@@ -5058,6 +5058,7 @@ vv2	vvfp.story/story_revive.rv_role_age_note.s0	key	yes		 A puzzle Heathen (the 
 vv2	vvfp.story/story_revive.rv_chief_body_note.s0	key	yes		Another Tribal Chief lives, so they come back as an ordinary villager in their own body from before the robe.\r\n
 vv2	vvfp.story/story_revive.rv_chief_body_note.s1	key	yes		Another Tribal Chief lives, so they come back as an ordinary villager in their own body from before the robe, as their children's records keep it.\r\n
 vv2	vvfp.story/story_revive.rv_chief_body_note.s2	key	yes		Another Tribal Chief lives, so they come back as an ordinary villager. Their body from before the robe was not kept, so the game picks one as it does for a new villager.\r\n
+vv2	vvfp.story/story_revive.rv_missed_note.s0	key	yes		\r\n\r\nSome of what the patcher keeps for them could not be written now (their head look, gender presentation, story traits, mask or custom title): every other detail is back. Set it again in Change Appearance or the Custom Island Event.
 vv2	vvfp.gui/rename_tribe.long_name_note	content	yes		Allowed. This name is longer than the game keeps in its save, so the save keeps a short form of it. The game shows the whole name only with "Render Unicode with In-Game Fonts" or "Use Unicode Font" patched in; otherwise it shows the short form (for example "Alexandria Montg...").
 vv2	vvfp.gui/difficulty_sliders.title	content	yes		Difficulty Sliders
 vv2	vvfp.gui/difficulty_sliders.button	content	yes		Difficulty Sliders...
@@ -5068,7 +5069,6 @@ vv2	vvfp.gui/difficulty_sliders.guide_2	content	yes		They are grouped by game, w
 vv2	vvfp.gui/difficulty_sliders.guide_3	content	yes		Each reads -10 to 10: 10 is 10 times, -10 a tenth, -2 half, and 1, the middle, the normal game. A number saved above 10 is 10.
 vv2	vvfp.gui/difficulty_sliders.guide_4	content	yes		One number is shared by every game that has the patch. Patch again after changing a slider.
 vv2	vvfp.gui/game_mechanics.minimum_detail	content	yes		Minimal Detail
-vv2	vvfp.story/story_revive.rv_missed_note.s0	key	yes		\r\n\r\nSome of what the patcher keeps for them could not be written now (their head look, gender presentation, story traits, mask or custom title): every other detail is back. Set it again in Change Appearance or the Custom Island Event.
 vv3	vvfp.appearance/appearance_extras.vvfp_ax_reset_all_ask.s0	content	yes		Original look not known for any villager. Nothing was changed.
 vv3	vvfp.appearance/appearance_extras.vvfp_ax_reset_all_ask.s1	content	yes		OK will put %d %s back to the original head, body and mask, with head look Auto, and then apply anything else chosen here.
 vv3	vvfp.appearance/appearance_extras.vvfp_ax_reset_all_ask.s2	content	yes		villager
@@ -7608,6 +7608,7 @@ vv3	vvfp.story/story_revive.rv_role_age_note.s0	key	yes		 A puzzle Heathen (the 
 vv3	vvfp.story/story_revive.rv_chief_body_note.s0	key	yes		Another Tribal Chief lives, so they come back as an ordinary villager in their own body from before the robe.\r\n
 vv3	vvfp.story/story_revive.rv_chief_body_note.s1	key	yes		Another Tribal Chief lives, so they come back as an ordinary villager in their own body from before the robe, as their children's records keep it.\r\n
 vv3	vvfp.story/story_revive.rv_chief_body_note.s2	key	yes		Another Tribal Chief lives, so they come back as an ordinary villager. Their body from before the robe was not kept, so the game picks one as it does for a new villager.\r\n
+vv3	vvfp.story/story_revive.rv_missed_note.s0	key	yes		\r\n\r\nSome of what the patcher keeps for them could not be written now (their head look, gender presentation, story traits, mask or custom title): every other detail is back. Set it again in Change Appearance or the Custom Island Event.
 vv3	vvfp.gui/rename_tribe.long_name_note	content	yes		Allowed. This name is longer than the game keeps in its save, so the save keeps a short form of it. The game shows the whole name only with "Render Unicode with In-Game Fonts" or "Use Unicode Font" patched in; otherwise it shows the short form (for example "Alexandria Montg...").
 vv3	vvfp.gui/difficulty_sliders.title	content	yes		Difficulty Sliders
 vv3	vvfp.gui/difficulty_sliders.button	content	yes		Difficulty Sliders...
@@ -7618,7 +7619,6 @@ vv3	vvfp.gui/difficulty_sliders.guide_2	content	yes		They are grouped by game, w
 vv3	vvfp.gui/difficulty_sliders.guide_3	content	yes		Each reads -10 to 10: 10 is 10 times, -10 a tenth, -2 half, and 1, the middle, the normal game. A number saved above 10 is 10.
 vv3	vvfp.gui/difficulty_sliders.guide_4	content	yes		One number is shared by every game that has the patch. Patch again after changing a slider.
 vv3	vvfp.gui/game_mechanics.minimum_detail	content	yes		Minimal Detail
-vv3	vvfp.story/story_revive.rv_missed_note.s0	key	yes		\r\n\r\nSome of what the patcher keeps for them could not be written now (their head look, gender presentation, story traits, mask or custom title): every other detail is back. Set it again in Change Appearance or the Custom Island Event.
 vv4	vvfp.appearance/appearance_extras.vvfp_ax_reset_all_ask.s0	content	yes		Original look not known for any villager. Nothing was changed.
 vv4	vvfp.appearance/appearance_extras.vvfp_ax_reset_all_ask.s1	content	yes		OK will put %d %s back to the original head, body and mask, with head look Auto, and then apply anything else chosen here.
 vv4	vvfp.appearance/appearance_extras.vvfp_ax_reset_all_ask.s2	content	yes		villager
@@ -9972,6 +9972,7 @@ vv4	vvfp.story/story_revive.rv_role_age_note.s0	key	yes		 A puzzle Heathen (the 
 vv4	vvfp.story/story_revive.rv_chief_body_note.s0	key	yes		Another Tribal Chief lives, so they come back as an ordinary villager in their own body from before the robe.\r\n
 vv4	vvfp.story/story_revive.rv_chief_body_note.s1	key	yes		Another Tribal Chief lives, so they come back as an ordinary villager in their own body from before the robe, as their children's records keep it.\r\n
 vv4	vvfp.story/story_revive.rv_chief_body_note.s2	key	yes		Another Tribal Chief lives, so they come back as an ordinary villager. Their body from before the robe was not kept, so the game picks one as it does for a new villager.\r\n
+vv4	vvfp.story/story_revive.rv_missed_note.s0	key	yes		\r\n\r\nSome of what the patcher keeps for them could not be written now (their head look, gender presentation, story traits, mask or custom title): every other detail is back. Set it again in Change Appearance or the Custom Island Event.
 vv4	vvfp.gui/rename_tribe.long_name_note	content	yes		Allowed. This name is longer than the game keeps in its save, so the save keeps a short form of it. The game shows the whole name only with "Render Unicode with In-Game Fonts" or "Use Unicode Font" patched in; otherwise it shows the short form (for example "Alexandria Montg...").
 vv4	vvfp.gui/difficulty_sliders.title	content	yes		Difficulty Sliders
 vv4	vvfp.gui/difficulty_sliders.button	content	yes		Difficulty Sliders...
@@ -9982,7 +9983,6 @@ vv4	vvfp.gui/difficulty_sliders.guide_2	content	yes		They are grouped by game, w
 vv4	vvfp.gui/difficulty_sliders.guide_3	content	yes		Each reads -10 to 10: 10 is 10 times, -10 a tenth, -2 half, and 1, the middle, the normal game. A number saved above 10 is 10.
 vv4	vvfp.gui/difficulty_sliders.guide_4	content	yes		One number is shared by every game that has the patch. Patch again after changing a slider.
 vv4	vvfp.gui/game_mechanics.minimum_detail	content	yes		Minimal Detail
-vv4	vvfp.story/story_revive.rv_missed_note.s0	key	yes		\r\n\r\nSome of what the patcher keeps for them could not be written now (their head look, gender presentation, story traits, mask or custom title): every other detail is back. Set it again in Change Appearance or the Custom Island Event.
 vv5	vvfp.appearance/appearance_extras.vvfp_ax_reset_all_ask.s0	content	yes		Original look not known for any villager. Nothing was changed.
 vv5	vvfp.appearance/appearance_extras.vvfp_ax_reset_all_ask.s1	content	yes		OK will put %d %s back to the original head, body and mask, with head look Auto, and then apply anything else chosen here.
 vv5	vvfp.appearance/appearance_extras.vvfp_ax_reset_all_ask.s2	content	yes		villager
@@ -12377,6 +12377,7 @@ vv5	vvfp.story/story_revive.rv_role_age_note.s0	key	yes		 A puzzle Heathen (the 
 vv5	vvfp.story/story_revive.rv_chief_body_note.s0	key	yes		Another Tribal Chief lives, so they come back as an ordinary villager in their own body from before the robe.\r\n
 vv5	vvfp.story/story_revive.rv_chief_body_note.s1	key	yes		Another Tribal Chief lives, so they come back as an ordinary villager in their own body from before the robe, as their children's records keep it.\r\n
 vv5	vvfp.story/story_revive.rv_chief_body_note.s2	key	yes		Another Tribal Chief lives, so they come back as an ordinary villager. Their body from before the robe was not kept, so the game picks one as it does for a new villager.\r\n
+vv5	vvfp.story/story_revive.rv_missed_note.s0	key	yes		\r\n\r\nSome of what the patcher keeps for them could not be written now (their head look, gender presentation, story traits, mask or custom title): every other detail is back. Set it again in Change Appearance or the Custom Island Event.
 vv5	vvfp.gui/rename_tribe.long_name_note	content	yes		Allowed. This name is longer than the game keeps in its save, so the save keeps a short form of it. The game shows the whole name only with "Render Unicode with In-Game Fonts" or "Use Unicode Font" patched in; otherwise it shows the short form (for example "Alexandria Montg...").
 vv5	vvfp.gui/difficulty_sliders.title	content	yes		Difficulty Sliders
 vv5	vvfp.gui/difficulty_sliders.button	content	yes		Difficulty Sliders...
@@ -12387,4 +12388,3 @@ vv5	vvfp.gui/difficulty_sliders.guide_2	content	yes		They are grouped by game, w
 vv5	vvfp.gui/difficulty_sliders.guide_3	content	yes		Each reads -10 to 10: 10 is 10 times, -10 a tenth, -2 half, and 1, the middle, the normal game. A number saved above 10 is 10.
 vv5	vvfp.gui/difficulty_sliders.guide_4	content	yes		One number is shared by every game that has the patch. Patch again after changing a slider.
 vv5	vvfp.gui/game_mechanics.minimum_detail	content	yes		Minimal Detail
-vv5	vvfp.story/story_revive.rv_missed_note.s0	key	yes		\r\n\r\nSome of what the patcher keeps for them could not be written now (their head look, gender presentation, story traits, mask or custom title): every other detail is back. Set it again in Change Appearance or the Custom Island Event.

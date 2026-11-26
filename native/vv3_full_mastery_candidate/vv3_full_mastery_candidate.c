@@ -1642,6 +1642,106 @@ static int vv3_mask_retag(unsigned int from, unsigned int to) {
     return 1;
 }
 
+/* ---- A Likes or Dislikes change in place keeps the mask -------------------
+   The owner (2026-11-25): "island events should keep masks on the villager if
+   they have them".  The fingerprint holds the Likes and Dislikes, and many of
+   The Secret City's own island events change them on the villager they are
+   about -- "the villager now likes laundry", "... now likes running", "...
+   now dislikes crowds": the outcomes' calls of the likes adder 0x454890 and the
+   dislikes remover 0x454780 (0x415B95, 0x415BA2, 0x416B4A, ...) -- as do a
+   Custom Island Event's likes and the Story / Cheat Upgrades' branching events.
+   The mask stayed stored under the fingerprint the villager no longer had, so
+   it was drawn on nobody (and the first-load cross-check offered to remove it
+   as an orphan).
+
+   So every look (throttled to VV3_PLACE_MS) compares each record with the copy
+   kept at the last look.  A record that was a living villager then and is one
+   now, with the same name, gender, head and body and an age no lower -- the
+   same villager, only the Likes or Dislikes changed -- has the mask stored
+   under its old fingerprint moved to the new one (vv3_mask_retag: never a
+   guess -- one mask stored under the old fingerprint, nobody living still
+   carrying it, the new one carried by this villager alone and nothing stored
+   under it yet).  Looks more than VV3_PLACE_GAP_MS apart (a load, the menus),
+   another record array or bound, or another save slot compare nothing: the
+   copies are taken afresh.  Nothing on a villager record is written. */
+#define VV3_PLACE_MS     100u
+#define VV3_PLACE_GAP_MS 2000u
+typedef struct {
+    unsigned int  prefs[6];        /* VV3_LIKES..VV3_DISLIKES+12 */
+    unsigned char name[VV3_NAME_LEN];
+    unsigned char gender;
+    unsigned char live;            /* active and health > 0 */
+    int           age, head, body;
+    unsigned int  fp;
+} vv3_place_copy;
+static vv3_place_copy g_vv3_place[VV3_MASK_SLOTS];
+static int      g_vv3_place_known;
+static DWORD    g_vv3_place_tick;
+static int      g_vv3_place_slots = -1;
+static UINT_PTR g_vv3_place_base;
+static int      g_vv3_place_slot;
+#ifdef VV3_MASK_LIVE_COUNT
+static int g_vv3_place_moved;      /* masks moved by a Likes change (the harness reads it) */
+#endif
+
+static void vv3_mask_follow_in_place(void) {
+    UINT_PTR base = (UINT_PTR)VV3_REC_BASE;
+    const unsigned char *rec = (const unsigned char *)base;
+    DWORD now = GetTickCount();
+    int i, slots = *(int *)(UINT_PTR)VV3_SLOTS_PTR, compare, moved = 0;
+    if (g_vv3_running_capture) return;         /* inside a bracket: it moves the masks itself */
+    if (g_vv3_place_known && (DWORD)(now - g_vv3_place_tick) < VV3_PLACE_MS) return;
+    if (slots < 0) slots = 0;
+    if (slots > VV3_MASK_SLOTS) slots = VV3_MASK_SLOTS;
+    compare = g_vv3_place_known && (DWORD)(now - g_vv3_place_tick) <= VV3_PLACE_GAP_MS
+        && slots == g_vv3_place_slots && base == g_vv3_place_base && g_vv3_mask_slot == g_vv3_place_slot;
+    for (i = 0; i < slots; ++i, rec += VV3_STRIDE) {
+        vv3_place_copy *c = &g_vv3_place[i];
+        const unsigned int *prefs = (const unsigned int *)(rec + VV3_LIKES);
+        int live = rec[VV3_ACTIVE] != 0 && *(const int *)(rec + VV3_HEALTH) > 0;
+        int same, prefs_same;
+        if (!live) {
+            c->live = 0;
+            continue;
+        }
+        same = compare && c->live && c->gender == rec[VV3_GENDER]
+            && memcmp(c->name, rec + VV3_NAME, VV3_NAME_LEN) == 0
+            && c->head == *(const int *)(rec + VV3_HEAD_OFF) && c->body == *(const int *)(rec + VV3_BODY_OFF)
+            && *(const int *)(rec + VV3_AGE) >= c->age;
+        prefs_same = c->live && memcmp(c->prefs, prefs, sizeof c->prefs) == 0;
+        if (!c->live || !prefs_same || c->gender != rec[VV3_GENDER]
+            || memcmp(c->name, rec + VV3_NAME, VV3_NAME_LEN) != 0) {
+            unsigned int was = c->fp;
+            unsigned int fp = vv3_mask_fingerprint(rec);
+            if (same && !prefs_same && was != 0 && was != fp && vv3_mask_retag(was, fp)) {
+                ++moved;
+            }
+            CopyMemory(c->prefs, prefs, sizeof c->prefs);
+            CopyMemory(c->name, rec + VV3_NAME, VV3_NAME_LEN);
+            c->gender = rec[VV3_GENDER];
+            c->fp = fp;
+        }
+        c->live = 1;
+        c->age = *(const int *)(rec + VV3_AGE);
+        c->head = *(const int *)(rec + VV3_HEAD_OFF);
+        c->body = *(const int *)(rec + VV3_BODY_OFF);
+    }
+    for (; i < VV3_MASK_SLOTS; ++i) {
+        g_vv3_place[i].live = 0;
+    }
+    g_vv3_place_known = 1;
+    g_vv3_place_tick = now;
+    g_vv3_place_slots = slots;
+    g_vv3_place_base = base;
+    g_vv3_place_slot = g_vv3_mask_slot;
+    if (moved > 0) {
+#ifdef VV3_MASK_LIVE_COUNT
+        g_vv3_place_moved += moved;
+#endif
+        vv3_mask_write_sidecar();
+    }
+}
+
 /* The save may not hold a change the file was written after (the owner
    Alt-F4s and restores backups): once per load of the slot's file, for each
    living villager the slot's log names (a name nobody else living has), the
@@ -1833,6 +1933,9 @@ __declspec(dllexport) int __stdcall VV3_GetMaskForRecord(void *record) {
     int idx, live_idx, stored_idx, group_value, slots;
     if (record == NULL) return 0;
     if (!vv3_mask_prepare_slot()) return 0;
+    /* A Likes or Dislikes change since the last look: the mask moved to the
+       new fingerprint first (vv3_mask_follow_in_place). */
+    vv3_mask_follow_in_place();
     idx = vv3_mask_index(record);
     if (idx < 0) return 0;
     if (rec[VV3_ACTIVE] == 0 || *(const int *)(rec + VV3_HEALTH) <= 0)
