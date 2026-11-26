@@ -148,18 +148,21 @@ def lines(village: gm.Village) -> list[gm.Fact]:
             "join the Isolans, and a list such as \"Starvation: N villagers\").", sub=True)
     add("Other things that change Faith, exactly:")
     for text in (
-            # The wait is set at 0x468F2A.
+            # The wait is the Heathen's own +0x1CF4 (saved at entry +0x114): set to the clock + 7,200 at 0x468F2A, tested
+            # at the sermon's end 0x468E19 (src/vv_game_mechanics_villagers.py has the clock and the save's field).
             "Preaching to a Heathen (after the preacher's Devotion check): +3, +4 at Devotion 50 or more, +5 at 88 or "
             "more. That Heathen then cannot be preached to for 2 real-life hours (real time, the same at every "
-            "speed), paused or closed. The Heathen Doctor, the Chief, the three Masters and the Mommy cannot be "
-            "preached to.",
+            "speed), paused or closed: a sermon before then ends with the game's \"tired of listening\" message and no Faith. "
+            "Each Heathen keeps their own wait in the save (Villagers shows how long is left). The Heathen Doctor, "
+            "the Chief, the three Masters and the Mommy cannot be preached to.",
             # The listeners are those in behaviour 0xE4; the +30 and the wait at 0x46D2A8, 0x46D2D8.
             "Spreading the Word (the Retired Chief's sermon): +30 to one listener picked at random, who then cannot "
             "be preached to for 2 real-life hours (real time) either.",
-            # 0x41F78F skips roles 12 to 17.
+            # 0x41F78F skips roles 12 to 17; each Heathen's wait is set to the clock + 7,200 at 0x41F7B8 / 0x41F7BD.
             "The Earthquake God Power: +2 to +8 to every villager but the six special roles: the Heathen Doctor, "
             "Heathen Chief, Heathen Master Scientist, Heathen Master Builder, Heathen Master Farmer and Heathen "
-            "Mommy, and the Retired Chief, who keeps the Heathen Chief's role (see God powers).",
+            "Mommy, and the Retired Chief, who keeps the Heathen Chief's role (see God powers). Every Heathen it "
+            "reaches then cannot be preached to for 2 real-life hours (real time) as well.",
             # The cure 0x468CFB; The Heathen Chief 0x4360EE; the Hydroponic Farm 0x439E35.
             "Curing the Heathen Doctor: Faith set to 25 to 59, each equally likely. Solving The Heathen Chief: the "
             "Chief's Faith set to 100. Solving the Hydroponic Farm: the Heathen Master Farmer +80.",
