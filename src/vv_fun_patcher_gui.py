@@ -304,11 +304,14 @@ FORMER_VILLAGERS_AGE_ID = "vv5_former_villagers_keep_aging"
 HEATHEN_TRIBE_AGES_ID = "vv5_heathen_tribe_ages"
 FORMER_SKELETONS_ID = "vv5_former_villager_heathens_leave_skeletons"
 ALL_SKELETONS_ID = "vv5_all_heathens_leave_skeletons"
+# Max Divine Energy Continues to Increase (New Believers; the owner, 2026-11-25).
+DIVINE_ENERGY_CAP_ID = "vv5_max_divine_energy_increases"
 # What Owner's Defaults sets both sliders to (the owner, 2026-11-07: "set the sliders to 2x").
 OWNERS_DEFAULT_SLIDER = 2
 
-# The rows of the 0.1x-10x sliders (all five games): the owner, 2026-11-17.
-NEW_SLIDER_ROW_IDS = [f"vv{game}{slider.row_suffix}" for slider in RUNTIME_SLIDERS for game in range(1, 6)]
+# The rows of the 0.1x-10x sliders (the owner, 2026-11-17; and 2026-11-25: 0.1-10x Weather Changes in The Secret
+# City, The Tree of Life and New Believers, 0.1-10x Divine Energy Gain in New Believers), each in the games it has.
+NEW_SLIDER_ROW_IDS = [f"vv{game}{slider.row_suffix}" for slider in RUNTIME_SLIDERS for game in slider.games]
 # One-Time Collectibles Appear Again (The Secret City, The Tree of Life).
 ONE_TIME_COLLECTIBLES_IDS = ["vv3_one_time_collectibles_again", "vv4_one_time_collectibles_again"]
 
@@ -463,6 +466,9 @@ DEFAULT_OFF_FUN_PATCH_IDS = frozenset(
     # Revive Buried/Disappeared Villagers (all five games; the owner, 2026-11-22): off by default, "ON in Owner's Defaults"
     # (100,000 tech points while the story upgrades cost tech points); Owner's Defaults ticks it like every default-off patch it does not name.
     + ["vv%d_revive_from_graves" % game for game in range(1, 6)]
+    # Max Divine Energy Continues to Increase (New Believers; the owner, 2026-11-25: "owners defaults on only for the
+    # divine energy cap"): off here and in Select All, on in Owner's Defaults.
+    + [DIVINE_ENERGY_CAP_ID]
     # Respecting the Legacy of Isola (New Believers): off by default, on in
     # Owner's Defaults and Select All (it ticks its five pieces there too).
     + [LEGACY_OF_ISOLA_FUN_PATCH_ID]
@@ -550,6 +556,8 @@ SELECT_ALL_OFF_FUN_PATCH_IDS = frozenset(
     + ESTEEMED_ELDERS_IDS
     # The Heathen aging rows (New Believers): on in Owner's Defaults only (the owner, 2026-11-22).
     + [FORMER_VILLAGERS_AGE_ID, HEATHEN_TRIBE_AGES_ID, FORMER_SKELETONS_ID]
+    # Max Divine Energy Continues to Increase: on in Owner's Defaults only (the owner, 2026-11-25).
+    + [DIVINE_ENERGY_CAP_ID]
     # (Memorial Actions Can Also Occur at the Heathen Hovel is NOT here: the owner (2026-11-08), "must be ticked
     # by Select All too" -- off in the normal defaults, on in Owner's Defaults and Select All.)
 ) | ALTERNATIVE_OFF_FUN_PATCH_IDS
@@ -675,7 +683,7 @@ def saved_louder_flutes_multiplier(settings: dict):
 
 
 def saved_island_frequency_multiplier(settings: dict):
-    """More Frequent Island Events' multiplier a settings file holds (saved_multiplier; default 2)."""
+    """More Frequent Island Events' multiplier a settings file holds (saved_multiplier; default 4)."""
     return saved_multiplier(settings, "island_frequency_multiplier", ISLAND_FREQUENCY_MULTIPLIER_RANGE,
                             ISLAND_FREQUENCY_MULTIPLIER_DEFAULT)
 
@@ -1743,8 +1751,8 @@ class App(tk.Tk):
             # Louder Wind Flutes' multiplier (The Tree of Life; the owner, 2026-11-15: "control how loud the wind
             # flutes are too! (same slider)"): 5 unless moved; written beside its companion.
             self.louder_flutes_var = tk.DoubleVar(value=LOUDER_FLUTES_MULTIPLIER_DEFAULT)
-            # More Frequent Island Events' multiplier (all five games; the owner, 2026-11-15): 2 unless moved;
-            # written beside its companion.
+            # More Frequent Island Events' multiplier (all five games; the owner, 2026-11-15): 4 unless moved
+            # (the owner, 2026-11-25); written beside its companion.
             self.island_frequency_var = tk.DoubleVar(value=ISLAND_FREQUENCY_MULTIPLIER_DEFAULT)
             # "A man may carry the baby by chance" (the owner, 2026-11-16): 0 to 100 percent, 10 unless moved; the
             # slider and its box in every game's Island Events section share it.
@@ -3204,7 +3212,8 @@ class App(tk.Tk):
         # Louder Wind Flutes' slider as its row is (on, at its default 5; the owner, 2026-11-15).
         if hasattr(self, "louder_flutes_var"):
             self.louder_flutes_var.set(LOUDER_FLUTES_MULTIPLIER_DEFAULT)
-        # More Frequent Island Events' slider at its default 2 (its row is ticked there; the owner, 2026-11-15).
+        # More Frequent Island Events' slider at its default 4 (its row is ticked there; the owner, 2026-11-15;
+        # 4 since 2026-11-25).
         if hasattr(self, "island_frequency_var"):
             self.island_frequency_var.set(ISLAND_FREQUENCY_MULTIPLIER_DEFAULT)
         if hasattr(self, "partner_carry_var"):

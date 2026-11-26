@@ -1,0 +1,5 @@
+LIBRARY "VVFP Weather Frequency"
+EXPORTS
+    VvfpStartup
+    VvfpWeatherFrequencyInstalled
+    VvfpWeatherFrequencyTenths

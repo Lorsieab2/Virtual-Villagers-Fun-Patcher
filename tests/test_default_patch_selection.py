@@ -183,6 +183,8 @@ class DefaultPatchSelectionTests(unittest.TestCase):
                   or p.endswith("_tech_gain")
                   or p.endswith("_skill_success")
                   or p.endswith("_age_speed")
+                  or p.endswith("_weather_frequency")      # the owner, 2026-11-25 (VV3-VV5)
+                  or p.endswith("_divine_energy_gain")     # the owner, 2026-11-25 (VV5)
                   # One-Time Collectibles Appear Again (the owner, 2026-11-17: on in Owner's Defaults only).
                   or p.endswith("_one_time_collectibles_again")
                   # Every Island Event Can Happen (the owner, 2026-11-17: off by default, on in Owner's Defaults).
@@ -212,7 +214,10 @@ class DefaultPatchSelectionTests(unittest.TestCase):
                            "vv5_all_heathens_leave_skeletons", "vv5_former_villager_heathens_leave_skeletons")
                   # Revive Buried/Disappeared Villagers (all five games, the owner 2026-11-22: off by default, on in
                   # Owner's Defaults; 100,000 tech points while the story upgrades cost tech points).
-                  or p.endswith("_revive_from_graves")})
+                  or p.endswith("_revive_from_graves")
+                  # Max Divine Energy Continues to Increase (New Believers, new 2026-11-25: on in Owner's Defaults
+                  # only).
+                  or p == "vv5_max_divine_energy_increases"})
 
     def test_birth_control_is_on_by_default_in_all_five_games(self) -> None:
         """The owner (2026-11-19): the new The Tree of Life and New Believers Birth Control rows are ON BY DEFAULT,
@@ -250,6 +255,15 @@ class DefaultPatchSelectionTests(unittest.TestCase):
         """The owner (2026-11-23): "Heathens can be selected in Island Events/Heathen-Exclusive Events" is ON in
         Owner's Defaults; off by default and in Select All, as every new option of this round."""
         patch_id = "vv5_heathens_in_island_events"
+        self.assertIn(patch_id, fun_patch_ids())
+        self.assertFalse(default_fun_patch_selection(patch_id))
+        self.assertTrue(owners_default_fun_patch_selection(patch_id))
+        self.assertFalse(select_all_fun_patch_selection(patch_id))
+
+    def test_max_divine_energy_increases_is_on_in_owners_defaults_only(self) -> None:
+        """The owner (2026-11-25): "owners defaults on only for the divine energy cap" -- off by default and, like
+        every new option of this round, in Select All; on in Owner's Defaults."""
+        patch_id = "vv5_max_divine_energy_increases"
         self.assertIn(patch_id, fun_patch_ids())
         self.assertFalse(default_fun_patch_selection(patch_id))
         self.assertTrue(owners_default_fun_patch_selection(patch_id))
@@ -478,6 +492,7 @@ class DefaultPatchSelectionTests(unittest.TestCase):
         held_back |= {"vv1_golden_child_born_female"}     # its option (the owner, 2026-11-16)
         # ...and the 0.1x-10x sliders (the owner, 2026-11-17: on in Owner's Defaults, off everywhere else).
         held_back |= {f"vv{n}{s}" for n in range(1, 6) for s in ("_collectible_frequency", "_food_gain", "_tech_gain", "_skill_success", "_age_speed")}
+        held_back |= {f"vv{n}_weather_frequency" for n in (3, 4, 5)} | {"vv5_divine_energy_gain"}
         # ...and One-Time Collectibles Appear Again (the owner, 2026-11-17: likewise).
         held_back |= {"vv3_one_time_collectibles_again", "vv4_one_time_collectibles_again"}
         # ...and the island events' content controls (the owner, 2026-11-15): Content Notes (on in Owner's Defaults
@@ -498,6 +513,8 @@ class DefaultPatchSelectionTests(unittest.TestCase):
         # ...and the four Heathen aging rows (the owner, 2026-11-23: Select All ticks none of them).
         held_back |= {"vv5_former_villagers_keep_aging", "vv5_heathen_tribe_ages", "vv5_all_heathens_leave_skeletons",
                       "vv5_former_villager_heathens_leave_skeletons"}
+        # ...and Max Divine Energy Continues to Increase (the owner, 2026-11-25: on in Owner's Defaults only).
+        held_back |= {"vv5_max_divine_energy_increases"}
         self.assertEqual(set(SELECT_ALL_OFF_FUN_PATCH_IDS), held_back)
         ids = fun_patch_ids()
         self.assertTrue(held_back <= ids)

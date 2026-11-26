@@ -31,6 +31,11 @@ RUNTIME_SLIDER_LINES = {
                        "each work-task skill roll passes this many times as often"),
     "_age_speed": ("age_speed", "Age and Nursing Timer Speed",
                    "villagers' age clock (growing up, pregnancy, nursing, old age) runs this many times as fast"),
+    "_weather_frequency": ("weather_frequency", "0.1-10x Weather Changes",
+                           "the weather changes this many times as often (each spell lasts its normal length divided "
+                           "by it)"),
+    "_divine_energy_gain": ("divine_energy_gain", "0.1-10x Divine Energy Gain",
+                            "the believers earn this many times their normal Divine Energy"),
 }
 # Both reports are in the patcher's folder beside the executable.
 TRANSPARENCY_RELATIVE_PATH = patcher_files.TRANSPARENCY_RELATIVE_PATH.as_posix()

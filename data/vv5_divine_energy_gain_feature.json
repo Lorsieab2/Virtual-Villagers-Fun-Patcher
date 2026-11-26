@@ -1,0 +1,87 @@
+{
+  "id": "vv5_divine_energy_gain",
+  "enabled": true,
+  "catalog_enabled": true,
+  "catalog_hidden": false,
+  "game_id": "vv5",
+  "name": "0.1-10x Divine Energy Gain",
+  "description": "The believers earn Divine Energy faster or slower: 0.1 to 10 times their normal Divine Energy, as you choose with the 0.1-10x Divine Energy Gain slider in the patcher window (it reads -10 to 10: 10 is 10 times, -10 a tenth, -2 half, and 1, the middle, the normal game; 1 unless you move it; type it in the box beside the slider too); the rest of a whole point is a chance, so on average it is exact. What it multiplies: each believer's 1 every age unit (4 at Devotion 50 or more, 9 at 88 or more, and 1 more on Hard, or on Medium with 8,000 food or more) and Honoring's 3, 7 or 12 (and, with Fix Vanilla Bugs, the Tribute Statue polishing's 1). The cap is the game's own, and so are the God Powers' costs and every other Divine Energy change: a new village's 50, the tutorial's top-up, a relic found again (10, 50 or 150), island events and \"Practicing Devotion Builds Faith and Divine Energy\". **Needs no other patch.** Off by default; Owner's Defaults ticks it, with the slider at 1. **Unverified in play** (checked by emulation of the game's own code). The companion is \"VVFP Divine Energy Gain.dll\", started by VVFP More Companions.dll, and the slider's number is written beside it in \"VVFP Divine Energy Gain.txt\"; nothing is written to a save.",
+  "output_tag": "Divine Energy Gain",
+  "dependencies": [],
+  "conflicts": [],
+  "behavior_changes": [
+    "0.1-10x Divine Energy Gain: the companion's sites 0x472D25, 0x472D43, 0x472D61, 0x472DDB, 0x46D893, 0x46D8B3, 0x46D8D7, 0x46DA1F (see runtime_detours), installed only when the slider is not 1; N is read at start from \"VVFP Divine Energy Gain.txt\" beside the companion in tenths (0.1 to 10; none is 1)."
+  ],
+  "explicit_non_changes": [
+    "No executable byte is patched: the companion writes its sites at run time, only after verifying their stock bytes (all of them, or none; an optional site another patch owns is left alone).",
+    "At 1x nothing is installed. The game's rand is never drawn more or less often: the companion's chances are its own numbers.",
+    "Nothing is written to a save, a villager record or a file; no text is shown."
+  ],
+  "evidence_status": "implemented from exact-build disassembly of the stock executable; the companion's install and its effect emulated on the rendered executable (tests/test_new_sliders.py); runtime/player confirmation pending",
+  "companion_files": [
+    {
+      "source": "assets/divine_energy_gain/VVFP Divine Energy Gain.dll",
+      "destination": "VVFP Divine Energy Gain.dll",
+      "sha256": "DA7464A545E382E7BFAE397E0FD89929E31EC8AFE42C1014A821846A698B2E26"
+    }
+  ],
+  "patches": [],
+  "runtime_detours": [
+    {
+      "va": "0x472D25",
+      "stock_bytes": "E85622FBFF",
+      "written_bytes": "E8XXXXXXXX",
+      "routine": "each believer's +1 every age unit: the call of the Divine Energy adder 0x424F80 goes through the companion, which multiplies a positive amount by N (the rest a chance) and goes on into the adder",
+      "installed_by": "VVFP Divine Energy Gain.dll, VvfpStartup (started by VVFP More Companions.dll, third word)"
+    },
+    {
+      "va": "0x472D43",
+      "stock_bytes": "E83822FBFF",
+      "written_bytes": "E8XXXXXXXX",
+      "routine": "+3 more at Devotion 50 or more: the call of the Divine Energy adder 0x424F80 goes through the companion, which multiplies a positive amount by N (the rest a chance) and goes on into the adder",
+      "installed_by": "VVFP Divine Energy Gain.dll, VvfpStartup (started by VVFP More Companions.dll, third word)"
+    },
+    {
+      "va": "0x472D61",
+      "stock_bytes": "E81A22FBFF",
+      "written_bytes": "E8XXXXXXXX",
+      "routine": "+5 more at Devotion 88 or more: the call of the Divine Energy adder 0x424F80 goes through the companion, which multiplies a positive amount by N (the rest a chance) and goes on into the adder",
+      "installed_by": "VVFP Divine Energy Gain.dll, VvfpStartup (started by VVFP More Companions.dll, third word)"
+    },
+    {
+      "va": "0x472DDB",
+      "stock_bytes": "E8A021FBFF",
+      "written_bytes": "E8XXXXXXXX",
+      "routine": "+1 more on Hard, or on Medium with 8,000 food or more: the call of the Divine Energy adder 0x424F80 goes through the companion, which multiplies a positive amount by N (the rest a chance) and goes on into the adder",
+      "installed_by": "VVFP Divine Energy Gain.dll, VvfpStartup (started by VVFP More Companions.dll, third word)"
+    },
+    {
+      "va": "0x46D893",
+      "stock_bytes": "E8E876FBFF",
+      "written_bytes": "E8XXXXXXXX",
+      "routine": "Honoring's +3: the call of the Divine Energy adder 0x424F80 goes through the companion, which multiplies a positive amount by N (the rest a chance) and goes on into the adder",
+      "installed_by": "VVFP Divine Energy Gain.dll, VvfpStartup (started by VVFP More Companions.dll, third word)"
+    },
+    {
+      "va": "0x46D8B3",
+      "stock_bytes": "E8C876FBFF",
+      "written_bytes": "E8XXXXXXXX",
+      "routine": "Honoring's +4 more at Devotion 50 or more: the call of the Divine Energy adder 0x424F80 goes through the companion, which multiplies a positive amount by N (the rest a chance) and goes on into the adder",
+      "installed_by": "VVFP Divine Energy Gain.dll, VvfpStartup (started by VVFP More Companions.dll, third word)"
+    },
+    {
+      "va": "0x46D8D7",
+      "stock_bytes": "E8A476FBFF",
+      "written_bytes": "E8XXXXXXXX",
+      "routine": "Honoring's +5 more at Devotion 88 or more: the call of the Divine Energy adder 0x424F80 goes through the companion, which multiplies a positive amount by N (the rest a chance) and goes on into the adder",
+      "installed_by": "VVFP Divine Energy Gain.dll, VvfpStartup (started by VVFP More Companions.dll, third word)"
+    },
+    {
+      "va": "0x46DA1F",
+      "stock_bytes": "E85C75FBFF",
+      "written_bytes": "E8XXXXXXXX",
+      "routine": "work event 40's +1 (the Tribute Statue's polishing with Fix Vanilla Bugs): the call of the Divine Energy adder 0x424F80 goes through the companion, which multiplies a positive amount by N (the rest a chance) and goes on into the adder",
+      "installed_by": "VVFP Divine Energy Gain.dll, VvfpStartup (started by VVFP More Companions.dll, third word)"
+    }
+  ]
+}

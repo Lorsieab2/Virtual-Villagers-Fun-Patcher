@@ -53,6 +53,26 @@ SCIENCE_SET = "vv5_science_collectibles_complete"
 # patched step 0x46CFD4 reads the catch-up flag game+0x17E10 and the speed game+0x17D7C (any other value: 3).
 FLAT = "vv5_food_pays_like_earlier_games"
 FLAT_PICK, FLAT_CATCH_UP = {gm.FAST: 7, gm.NORMAL: 3, gm.SLOW: 2}, 4
+# Max Divine Energy Continues to Increase (off by default; Owner's Defaults ticks it): the cap routine's "at most
+# 1,000" (0x4250B4) skipped and the HUD's bar call (0x44321E) scaled, by "VVFP Divine Energy Cap.dll".
+ENERGY_CAP_ROW = "vv5_max_divine_energy_increases"
+ENERGY_CAP_RULE = (
+    "The Divine Energy cap is 5 x (believers + the babies they carry + 2), +50 once the Tribute Statue reaches "
+    "its first stage and +50 more at its second, +100 once The Tribute Statue is solved, +50 at Spirituality 2 "
+    "and +50 more at 3, and +3 for each piece of the first collectible set owned while it is incomplete (69 with 23 "
+    "pieces), then a flat +90 once all 24 are owned (the 24th piece adds 21)")
+
+
+def energy_cap_line(has: bool | None) -> str:
+    """The cap's rule, with Max Divine Energy Continues to Increase when it is (or may be) in the game."""
+    if has is False:
+        return ENERGY_CAP_RULE + "; at most 1,000."
+    where = "in this game" if has else gm.UNTOLD
+    # native/vvfp_divine_energy_cap: 0x4250BA's jle made a jmp; the HUD's bar call 0x44321E scaled above 1,000.
+    return (ENERGY_CAP_RULE + "; the normal game holds it at most 1,000 (reached at 120 believers with every bonus). "
+            f"With \"{gm.feature_name(ENERGY_CAP_ROW)}\" ({where}) it is no longer held at 1,000: it keeps growing, "
+            "1,150 with 150 believers and every bonus and 1,680 with 256, and the Divine Energy bar shows the energy "
+            "as a share of the cap, so a full bar is still full.")
 
 # The audit of 2026-10-25 removed the Other group's sickness, health, conception and skill-check lines: each repeated
 # the exact one under Chances or Births and gender (and the sickness line had Medicine 2 as 0.16%, the code's
@@ -330,10 +350,7 @@ def facts(village: gm.Village) -> list[gm.Fact]:
         "and on the fourth only if the Devotion check succeeds."), gm.RUNNING)
     out.append(gm.Fact("Tech points and effects", (
         # A sub-line, not "The cap: ...": the general page drops a "<Name>: <number>" line as a save's amount.
-        "The Divine Energy cap is 5 x (believers + the babies they carry + 2), +50 once the Tribute Statue reaches "
-        "its first stage and +50 more at its second, +100 once The Tribute Statue is solved, +50 at Spirituality 2 "
-        "and +50 more at 3, and +3 for each piece of the first collectible set owned while it is incomplete (69 with 23 pieces), "
-        "then a flat +90 once all 24 are owned (the 24th piece adds 21); at most 1,000."), gm.RUNNING, True))
+        energy_cap_line(village.has(ENERGY_CAP_ROW))), gm.RUNNING, True))
     out.extend(nursery.lines(village, 5))       # the Nursery School and why children or Heathens gain skills
     out.extend(powers.lines(village))
 
@@ -452,6 +469,13 @@ def facts(village: gm.Village) -> list[gm.Fact]:
         village, "vv5_fix_vanilla_bugs", "the cover is drawn at (1702, 1465), 3 pixels left and 6 lower, where it "
         "meets the map's own tiles, in the owner's redrawn picture vvfp_hovel.png (art by Lorsieab2); the game's own "
         "hovel_cover.png is not changed"), gm.CODE, True))
+    # The point-hover routine 0x444310 says nothing at the mud hut; Fix Vanilla Bugs' line once project 25 is done
+    # (tests/test_vv5_hovel_hover.py).
+    out.append(gm.Fact(gm.PUZZLES, gm.patch_words(
+        village, "vv5_fix_vanilla_bugs", "a villager held over the fixed-up mud hut says \"<name> sees the decorated "
+        "encampment.\" (with Memorial Actions Can Also Occur at the Heathen Hovel, \"<name> sees a heartfelt "
+        "memorial.\"), where the game says nothing; before The Last Heathen is solved, nothing changes"),
+        gm.CODE, True))
     # Shrine to the Ancestors draws the owner's picture with its bottom-left on the completed hovel's
     # (1702, 1751), with or without Fix Vanilla Bugs (tests/test_vv5_respectful_hovel_cover.py).
     out.append(gm.Fact(gm.PUZZLES, gm.patch_words(

@@ -87,6 +87,7 @@ DEFAULT_OFF = frozenset({"vv3_learning_never_fails", "vv3_everyone_collects_like
                           # the 0.1x-10x sliders (#799), One-Time Collectibles Appear Again (#800) and Every Island
                           # Event Can Happen (#797): off by default
                           "vv3_collectible_frequency", "vv3_food_gain", "vv3_tech_gain", "vv3_skill_success",
+                          "vv3_weather_frequency",    # 0.1-10x Weather Changes (2026-11-25): off by default
                           "vv3_age_speed", "vv3_one_time_collectibles_again", "vv3_every_island_event_can_happen"}) | frozenset(  # the island events' content controls (the owner, 2026-11-15)
     {"vv3_island_event_content_notes", "vv3_island_events_any_time"}
     | {f"vv3_island_event_filter_f{n:02d}" for n in range(1, 29)})

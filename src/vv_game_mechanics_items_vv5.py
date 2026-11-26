@@ -123,7 +123,8 @@ def _feature(feature: str) -> str:
 # the test keeps the two the same).
 # Story / Cheat Upgrades and its cost row are on by default (owner, 2026-11-01).
 DEFAULT_OFF = frozenset({"vv5_learning_never_fails", "vv5_everyone_collects_like_vv1", "vv5_super_secret_golden_mushroom",
-                         "vv5_collectibles_stay_collected", "vv5_science_collectibles_complete"})
+                         "vv5_collectibles_stay_collected", "vv5_science_collectibles_complete",
+                         "vv5_divine_energy_gain"})
 ORIGINS = "vv5_enable_origins_exclusive_features"
 STORY = "vv5_story_cheat_upgrades"
 STORY_COST = "vv5_story_cheat_upgrades_cost_tech_points"
@@ -131,7 +132,7 @@ PATCHES = (ORIGINS, STORY, STORY_COST, "vv5_learning_never_fails", "vv5_heathen_
            "vv5_statue_polishing_or_honoring", "vv5_easier_devotee_training", "vv5_vv4_nursery_divisor_parity",
            "vv5_builders_fix_huts", "vv5_builders_and_healers_work_first", "vv5_super_secret_golden_mushroom",
            "vv5_everyone_collects_like_vv1", "vv5_collectibles_stay_collected", "vv5_adult_confused",
-           "vv5_science_collectibles_complete")
+           "vv5_science_collectibles_complete", "vv5_divine_energy_gain")
 
 
 # ---------------------------------------------------------------------------
@@ -283,13 +284,19 @@ def _power_entries() -> list[Entry]:
         "the God powers' currency. Each believer adds 1 every age unit, 4 at Devotion 50 or more, 9 at 88 or more; "
         "Honoring adds 3, 7 or 12 at those Devotion levels; a relic found again adds 10, 50 or 150 by rarity; the "
         "Blessings Day Celebration island event fills it to the cap. The cap is 5 x (believers + the babies they carry "
-        "+ 2), raised by the Tribute Statue, Spirituality and the relics (their own entries), at most 1,000; a power "
+        "+ 2), raised by the Tribute Statue, Spirituality and the relics (their own entries), at most 1,000 (the "
+        "patcher's \"Max Divine Energy Continues to Increase\" lifts that limit); a power "
         "can be cast whenever the Divine Energy is at least its cost (see God powers)."), VERIFIED_E,
         # The new village's builder 0x4259D0 (called from the new-village paths 0x4404D9 and 0x43E726; it makes the
         # villagers and sets the tips' marks 0x44EC40) ends at 0x425DA6: the cap +0x17D60 = 50, then the adder
         # 0x424F80(50).
         (("A new village starts with a Divine Energy cap of 50 and 50 Divine Energy: the game's new-village set-up "
-          "sets both as its last step.", VERIFIED_C),))]
+          "sets both as its last step.", VERIFIED_C),
+         # native/vvfp_divine_energy_gain: the adder's calls 0x472D25/0x472D43/0x472D61/0x472DDB (each believer) and
+         # 0x46D893/0x46D8B3/0x46D8D7 (Honoring), 0x46DA1F (work event 40) go through the companion.
+         (f"{_feature('vv5_divine_energy_gain')}: the believers' Divine Energy (each age unit and Honoring) is "
+          "multiplied by its slider's number, 0.1 to 10 (1, the normal game, unless moved); the cap, the powers' "
+          "costs, relics found again and island events are the game's own.", VERIFIED_C)))]
     for name, cost, _ in powers.TABLE:
         out.append(Entry(POWER, name, f"{cost:,} Divine Energy",
                          POWER_WORDS[name] + " Every number and its source: God powers.", VERIFIED_E))
@@ -427,7 +434,15 @@ def _puzzle_entries() -> list[Entry]:
                 "checked on that skill, and anyone else 14% of the time.", VERIFIED_C))),
         Entry(PUZZLE, "The Blind Totem", "villagers make and install a golden eye (panning, smelting, installing)", (
             "until it is solved no God power can be cast on the island's north-east corner (world x past 1,815 and y "
-            "above 445): the game says \"Your vision and power are blocked here!\""), VERIFIED_E),  # 0x4234C8
+            "above 445): the game says \"Your vision and power are blocked here!\""), VERIFIED_E,  # 0x4234C8
+              # The totem's area 0x2D, handler 0x434520: its hover case (message 1, 0x434554) showed nothing; the
+              # game's own 0x256 eSayTotemNeedsEye / 0x257 eSayTotemShinyEye were never used.
+              ((f"A villager held over the other totems says something (\"The Hungry Totem should be torn down.\", "
+                "and once one is down \"{name} sees the remnants of a totem.\"), but over The Blind Totem the game "
+                f"says nothing. {_feature('vv5_fix_vanilla_bugs')}: it says the game's own unused lines, \"The "
+                "totem is missing its eye.\" until it is solved and \"The totem has a shiny eye!\" after. Dropping a "
+                "villager on it or clicking it says \"It's missing its eye\" until it is solved, in both.",
+                VERIFIED_C),)),
         Entry(PUZZLE, "The Heathen Chief", "four necklace pieces brought to the Chief", (
             "the Heathen Chief's Faith is set to 100, so the Chief joins the tribe."), VERIFIED_E,  # 0x4360EE
               # CConvertHeathenChiefPuzzle registers four drop places (0x436CEE..0x436D1E): areas 0x26 (farmer's,
