@@ -567,7 +567,10 @@ class ReleasesLinkTests(unittest.TestCase):
                                         "vv_corrupt_skills",
                                         # The meal companion's number beside it, in the patcher's folder
                                         # (function-level; the Hungrier Villagers line, 2026-11-17).
-                                        "patcher_files"}),
+                                        "patcher_files",
+                                        # The Villagers group: each villager, health, Faith and the Heathens
+                                        # (function-level; the owner, 2026-11-26).
+                                        "vv_game_mechanics_villagers"}),
             ("vv_game_mechanics_farmers", set()),
             *((f"vv_game_mechanics_farmers_vv{n}", {"vv_game_mechanics_farmers"}) for n in range(1, 6)),
             # The Genetics group: the villagers and their parents as Last Names reads them (function-level).

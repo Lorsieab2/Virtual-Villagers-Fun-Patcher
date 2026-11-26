@@ -47,7 +47,9 @@ INTRO = ("For the curious: the hidden rules of each game -- its food sources, re
          "are real times. It only reads: nothing is changed, so the game may be running.")
 WIDTH, HEIGHT = 900, 720
 LABEL_RED = "#b00020"
-MIN_WIDTH, MIN_HEIGHT = 600, 600
+# 630, not 600: the Villagers group (v1.35.101) adds an eighth row of group links on a busy save's tab (The Secret
+# City's), which must still leave the page its 80 pixels at the window's smallest (tests/test_game_mechanics.py).
+MIN_WIDTH, MIN_HEIGHT = 600, 630
 # 4, not 5: a New Believers save's 24 group links need 607 pixels in 5 columns, more than the 556 the window has at
 # its smallest, so 7 of them were cut (the audit of 2026-10-25); in 4 columns they need 512.
 LINKS_PER_ROW = 4

@@ -77,7 +77,8 @@
    and is made by the age credit's throttled pass as soon as a record is free.
 
    HEATHEN BABIES (the tribe row only; no new conception once The Last Heathen is solved).  An adult Heathen woman (14 to 45 years), not expecting, not the Heathen
-   Mommy, with a living adult Heathen man in the camp, conceives on 1 age unit in CONCEIVE_IN, 400 (about once in 20 years) through
+   Mommy, with a living adult Heathen man in the camp, conceives on 1 age unit in TRIBE_UNITS_PER_BABY (240) x the
+   number of such women (about one baby for the whole tribe every 24 real hours on Normal: the owner, 2026-11-25) through
    the game's conception routine 0x465E00 forced (father: a random adult Heathen man), only while at least
    HA_ROOM_KEPT records stay free for the village's own births.  The Village Statistics' twins and triplets are put
    back as the Story upgrades' Custom Island Event does for a Heathen carrier.  The birth comes as a believer's
@@ -162,8 +163,10 @@
 #define ADULT 280                /* 14 years */
 #define BIRTH_LAST 900           /* 45 years */
 #define DELIVERY 40              /* units from conception to birth (0x4730AF: +0x28) */
-#define CONCEIVE_IN 400          /* 1 age unit in 400: about one baby a woman in 20 years, one camp baby
-                                    every ~2 years with ~10 young women (the owner, 2026-11-23) */
+#define TRIBE_UNITS_PER_BABY 240 /* the owner, 2026-11-25: "1 baby every 24 hours across the entire tribe" --
+                                    240 age units (6 real minutes each on Normal: 41 units = 4 h 6 min) for
+                                    the whole tribe: each woman who could conceive rolls 1 in 240 x their
+                                    number (12 h on Fast, 40 h on Slow) */
 #define HA_ROOM_KEPT 10          /* records left free for the village's own births */
 
 /* The game. */
@@ -1081,11 +1084,27 @@ static void deliver(unsigned char *mother) {
     known_drop(identity(mother), KIND_EXPECTING);
 }
 
+/* A Heathen woman this companion ages who could conceive now: 14 to 45, not expecting, not the Heathen Mommy. */
+static int could_conceive(const unsigned char *woman) {
+    return i32(woman, R_SEX) == 1 && i32(woman, R_ROLE) != 17 && i32(woman, R_PREGNANT) == 0
+           && i32(woman, R_AGE) >= ADULT && i32(woman, R_AGE) <= BIRTH_LAST;
+}
+
+/* How many women of the tribe could conceive now (at least 1: the caller is one). */
+static int tribe_women(void) {
+    unsigned int i;
+    int n = 0;
+    for (i = 0; i < g_slots; ++i) {
+        const unsigned char *r = rec_at((int)i);
+        n += r[R_FACTION] != 0 && living(r) && ages(r) && could_conceive(r);
+    }
+    return n > 0 ? n : 1;
+}
+
 static void maybe_conceive(unsigned char *woman) {
     unsigned char *father;
     int twins, triplets;
-    if (i32(woman, R_SEX) != 1 || i32(woman, R_ROLE) == 17 || i32(woman, R_PREGNANT) != 0
-        || i32(woman, R_AGE) < ADULT || i32(woman, R_AGE) > BIRTH_LAST || ha_rand(CONCEIVE_IN) != 0
+    if (!could_conceive(woman) || ha_rand(TRIBE_UNITS_PER_BABY * tribe_women()) != 0
         || free_records() <= HA_ROOM_KEPT || puzzle_done(LAST_HEATHEN) || (father = random_man(woman)) == NULL) {
         return;
     }
