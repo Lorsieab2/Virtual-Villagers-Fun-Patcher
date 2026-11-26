@@ -378,18 +378,19 @@ static void h_gp_checks(void) {
         h_gp_reset();
     }
     {
-        /* Born male, changing to female: told they will not conceive on their own (the owner, 2026-11-15). */
+        /* Born male or female, changing to female: nothing is said about babies (the owner, 2026-11-25: the patcher
+           never blocks babies, male or female). */
         static const UINT script[] = { VVFP_AX_CHANGE_SEX, IDCANCEL };
         h_gp_reset();
         h_gp_born_female = 0;
         h_villager("Kai", H_MALE);
         h_press(script, 2, IDNO);
-        h_check(strstr(h_box_text, "Kai was born male, so Kai will not conceive on their own. A Custom Island Event can still give Kai a baby with a partner you choose.") != NULL && strstr(h_box_text, "able to carry") == NULL,
-                "born male: the warning says they will not conceive on their own, a Custom Island Event can");
+        h_check(strstr(h_box_text, "Change Kai's sex to female?") != NULL && strstr(h_box_text, "conceive") == NULL
+                && strstr(h_box_text, "born male") == NULL, "born male: no word about conceiving");
         h_gp_reset();
         h_villager("Kai", H_MALE);
         h_press(script, 2, IDNO);
-        h_check(strstr(h_box_text, "will not conceive") == NULL, "born female: no such sentence");
+        h_check(strstr(h_box_text, "conceive") == NULL, "born female: no such sentence");
         h_gp_reset();
     }
 #if HARNESS_GAME == 1
