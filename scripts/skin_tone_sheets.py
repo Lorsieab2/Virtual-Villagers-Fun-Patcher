@@ -394,6 +394,48 @@ def mockup(root: Path, out: Path, edits_root: Path | None = None):
         print("wrote", out / leaf)
 
 
+def heathens(images: Path, out: Path):
+    """New Believers' Heathens in each mask colour, as Default and in every tone.  Drawn by the patcher's
+    own copy of the game's villager draw (src/vv_pictures_vv5.py: the same sheets, anchors and mask
+    placement as the game), from a scratch copy of the game's pictures with the toned sheets in it.  The
+    mask sheet is never toned, so every mask is the game's own."""
+    import io
+    import shutil
+    import vv_picture_image as pi
+    import vv_pictures_vv5 as v5
+    art = Art("vv5", images)
+    masks = [("Blue mask", {}), ("Orange mask", {"orange": 1}), ("Red mask", {"red": 1}),
+             ("Purple mask", {"rank": 12}), ("Chief's mask", {"rank": 13})]
+    looks = [(f"{'Man' if male else 'Woman'}, {label.lower()}",
+              v5.Look(male=male, head=MOCKUP_HEADS["male" if male else "female"],
+                      body=MOCKUP_BODIES["male" if male else "female"], faction=1, **fields))
+             for label, fields in masks for male in (True, False)]
+    pose = v5.Pose(pose=8, turn=5, shadow=False, x=30, y=20)
+    rows = [[] for _ in looks]
+    with tempfile.TemporaryDirectory() as tmp:
+        for number, tone in enumerate([None] + list(core.TONES)):
+            folder = Path(tmp) / str(number)
+            (folder / "Images").mkdir(parents=True)
+            shutil.copytree(images.parent / "Assets", folder / "Assets")
+            for path in images.iterdir():
+                if path.is_file() and path.suffix.lower() == ".png":
+                    if tone is not None and path.name in art.specs:
+                        Image.fromarray(art.sheet(path.name, tone)).save(folder / "Images" / path.name)
+                    else:
+                        shutil.copyfile(path, folder / "Images" / path.name)
+            renderer = v5.load(pi.FolderSource(folder))
+            for i, (_label, look) in enumerate(looks):
+                drawn = pi.render_plan(renderer.sheets, renderer.planner.plan(look, pose))
+                rows[i].append(Image.open(io.BytesIO(drawn.to_png())).convert("RGBA"))
+    labels = ["Default"] + [f"S{i} {t[4]}" for i, t in enumerate(core.TONES, 1)]
+    size = (max(t.width for row in rows for t in row), max(t.height for row in rows for t in row))
+    for zoom in (1, 4):
+        core.grid(list(range(len(looks))), list(range(len(labels))), lambda r, c: rows[r][c],
+                  [label for label, _ in looks], labels,
+                  f"New Believers: Heathens in each mask colour ({zoom}x); the masks are the game's own",
+                  out / f"vv5_heathens_{zoom}x.png", zoom, size, label_w=150)
+
+
 def write_sheets(art: Art, out: Path):
     """Every tone's sheets as <out>/<tone number>/<the game's own file name>."""
     for number, tone in enumerate(core.TONES, 1):
@@ -603,7 +645,7 @@ TO MAKE THE FILES AGAIN (your "edits" are applied; the .xcf files are replaced)
 
 def main() -> int:
     ap = argparse.ArgumentParser(description=__doc__.splitlines()[0])
-    ap.add_argument("what", choices=["preview", "sheets", "workbench", "import", "mockup"])
+    ap.add_argument("what", choices=["preview", "sheets", "workbench", "import", "mockup", "heathens"])
     ap.add_argument("--game", choices=sorted(TITLES))
     ap.add_argument("--images-root", type=Path, help="mockup: the folder holding every game's own folder")
     ap.add_argument("--images", type=Path, help="the game's own Images folder (read only)")
@@ -628,6 +670,9 @@ def main() -> int:
         raise SystemExit("--images is needed")
     edits = folder / "edits"
     art = Art(args.game, args.images, edits if edits.is_dir() else None)
+    if args.what == "heathens":
+        heathens(args.images, args.out)
+        return 0
     if args.what == "preview":
         previews(art, args.out, args.masks)
     elif args.what == "sheets":
