@@ -28,7 +28,9 @@
    table, so the entry is read from the table the writer was called on (its
    saved `this`, [esp+8] at 0x464E51), and a grave there is named "the mud
    hut memorial (<the skill line>)"; a Heathen whose burial found that table
-   full gets "no grave (the mud hut memorial was full)".  An epitaph edited
+   full gets "no grave (the mud hut memorial was full)" -- "the encampment
+   memorial" in both with the Guardians of Isola rewrite (the owner,
+   2026-11-26; heathen_word.h).  An epitaph edited
    on the Heathen Mausoleum Screen names the same grave.
 
    THE UNBURIED BODY.  After 240 minutes the game removes a body nobody
@@ -147,7 +149,7 @@ static void v345_grave_words(const unsigned char *entry, char *title, int size) 
     char line[64];
     v345_title(entry, line);
     if (g_game == 5 && hm_is_heathen_grave(entry)) {
-        wsprintfA(title, "%s (%s)", HM_GRAVE_PREFIX, line);
+        wsprintfA(title, "%s (%s)", vv5_guardians_of_isola() ? HM_GRAVE_PREFIX_ISOLA : HM_GRAVE_PREFIX, line);
     } else {
         lstrcpynA(title, line, size);
     }
@@ -174,7 +176,8 @@ static void v345_buried(int site, const unsigned int *regs) {
         /* New Believers: a Heathen's burial went to the mud hut's table (the faction at death decides). */
         int heathen = g_game == 5 && record[REC[5].heathen] != 0 && hm_installed();
         cod_log_death(record, cie_taken(record, *(const int *)(record + V345[g_game].cause)),
-                      heathen ? HM_GRAVE_FULL : "no grave (the Roster of the Dead was full)", NULL);
+                      !heathen ? "no grave (the Roster of the Dead was full)"
+                      : vv5_guardians_of_isola() ? HM_GRAVE_FULL_ISOLA : HM_GRAVE_FULL, NULL);
         return;
     }
     v345_grave_words(entry, title, (int)sizeof title);

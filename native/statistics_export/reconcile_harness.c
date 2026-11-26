@@ -363,7 +363,10 @@ static void write_files(int buried, int twins, int chiefs) {
             /* A Heathen buried at the mud hut ("VVFP Heathen Mausoleum.dll"): never counted, even with no
                Faction line -- the grave is not the memorial's. */
             "Death 10\r\n  Name: Hutu\r\n  Age at death: 1220\r\n  Cause of death: Old age\r\n"
-            "  Grave: the mud hut memorial (Untrained)\r\n\r\n");
+            "  Grave: the mud hut memorial (Untrained)\r\n\r\n"
+            /* ...and in the Guardians of Isola wording. */
+            "Death 11\r\n  Name: Kaimu\r\n  Age at death: 1230\r\n  Cause of death: Old age\r\n"
+            "  Grave: the encampment memorial (Adept Builder)\r\n\r\n");
     }
     /* In the odd games the logs are where an older build kept them, "Deaths": the reconcile reads them
        there and never moves them (native/shared/save_layout.h). */

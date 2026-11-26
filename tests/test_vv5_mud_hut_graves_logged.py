@@ -29,6 +29,16 @@ FACTION = 0x1CEC
 ROSTER_IMM = 0x473FA5            # the burial's `mov ecx, 0x5481A8` (0x473FA4)
 
 
+def guardians(p) -> None:
+    """The Guardians of Isola rewrite, as the running game shows it (native/shared/heathen_word.h): string 0x48 of
+    the table at 0x5240A8 says "left the tribe"."""
+    text = p.alloc(0x40)
+    p.write(text, b"%s has left the tribe.\0")
+    entry = p.alloc(0x10)
+    p.write(entry, struct.pack("<4I", 0x48, 0, text, 0))
+    p.put32(0x5240A8 + 4 * 0x48, entry)
+
+
 class MudHut:
     def __init__(self):
         self.g, self.w = later("vv5")
@@ -43,7 +53,8 @@ class MudHut:
                                                   and (proc.arg(0) - self.table) % 0x5C == 0), 4))
         p.stub(FAKE_MAUSOLEUM + 0x10, lambda proc: (self.installed, 0))
         p.api_handlers["GetModuleHandleA"] = (
-            lambda proc: ((FAKE_MAUSOLEUM if proc.arg(0) and proc.cstring(proc.arg(0)) == "VVFP Heathen Mausoleum.dll"
+            lambda proc: ((0x400000 if proc.arg(0) == 0
+                           else FAKE_MAUSOLEUM if proc.cstring(proc.arg(0)) == "VVFP Heathen Mausoleum.dll"
                            else 0), 4))
         get_proc = p.api_handlers["GetProcAddress"]
 
@@ -82,6 +93,18 @@ class MudHutGraves(unittest.TestCase):
         b.bury(2, "Bel", heathen=False)
         self.assertEqual(b.deaths(), [("Bel", "Untrained")])
         self.assertEqual(b.g.p.cstring(0x5481A8), "Bel")
+
+    def test_with_guardians_of_isola_it_is_the_encampment_memorial(self):
+        for full in (False, True):
+            with self.subTest(full=full):
+                m = MudHut()
+                guardians(m.g.p)
+                if full:
+                    for i in range(500):
+                        m.g.p.put32(m.table + i * 0x5C + 0x1C, 100)
+                m.bury(1, "Hea", heathen=True)
+                self.assertEqual(m.deaths(), [("Hea", "no grave (the encampment memorial was full)" if full
+                                               else "the encampment memorial (Untrained)")])
 
     def test_a_full_mud_hut_memorial_is_named_so(self):
         m = MudHut()
