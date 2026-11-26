@@ -1172,6 +1172,16 @@
       ]
     },
     {
+      "ids": ["vv5_max_divine_energy_increases"],
+      "guide": [
+        "Off by default and in Select All (Select All does not tick it); on in Owner's Defaults only. Nothing to click: it works on its own.",
+        "The normal game never lets the Divine Energy cap go above 1,000. With this patch the cap keeps growing with your believers,",
+        "the babies they carry, the Tribute Statue, Spirituality and the first collectible set: 1,150 with 150 believers and every bonus, 1,680 with 256.",
+        "The Divine Energy bar at the top of the screen shows the energy as a share of the cap, so a full bar is still full.",
+        "The cap still falls when believers die or leave. Below 1,000 nothing changes. Not yet seen in a running game."
+      ]
+    },
+    {
       "ids": ["vv5_former_villagers_keep_aging"],
       "guide": [
         "Off by default and in Select All (Select All does not tick it); on in Owner's Defaults only. Nothing to click: it works on its own.",
@@ -1580,8 +1590,8 @@
         "0.1-10x Tech Cost (all five games), Classic VV Difficulty, Change Sex and Gender Presentation, More Frequent Island Events,",
         "The Golden Child May Be Born Female (50:50), One-Time Collectibles Appear Again, Village Solidarity, Esteemed Elders in Every Game,",
         "Fog of Doom Lets Red and Orange Heathens Listen, No Restrictions on Fog of Doom Conversions, Former Villagers Keep Aging Among the Heathens,",
-        "Heathen Tribe Ages, Dies and Has Children, All Heathens Leave Skeletons, Former Villagers Among the Heathens Leave Skeletons, the 0.1-10x sliders",
-        "and the island event controls (Content Notes, every Content Filter, No Safeguards, Heathens in island events) are not ticked either."
+        "Heathen Tribe Ages, Dies and Has Children, All Heathens Leave Skeletons, Former Villagers Among the Heathens Leave Skeletons, Max Divine Energy Continues to Increase,",
+        "the 0.1-10x sliders and the island event controls (Content Notes, every Content Filter, No Safeguards, Heathens in island events) are not ticked either."
       ]
     },
     "default_patches": {
@@ -1596,7 +1606,7 @@
         "Scrolling Popups, More Island Events, Isola Grand Event Collection, Every Island Event Can Happen, both Island Events Scale patches, One-Time Collectibles Appear Again,",
         "the 0.1-10x sliders and the island event controls. Respecting the Legacy of Isola, Heathens Keep Their Masks When Converted, Memorial Actions Can Also Occur at the Heathen Hovel,",
         "Shrine to the Ancestors, both Fog of Doom patches, Practicing Devotion Builds Faith and Divine Energy, Esteemed Elders in Every Game,",
-        "the four Heathen aging patches, Revive Buried/Disappeared Villagers."
+        "the four Heathen aging patches, Revive Buried/Disappeared Villagers, Max Divine Energy Continues to Increase."
       ]
     },
     "owners_defaults": {

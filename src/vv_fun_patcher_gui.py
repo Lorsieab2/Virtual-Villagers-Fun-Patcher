@@ -304,6 +304,8 @@ FORMER_VILLAGERS_AGE_ID = "vv5_former_villagers_keep_aging"
 HEATHEN_TRIBE_AGES_ID = "vv5_heathen_tribe_ages"
 FORMER_SKELETONS_ID = "vv5_former_villager_heathens_leave_skeletons"
 ALL_SKELETONS_ID = "vv5_all_heathens_leave_skeletons"
+# Max Divine Energy Continues to Increase (New Believers; the owner, 2026-11-25).
+DIVINE_ENERGY_CAP_ID = "vv5_max_divine_energy_increases"
 # What Owner's Defaults sets both sliders to (the owner, 2026-11-07: "set the sliders to 2x").
 OWNERS_DEFAULT_SLIDER = 2
 
@@ -464,6 +466,9 @@ DEFAULT_OFF_FUN_PATCH_IDS = frozenset(
     # Revive Buried/Disappeared Villagers (all five games; the owner, 2026-11-22): off by default, "ON in Owner's Defaults"
     # (100,000 tech points while the story upgrades cost tech points); Owner's Defaults ticks it like every default-off patch it does not name.
     + ["vv%d_revive_from_graves" % game for game in range(1, 6)]
+    # Max Divine Energy Continues to Increase (New Believers; the owner, 2026-11-25: "owners defaults on only for the
+    # divine energy cap"): off here and in Select All, on in Owner's Defaults.
+    + [DIVINE_ENERGY_CAP_ID]
     # Respecting the Legacy of Isola (New Believers): off by default, on in
     # Owner's Defaults and Select All (it ticks its five pieces there too).
     + [LEGACY_OF_ISOLA_FUN_PATCH_ID]
@@ -551,6 +556,8 @@ SELECT_ALL_OFF_FUN_PATCH_IDS = frozenset(
     + ESTEEMED_ELDERS_IDS
     # The Heathen aging rows (New Believers): on in Owner's Defaults only (the owner, 2026-11-22).
     + [FORMER_VILLAGERS_AGE_ID, HEATHEN_TRIBE_AGES_ID, FORMER_SKELETONS_ID]
+    # Max Divine Energy Continues to Increase: on in Owner's Defaults only (the owner, 2026-11-25).
+    + [DIVINE_ENERGY_CAP_ID]
     # (Memorial Actions Can Also Occur at the Heathen Hovel is NOT here: the owner (2026-11-08), "must be ticked
     # by Select All too" -- off in the normal defaults, on in Owner's Defaults and Select All.)
 ) | ALTERNATIVE_OFF_FUN_PATCH_IDS

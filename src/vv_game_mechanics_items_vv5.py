@@ -284,7 +284,8 @@ def _power_entries() -> list[Entry]:
         "the God powers' currency. Each believer adds 1 every age unit, 4 at Devotion 50 or more, 9 at 88 or more; "
         "Honoring adds 3, 7 or 12 at those Devotion levels; a relic found again adds 10, 50 or 150 by rarity; the "
         "Blessings Day Celebration island event fills it to the cap. The cap is 5 x (believers + the babies they carry "
-        "+ 2), raised by the Tribute Statue, Spirituality and the relics (their own entries), at most 1,000; a power "
+        "+ 2), raised by the Tribute Statue, Spirituality and the relics (their own entries), at most 1,000 (the "
+        "patcher's \"Max Divine Energy Continues to Increase\" lifts that limit); a power "
         "can be cast whenever the Divine Energy is at least its cost (see God powers)."), VERIFIED_E,
         # The new village's builder 0x4259D0 (called from the new-village paths 0x4404D9 and 0x43E726; it makes the
         # villagers and sets the tips' marks 0x44EC40) ends at 0x425DA6: the cap +0x17D60 = 50, then the adder

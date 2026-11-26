@@ -214,7 +214,10 @@ class DefaultPatchSelectionTests(unittest.TestCase):
                            "vv5_all_heathens_leave_skeletons", "vv5_former_villager_heathens_leave_skeletons")
                   # Revive Buried/Disappeared Villagers (all five games, the owner 2026-11-22: off by default, on in
                   # Owner's Defaults; 100,000 tech points while the story upgrades cost tech points).
-                  or p.endswith("_revive_from_graves")})
+                  or p.endswith("_revive_from_graves")
+                  # Max Divine Energy Continues to Increase (New Believers, new 2026-11-25: on in Owner's Defaults
+                  # only).
+                  or p == "vv5_max_divine_energy_increases"})
 
     def test_birth_control_is_on_by_default_in_all_five_games(self) -> None:
         """The owner (2026-11-19): the new The Tree of Life and New Believers Birth Control rows are ON BY DEFAULT,
@@ -252,6 +255,15 @@ class DefaultPatchSelectionTests(unittest.TestCase):
         """The owner (2026-11-23): "Heathens can be selected in Island Events/Heathen-Exclusive Events" is ON in
         Owner's Defaults; off by default and in Select All, as every new option of this round."""
         patch_id = "vv5_heathens_in_island_events"
+        self.assertIn(patch_id, fun_patch_ids())
+        self.assertFalse(default_fun_patch_selection(patch_id))
+        self.assertTrue(owners_default_fun_patch_selection(patch_id))
+        self.assertFalse(select_all_fun_patch_selection(patch_id))
+
+    def test_max_divine_energy_increases_is_on_in_owners_defaults_only(self) -> None:
+        """The owner (2026-11-25): "owners defaults on only for the divine energy cap" -- off by default and, like
+        every new option of this round, in Select All; on in Owner's Defaults."""
+        patch_id = "vv5_max_divine_energy_increases"
         self.assertIn(patch_id, fun_patch_ids())
         self.assertFalse(default_fun_patch_selection(patch_id))
         self.assertTrue(owners_default_fun_patch_selection(patch_id))
@@ -501,6 +513,8 @@ class DefaultPatchSelectionTests(unittest.TestCase):
         # ...and the four Heathen aging rows (the owner, 2026-11-23: Select All ticks none of them).
         held_back |= {"vv5_former_villagers_keep_aging", "vv5_heathen_tribe_ages", "vv5_all_heathens_leave_skeletons",
                       "vv5_former_villager_heathens_leave_skeletons"}
+        # ...and Max Divine Energy Continues to Increase (the owner, 2026-11-25: on in Owner's Defaults only).
+        held_back |= {"vv5_max_divine_energy_increases"}
         self.assertEqual(set(SELECT_ALL_OFF_FUN_PATCH_IDS), held_back)
         ids = fun_patch_ids()
         self.assertTrue(held_back <= ids)

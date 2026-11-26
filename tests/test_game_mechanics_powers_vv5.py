@@ -88,6 +88,9 @@ class GodPowers(unittest.TestCase):
             # a 1 in 10 chance of +1 Divine Energy (and Faith) on each Devotion check, through the stock adder up to the
             # cap; no power's cost, range or effect changes (Faith: vv_game_mechanics_faith_vv5)
             "vv5_devotion_builds_faith",
+            # the Divine Energy cap is no longer held at 1,000; no power's cost, range or effect changes (Tech points
+            # and effects: vv_game_mechanics_vv5.energy_cap_line)
+            "vv5_max_divine_energy_increases",
             # the believers' Divine Energy earnings times the 0.1-10x slider (the owner, 2026-11-25); the costs and the
             # cap are the game's own (Divine Energy's own entry: vv_game_mechanics_items_vv5)
             "vv5_divine_energy_gain",

@@ -482,6 +482,10 @@ CASES = [
     Case("Founder X Buttons", "assets/founder_x_buttons/VVFP Founder X Buttons.dll", (4, 5),
          lambda g: [f"vv{g}_founder_x_buttons"],
          lambda m, g: (m.export("VvfpStartup", g, 0), m.export("VvfpFounderXInstalled"))[1]),
+    # Max Divine Energy Continues to Increase (New Believers): the cap routine's clamp and +0x17E11 store, the bar's call.
+    Case("Divine Energy Cap", "assets/divine_energy_cap/VVFP Divine Energy Cap.dll", (5,),
+         lambda g: [f"vv{g}_max_divine_energy_increases"],
+         lambda m, g: (m.export("VvfpStartup", g, 0), m.export("VvfpDivineEnergyCapInstalled"))[1]),
     # Esteemed Elders in Every Game (A New Home, The Lost Children, The Tree of Life, New Believers): the panel's title,
     # the burial's epitaph.
     Case("Esteemed Elders", "assets/esteemed_elders/VVFP Esteemed Elders.dll", (1, 2, 4, 5),
