@@ -125,6 +125,7 @@ class Person:
     chief: bool = False                      # The Secret City's Tribal Chief
     skills: tuple[float, ...] = ()           # the game's skill order (vv_corrupt_skills.SKILL_NAMES); () unread
     ticked: str | None = None                # the job ticked on the Details screen; None = none ticked or unread
+    at: int = -1                             # the name's offset in the save (the Villagers group reads the rest)
 
     def skill(self, name: str, game: int) -> float | None:
         """This villager's `name` skill (Farming, Devotion, ...), or None when it was not read."""
@@ -170,7 +171,7 @@ def people(village: gm.Village) -> list[Person] | None:
             babies = (raw if raw in (2, 3) else 1) if lay.singles_unwritten else (raw if raw in (1, 2, 3) else 1)
             p = Person(ln._cstr(data, at, f.name_cap), "Male" if _i32(data, at + f.sex) == f.male else "Female",
                        _i32(data, at + lay.age), _i32(data, at + lay.processed), _i32(data, at + lay.health), sick,
-                       conceived, babies)
+                       conceived, babies, at=at)
             if lay.father is not None and conceived:
                 p.father = ln._cstr(data, at + lay.father, 0x18)
             if village.game == 1:
@@ -629,8 +630,8 @@ def villager_lines(ctx: Context, everyone: list[Person]) -> list[gm.Fact]:
         if heathens:
             top = sorted(heathens, key=lambda q: -(q.faith or -1000))[:5]
             add(f"Heathens outside the tribe: {len(heathens)}, never counted on this page. Highest Faith (preaching "
-                "adds 3 to 5, then that Heathen waits 2 real-life hours, real time): "
-                + ", ".join(f"{p.name} ({p.faith})" for p in top) + ".", gm.SAVE)
+                "adds 3 to 5, then that Heathen waits 2 real-life hours, real time; each one's wait is under "
+                "Villagers): " + ", ".join(f"{p.name} ({p.faith})" for p in top) + ".", gm.SAVE)
     out.extend(ctx.villager_extra)
     return out
 
@@ -898,7 +899,8 @@ def vitals_lines(ctx: Context, everyone: list[Person] | None, soonest, event) ->
     if ctx.limit is not None:
         sub(ctx.limit[0][0].upper() + ctx.limit[0][1:] + ".", ctx.limit[1])
     if heathens:
-        sub(f"Heathens outside the tribe: {heathens}, left out of every count and total on this page.", gm.SAVE)
+        sub(f"Heathens outside the tribe: {heathens}, left out of every count and total on this page and never "
+            "counted in the patcher's Village Statistics.", gm.SAVE)
     out.extend(ctx.vitals_extra)
 
     # 7. Food sustainability (estimates).
@@ -1833,6 +1835,13 @@ _STARTS = (
     (_re.compile(r"^[^:]+?(?=: -?\d+ health; )"), "<villager>"),
     (_re.compile(r"^.+?(?= is the Golden Child: )"), "<villager>"),
     (_re.compile(r"^(Next to reach it: )[^,]+?(?=, )"), r"\1<villager>"),
+    # The Villagers group (src/vv_game_mechanics_villagers.py): each villager's own line and its details.
+    (_re.compile(r"^[^:]+?(?=: (?:Male|Female), \d)"), "<villager>"),
+    (_re.compile(r"^Likes: .*$"), "Likes: <words>. Dislikes: <words>."),
+    (_re.compile(r"^Parents: father .*$"), "Parents: father <villager>, mother <villager>."),
+    (_re.compile(r"^Titles: .*$"), "Titles: <titles> (the patcher's Custom Titles file and logs)."),
+    (_re.compile(r"(?<=^Pregnant / nursing: )(1 baby|twins|triplets) by [^;]+"), r"\1 by <villager>"),
+    (_re.compile(r"(?<=; ticked job: )[A-Za-z]+(?=\.$)"), "<job>"),
 )
 
 
@@ -1888,6 +1897,8 @@ def sections(ctx: Context) -> list[gm.Fact]:
         nursing, soonest = nursing_lines(ctx, everyone)
         out += nursing
         out += villager_lines(ctx, everyone)
+        import vv_game_mechanics_villagers as villagers      # the Villagers group: each villager, one by one
+        out += villagers.lines(ctx, everyone)
     else:
         out.append(gm.Fact(NURSING, "The villager table could not be read.", gm.SAVE))
     village, event = village_lines(ctx)

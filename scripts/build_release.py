@@ -899,6 +899,7 @@ FILES = [
     "src/vv_game_mechanics_catchup.py",
     "src/vv_game_mechanics_carried.py",
     "src/vv_game_mechanics_training.py",
+    "src/vv_game_mechanics_villagers.py",
     "src/vv_game_mechanics_counts.py",
     "src/vv_game_mechanics_events.py",
     "src/vv_game_mechanics_events_vv1.py",
