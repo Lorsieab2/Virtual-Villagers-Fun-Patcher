@@ -4,6 +4,7 @@
     python scripts/skin_tone_sheets.py sheets    --game vv3 --images "<game>\\Images" --out "<folder>"
     python scripts/skin_tone_sheets.py workbench --game vv3 --images "<game>\\Images"
     python scripts/skin_tone_sheets.py import    --game vv3
+    python scripts/skin_tone_sheets.py publish   --game vv3 --images "<game>\\Images"
 
 The method is scripts/skin_tone_preview.py's (the skin mask, then REPLACE in OKLCh, everything outside
 the mask byte-identical).  This file knows each game's sheets, makes the same preview set per game, and
@@ -16,7 +17,14 @@ by GIMP itself, with layers bottom to top: "Game's own art" (locked), "Skin mask
 <workbench>\\<game>\\edits\\<sheet>\\: mask.png and tone_NN.png.  Whatever is there wins over the generated
 art, here and wherever the sheets are made (Art(..., edits=...)).
 
-Everything this writes is made from the player's own game files and is never committed or shipped.
+THE OWNER'S ART MAY SHIP (the owner, 2026-11-26: "yes my art can ship").  `publish` copies what `import`
+kept into assets/skin_tones/owner_edits/<game>/<sheet>/, as the SKIN PIXELS ONLY: mask.png (white where
+skin, nothing else) and each painted tone_NN.png with every pixel outside that mask made transparent --
+never the game's own layer, hair, eyes or clothes.  manifest.json there pins each file by SHA-256
+(tests/test_skin_tone_owner_edits.py).  Where sheets are made, the workbench's edits come first, then
+these, then the generated art.
+
+Everything else this writes is made from the player's own game files and is never committed or shipped.
 """
 from __future__ import annotations
 
@@ -83,6 +91,7 @@ def sheets_of(game):
 CLOTH_RULES = {"vv1": core.VV1_CLOTH_RULES}
 # The owner's hand-made masks (The Lost Children): research/vv2-skin-source/<sheet>_skinmask.png.
 OWNER_MASKS = {"vv2": ROOT / "research" / "vv2-skin-source"}
+SHIPPED_EDITS = ROOT / "assets" / "skin_tones" / "owner_edits"
 BABY_CELL = (3, 0)          # the held baby's column and row on carrying.png, every game
 
 
@@ -111,10 +120,12 @@ def find_file(folder: Path, name: str):
 
 class Art:
     """A game's sheets: its own art, each sheet's skin mask, and each tone's sheet.  `edits` is the
-    owner's folder (<workbench>/<game>/edits): a mask.png or a tone_NN.png there wins."""
+    owner's folder (<workbench>/<game>/edits): a mask.png or a tone_NN.png there wins; then the owner's
+    shipped edits (assets/skin_tones/owner_edits/<game>), unless `shipped` is False."""
 
-    def __init__(self, game, images: Path, edits: Path | None = None):
-        self.game, self.images, self.edits = game, Path(images), edits
+    def __init__(self, game, images: Path, edits: Path | None = None, shipped: bool = True):
+        self.game, self.images = game, Path(images)
+        self.edit_folders = [f for f in (edits, SHIPPED_EDITS / game if shipped else None) if f is not None]
         self.specs = {s["name"]: s for s in sheets_of(game) if find_file(self.images, s["name"])}
         self._raw, self._mask, self._made, self.mask_source = {}, {}, {}, {}
 
@@ -124,10 +135,11 @@ class Art:
         return self._raw[name]
 
     def _edit(self, name, leaf):
-        if self.edits is None:
-            return None
-        path = self.edits / Path(name).stem / leaf
-        return path if path.is_file() else None
+        for folder in self.edit_folders:
+            path = folder / Path(name).stem / leaf
+            if path.is_file():
+                return path
+        return None
 
     def mask(self, name):
         if name in self._mask:
@@ -607,6 +619,53 @@ def import_workbench(game, folder: Path):
     return kept
 
 
+def skin_only(layer, mask):
+    """A tone layer with every pixel outside the skin mask made fully transparent (what may ship)."""
+    out = layer.copy()
+    out[~mask] = 0
+    out[out[..., 3] == 0] = 0
+    return out
+
+
+def publish_edits(art: Art, edits: Path, out: Path):
+    """The owner's kept edits (<workbench>/<game>/edits) as shippable files under `out`/<game>/<sheet>/:
+    mask.png (white where skin) for every sheet with an edit, and each painted tone layer cut to that mask.
+    Then `out`/manifest.json is written again for everything under `out`.  Returns the files written."""
+    written = []
+    target = out / art.game
+    if target.is_dir():
+        for old in sorted(target.rglob("*.png")):
+            old.unlink()
+    for name in art.specs:
+        stem = Path(name).stem
+        folder = edits / stem
+        tones = sorted(folder.glob("tone_*.png")) if folder.is_dir() else []
+        if not tones and not (folder / "mask.png").is_file():
+            continue
+        mask = art.mask(name)                   # the owner's edited mask when there is one, else the generated
+        (target / stem).mkdir(parents=True, exist_ok=True)
+        white = np.zeros(mask.shape + (4,), np.uint8)
+        white[mask] = 255
+        Image.fromarray(white).save(target / stem / "mask.png")
+        written.append(f"{art.game}/{stem}/mask.png")
+        for path in tones:
+            layer = np.array(Image.open(path).convert("RGBA"))
+            if layer.shape[:2] != mask.shape:
+                raise SystemExit(f"{path}: not the sheet's size")
+            Image.fromarray(skin_only(layer, mask)).save(target / stem / path.name)
+            written.append(f"{art.game}/{stem}/{path.name}")
+    write_manifest(out)
+    return written
+
+
+def write_manifest(out: Path):
+    """`out`/manifest.json: {"<game>/<sheet>/<file>.png": its SHA-256} for every picture under `out`."""
+    out.mkdir(parents=True, exist_ok=True)
+    pins = {path.relative_to(out).as_posix(): hashlib.sha256(path.read_bytes()).hexdigest()
+            for path in sorted(out.rglob("*.png"))}
+    (out / "manifest.json").write_text(json.dumps(pins, indent=1, sort_keys=True) + "\n", encoding="utf-8")
+
+
 README = """VVFP Skin Tones Workbench
 =========================
 
@@ -627,6 +686,8 @@ HOW TO EDIT
   - To change how one tone looks: show that Tone layer and paint on it.
   - To change WHAT counts as skin for every tone: show the Skin mask layer and paint or erase.
     Every tone you did not paint yourself is then made again from your mask.
+  - If you paint a tone where the Skin mask is not white, paint the Skin mask white there too:
+    only paint inside the mask goes into the patcher.
   - Do not rename, merge or delete layers, and do not resize the picture.
   - Save as .xcf under the same name (Ctrl+S).
 
@@ -639,6 +700,12 @@ HOW TO GET YOUR EDITS INTO THE MOD
   A layer you did not change is not kept, so it still follows later changes to the tone list.
   To drop an edit, delete its file in "edits".
 
+TO PUT YOUR EDITS IN THE PATCHER ITSELF (so every player gets them)
+      python scripts\\skin_tone_sheets.py publish --game vv1 --images "<the game's Images folder>"
+  It copies your mask and your painted tone layers into the patcher's
+      assets\\skin_tones\\owner_edits\\<game>\\<sheet>\\
+  as the skin pixels only: nothing of the game's own art goes with them.
+
 TO MAKE THE FILES AGAIN (your "edits" are applied; the .xcf files are replaced)
       python scripts\\skin_tone_sheets.py workbench --game vv1 --images "<the game's Images folder>"
 """
@@ -646,7 +713,7 @@ TO MAKE THE FILES AGAIN (your "edits" are applied; the .xcf files are replaced)
 
 def main() -> int:
     ap = argparse.ArgumentParser(description=__doc__.splitlines()[0])
-    ap.add_argument("what", choices=["preview", "sheets", "workbench", "import", "mockup", "heathens"])
+    ap.add_argument("what", choices=["preview", "sheets", "workbench", "import", "mockup", "heathens", "publish"])
     ap.add_argument("--game", choices=sorted(TITLES))
     ap.add_argument("--images-root", type=Path, help="mockup: the folder holding every game's own folder")
     ap.add_argument("--images", type=Path, help="the game's own Images folder (read only)")
@@ -671,6 +738,12 @@ def main() -> int:
         raise SystemExit("--images is needed")
     edits = folder / "edits"
     art = Art(args.game, args.images, edits if edits.is_dir() else None)
+    if args.what == "publish":
+        if not edits.is_dir():
+            raise SystemExit(f"no edits in {edits}: run `import` first")
+        for line in publish_edits(Art(args.game, args.images, edits, shipped=False), edits, SHIPPED_EDITS):
+            print("wrote", line)
+        return 0
     if args.what == "heathens":
         heathens(args.images, args.out)
         return 0
