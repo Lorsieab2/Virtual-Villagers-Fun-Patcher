@@ -151,8 +151,7 @@ class Art:
         owner = OWNER_MASKS.get(self.game)
         owner = owner / f"{Path(name).stem}_skinmask.png" if owner else None
         if edited is not None:
-            layer = np.array(Image.open(edited).convert("RGBA"))
-            m, source = (layer[..., 3] > 127) & (layer[..., :3].max(-1) > 127), "the owner's edited mask"
+            m, source = mask_from_layer(np.array(Image.open(edited).convert("RGBA"))), "the owner's edited mask"
         elif spec["kind"] == "baby":
             m, source = baby_mask(a, spec["cell"]), "the held baby's cell only"
         else:
@@ -595,7 +594,12 @@ for item in job["files"]:
             at = layer.get_offsets()
             copy = Gimp.Layer.new_from_drawable(layer, tall)
             tall.insert_layer(copy, None, 0)
-            copy.set_visible(True)
+            copy.set_visible(True)                  # read the same whether or not its eye is on,
+            try:
+                copy.set_opacity(100.0)             # at any opacity (the tutorial marks at 50%),
+                copy.set_mode(Gimp.LayerMode.NORMAL)    # and in any mode
+            except Exception:
+                pass                                # the mask is still read right (mask_from_layer)
             copy.resize(width, height, at[-2], at[-1])
             copy.set_offsets(0, k * height)
         tall.merge_visible_layers(Gimp.MergeType.CLIP_TO_IMAGE)
@@ -633,6 +637,15 @@ def _layer_pixels(path):
     return np.array(Image.open(path).convert("RGBA"))
 
 
+MASK_ALPHA = 32             # a mask pixel this opaque or more, and light, is skin (vv_skin_tone_art.MASK_ALPHA)
+
+
+def mask_from_layer(layer):
+    """The skin a "Skin mask" layer marks: every light pixel that is not (nearly) see-through.  A mask left
+    at 50% opacity while marking still reads whole; the eraser's see-through pixels are not skin."""
+    return (layer[..., 3] >= MASK_ALPHA) & (layer[..., :3].max(-1) > 127)
+
+
 def _clean(layer):
     """A layer as it is compared: fully transparent pixels carry no colour."""
     layer = layer.copy()
@@ -645,6 +658,43 @@ XCF_PINS = "_xcf"                       # in .generated.json: {sheet: the SHA-25
 
 def _file_sha(path: Path) -> str:
     return hashlib.sha256(path.read_bytes()).hexdigest()
+
+
+TUTORIAL_NAME = "How to mark skin in GIMP.txt"
+TUTORIAL = ROOT / "docs" / "skin-tones-gimp-tutorial.txt"
+# The two guides as they were first put in the workbench by hand, before they were pinned (SHA-256): still
+# "as written", so the first build after this may bring them up to date.
+FIRST_GUIDES = {
+    "README.txt": {"6886980ddb01c9d2fe79206167580f37baab4858f81f751c93f7a77e1885597b"},
+    TUTORIAL_NAME: {"76586ed5e6dc419ef6ff4974e405d215e222d5b43a6bd5f127b09efc0f52443f"},
+}
+
+
+def write_guides(workbench: Path) -> dict[str, str]:
+    """README.txt and the GIMP tutorial in the workbench folder, by the rule of the .xcf files: a guide that
+    is not there is written; one still exactly as this tool wrote it is brought up to date; one the owner
+    has changed is left as it is.  .guides.json there pins what was written.  Returns {name: what was done}."""
+    workbench.mkdir(parents=True, exist_ok=True)
+    pins_path = workbench / ".guides.json"
+    pins = json.loads(pins_path.read_text(encoding="utf-8")) if pins_path.is_file() else {}
+    done = {}
+    for name, text in (("README.txt", README), (TUTORIAL_NAME, TUTORIAL.read_text(encoding="utf-8"))):
+        path, data = workbench / name, text.encode("utf-8")
+        if path.is_file():
+            now = _file_sha(path)
+            if now == hashlib.sha256(data).hexdigest():
+                done[name] = "up to date"
+            elif now != pins.get(name) and now not in FIRST_GUIDES.get(name, ()):
+                done[name] = "kept (changed by you)"
+                continue
+            else:
+                done[name] = "brought up to date"
+        else:
+            done[name] = "written"
+        path.write_bytes(data)
+        pins[name] = hashlib.sha256(data).hexdigest()
+    pins_path.write_text(json.dumps(pins, indent=1), encoding="utf-8")
+    return done
 
 
 def _manifest(folder: Path) -> dict:
@@ -788,6 +838,14 @@ def import_workbench(game, folder: Path, only=None):
                     if target.is_file():
                         target.unlink()         # put back as generated: the edit is withdrawn
                     continue
+                if leaf == "mask.png":              # kept clean: white where skin, nothing else
+                    marked = mask_from_layer(layer)
+                    layer = np.zeros_like(layer)
+                    layer[marked] = 255
+                    if _sha(_clean(layer)) == manifest.get(stem, {}).get(leaf):
+                        if target.is_file():
+                            target.unlink()
+                        continue                    # only its opacity differed: not an edit
                 target.parent.mkdir(parents=True, exist_ok=True)
                 Image.fromarray(layer).save(target)
                 kept.append(f"{stem}/{leaf}")
@@ -858,6 +916,7 @@ THE LAYERS (bottom to top)
                                so painting a tone layer never covers them.
 
 HOW TO EDIT
+  Step by step, with GIMP's tools and keys: see "How to mark skin in GIMP.txt" in this folder.
   - To change how one tone looks: show that Tone layer and paint on it.
   - To change WHAT counts as skin for every tone: show the Skin mask layer and paint or erase.
     Every tone you did not paint yourself is then made again from your mask.
@@ -906,8 +965,8 @@ def main() -> int:
         mockup(args.images_root, args.out, args.workbench if args.workbench.is_dir() else None)
         return 0
     if args.what == "workbench-all":
-        args.workbench.mkdir(parents=True, exist_ok=True)
-        (args.workbench / "README.txt").write_text(README, encoding="utf-8")
+        for name, what in write_guides(args.workbench).items():
+            print(f"{name}: {what}")
         games = [g for g in sorted(TITLES) if not args.only or g in args.only]
         done = build_workbenches([(g, args.images_root / FOLDERS[g] / "Images") for g in games], args.workbench)
         for game, (written, kept, unread) in done.items():
@@ -947,8 +1006,8 @@ def main() -> int:
             raise SystemExit("--out must be outside the repository: sheets made from game art are never committed")
         write_sheets(art, args.out)
     else:
-        args.workbench.mkdir(parents=True, exist_ok=True)
-        (args.workbench / "README.txt").write_text(README, encoding="utf-8")
+        for name, what in write_guides(args.workbench).items():
+            print(f"{name}: {what}")
         written, kept, unread = build_workbench(args.game, args.images, folder, args.only)
         for path in written:
             print("wrote", path)

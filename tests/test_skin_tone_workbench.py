@@ -148,6 +148,81 @@ class Rebuild(unittest.TestCase):
     def test_the_readme_says_so(self):
         self.assertIn("A file you have changed is never overwritten", sheets.README)
         self.assertNotIn("the .xcf files are replaced", sheets.README)
+        self.assertIn(f'see "{sheets.TUTORIAL_NAME}" in this folder', sheets.README)
+
+    def half_see_through(self, extra=None):
+        """The sheet's own generated mask as GIMP hands it back when its layer was left at 50% opacity."""
+        mask = sheets.Art("vv1", self.images, shipped=False).mask("carrying.png")
+        layer = np.zeros(mask.shape + (4,), np.uint8)
+        layer[mask] = (255, 255, 255, 128)
+        if extra is not None:
+            layer[extra[1], extra[0]] = (255, 255, 255, 128)
+        return Image.fromarray(layer)
+
+    def test_a_mask_left_at_half_opacity_is_read_whole(self):
+        self.build()
+        self.xcf.write_bytes(self.xcf.read_bytes() + b" the owner marked one more pixel, at 50% opacity")
+        self.gimp.painted["vv1_carrying.xcf"] = {"mask.png": self.half_see_through(extra=(140, 3))}
+        self.build()
+        kept = Image.open(self.folder / "edits" / "carrying" / "mask.png").convert("RGBA")
+        self.assertEqual(kept.getpixel((140, 3)), (255, 255, 255, 255), "the pixel the owner marked")
+        self.assertEqual(kept.getpixel((152, 7)), (255, 255, 255, 255), "the skin that was already marked")
+        self.assertEqual(set(kept.getdata()), {(255, 255, 255, 255), (0, 0, 0, 0)}, "kept clean: white or nothing")
+
+    def test_a_mask_whose_opacity_alone_changed_is_not_an_edit(self):
+        self.build()
+        self.xcf.write_bytes(self.xcf.read_bytes() + b" saved again with the mask at 50%")
+        self.gimp.painted["vv1_carrying.xcf"] = {"mask.png": self.half_see_through()}
+        self.build()
+        self.assertFalse((self.folder / "edits" / "carrying" / "mask.png").exists())
+
+
+@unittest.skipUnless(HAVE, "numpy, scipy or Pillow is missing")
+class Guides(unittest.TestCase):
+    """README.txt and the GIMP tutorial in the workbench folder: written, brought up to date, never over
+    the owner's own changes."""
+
+    def setUp(self):
+        tmp = tempfile.TemporaryDirectory()
+        self.addCleanup(tmp.cleanup)
+        self.bench = Path(tmp.name) / "bench"
+
+    def test_written_then_up_to_date(self):
+        self.assertEqual(sheets.write_guides(self.bench), {"README.txt": "written", sheets.TUTORIAL_NAME: "written"})
+        self.assertEqual((self.bench / sheets.TUTORIAL_NAME).read_bytes(), sheets.TUTORIAL.read_bytes())
+        self.assertEqual(set(sheets.write_guides(self.bench).values()), {"up to date"})
+
+    def test_an_older_one_of_ours_is_brought_up_to_date(self):
+        sheets.write_guides(self.bench)
+        with mock.patch.object(sheets, "README", sheets.README + "one more line\n"):
+            self.assertEqual(sheets.write_guides(self.bench)["README.txt"], "brought up to date")
+            self.assertTrue((self.bench / "README.txt").read_text(encoding="utf-8").endswith("one more line\n"))
+
+    def test_one_the_owner_changed_is_kept(self):
+        sheets.write_guides(self.bench)
+        for name in ("README.txt", sheets.TUTORIAL_NAME):
+            (self.bench / name).write_text("my own notes", encoding="utf-8")
+        with mock.patch.object(sheets, "README", sheets.README + "one more line\n"):
+            done = sheets.write_guides(self.bench)
+        self.assertEqual(set(done.values()), {"kept (changed by you)"})
+        self.assertEqual((self.bench / "README.txt").read_text(encoding="utf-8"), "my own notes")
+        self.assertEqual((self.bench / sheets.TUTORIAL_NAME).read_text(encoding="utf-8"), "my own notes")
+
+    def test_one_with_no_record_is_kept(self):
+        self.bench.mkdir(parents=True)
+        (self.bench / sheets.TUTORIAL_NAME).write_text("put here by hand", encoding="utf-8")
+        self.assertEqual(sheets.write_guides(self.bench)[sheets.TUTORIAL_NAME], "kept (changed by you)")
+        self.assertEqual((self.bench / sheets.TUTORIAL_NAME).read_text(encoding="utf-8"), "put here by hand")
+
+    def test_the_tutorial_names_the_layers_as_they_are_built(self):
+        text = sheets.TUTORIAL.read_text(encoding="utf-8")
+        lines = [line.strip() for line in text.splitlines()]
+        top = lines.index(sheets.LAYER_TOP + "   (locked)")
+        self.assertTrue(lines[top + 1].startswith(f"{sheets.tone_layer_name(len(sheets.core.TONES))} ... {sheets.tone_layer_name(1)}"))
+        self.assertTrue(lines[top + 2].startswith(sheets.LAYER_MASK) and lines[top + 2].endswith("(hidden)"))
+        self.assertTrue(lines[top + 3].startswith(sheets.LAYER_GAME) and lines[top + 3].endswith("(locked)"))
+        self.assertIn("python scripts\\skin_tone_sheets.py import --game vv1", text)
+        self.assertIn("reads the mask\n     the same at any opacity", text)
 
 
 if __name__ == "__main__":

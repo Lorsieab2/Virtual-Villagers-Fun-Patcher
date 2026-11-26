@@ -46,6 +46,7 @@ VV1_CLOTH_RULES = {
     ("male", 0): (lambda h, s, v: s < 0.15 and v >= 0.85, lambda h, s, v: s < 0.40 and h >= 40),      # the white vest
     ("male", 1): (lambda h, s, v: (h <= 12 or h >= 340) and s >= 0.55, lambda h, s, v: h >= 44 and s < 0.50),  # stripes
 }
+MASK_ALPHA = 32             # a painted mask's pixel this opaque or more, and light, is skin
 BABY_CELL = (3, 0)          # the held baby's column and row on carrying.png, every game
 
 
@@ -492,7 +493,7 @@ def write_tone_sheets(game: int, images: Path, out: Path, edits=None, tones=None
                 layer = opened.convert("RGBA")
             if layer.size == image.size:
                 mask = {i for i, (r, g, b, a) in enumerate(layer.getdata())
-                        if a > 127 and max(r, g, b) > 127 and sheet[2][i][3] > 0}
+                        if a >= MASK_ALPHA and max(r, g, b) > 127 and sheet[2][i][3] > 0}
         for tone in tones:
             painted = _edit(edits, stem, f"tone_{tone:02d}.png")
             pixels = None
