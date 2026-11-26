@@ -295,6 +295,102 @@ static void story_preferences_changing(int game, int after) {
     }
 }
 
+/* ---- A villager's identity changed in place: the masks kept for them stay theirs -----------------------------
+
+   The owner (2026-11-25): "island events should keep masks on the villager if they have them".  Every store that
+   keeps a villager's mask keeps it by an identity that hashes fields of the record: the name, the sex, and in The
+   Lost Children, The Tree of Life and New Believers the parents' names too (The Secret City's the Likes and
+   Dislikes instead).  An island event that changes such a field on a villager who stays -- a Custom Island
+   Event's "Parents", a branching event's new name, lost name or mind swap -- left the mask under an identity
+   nobody had any more: the Origins companions' sync took the record for a new occupant and dropped it (a single
+   rename is told from a new occupant, two at once or a parents change never were).
+
+   So such a change is made between story_identity_before and story_identity_after:
+     * before: The Secret City's preferences bracket is opened (VV3RunningMaskBoundary: its mask table notes every
+       record's fingerprint) and each record about to change is copied as it is;
+     * after: the bracket is closed (each mask moves to the new fingerprint of the record it was on), and each mask
+       store that is loaded is told every changed record's identity before and after through its
+       VvfpVillagerSexChanged (native/shared/sex_change.h: an owner works out both identities from the two records
+       by its OWN rule and carries what it keeps for that villager -- nothing in it depends on which field
+       changed).  The stores: the Origins companions (the masks), Heathens Keep Masks (the mask a convert wore as
+       a Heathen) and Original Look (an original look holds the mask).  A store not loaded is not asked.
+   Nothing is written to the villager record here. */
+#define STORY_ID_RECORDS 2
+#define STORY_ID_RECORD_MAX 0xF000u     /* the largest record (The Lost Children's 0xE48C) */
+static const unsigned int STORY_ID_STRIDE[6] = { 0, 0x3D8u, 0xE48Cu, 0x1F8Cu, 0x2E3Cu, 0x2F44u };
+static const char *const STORY_MASK_OWNERS[] = {
+    "VVFP Origins Icons.dll",           /* The Secret City's and New Believers' masks */
+    "VVFP VV1 Origins Icons.dll",
+    "VVFP VV2 Origins Icons.dll",
+    "VVFP VV4 Origins Icons.dll",
+    "VVFP Heathens Keep Masks.dll",     /* New Believers' masks worn as Heathens */
+    "VVFP Original Look.dll",           /* the original look, mask and all */
+};
+typedef int (__stdcall *story_identity_changed_fn)(int game, int slot, const void *record, const void *before);
+static unsigned char story_id_copy[STORY_ID_RECORDS][STORY_ID_RECORD_MAX];
+static const unsigned char *story_id_of[STORY_ID_RECORDS];
+static int story_id_count;
+static int story_id_open;
+
+static void story_identity_note(int game, const unsigned char *record) {
+    int k;
+    if (record == NULL || story_id_count >= STORY_ID_RECORDS || STORY_ID_STRIDE[game] > STORY_ID_RECORD_MAX) {
+        return;
+    }
+    for (k = 0; k < story_id_count; ++k) {
+        if (story_id_of[k] == record) {
+            return;
+        }
+    }
+    __try {
+        memcpy(story_id_copy[story_id_count], record, STORY_ID_STRIDE[game]);
+        story_id_of[story_id_count++] = record;
+    } __except (EXCEPTION_EXECUTE_HANDLER) {
+    }
+}
+
+/* Before `record` (and `other`, or NULL) changes a field its identity may hold. */
+static void story_identity_before(int game, const unsigned char *record, const unsigned char *other) {
+    if (game < 1 || game > 5) {
+        return;
+    }
+    story_id_count = 0;
+    story_id_open = 1;
+    story_preferences_changing(game, 0);
+    story_identity_note(game, record);
+    story_identity_note(game, other);
+}
+
+/* After the change: the bracket closed and every loaded mask store told. */
+static void story_identity_after(int game) {
+    int k, slot;
+    size_t o;
+    if (game < 1 || game > 5 || !story_id_open) {
+        return;
+    }
+    story_id_open = 0;
+    story_preferences_changing(game, 1);
+    slot = story_current_slot(game);
+    for (k = 0; k < story_id_count; ++k) {
+        const unsigned char *record = story_id_of[k];
+        if (memcmp(record, story_id_copy[k], STORY_ID_STRIDE[game]) == 0) {
+            continue;                   /* nothing changed on it */
+        }
+        for (o = 0; o < sizeof STORY_MASK_OWNERS / sizeof STORY_MASK_OWNERS[0]; ++o) {
+            HMODULE owner = GetModuleHandleA(STORY_MASK_OWNERS[o]);
+            story_identity_changed_fn told = owner != NULL
+                ? (story_identity_changed_fn)(void *)GetProcAddress(owner, "VvfpVillagerSexChanged") : NULL;
+            if (told != NULL) {
+                __try {
+                    (void)told(game, slot, record, story_id_copy[k]);
+                } __except (EXCEPTION_EXECUTE_HANDLER) {
+                }
+            }
+        }
+    }
+    story_id_count = 0;
+}
+
 /* ---- The parentage log ---------------------------------------------------
 
    With the Parentage row ticked, every conception the game makes goes to

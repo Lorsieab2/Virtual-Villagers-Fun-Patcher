@@ -78,7 +78,13 @@
    Features, this row's dependency).  When it is not loaded or has no VvfpMaskKeep, nothing is kept: the convert
    loses the mask as in the stock game, and a believer going back is as in the stock game.
 
-   HOW.  All ten sites are spliced at run time, after their stock bytes are checked, all or none
+   OUTREACH?.  The game's one island event that changes a Heathen's mask without a conversion: "Offer a tour" clears
+   the envoy's orange byte (0x41632F), which made their orange mask blue.  The owner (2026-11-25): "island events
+   should keep masks on the villager if they have them".  At that instruction the orange mask is put in the Origins
+   store as theirs (hk_outreach): the game still treats them as the blue Heathen the tour made them, and they are drawn
+   -- and, joining the tribe, kept -- in the orange mask they wore.
+
+   HOW.  All eleven sites are spliced at run time, after their stock bytes are checked, all or none
    (native/shared/install_sites.h); no executable byte is patched.  A conversion splice saves every register and
    flag, does the above under structured exception handling (a fault keeps nothing and the conversion goes on),
    then makes the very instruction it replaced and goes on where the game would, the setter seeing its stock
@@ -129,7 +135,11 @@
 /* The render's role read for the mask art: mov eax, [esi+0x1CFC]. */
 #define HK_MASK_ROLE_SITE 0x4728C6u
 #define HK_MASK_ROLE_NEXT 0x4728CCu
-#define HK_SITES 10
+/* Outreach?'s "Offer a tour" (applyChoice 0x416310, choice 0): mov byte [ecx+0x1CED], 0 -- the envoy (ecx, [event+4])
+   is no longer an orange Heathen; then its Faith +20 (0x4163AB), which may convert them. */
+#define HK_OUTREACH_SITE 0x41632Fu
+#define HK_OUTREACH_NEXT 0x416336u
+#define HK_SITES 11
 
 static const unsigned char CONVERT_STOCK[7] = { 0x83, 0xBE, 0xFC, 0x1C, 0x00, 0x00, 0x0D };
 static const unsigned char DEFECTOR_STOCK[5] = { 0xE8, 0xDC, 0xFE, 0x04, 0x00 };
@@ -139,6 +149,7 @@ static const unsigned char CRACKED_STOCK[5] = { 0xE8, 0x20, 0xFC, 0x04, 0x00 };
 static const unsigned char ORANGE_TEST_STOCK[7] = { 0x80, 0xBE, 0xED, 0x1C, 0x00, 0x00, 0x00 };
 static const unsigned char RED_TEST_STOCK[7] = { 0x80, 0xBE, 0xEE, 0x1C, 0x00, 0x00, 0x00 };
 static const unsigned char ROLE_READ_STOCK[6] = { 0x8B, 0x86, 0xFC, 0x1C, 0x00, 0x00 };
+static const unsigned char OUTREACH_STOCK[7] = { 0xC6, 0x81, 0xED, 0x1C, 0x00, 0x00, 0x00 };
 
 #define HK_MASK_BLUE 1                  /* the Origins store's masks: 1 Blue .. 5 the Tribal Chief's */
 #define HK_MASK_CHIEF 5
@@ -538,6 +549,36 @@ static void hk_return(unsigned char *record) {
     ++g_returned;
 }
 
+/* Outreach?'s envoy, an orange Heathen, is about to lose the orange byte (the owner, 2026-11-25: "island events should
+   keep masks on the villager if they have them").  The game draws an ordinary Heathen's mask from that byte, so the
+   tour turned their orange mask blue -- and a conversion by the tour's Faith kept the blue one.  The orange mask is put
+   in the Origins store as theirs, the way a Heathen who went back is drawn in their own mask: the byte is still
+   cleared, so the game treats them as the blue Heathen the tour made them, and the drawing (hk_look) shows the orange
+   mask they wore; joining the tribe they keep it (hk_keep).  Only an ordinary Heathen (a puzzle Heathen's role draws
+   their mask, not the byte); without the store, or when it refuses, the stock game. */
+static void hk_outreach(unsigned char *record) {
+    hk_keep_fn keep;
+    int role;
+    if (record == NULL || record[VV5_FACTION] == 0 || record[VV5_ORANGE] == 0) {
+        return;                         /* not an orange Heathen: the byte changes nothing drawn */
+    }
+    role = *(const int *)(record + VV5_TYPE);
+    if (role >= HK_ROLE_FIRST_PUZZLE && role <= HK_ROLE_LAST_PUZZLE) {
+        return;
+    }
+    keep = hk_keep_export();
+    if (keep != NULL && keep(record, VV_FORMER_ORANGE + 1) > 0) {
+        ++g_kept;
+    }
+}
+
+static void __stdcall hk_outreach_safe(unsigned char *record) {
+    __try {
+        hk_outreach(record);
+    } __except (EXCEPTION_EXECUTE_HANDLER) {
+    }
+}
+
 static void __stdcall hk_converting(unsigned char *record) {
     __try {
         hk_keep(record);
@@ -658,6 +699,21 @@ __declspec(naked) static void hk_cracked_stub(void) {
         popfd
         push HK_CRACKED_NEXT
         push HK_FACTION_SETTER
+        ret
+    }
+}
+
+/* In place of Outreach?'s `mov byte [ecx+0x1CED], 0`: ecx is the envoy; the byte is cleared as the game clears it. */
+__declspec(naked) static void hk_outreach_stub(void) {
+    __asm {
+        pushfd
+        pushad
+        push ecx
+        call hk_outreach_safe
+        popad
+        popfd
+        mov byte ptr [ecx + 0x1CED], 0
+        push HK_OUTREACH_NEXT
         ret
     }
 }
@@ -801,6 +857,8 @@ void __stdcall VvfpStartup(int game, unsigned int shipped) {
                      (const void *)hk_mask_red_stub);
     vvfp_site_branch(&sites[9], HK_MASK_ROLE_SITE, (int)sizeof ROLE_READ_STOCK, ROLE_READ_STOCK, 0xE9,
                      (const void *)hk_mask_role_stub);
+    vvfp_site_branch(&sites[10], HK_OUTREACH_SITE, (int)sizeof OUTREACH_STOCK, OUTREACH_STOCK, 0xE9,
+                     (const void *)hk_outreach_stub);
     if (vvfp_install_sites(sites, HK_SITES)) {
         g_installed = 1;
     }

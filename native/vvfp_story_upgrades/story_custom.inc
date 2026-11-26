@@ -2088,8 +2088,14 @@ static void ce_apply(const ce_adapter *a, const ce_event *e, ce_result *r) {
         if ((a->caps & CAP_PARENTS) && c->parents_set) {
             if (!a->parents_supported()) {
                 ce_refuse(r, CE_WHY_SHOW_PARENTS);
-            } else if (!a->set_parents(c->index, c)) {
-                ce_refuse_as(r, CE_WHY_PARENTS);
+            } else {
+                /* The parents' names are part of the identity the masks are kept by (The Lost Children, The
+                   Tree of Life, New Believers): the stores are told, and the mask stays (story_common.inc). */
+                story_identity_before(e->game, record, NULL);
+                if (!a->set_parents(c->index, c)) {
+                    ce_refuse_as(r, CE_WHY_PARENTS);
+                }
+                story_identity_after(e->game);
             }
         }
         if ((a->caps & CAP_SICK) && c->sick && !a->sicken(c->index)) {
