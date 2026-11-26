@@ -406,6 +406,26 @@ class Installs(unittest.TestCase):
                 v.bury(v.record(1), v.record(0))
                 self.assertEqual(v.names(), ["Hea"])
 
+    def test_the_256_build_buries_and_finds_past_record_150(self):
+        """The whole catalog carries 256 Villagers (Experimental): the table at 0x800000, 256 records."""
+        exe = render(5, whole_catalog(5), "collection_progression")
+        v = Village((ROW_FLAG,), exe=exe)
+        self.assertEqual(v.installed, 1)
+        base = 0x800000 + 0x48
+        v.record = lambda index: base + index * STRIDE          # type: ignore[method-assign]
+        v.villager(0, heathen=True, name="Able")
+        v.dead(200, heathen=True, name="Far", lain=10)
+        self.assertEqual(v.finder(), -1, "the Heathens' own, past record 150")
+        v.dead(200, heathen=True, name="Far", lain=130)
+        self.assertEqual(v.finder(), 200)
+        for _ in range(40):
+            if v.ai(v.record(0)) == "buried":
+                break
+        self.assertEqual(v.started[-1], (v.record(0), 0x30, 200))
+        burier = v.villager(1, heathen=False)
+        v.bury(v.record(200), burier)
+        self.assertEqual(v.names(), ["Far"])
+
 
 @unittest.skipIf(_skip(), _skip() or "")
 class Burial(unittest.TestCase):
