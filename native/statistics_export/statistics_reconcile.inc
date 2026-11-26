@@ -360,11 +360,10 @@ static void rc_visit_deaths(char *text, void *context) {
         }
         if (open && strncmp(line, "  Grave: ", 9) == 0) {
             /* New Believers: a Heathen's grave at the mud hut ("VVFP Heathen Mausoleum.dll") is never one of
-               the memorial's and never counts (heathen_mausoleum.h HM_GRAVE_PREFIX, and HM_GRAVE_PREFIX_ISOLA
-               with the Guardians of Isola rewrite). */
+               the memorial's and never counts (heathen_mausoleum.h HM_GRAVE_PREFIX, "the Shrine to the
+               Ancestors": its in-game name, the owner 2026-11-26). */
             grave = strncmp(line + 9, "no grave", 8) != 0 && line[9] != '\0'
-                && strncmp(line + 9, "the mud hut memorial", 20) != 0
-                && strncmp(line + 9, "the encampment memorial", 23) != 0;
+                && strncmp(line + 9, "the Shrine to the Ancestors", 27) != 0;
         }
         if (open && rc_heathen_faction_line(line)) {
             heathen = 1;

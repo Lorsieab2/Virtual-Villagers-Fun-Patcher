@@ -75,14 +75,12 @@ typedef const unsigned char *(__stdcall *hm_entry_fn)(int place);
 typedef int (__stdcall *hm_remove_fn)(int place);
 typedef const unsigned char *(__stdcall *hm_table_fn)(void);
 
-/* The Death record's "Grave:" words for a mud-hut grave ("the mud hut memorial (Master Builder)") and for a full
-   table; with the Guardians of Isola rewrite (heathen_word.h vv5_guardians_of_isola) "the encampment memorial"
-   (the owner, 2026-11-26).  Readers (the Village Statistics' Villagers Buried, src/vv_log_additions.py) know a
-   mud-hut grave by either prefix. */
-#define HM_GRAVE_PREFIX "the mud hut memorial"
-#define HM_GRAVE_FULL "no grave (the mud hut memorial was full)"
-#define HM_GRAVE_PREFIX_ISOLA "the encampment memorial"
-#define HM_GRAVE_FULL_ISOLA "no grave (the encampment memorial was full)"
+/* The Death record's "Grave:" words for a grave at the mud hut ("the Shrine to the Ancestors (Master Builder)")
+   and for a full table -- in-game the Heathen Mausoleum is the Shrine to the Ancestors (the owner, 2026-11-26),
+   with or without the Guardians of Isola rewrite.  Readers (the Village Statistics' Villagers Buried,
+   src/vv_log_additions.py) know such a grave by HM_GRAVE_PREFIX. */
+#define HM_GRAVE_PREFIX "the Shrine to the Ancestors"
+#define HM_GRAVE_FULL "no grave (the Shrine to the Ancestors was full)"
 
 /* 1 when the Roster of the Dead entry at `entry` is a Heathen's grave at the mud hut (the companion asked when it
    is loaded, else 0). */
@@ -99,6 +97,16 @@ static __inline int hm_installed(void) {
     hm_installed_fn installed = module != NULL
         ? (hm_installed_fn)(void *)GetProcAddress(module, HM_INSTALLED_EXPORT) : NULL;
     return installed != NULL && installed() != 0;
+}
+
+/* The Heathens' table and its number of graves (NULL and 0 when the companion is not loaded or not installed). */
+static __inline const unsigned char *hm_graves(int *count) {
+    HMODULE module = GetModuleHandleA(HE_MAUSOLEUM_DLL);
+    hm_table_fn table = module != NULL ? (hm_table_fn)(void *)GetProcAddress(module, HM_TABLE_EXPORT) : NULL;
+    hm_count_fn counted = module != NULL ? (hm_count_fn)(void *)GetProcAddress(module, HM_COUNT_EXPORT) : NULL;
+    const unsigned char *at = table != NULL && counted != NULL ? table() : NULL;
+    *count = at != NULL ? counted() : 0;
+    return at;
 }
 
 #endif /* VV_HEATHEN_MAUSOLEUM_H */

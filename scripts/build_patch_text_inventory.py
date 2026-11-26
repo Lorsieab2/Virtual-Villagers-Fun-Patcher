@@ -47,6 +47,7 @@ PARTS = {
     "vvfp_vv4_fruit_supply": ("vvfp.fruit_supply", "VVFP VV4 Fruit Supply.dll"),
     "vvfp_vv2_empty_stew": ("vvfp.vv2_empty_stew", "VVFP VV2 Empty Stew.dll"),
     "vvfp_fog_listening": ("vvfp.fog_listening", "VVFP Fog Listening.dll"),
+    "vvfp_heathen_mausoleum": ("vvfp.heathen_mausoleum", "VVFP Heathen Mausoleum.dll"),
     "vvfp_village_solidarity": ("vvfp.village_solidarity", "VVFP Village Solidarity.dll"),
     "vvfp_vv4_cloth_sacks": ("vvfp.cloth_sacks", "VVFP VV4 Cloth Sacks.dll"),
 }

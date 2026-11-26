@@ -39,6 +39,14 @@
      0x43F4F1, 0x43F735, 0x43FDC0, 0x43FED6   the Mausoleum screen's four roster reads: `call view` (`mov ecx,
                [g_view]; ret`), the believers' roster unless the mud hut opened the screen (decision 13: the game's
                own screen and art, unchanged).  The table contents are never swapped.
+     0x43F1DF  the screen's title widget, made once in the scene's constructor from string 0x4D: kept, and its
+               text is "Shrine to the Ancestors" (the owner, 2026-11-26) while the Heathens' graves are shown and
+               the game's own title otherwise.  The background art is the game's own, unchanged.
+     0x46B116  the everyday "Honoring the dead" chooser's grave count: the believers' graves and the Heathens'
+               (the owner, 2026-11-26: the same grave behaviour), so the honoring -- at the graves, or at the hovel
+               with Memorial Actions Can Also Occur at the Heathen Hovel -- still happens in a village whose only
+               graves are Heathens'.  (The Day of Honor, the Remembrance Ceremony and the Story graph's grave
+               condition still count the Roster of the Dead: their ceremonies are at the Buried Mausoleum.)
      0x43CE24  the mausoleum's own opener: the believers' roster again, then 0x43CC00.  (The area-0x0C handler
                0x47A3F0 also switches to scene 0x14, but no lcmap.dat cell carries id 0x0C: dead code.)
      0x423E2B, 0x4246E1   after each lcmap load (0x4775B0): hotspot 0x0B registered in the area-handler table
@@ -73,6 +81,7 @@
 #include "../shared/vv5_villager_table.h"
 #include "../shared/heathen_evo.h"
 #include "../shared/heathen_mausoleum.h"
+#include "../shared/vvfp_translate.h"   /* the screen's title in the player's language */
 
 #define HM_GAME 5
 #define HM_FLAG_FORMER "VVFP Heathen Skeletons Former.txt"
@@ -504,6 +513,33 @@ static void __cdecl carry_point(unsigned char *burier) {
     }
 }
 
+/* The screen's title (the owner, 2026-11-26: "in-game it should be called shrine to the ancestors").  The
+   Mausoleum scene (a singleton made at its first opening, 0x43F130) draws its title as a text widget made at
+   0x43F1DF from string 0x4D eString_Mausoleum; the widget is kept when it is made, and its text set (the widget's
+   own setter 0x40D8D0, thiscall (text), ret 4) to "Shrine to the Ancestors" while the screen shows the Heathens'
+   graves and back to the game's own string when it shows the believers'.  Only the text: the art is unchanged. */
+#define G_SET_TEXT 0x40D8D0u
+#define HM_TITLE "Shrine to the Ancestors"
+typedef void (__fastcall *set_text_fn)(void *widget, void *unused_edx, const char *text);
+static void *g_title;
+static const char *g_stock_title;
+
+static void __cdecl apply_title(void) {
+    __try {
+        const char *text = g_view == G_ROSTER ? g_stock_title
+            : vvfp_tr("vvfp.heathen_mausoleum/vvfp_heathen_mausoleum.HM_TITLE.s0", HM_TITLE, 0);
+        if (g_title != NULL && text != NULL) {
+            ((set_text_fn)(UINT_PTR)G_SET_TEXT)(g_title, NULL, text);
+        }
+    } __except (EXCEPTION_EXECUTE_HANDLER) {
+    }
+}
+
+static void __cdecl stock_opening(void) {
+    g_view = G_ROSTER;
+    apply_title();
+}
+
 /* The mud hut's area handler: event 0 a drop, 1 a held villager over it, 2 a click. */
 static unsigned char __cdecl hut_handler(int event, void *villager) {
     (void)villager;
@@ -515,6 +551,7 @@ static unsigned char __cdecl hut_handler(int event, void *villager) {
             return 0;
         }
         g_view = (unsigned int)(UINT_PTR)g_heathen;
+        apply_title();
         ((open_fn)(UINT_PTR)G_OPEN)();
     } __except (EXCEPTION_EXECUTE_HANDLER) {
         return 0;
@@ -671,10 +708,51 @@ __declspec(naked) static void view_stub(void) {
     }
 }
 
-/* 0x43CE24 `call 0x43CC00`: the mausoleum's own opener shows the believers. */
+/* 0x43F1DF `call 0x40DD90` in the Mausoleum scene's constructor: the title widget made (ecx = the widget, its
+   text the 4th stack argument), kept, and titled for the roster on show. */
+static void *g_title_return;
+static const unsigned int g_widget_ctor = 0x40DD90u;
+__declspec(naked) static void title_stub(void) {
+    __asm {
+        pop dword ptr [g_title_return]
+        mov eax, dword ptr [esp + 0xC]
+        mov dword ptr [g_stock_title], eax
+        call dword ptr [g_widget_ctor]
+        mov dword ptr [g_title], eax
+        pushad
+        call apply_title
+        popad
+        jmp dword ptr [g_title_return]
+    }
+}
+
+/* 0x46B116 `mov ecx, 0x5481A8; call 0x464E90` in the everyday "Honoring the dead" chooser 0x46B0F0: the graves it
+   asks for are the believers' and the Heathens' at the Shrine to the Ancestors (the owner, 2026-11-26: Heathen graves
+   get the same grave behaviour), so a village whose only graves are Heathens' still honors its dead -- as it did when
+   their graves were in the Roster of the Dead.  The chooser only tests the number (> 0). */
+static const unsigned int g_roster_count = 0x464E90u;
+static int g_shrine_count;
+__declspec(naked) static void honor_count_stub(void) {
+    __asm {
+        mov ecx, 0x5481A8
+        call dword ptr [g_roster_count]
+        push eax
+        pushad
+        call table_count
+        mov dword ptr [g_shrine_count], eax
+        popad
+        pop eax
+        add eax, dword ptr [g_shrine_count]
+        ret
+    }
+}
+
+/* 0x43CE24 `call 0x43CC00`: the mausoleum's own opener shows the believers, under the game's own title. */
 __declspec(naked) static void stock_open_stub(void) {
     __asm {
-        mov dword ptr [g_view], 0x5481A8
+        pushad
+        call stock_opening
+        popad
         jmp dword ptr [g_open]
     }
 }
@@ -821,8 +899,10 @@ static const unsigned char LCMAP_B_STOCK[5] = { 0xE8, 0xCA, 0x2E, 0x05, 0x00 };
 static const unsigned char SAVE_STOCK[5] = { 0xE8, 0x32, 0x06, 0x04, 0x00 };
 static const unsigned char CLEAR_STOCK[5] = { 0xE8, 0x98, 0x04, 0x04, 0x00 };
 static const unsigned char LOAD_STOCK[5] = { 0xE8, 0xA2, 0xF6, 0x03, 0x00 };
+static const unsigned char TITLE_STOCK[5] = { 0xE8, 0xAC, 0xEB, 0xFC, 0xFF };
+static const unsigned char HONOR_STOCK[10] = { 0xB9, 0xA8, 0x81, 0x54, 0x00, 0xE8, 0x70, 0x9D, 0xFF, 0xFF };
 static const unsigned int VIEW_SITES[4] = { 0x43F4F1u, 0x43F735u, 0x43FDC0u, 0x43FED6u };
-#define HM_SITES 14
+#define HM_SITES 16
 
 void __stdcall VvfpStartup(int game, unsigned int shipped) {
     vvfp_site_write sites[HM_SITES];
@@ -854,6 +934,8 @@ void __stdcall VvfpStartup(int game, unsigned int shipped) {
     vvfp_site_branch(&sites[10], 0x4246E1u, 5, LCMAP_B_STOCK, 0xE8, (const void *)lcmap_stub);
     vvfp_site_branch(&sites[11], 0x424569u, 5, SAVE_STOCK, 0xE8, (const void *)save_stub);
     vvfp_site_branch(&sites[12], 0x424733u, 5, CLEAR_STOCK, 0xE8, (const void *)clear_stub);
+    vvfp_site_branch(&sites[14], 0x43F1DFu, 5, TITLE_STOCK, 0xE8, (const void *)title_stub);
+    vvfp_site_branch(&sites[15], 0x46B116u, 10, HONOR_STOCK, 0xE8, (const void *)honor_count_stub);
     vvfp_site_branch(&sites[13], 0x425849u, 5, LOAD_STOCK, 0xE8, (const void *)load_stub);
     if (vvfp_install_sites(sites, HM_SITES)) {
         g_installed = 1;

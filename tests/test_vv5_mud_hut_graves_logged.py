@@ -81,10 +81,10 @@ class MudHut:
 
 @unittest.skipIf(not HAVE, "the stock executable or the Cause of Death test build is missing")
 class MudHutGraves(unittest.TestCase):
-    def test_a_heathens_grave_is_named_the_mud_hut_memorial(self):
+    def test_a_heathens_grave_is_named_the_shrine_to_the_ancestors(self):
         m = MudHut()
         m.bury(1, "Hea", heathen=True)
-        self.assertEqual(m.deaths(), [("Hea", "the mud hut memorial (Untrained)")])
+        self.assertEqual(m.deaths(), [("Hea", "the Shrine to the Ancestors (Untrained)")])
         self.assertEqual(m.g.p.cstring(m.table), "Hea")
         self.assertEqual(m.g.p.u32(0x5481A8 + 0x1C), 0, "nothing in the believers' roster")
         epitaph = m.g.of_kind(DEATH)[0]["Epitaph"]
@@ -94,7 +94,7 @@ class MudHutGraves(unittest.TestCase):
         self.assertEqual(b.deaths(), [("Bel", "Untrained")])
         self.assertEqual(b.g.p.cstring(0x5481A8), "Bel")
 
-    def test_with_guardians_of_isola_it_is_the_encampment_memorial(self):
+    def test_with_guardians_of_isola_it_is_still_the_shrine_to_the_ancestors(self):
         for full in (False, True):
             with self.subTest(full=full):
                 m = MudHut()
@@ -103,15 +103,15 @@ class MudHutGraves(unittest.TestCase):
                     for i in range(500):
                         m.g.p.put32(m.table + i * 0x5C + 0x1C, 100)
                 m.bury(1, "Hea", heathen=True)
-                self.assertEqual(m.deaths(), [("Hea", "no grave (the encampment memorial was full)" if full
-                                               else "the encampment memorial (Untrained)")])
+                self.assertEqual(m.deaths(), [("Hea", "no grave (the Shrine to the Ancestors was full)" if full
+                                               else "the Shrine to the Ancestors (Untrained)")])
 
-    def test_a_full_mud_hut_memorial_is_named_so(self):
+    def test_a_full_shrine_is_named_so(self):
         m = MudHut()
         for i in range(500):
             m.g.p.put32(m.table + i * 0x5C + 0x1C, 100)
         m.bury(1, "Late", heathen=True)
-        self.assertEqual(m.deaths(), [("Late", "no grave (the mud hut memorial was full)")])
+        self.assertEqual(m.deaths(), [("Late", "no grave (the Shrine to the Ancestors was full)")])
 
     def test_without_the_mausoleum_a_full_roster_keeps_its_words(self):
         m = MudHut()
@@ -138,7 +138,7 @@ class MudHutGraves(unittest.TestCase):
         p.call(0x41CB20, [8, 7], ecx=dialog)
         change = g.of_kind(EPITAPH)
         self.assertEqual([(e["Grave"], e["New epitaph"], e["Age at death"]) for e in change],
-                         [("the mud hut memorial (Untrained)", typed, "1500")])
+                         [("the Shrine to the Ancestors (Untrained)", typed, "1500")])
         self.assertEqual(p.cstring(m.table + 0x38), typed)
 
 

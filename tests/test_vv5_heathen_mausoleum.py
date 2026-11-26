@@ -57,7 +57,8 @@ GAME_OBJECT = 0x30000000
 HEATHEN_FILE = "Heathen Mausoleum - Save {0}.dat"
 HUT = (2200, 1588)                 # a point at the mud hut (x, y)
 SITES = {0x473FA9: 5, 0x45B650: 31, 0x46E9E0: 7, 0x46F146: 5, 0x43F4F1: 5, 0x43F735: 5, 0x43FDC0: 5,
-         0x43FED6: 5, 0x43CE24: 5, 0x423E2B: 5, 0x4246E1: 5, 0x424569: 5, 0x424733: 5, 0x425849: 5}
+         0x43FED6: 5, 0x43CE24: 5, 0x423E2B: 5, 0x4246E1: 5, 0x424569: 5, 0x424733: 5, 0x425849: 5, 0x43F1DF: 5,
+         0x46B116: 10}
 
 
 def _skip() -> str | None:
@@ -451,6 +452,25 @@ class Burial(unittest.TestCase):
         self.assertEqual(v.export("VvfpHeathenMausoleumIsHeathenGrave", ROSTER), 0)
         self.assertEqual(v.export("VvfpHeathenMausoleumIsHeathenGrave", e + 4), 0)
 
+    def test_the_everyday_honoring_counts_the_heathens_graves_too(self):
+        """0x46B116..0x46B120: the "Honoring the dead" chooser's grave count is the believers' and the Heathens'."""
+        def honoring_count(v: Village) -> int:
+            v._regs()
+            v.run(0x46B116, 0x46B120)
+            return v.reg("eax")
+        v = Village()
+        self.assertEqual(honoring_count(v), 0)
+        burier = v.villager(0, heathen=False)
+        v.dead(1, heathen=True, name="H1")
+        v.bury(v.record(1), burier)
+        self.assertEqual(honoring_count(v), 1, "a village whose only grave is a Heathen's still honors its dead")
+        v.dead(2, heathen=False, name="B1")
+        v.bury(v.record(2), burier)
+        v.dead(3, heathen=True, name="H2")
+        v.bury(v.record(3), burier)
+        self.assertEqual(honoring_count(v), 3)
+        self.assertEqual(honoring_count(Village(())), 0, "without the companion: the game's own count")
+
     def test_a_full_mud_hut_memorial_writes_no_grave(self):
         v = Village()
         table = v.table()
@@ -655,6 +675,42 @@ class Screen(unittest.TestCase):
             self.assertEqual(v.drop(who), 1)
             self.assertEqual(v.opened, 1)
             self.assertEqual(v.screen_count(), 1)
+
+    def test_the_screen_title_is_the_shrine_to_the_ancestors_for_the_heathens(self):
+        """The scene's title widget (made at 0x43F1DF from string 0x4D) says "Shrine to the Ancestors" while the
+        Heathens' graves are shown and the game's own title otherwise; made before or after the first opening."""
+        for first in ("hut", "mausoleum"):
+            with self.subTest(first_opened_from=first):
+                v = self.village_with_graves("H1")
+                v.lcmap()
+                titles: list[tuple[int, str]] = []
+                widget = v.alloc(0x40)
+                stock_title = v.alloc(0x20)
+                v.write(stock_title, b"Mausoleum\0")
+                v.stub(0x40D8D0, lambda p: (titles.append((p.reg("ecx"), p.cstring(p.arg(0)))) or 0, 4))
+                v.stub(0x40DD90, lambda p: (p.reg("ecx"), 0x1C))
+
+                def make_scene():
+                    v._regs(ecx=widget)
+                    esp = v.reg("esp")
+                    for k, value in enumerate((0x6000, 0x1F4, 4, stock_title, 1, 0, 0x3F800000)):
+                        v.put32(esp + 4 * k, value)
+                    v.run(0x43F1DF, 0x43F1E4)
+                    self.assertEqual(v.reg("eax"), widget)
+                if first == "hut":
+                    self.assertEqual(v.click(*HUT), 1)
+                    make_scene()                      # the scene is made at its first opening
+                    self.assertEqual(titles[-1], (widget, "Shrine to the Ancestors"))
+                    v.stock_open()
+                    self.assertEqual(titles[-1], (widget, "Mausoleum"))
+                else:
+                    v.stock_open()
+                    make_scene()
+                    self.assertEqual(titles[-1], (widget, "Mausoleum"))
+                    self.assertEqual(v.click(*HUT), 1)
+                    self.assertEqual(titles[-1], (widget, "Shrine to the Ancestors"))
+                    v.stock_open()
+                    self.assertEqual(titles[-1], (widget, "Mausoleum"))
 
     def test_an_empty_mud_hut_memorial_does_not_open(self):
         v = Village()
