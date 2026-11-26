@@ -448,6 +448,69 @@ def heathens(images: Path, out: Path):
                   out / f"vv5_heathens_{zoom}x.png", zoom, size, label_w=150)
 
 
+ASH_UNDER, ASH_SHARE = 0.70, 0.01       # a row fails when over 1% of its toned skin has under 70% of the tone's chroma
+MISS_SHARE = 0.01                       # ... or when pixels still like the skin beside them are over 1% of its skin
+
+
+def audit(art: Art, out: Path):
+    """The two checks the owner asked for (2026-11-26), on every sheet and row of the game, and a proof
+    picture.  ASH: in every tone, the share of toned skin pixels whose chroma (measured on the finished
+    8-bit colours) is under ASH_UNDER of the tone's own.  MISSES: pixels left untoned that are like the
+    toned skin touching them (core.alike: necks, forearms, shins, hands, feet the mask stopped short of).
+    Returns the lines of the report; <game>_audit.txt and <game>_necks_arms_legs_4x.png are written."""
+    g, title = art.game, TITLES[art.game]
+    out.mkdir(parents=True, exist_ok=True)
+    lines, bad = [f"{title}: skin tone audit"], 0
+    for name, spec in art.specs.items():
+        stock, mask = art.stock(name), art.mask(name)
+        ch = spec["cell"][1]
+        rows = stock.shape[0] // ch
+        left = core.alike(stock, mask) if spec["kind"] != "baby" else np.zeros_like(mask)
+        ash = np.zeros(rows)
+        for tone in core.TONES:
+            made = art.sheet(name, tone)
+            low = np.zeros_like(mask)
+            low[mask] = core.chroma_of(made[mask][:, :3].astype(float)) < ASH_UNDER * tone[2]
+            for row in range(rows):
+                skin = int(mask[row * ch:(row + 1) * ch].sum())
+                if skin:
+                    ash[row] = max(ash[row], low[row * ch:(row + 1) * ch].sum() / skin)
+        failed = []
+        for row in range(rows):
+            skin = int(mask[row * ch:(row + 1) * ch].sum())
+            miss = int(left[row * ch:(row + 1) * ch].sum())
+            if skin and (ash[row] > ASH_SHARE or miss / skin > MISS_SHARE):
+                failed.append(f"row {row}: ash {100 * ash[row]:.1f}%, like-skin left {miss} of {skin} ({100 * miss / skin:.1f}%)")
+        bad += len(failed)
+        lines.append(f"  {name} ({art.mask_source[name]}): skin {int(mask.sum())}; worst ash share {100 * ash.max():.2f}%; "
+                     f"like-skin pixels left {int(left.sum())} ({100 * left.sum() / max(int(mask.sum()), 1):.2f}%)"
+                     + ("" if not failed else "; " + str(len(failed)) + " rows over the limits"))
+        lines += ["      " + f for f in failed]
+    lines.append(f"  rows over the limits: {bad}")
+    (out / f"{g}_audit.txt").write_text("\n".join(lines) + "\n", encoding="utf-8")
+    # The proof: whole villagers (neck, arms, legs, hands, feet all in view), Default, S5 and S10, 4x.
+    shown = [("Default", None), (f"S5 {core.TONES[4][4]}", core.TONES[4]), (f"S10 {core.TONES[9][4]}", core.TONES[9])]
+    bodies_n = 20 if g == "vv1" else 30
+    people = [(f"{'Man' if sex == 'male' else 'Woman'}, head {head}, body {body}", {"sex": sex, "head": head, "body": body})
+              for sex, head, body in (("male", 11, 6), ("female", 10, 3), ("male", 2, 14), ("female", 5, 11),
+                                      ("male", 7, 9), ("female", 14, 7), ("male", 17, bodies_n - 2),
+                                      ("female", 1, bodies_n - 1))]
+    cols = [(f"{label}, frame {frame}", tone, frame) for frame in (8, 0) for label, tone in shown]
+
+    def draw(person, col):
+        _label, tone, frame = col
+        v = person[1]
+        canvas = Image.new("RGBA", (44, 72), (0, 0, 0, 0))
+        canvas.alpha_composite(art.body(v["sex"], v["body"], tone, frame), (2, 6))
+        canvas.alpha_composite(art.head(v["sex"], v["head"], tone), (2, 2))
+        return canvas
+
+    core.grid(people, cols, draw, [p[0] for p in people], [c[0] for c in cols],
+              f"{title}: necks, arms, legs, hands and feet -- the game's own art, S5 and S10, two frames (4x)",
+              out / f"{g}_necks_arms_legs_4x.png", 4, (44, 72), label_w=170)
+    return lines
+
+
 def write_sheets(art: Art, out: Path):
     """Every tone's sheets as <out>/<tone number>/<the game's own file name>."""
     for number, tone in enumerate(core.TONES, 1):
@@ -713,7 +776,7 @@ TO MAKE THE FILES AGAIN (your "edits" are applied; the .xcf files are replaced)
 
 def main() -> int:
     ap = argparse.ArgumentParser(description=__doc__.splitlines()[0])
-    ap.add_argument("what", choices=["preview", "sheets", "workbench", "import", "mockup", "heathens", "publish"])
+    ap.add_argument("what", choices=["preview", "sheets", "workbench", "import", "mockup", "heathens", "publish", "audit"])
     ap.add_argument("--game", choices=sorted(TITLES))
     ap.add_argument("--images-root", type=Path, help="mockup: the folder holding every game's own folder")
     ap.add_argument("--images", type=Path, help="the game's own Images folder (read only)")
@@ -746,6 +809,10 @@ def main() -> int:
         return 0
     if args.what == "heathens":
         heathens(args.images, args.out)
+        return 0
+    if args.what == "audit":
+        for line in audit(art, args.out):
+            print(line)
         return 0
     if args.what == "preview":
         previews(art, args.out, args.masks)

@@ -7,14 +7,16 @@ every game's sheets, the previews and the GIMP workbench.  A development tool: n
 pictures made from game art are never committed.
 
 THE METHOD, per sheet:
-  1. SKIN MASK (skin_mask).  Which pixels are skin.  Everything else -- hair, eyes, mouths, outlines,
+  1. SKIN MASK (skin_mask).  Which pixels are skin: the colour rule, then grown into skin of its own
+     colour so necks, arms, legs, hands and feet are whole (grow_alike).  Everything else -- hair, eyes, mouths, outlines,
      clothes, masks -- is never written, so it stays exactly the game's own.
   2. REPLACE, in OKLCh (shade, recolour).  A skin pixel takes the tone's hue and chroma.  Its lightness is
      the tone's own plus the pixel's offset from the middle skin of its own cell row in the game's art
      (each row is a head or a body painted in its own skin), at SHADING strength: so the tone's colour
      lands on the row's middle skin, and the art's highlights, shadows, folds and muscle lines all show.
-     Chroma never drops (it rises a little into the shadows); a colour sRGB cannot hold gives up chroma
-     only, never hue.  Lightness stays between L_FLOOR and L_CEIL, and a side with no room is squeezed
+     Chroma never drops (it rises a little into the shadows); a colour sRGB cannot hold gives up chroma,
+     but never below CHROMA_FLOOR of the tone's own -- there its lightness gives way instead -- and never
+     hue: nothing comes out grey (ashy).  Lightness stays between L_FLOOR and L_CEIL, and a side with no room is squeezed
      while the other is stretched a little, so dark tones keep a warm sheen and pale ones their shadows.
   3. THE PROOF (check_untouched): every pixel outside the mask is byte-identical to the game's own sheet.
 """
@@ -47,6 +49,8 @@ L_FLOOR, L_CEIL = 0.14, 0.985           # no skin pixel darker or lighter than t
 GIVE = 0.3                              # of a side the floor or ceiling squeezes, this much goes to the other
 SHADING = 0.65                          # how much of the art's own light and dark a tone keeps (the owner's
                                         # reference is flatter than the art; 1 is the art's full shading)
+CHROMA_FLOOR = 0.78                     # no skin pixel has less than this share of its tone's own chroma (the
+                                        # owner, 2026-11-26: "make sure not to make anything look too ashy")
 SHADOW_CHROMA = 0.22                    # chroma grows by up to this share in the deepest shadow; never shrinks
 
 
@@ -71,28 +75,48 @@ def oklab_to_linear(lab):
     return ((np.asarray(lab, float) @ np.linalg.inv(_OK2).T) ** 3) @ np.linalg.inv(_OK1).T
 
 
-def oklch_to_rgb(L, chroma, hue):
-    """sRGB 0..255 of OKLCh colours.  A colour outside sRGB keeps its lightness and hue and gives up only
-    as much chroma as it must (never a per-channel clip, which would shift the hue)."""
-    L, chroma = np.asarray(L, float), np.asarray(chroma, float) * np.ones_like(L)
+def _in_srgb(L, chroma, h):
+    v = oklab_to_linear(np.stack([L, chroma * np.cos(h), chroma * np.sin(h)], -1))
+    return ((v >= -1e-4) & (v <= 1 + 1e-4)).all(-1)
+
+
+def oklch_to_rgb(L, chroma, hue, floor=None, toward=None):
+    """sRGB 0..255 of OKLCh colours.  A colour outside sRGB keeps its hue always.  It first gives up chroma,
+    but never below `floor` (when given): where even `floor` does not fit at that lightness -- the very
+    lightest highlights and the very deepest shadows, where sRGB has no room for colour -- the lightness
+    moves toward `toward` (the tone's own) just far enough that it does.  So nothing comes out grey."""
+    L = np.asarray(L, float).copy()
+    chroma = np.asarray(chroma, float) * np.ones_like(L)
     h = np.radians(hue) * np.ones_like(L)
-
-    def lin(c):
-        return oklab_to_linear(np.stack([L, c * np.cos(h), c * np.sin(h)], -1))
-
-    def inside(c):
-        v = lin(c)
-        return ((v >= -1e-4) & (v <= 1 + 1e-4)).all(-1)
-
-    lo, hi = np.zeros_like(chroma), chroma.copy()
-    ok = inside(hi)
+    if floor is not None:
+        floor = np.minimum(floor * np.ones_like(L), chroma)
+        short = ~_in_srgb(L, floor, h)
+        if short.any():
+            lo, hi = L.copy(), toward * np.ones_like(L)        # lo: does not fit; hi: fits (the tone itself)
+            for _ in range(14):
+                mid = (lo + hi) / 2
+                good = _in_srgb(mid, floor, h)
+                hi = np.where(good, mid, hi)
+                lo = np.where(good, lo, mid)
+            L = np.where(short, hi, L)
+    else:
+        floor = np.zeros_like(L)
+    lo, hi = floor.copy(), chroma.copy()
+    ok = _in_srgb(L, hi, h)
     for _ in range(14):
         mid = (lo + hi) / 2
-        good = inside(mid)
+        good = _in_srgb(L, mid, h)
         lo = np.where(good, mid, lo)
         hi = np.where(good, hi, mid)
-    v = np.clip(lin(np.where(ok, chroma, lo)), 0, 1)
+    c = np.where(ok, chroma, lo)
+    v = np.clip(oklab_to_linear(np.stack([L, c * np.cos(h), c * np.sin(h)], -1)), 0, 1)
     return np.where(v <= 0.0031308, v * 12.92, 1.055 * v ** (1 / 2.4) - 0.055) * 255
+
+
+def chroma_of(rgb):
+    """The OKLCh chroma of sRGB colours 0..255."""
+    lab = to_oklab(rgb)
+    return np.hypot(lab[..., 1], lab[..., 2])
 
 
 def hsv(a: np.ndarray):
@@ -141,6 +165,8 @@ GROW = 2
 MAX_SHEEN = 8
 EDGE_REACH = 2
 CLOTH_REACH = 2
+ALIKE_STEPS = 3            # how far the mask grows into skin of its own colour
+ALIKE_HUE, ALIKE_SAT, ALIKE_DARKER, ALIKE_LIGHTER = 8.0, 0.14, 0.22, 0.15
 BODY_FLOOR = 0.22          # off-white and cream cloth is under this; a body's palest skin is over it
 
 
@@ -237,6 +263,37 @@ def skin_mask(a, heads, exclude=(), cloth=None, cell=(CELL_W, CELL_H), front=5):
     for _ in range(2):
         around = ndimage.convolve(m.astype(np.uint8), np.ones((3, 3), np.uint8), mode="constant") - m
         m = m | (~m & ~lips & ((warm & (around >= 5)) | (glint & (around >= 6))))
+    return grow_alike(a, m, never)
+
+
+def alike(a, m):
+    """The pixels beside the mask `m` that are skin by their neighbours: opaque, warm, and of nearly the
+    hue, saturation and value of the mask pixels touching them (at least two).  The deeper shade of a neck
+    under a chin, of a forearm or a shin is like that; hair and cloth beside skin are not (hair is far more
+    saturated or far darker, cloth another hue)."""
+    h, s, v = hsv(a)
+    r, g, b = (a[..., i].astype(int) for i in range(3))
+    box = np.ones((3, 3))
+    n = ndimage.convolve(m.astype(float), box, mode="constant")
+    with np.errstate(invalid="ignore", divide="ignore"):
+        hm = ndimage.convolve(np.where(m, h, 0.0), box, mode="constant") / n
+        sm = ndimage.convolve(np.where(m, s, 0.0), box, mode="constant") / n
+        vm = ndimage.convolve(np.where(m, v, 0.0), box, mode="constant") / n
+    return ((a[..., 3] > 0) & ~m & (n >= 2) & (r >= g) & (g >= b) & (v >= 0.40)
+            & (np.abs(h - hm) <= ALIKE_HUE) & (np.abs(s - sm) <= ALIKE_SAT) & (v >= vm - ALIKE_DARKER)
+            & (v <= vm + ALIKE_LIGHTER))
+
+
+def grow_alike(a, m, never=None):
+    """The mask grown ALIKE_STEPS pixels into skin of its own colour (the owner, 2026-11-26: "color necks
+    arms and legs too")."""
+    for _ in range(ALIKE_STEPS):
+        more = alike(a, m)
+        if never is not None:
+            more &= ~never
+        if not more.any():
+            break
+        m = m | more
     return m
 
 
@@ -264,7 +321,7 @@ def shade(offset, tone, down, up):
     s_down, s_up = tone_scales(L, down, up)
     out_L = np.clip(L + np.where(offset < 0, offset * s_down, offset * s_up), L_FLOOR, L_CEIL)
     depth = np.clip(-offset / max(down, 1e-6), 0, 1)
-    return oklch_to_rgb(out_L, chroma * (1 + SHADOW_CHROMA * depth), hue)
+    return oklch_to_rgb(out_L, chroma * (1 + SHADOW_CHROMA * depth), hue, CHROMA_FLOOR * chroma, L)
 
 
 def recolour(a, mask, tone, cell_h=CELL_H):
