@@ -31,6 +31,8 @@ CHECKS = 15 * 10 + 2 * 2 + 1 * 2
 # a removal and a Custom Island Event death; the later three a burial and a Custom Island Event death; New Believers
 # also a Heathen's death among the Heathens; and each game's control.
 CHECKS += 3 + 3 + 2 + 2 + 3 + 5
+# The Secret City's robed Chief: seen before the robe, and never seen so (Codex, PR #880).
+CHECKS += 2
 
 
 @unittest.skipUnless(CL.is_file(), "the 32-bit MSVC toolchain is not installed")

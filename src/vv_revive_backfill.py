@@ -246,7 +246,13 @@ def save_entries(game: int, data: bytes) -> list[bytes]:
     def entry_at(p: int) -> bytes | None:
         start = p - ENTRY_FROM_NAME[game]
         e = data[start:start + ENTRY_BYTES[game]]
-        if start < 0 or len(e) < ENTRY_BYTES[game] or not checker.plausible(data, p, lay, checker.ANY_NAME_RE):
+        # The entry's own bounds (its start and its whole length), never the checker's plausible(), which asks for a
+        # stride of bytes after the NAME -- 20 or 32 bytes into the entry -- and so refused a 256 save's last
+        # extension entry (Codex, PR #880).  The name as the checker reads it: printable, ended within its field.
+        if start < 0 or len(e) < ENTRY_BYTES[game]:
+            return None
+        m = checker.ANY_NAME_RE.match(data, p)
+        if m is None or m.end() - p > lay.name_cap:
             return None
         d = entry_to_data(game, e)
         return d if _plausible(game, d) else None

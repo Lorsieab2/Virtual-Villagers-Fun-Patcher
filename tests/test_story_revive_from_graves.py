@@ -1159,5 +1159,64 @@ class MudHutAndChiefTests(unittest.TestCase):
         self.assertEqual(r.v.byte(made, 0xE80), 0)        # not the Chief: one lives
         self.assertEqual(r.v.i32(made, 0xDF4), 11)        # their own body, not the robe
 
+@emulated
+class RobedChiefTests(unittest.TestCase):
+    """Codex, PR #880: VVFP Original Look.dll folds the robing write (0x45FBDE) into the original it keeps, so a
+    robed Chief's kept original is the robe (29) too.  Beside a living Chief they come back in their pre-robe body:
+    their children's records keep it; else the body the game's creator gives a new villager."""
+
+    def _chief(self, original_body, child=False):
+        import vv_revive_backfill as rb
+        if not have_stock("vv3"):
+            self.skipTest("no stock executable")
+        r = Revive("vv3")
+        snap = Snap(r, 9)
+        snap.gone()
+        holder = r.v.put(3, sex="m", years=50, name="Now Chief", body=29)
+        r.p.write(holder + 0xE80, b"\1")
+        if child:
+            kid = r.v.put(4, sex="f", years=20, name="Kid Rua", head=8, body=9)
+            r.p.write(kid + 0xE11, b"Ana Rua\0")             # her mother, as her birth copied her on
+            r.p.put32(kid + 0xE34, 5)                         # the mother's head...
+            r.p.put32(kid + 0xE38, 11)                        # ...and body, before the robe
+        s = rb.parse(struct.pack("<4I", 0x31535256, 1, 3, 1) + snap.entry, 3)[0]
+        data = bytearray(s.data)
+        for at, value in ((0xE80, b"\1"), (0xDF4, struct.pack("<i", 29))):   # the Chief, in the robe
+            k = 0
+            for off, size in rb.SAVED[3]:
+                if off <= at < off + size:
+                    data[k + at - off:k + at - off + len(value)] = value
+                    break
+                k += size
+        s.data, s.flags, s.original = bytes(data), s.flags | 0x20, (5, original_body, 0)
+        file_bytes = rb.build(3, [s])
+        a = r.p.alloc(len(file_bytes) + 16)
+        r.p.write(a, file_bytes)
+        r.p.export("VvfpStoryProbeReviveSnapshotFile", a, len(file_bytes))
+        self.assertEqual(r.load(death(1, "Ana Rua", 1300, "Female", 5, 29, likes="ants, turnips",
+                                      dislikes="the ocean")), 1)
+        return r
+
+    def test_their_kept_original_is_the_robe_and_a_childs_record_gives_their_own_body(self):
+        r = self._chief(29, child=True)                       # Original Look kept the robe
+        self.assertIn("as their children's records keep it", r.row(0)[2])
+        answer, made = r.buy(0)
+        self.assertEqual((answer, r.p.export("VvfpStoryProbeReviveChiefBody")), (1, 2))
+        self.assertEqual((r.v.byte(made, 0xE80), r.v.i32(made, 0xDF4)), (0, 11))
+
+    def test_with_nothing_kept_the_game_picks_a_body_as_for_a_new_villager(self):
+        r = self._chief(29)
+        self.assertIn("so the game picks one as it does for a new villager", r.row(0)[2])
+        answer, made = r.buy(0)
+        self.assertEqual((answer, r.p.export("VvfpStoryProbeReviveChiefBody")), (1, 0))
+        self.assertNotEqual(r.v.i32(made, 0xDF4), 29)         # never the robe
+        self.assertEqual(r.v.i32(made, 0xDF4), 4)              # the creator's (the fixture's creator gives body 4)
+
+    def test_their_own_pre_robe_body_kept_at_their_death(self):
+        r = self._chief(11)                                   # cod_revive.inc kept the body before the robe
+        self.assertIn("in their own body from before the robe.", r.row(0)[2])
+        answer, made = r.buy(0)
+        self.assertEqual((answer, r.p.export("VvfpStoryProbeReviveChiefBody"), r.v.i32(made, 0xDF4)), (1, 1, 11))
+
 if __name__ == "__main__":
     unittest.main()

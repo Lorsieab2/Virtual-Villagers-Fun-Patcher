@@ -1234,6 +1234,49 @@ static int rv_years_back(int game, const rv_person *p) {
     return role != 0 && a != NULL && rv_role_free(a, role) ? rv_role_def_of(role)->age / 20 : RV_AGE_YEARS;
 }
 
+/* The Secret City: the body a Tribal Chief comes back in while another Chief lives (they are not the Chief, so not
+   the robe, 29 -- the owner's decision, 2026-11-26).  Codex, PR #880: VVFP Original Look.dll folds the robing write
+   (0x45FBDE) into the original it keeps, so the snapshot's original is their pre-robe body only when the Cause of
+   Death companion saw them before the robe (cod_revive.inc rvs_unrobed).  Else the body their children's records
+   keep for them (a birth copies each parent's head and body onto the child: +0xE2C..+0xE38) when it is not the
+   robe -- a living villager whose parent is their name and head.  1 their own kept original, 2 a child's record,
+   0 none (the body the game's creator gave the new villager stays: its own rule for a new villager).  *body set. */
+#define RV_ROBE 29
+static int rv_chief_body(const ce_adapter *a, const rv_person *p, const vv_rs_entry *e, int *body) {
+    int i;
+    if (e != NULL && (e->flags & VV_RS_ORIGINAL) && e->original_body >= 0 && e->original_body != RV_ROBE
+        && e->original_body < a->body_count) {
+        *body = e->original_body;
+        return 1;
+    }
+    for (i = 0; i < a->record_count; ++i) {
+        const unsigned char *r = a->record(i);
+        int k;
+        if (r == NULL || !a->listed(r)) {
+            continue;
+        }
+        for (k = 0; k < 2; ++k) {
+            char name[RV_NAME];
+            const unsigned int at = k == 0 ? 0xDF8u : 0xE11u, looks = k == 0 ? 0xE2Cu : 0xE34u;
+            int parent_body = *(const int *)(r + looks + 4);
+            ce_copy_name(name, RV_NAME, r + at, 0x19);
+            if (lstrcmpA(name, p->name) == 0 && *(const int *)(r + looks) == p->head && parent_body >= 0
+                && parent_body != RV_ROBE && parent_body < a->body_count) {
+                *body = parent_body;
+                return 2;
+            }
+        }
+    }
+    return 0;
+}
+
+/* The details' line for such a Chief (its own words, kept apart from rv_details' numbering). */
+static const char *rv_chief_body_note(int how) {
+    return how == 1 ? vvfp_tr("vvfp.story/story_revive.rv_chief_body_note.s0", "Another Tribal Chief lives, so they come back as an ordinary villager in their own body from before the robe.\r\n", 300)
+         : how == 2 ? vvfp_tr("vvfp.story/story_revive.rv_chief_body_note.s1", "Another Tribal Chief lives, so they come back as an ordinary villager in their own body from before the robe, as their children's records keep it.\r\n", 300)
+                    : vvfp_tr("vvfp.story/story_revive.rv_chief_body_note.s2", "Another Tribal Chief lives, so they come back as an ordinary villager. Their body from before the robe was not kept, so the game picks one as it does for a new villager.\r\n", 300);
+}
+
 /* The Secret City: whether a villager other than record `self` is the Tribal Chief now. */
 static int rv_other_chief(int game, const ce_adapter *a, int self) {
     unsigned int at = VV_RS_LAYOUT[game].chief;
@@ -1574,6 +1617,7 @@ static int rv_village_refusal(int game, const ce_adapter *a) {
 
 static int rs_set_trait(int game, int index, unsigned int trait);   /* story_traits.inc */
 static int rv_last_role;              /* the last revival's puzzle role (New Believers), 0 none */
+static int rv_last_chief_body;        /* The Secret City: rv_chief_body's answer for the last revival (-1 not a Chief) */
 static unsigned char rv_backup[0xF000];   /* a record as the creator made it (the largest: The Lost Children's 0xE48C) */
 
 /* Person `which` brought back.  RV_DONE, or why not (nothing changed, nothing charged). */
@@ -1634,6 +1678,12 @@ static int rv_buy(int game, int which, int *made) {
     }
     s.head = p->head;
     s.body = p->body;
+    if (game == 3 && e != NULL && VV_RS_LAYOUT[3].chief != 0u) {
+        const unsigned char *chief = vv_rs_at(e, VV_RS_LAYOUT[3].chief, 1);
+        if (chief != NULL && *chief != 0 && rv_other_chief(game, a, -1)) {
+            s.body = CE_KEEP;         /* not the Chief: never the robe -- the creator's own pick stays the fallback */
+        }
+    }
     s.prefs_set = 0;                  /* written below, every one the game holds */
     for (k = 0; k < CE_SKILLS; ++k) {
         s.skills[k] = p->skills_known && e == NULL ? p->skills[k] : CE_KEEP;   /* a snapshot's: written whole below */
@@ -1696,14 +1746,16 @@ static int rv_buy(int game, int which, int *made) {
                                        chief != NULL && *chief != 0 && !rv_other_chief(game, a, index));
         story_preferences_changing(game, 1);
     }
-    /* The Secret City: a Tribal Chief who comes back while another Chief lives is not the Chief, so they wear their
-       own original body, not the robe (the owner's decision, 2026-11-26; VVFP Original Look.dll's, kept at their
-       death).  Unknown: the body they had stays. */
+    /* The Secret City: a Tribal Chief who comes back while another Chief lives is not the Chief, so never in the
+       robe (the owner's decision, 2026-11-26): their own body from before it (rv_chief_body), else the body the
+       game's creator gave the new villager (rv_backup: the record as the creator made it), its own rule. */
+    rv_last_chief_body = -1;
     if (rv_last_restored && game == 3 && VV_RS_LAYOUT[3].chief != 0u) {
         const unsigned char *chief = vv_rs_at(e, VV_RS_LAYOUT[3].chief, 1);
-        if (chief != NULL && *chief != 0 && r[VV_RS_LAYOUT[3].chief] == 0 && (e->flags & VV_RS_ORIGINAL)
-            && e->original_body >= 0 && e->original_body < a->body_count) {
-            *(int *)(r + a->off_body) = e->original_body;
+        if (chief != NULL && *chief != 0 && r[VV_RS_LAYOUT[3].chief] == 0) {
+            int body = *(const int *)(rv_backup + a->off_body);
+            rv_last_chief_body = rv_chief_body(a, p, e, &body);
+            *(int *)(r + a->off_body) = body;
         }
     }
     /* From the logs: the likes and dislikes, every one the record holds room for. */
@@ -1928,6 +1980,14 @@ static void rv_details(int game, const ce_adapter *a, const rv_person *p, char *
                     : p->snap >= 0 ? vvfp_tr("vvfp.story/story_revive.rv_details.s29", " (kept: they come back with it where the game allows it)", 120)
                     : vvfp_tr("vvfp.story/story_revive.rv_details.s9", " (they come back as an ordinary villager)", 120));
         rv_add(out, size, line);
+    }
+    if (game == 3 && p->snap >= 0 && p->snap < rv_snap_count && VV_RS_LAYOUT[3].chief != 0u) {
+        const vv_rs_entry *e = &rv_snaps[p->snap];
+        const unsigned char *chief = vv_rs_at(e, VV_RS_LAYOUT[3].chief, 1);
+        int body = -1;
+        if (chief != NULL && *chief != 0 && rv_other_chief(game, a, -1)) {
+            rv_add(out, size, rv_chief_body_note(rv_chief_body(a, p, e, &body)));
+        }
     }
     if (p->heathen) {
         rv_add(out, size, vv5_isolan(cg_guardians_on(), vvfp_tr("vvfp.story/story_revive.rv_details.s10", "Faction: Heathen\r\n", 100)));
@@ -2369,6 +2429,12 @@ __declspec(dllexport) int __stdcall VvfpStoryProbeReviveSnapshotOf(int row) {
 /* Whether the last revival wrote every detail of the snapshot (1) or came back from the logs (0). */
 __declspec(dllexport) int __stdcall VvfpStoryProbeReviveRestored(void) {
     return rv_last_restored;
+}
+
+/* The Secret City: how the last revived Chief's body was chosen (rv_chief_body: 1 own, 2 a child's record, 0 the
+   game's), -1 not a Chief beside another. */
+__declspec(dllexport) int __stdcall VvfpStoryProbeReviveChiefBody(void) {
+    return rv_last_chief_body;
 }
 
 /* The last revival's puzzle role (New Believers: 12..17 back in the role), 0 none. */

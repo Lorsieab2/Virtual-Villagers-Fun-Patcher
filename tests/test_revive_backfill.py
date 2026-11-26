@@ -294,6 +294,25 @@ class Rules(unittest.TestCase):
                 d = record_for(game, "Far Villager", female, 0, 0, (), (), 0, seed=9)
                 self._place(game, save, checker.STOCK_SAVE[game] + 20 + stride + rb.ENTRY_FROM_NAME[game], d)
                 self.assertIn(d, rb.save_entries(game, bytes(save)))
+    def test_the_last_slot_of_a_full_256_extension_is_read(self):
+        # Codex, PR #880: the checker's plausible() asks for a stride of bytes after the NAME, so the final extension
+        # entry -- its bytes all there, the save ending right after it -- was refused.
+        import vv_log_tools as tools
+        checker = tools.load_checker()
+        for game in (3, 4, 5):
+            male, female = rb.SEX_VALUES[game]
+            with self.subTest(game=game):
+                stride = checker.LAYOUTS[game].stride
+                first = checker.STOCK_SAVE[game] + 20
+                save = bytearray(first + 106 * stride)            # villagers 150..255, nothing after the last
+                people = [record_for(game, f"Ext Villager{k}", (male, female)[k % 2], k % 30, (k + 1) % 30, (), (),
+                                     100 + k, seed=k + 1) for k in range(106)]
+                for k, d in enumerate(people):
+                    self._place(game, save, first + k * stride + rb.ENTRY_FROM_NAME[game], d)
+                self.assertEqual(len(save), first + 105 * stride + stride)
+                found = rb.save_entries(game, bytes(save))
+                self.assertIn(people[-1], found)                   # the last slot, its bytes all there
+                self.assertEqual(sum(1 for d in people if d in found), 106)
     def test_the_file_layout_is_the_dlls(self):
         header = (ROOT / "native" / "shared" / "revive_snapshot.h").read_text(encoding="utf-8")
         self.assertIn("#define VV_RS_MAGIC 0x31535256u", header)
