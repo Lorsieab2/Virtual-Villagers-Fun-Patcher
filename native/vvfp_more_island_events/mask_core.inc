@@ -104,9 +104,12 @@ static int mk_at(const mk_game *t, int adult, const int *taken, int n, int k) {
     return -1;
 }
 
+/* Pick Island Event's override (mp_relaxed): the population is not asked, as with No Safeguards; the group and the
+   expedition are what the event uses. */
 static int mk_possible(const mk_game *t) {
-    return t != NULL && t->g != NULL && (t->population() >= MK_POPULATION || adv_no_safeguards(t->g->game)) && mk_count(t, 0, NULL, 0) >= MK_GROUP_MIN
-        && mk_count(t, 1, NULL, 0) >= MK_EXPEDITION && adv_possible(t->g);
+    return t != NULL && t->g != NULL
+        && (t->population() >= MK_POPULATION || adv_no_safeguards(t->g->game) || mp_relaxed(MIE_RELAX_MASK))
+        && mk_count(t, 0, NULL, 0) >= MK_GROUP_MIN && mk_count(t, 1, NULL, 0) >= MK_EXPEDITION && adv_possible(t->g);
 }
 
 /* `want` of `adult` (1) or children (0) into `out`, each drawn among those left; the number drawn. */
@@ -219,7 +222,7 @@ static void mk_find_tallest(const adv_game *layout) {
 
 /* The group, the expedition, every roll and every page, for the popup about to be built (`layout` lays the pages
    out); 0 when the event cannot happen. */
-static int mk_begin(const mk_game *t, const adv_game *layout) {
+static int mk_begin_event(const mk_game *t, const adv_game *layout) {
     int k, n, set;
     memset(&mk, 0, sizeof mk);
     mk.t = t;
@@ -257,6 +260,12 @@ static int mk_begin(const mk_game *t, const adv_game *layout) {
         mk.ready &= mk_set(set)->count > 0;
     }
     return mk.ready;
+}
+
+static int mk_begin(const mk_game *t, const adv_game *layout) {
+    int ready = mk_begin_event(t, layout);
+    mp_relax_used(MIE_RELAX_MASK);         /* an override pick is used once, begun or not */
+    return ready;
 }
 
 /* ---- The effects --------------------------------------------------------------------------------------------- */

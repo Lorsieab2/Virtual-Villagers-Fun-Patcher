@@ -92,6 +92,12 @@ DESCRIPTION = (
     "be picked anyway, and developer-dead events proven to work are offered as never happening in "
     "the original game; events that need something the village lacks, or room for new villagers, "
     "stay locked with the reason. "
+    "Its \"Override\" box (a warning first; off each time the window opens) also lets the player pick "
+    "an event the game would not run right now: timing, technology, buildings, food, population and "
+    "the game's population cap no longer stop it, and the event happens with the villagers the village "
+    "has -- when its own condition finds nobody, a living villager of the kind it is about is chosen. "
+    "Only what is technically impossible stays locked, with the reason: no villager of a kind the "
+    "event's own code needs, no free villager record, and the few events listed as not safe to force. "
     "On by default, with Story / Cheat Upgrades cost Tech Points ticked too, so the upgrades "
     "keep their normal tech-point prices until that row is unticked. **Requires Enable Origins "
     "Tech, Details, and Village-Wide "
@@ -648,6 +654,7 @@ def build() -> None:
             [Image(data).read for data in renders], taken)
         lines.extend(story_outcome_tables.emit(game, outcome_info, outcome_found,
                                                [e["slot"] for e in events]))
+        lines.extend(story_outcome_tables.emit_override(game, [e["slot"] for e in events]))
         lines.append(f"static const story_event {tag}_EVENTS[] = {{")
         for e in events:
             lines.append(

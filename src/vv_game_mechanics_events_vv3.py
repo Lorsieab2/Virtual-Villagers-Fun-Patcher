@@ -74,7 +74,9 @@ RULES = (
          "or disliking ants, liking clouds, and liking medicine or crowds change nothing that has been found in the "
          "game's code (Hidden villager stats lists the ones that do).", False),
     Line("With the patcher's \"Story / Cheat Upgrades\" (in this game): Pick Island Event chooses the next event "
-         "instead of the draw above.", only_with=STORY),
+         "instead of the draw above. "
+         "Its Override box also lets it choose an event whose own condition fails now: the event happens "
+         "with the villagers you have, and only truly impossible ones stay closed.", only_with=STORY),
 )
 
 EVENTS = (

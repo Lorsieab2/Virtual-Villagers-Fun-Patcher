@@ -209,7 +209,7 @@ static int vv2_event_roll(int family, int bound) {
     if (slot < 0 || VV2_SLOT_FAMILY(slot) != family || VV2_SLOT_INDEX(slot) >= bound) {
         return VV2_RAND(bound);
     }
-    if (oc_unlocked(2, slot)) {
+    if (oc_unlocked(2, slot) || ov_pass(2, slot)) {
         /* pass the event's own condition for this one roll */
         if (family == VV2_FAMILY_C) {
             vv2_unlock_c = 1;
@@ -218,6 +218,7 @@ static int vv2_event_roll(int family, int bound) {
         }
     }
     pick_slot = -1;
+    pick_override_event = NULL;
     STORY_COUNT(delivered);
     last_failed_event = NULL;
     oc_delivered(2, NULL);

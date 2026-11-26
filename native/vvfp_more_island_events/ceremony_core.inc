@@ -89,16 +89,19 @@ static void cr_piece(char *out, int cap, int key) {
     }
 }
 
-/* Whether `which` can happen now. */
+/* Whether `which` can happen now.  With Pick Island Event's override (mp_relaxed) New Believers' The Last Heathen and
+   The Rumblings' every puzzle are not asked: the graves the villagers honor and a finished structure to damage are
+   what the events use. */
 static int cr_possible(const cr_game *g, int which) {
     int k;
     if (g == NULL) {
         return 0;
     }
     if (which == CR_REMEMBRANCE) {
-        return g->graves() >= 1 && (g->heathens_done == NULL || g->heathens_done());
+        return g->graves() >= 1
+            && (g->heathens_done == NULL || g->heathens_done() || mp_relaxed(MIE_RELAX_REMEMBRANCE));
     }
-    if (!g->puzzles_done()) {
+    if (!g->puzzles_done() && !mp_relaxed(MIE_RELAX_RUMBLINGS)) {
         return 0;
     }
     for (k = 0; k < g->structures; ++k) {
@@ -243,4 +246,5 @@ static void cr_happen(const cr_game *g, int which) {
     cr_compose(which);
     adv_log_event(g->game, cr_title_text);
     adv_log_effects(cr_effects, which);
+    mp_relax_used(which == CR_REMEMBRANCE ? MIE_RELAX_REMEMBRANCE : MIE_RELAX_RUMBLINGS);
 }

@@ -352,6 +352,8 @@ KEY_FAMILIES = (
     re.compile(r"^vvfp\.story/story_custom\.CE_WHY_WORDS\.\d+$"),
     re.compile(r"^vvfp\.story/story_c[1-5]\.C[1-5]_ADAPTER\.4[3-6]$"),
     re.compile(r"^vvfp\.story/story_tables\.VV[1-5]_EVENTS\.\d+\.(?:title|variant)$"),
+    # Pick Island Event's override: why an event can not be forced (story_override.inc ov_refusal).
+    re.compile(r"^vvfp\.story/story_tables\.VV[1-5]_OV_EVENTS\.s\d+$"),
     # The Aspiring Adventurer's pieces: a generated table of stems and their English (adv_text.inc).
     re.compile(r"^vvfp\.more_island_events/adv_text\.[A-Z0-9_]+(?:\.[mf])?$"),
     # More Island Events' other events and its Pick Island Event registry: generated tables of stems
@@ -367,6 +369,7 @@ KEY_FAMILY_SOURCES = (
     ("native/vvfp_story_upgrades/vvfp_story_upgrades.c", 'vvfp.story/story_tables.VV%d_EVENTS.%d.title'),
     ("native/vvfp_story_upgrades/vvfp_story_upgrades.c", 'vvfp.story/story_tables.VV%d_EVENTS.%d.variant'),
     ("native/vvfp_more_island_events/adv_text.inc", 'vvfp.more_island_events/adv_text.'),
+    ("native/vvfp_story_upgrades/story_override.inc", 'vvfp.story/story_tables.VV%d_OV_EVENTS.s%d'),
 )
 
 

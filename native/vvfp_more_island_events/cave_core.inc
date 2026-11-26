@@ -66,9 +66,11 @@ static int cave_adult(const adv_game *g, const unsigned char *r) {
     return r != NULL && g->eligible(r) && g->age(r) >= CAVE_ADULT_UNITS;
 }
 
-/* The ordered pairs (name1, name2) who may go: k >= 0 the k-th one into *a, *b; returns how many there are. */
+/* The ordered pairs (name1, name2) who may go: k >= 0 the k-th one into *a, *b; returns how many there are.  With
+   Pick Island Event's override (mp_relaxed) any two of them, however far apart in age. */
 static int cave_pairs(const adv_game *g, int k, int *a, int *b) {
     int i, j, n = 0, count = g->count();
+    int any_gap = mp_relaxed(MIE_RELAX_CAVE);
     for (i = 0; i < count; ++i) {
         const unsigned char *ri = g->record(i);
         if (!cave_adult(g, ri)) {
@@ -84,7 +86,7 @@ static int cave_pairs(const adv_game *g, int k, int *a, int *b) {
             if (gap < 0) {
                 gap = -gap;
             }
-            if (gap > CAVE_GAP_UNITS) {
+            if (gap > CAVE_GAP_UNITS && !any_gap) {
                 continue;
             }
             if (n == k) {
@@ -97,10 +99,12 @@ static int cave_pairs(const adv_game *g, int k, int *a, int *b) {
     return n;
 }
 
-/* The event's condition (the owner): The Cave puzzle done and a pair who may go. */
+/* The event's condition (the owner): The Cave puzzle done and a pair who may go.  With Pick Island Event's override
+   (mp_relaxed) The Cave puzzle is not asked: nothing of the event reads or writes it. */
 static int cave_possible(const adv_game *g) {
     int a, b;
-    return g != NULL && g->age != NULL && g->cave_open != NULL && g->cave_open() && cave_pairs(g, -1, &a, &b) > 0;
+    return g != NULL && g->age != NULL && g->cave_open != NULL && (mp_relaxed(MIE_RELAX_CAVE) || g->cave_open())
+        && cave_pairs(g, -1, &a, &b) > 0;
 }
 
 /* ---- Words --------------------------------------------------------------------------------------------------- */
@@ -224,7 +228,7 @@ static void cave_find_tallest(const adv_game *g) {
 }
 
 /* Who goes, every roll and every page, for the popup about to be built; 0 when the event cannot happen. */
-static int cave_begin(const adv_game *g) {
+static int cave_begin_event(const adv_game *g) {
     int n, roll, set;
     memset(&cave, 0, sizeof cave);
     cave.g = g;
@@ -270,6 +274,12 @@ static int cave_begin(const adv_game *g) {
         cave.ready &= cave_set(set)->count > 0;
     }
     return cave.ready;
+}
+
+static int cave_begin(const adv_game *g) {
+    int ready = cave_begin_event(g);
+    mp_relax_used(MIE_RELAX_CAVE);         /* an override pick is used once, begun or not */
+    return ready;
 }
 
 /* ---- The effects --------------------------------------------------------------------------------------------- */
