@@ -38,7 +38,8 @@ class FakeBin:
     def __init__(self, place: Path, fail_on: int | None = None):
         self.place = place
         self.place.mkdir(parents=True, exist_ok=True)
-        self.calls: list[list[Path]] = []
+        self.calls: list[list[Path]] = []        # what each call was handed: files, or whole folders
+        self.files: list[Path] = []              # every file those held
         self.fail_on = fail_on
 
     def __call__(self, paths):
@@ -46,6 +47,7 @@ class FakeBin:
         if self.fail_on is not None and len(self.calls) == self.fail_on:
             raise OSError("the Recycle Bin refused (test)")
         for path in paths:
+            self.files += sorted(p for p in path.rglob("*") if p.is_file()) if path.is_dir() else [path]
             stored = self.place / f"{sum(len(c) for c in self.calls)}-{len(os.listdir(self.place))}-{path.name}"
             os.rename(path, stored)
             self.kept.append((path, stored))
@@ -65,7 +67,8 @@ class FakeBin:
 
     @property
     def sent(self) -> list[Path]:
-        return [p for call in self.calls for p in call]
+        """Every FILE that went (a folder sent whole: each file in it)."""
+        return list(self.files)
 
 
 class Base(tm.Base):
@@ -194,6 +197,87 @@ class DeleteTests(Base):
         self.assertTrue(result.not_recycled)
         self.assertTrue(all(p.exists() and "Backups" in p.parts for p in result.not_recycled))
         self.assertTrue(all(not p.exists() for p in result.recycled))
+
+
+class FastTests(Base):
+    """The owner (2026-11-25): "make the delete player slot files faster (almost instant)".  One Recycle Bin call
+    for each part (the save folder, each backup, each set-aside folder), a folder holding nothing but the
+    slot's files sent whole -- the same files, every one still checked afterwards."""
+
+    def test_one_call_for_each_part_and_slot_folders_go_whole(self) -> None:
+        game, folder, _old = self.make("huttest", 4, "Modded")
+        for n in range(300):                                     # a long-lived village: hundreds of logs
+            self.put(folder, f"{OWN}\\Save 1\\Logs\\Daily\\Day {n} - Save 1.txt", b"a day")
+        plan = ds.plan_delete(game, folder, 1)
+        bin_ = FakeBin(Path(self._tmp.name) / "bin")
+        result = ds.delete_slot(game, folder, 1, processes=tc.FakeProcesses(), now=NOW, recycle=bin_)
+        self.assertIsNone(result.problem)
+        self.assertEqual(len(bin_.calls), len([g for g in plan.groups if g.files]))
+        self.assertIn(folder / OWN / "Save 1", bin_.calls[0])     # 300+ files, one item
+        self.assertLess(len(bin_.calls[0]), 40)
+        # Exactly the planned files went: no more, no fewer.
+        self.assertEqual(sorted(str(p).casefold() for p in bin_.sent), sorted(str(p).casefold() for p in plan.files))
+        self.assertEqual(sorted(map(str, result.recycled)), sorted(map(str, plan.files)))
+        self.assertEqual(result.not_recycled, [])
+
+    def test_a_folder_with_a_picture_or_another_file_is_never_sent_whole(self) -> None:
+        game, folder, _old = self.make("huttest", 2, "Modded")
+        root = folder / OWN / "Save 1"
+        for n in range(ds.WHOLE_FOLDER_FROM):
+            self.put(folder, f"{OWN}\\Save 1\\Logs\\Daily\\Day {n} - Save 1.txt", b"a day")
+            self.put(folder, f"{OWN}\\Save 1\\Data\\Daily\\Day {n} - Save 1.dat", b"a day")
+        picture = root / "Data" / "Village photo - Save 1.png"
+        picture.write_bytes(b"a picture")
+        plan = ds.plan_delete(game, folder, 1)
+        (main,) = [g for g in plan.groups if g.where == ""]
+        self.assertIn(picture, main.pictures)
+        items = [place for place, _held in ds._recycle_items(main.root, main.files)]
+        self.assertNotIn(root, items)
+        self.assertNotIn(root / "Data", items)
+        self.assertIn(root / "Data" / "Daily", items)         # a whole folder beside the picture still goes whole
+        small = [p for p in main.files if (folder / OLD_DATA / "Custom Titles") in p.parents]
+        self.assertTrue(small)
+        self.assertTrue(set(small) <= set(items))                # a folder of a few files: the files themselves
+        # A file the plan does not list (one not shown to the player) keeps its folder from going whole.
+        logs = root / "Logs"
+        listed = [p for p in main.files if logs in p.parents]
+        self.assertIn(logs, [place for place, _ in ds._recycle_items(main.root, listed)])
+        items = [place for place, _ in ds._recycle_items(main.root, listed[1:])]
+        self.assertNotIn(logs, items)
+        self.assertNotIn(listed[0], items)
+        self.assertTrue(set(listed[1:]) <= {p for _, held in ds._recycle_items(main.root, listed[1:]) for p in held})
+        bin_ = FakeBin(Path(self._tmp.name) / "bin")
+        result = ds.delete_slot(game, folder, 1, processes=tc.FakeProcesses(), now=NOW, recycle=bin_)
+        self.assertIsNone(result.problem)
+        self.assertEqual(picture.read_bytes(), b"a picture")
+        self.assertNotIn(str(picture).casefold(), {str(p).casefold() for p in bin_.sent})
+
+    def test_files_left_behind_by_a_call_that_said_yes_are_reported_exactly(self) -> None:
+        game, folder, _old = self.make("huttest", 3, "Modded")
+        bin_ = FakeBin(Path(self._tmp.name) / "bin")
+        stuck = game.save_path(folder, 1)
+
+        def leaves_the_save(paths):              # Windows says yes, but one file is still there
+            bin_([p for p in paths if p != stuck])
+
+        plan = ds.plan_delete(game, folder, 1)
+        result = ds.delete_slot(game, folder, 1, processes=tc.FakeProcesses(), now=NOW, recycle=leaves_the_save)
+        self.assertIn("could not send every file", result.problem)
+        later = {str(p) for g in plan.groups if g.where for p in g.files}       # the backups', never sent
+        self.assertEqual(sorted(map(str, result.not_recycled)), sorted(later | {str(stuck)}))
+        self.assertEqual(sorted(map(str, result.recycled + result.not_recycled)), sorted(map(str, plan.files)))
+        self.assertTrue(all(not p.exists() for p in result.recycled))
+        self.assertEqual(len(bin_.calls), 1)     # stopped: no backup was touched
+        self.assertTrue(stuck.is_file())
+
+    def test_a_running_game_sends_nothing(self) -> None:
+        game, folder, _old = self.make("huttest", 1, "Modded")
+        before = self.everything(folder)
+        bin_ = FakeBin(Path(self._tmp.name) / "bin")
+        with self.assertRaises(ds.GameRunning):
+            ds.delete_slot(game, folder, 1, processes=tc.FakeProcesses([77]), now=NOW, recycle=bin_)
+        self.assertEqual(bin_.calls, [])
+        self.assertEqual(self.everything(folder), before)
 
 
 class LongPathPictureTests(Base):
