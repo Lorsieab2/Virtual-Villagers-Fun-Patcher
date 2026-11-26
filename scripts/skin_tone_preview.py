@@ -167,6 +167,7 @@ EDGE_REACH = 2
 CLOTH_REACH = 2
 ALIKE_STEPS = 3            # how far the mask grows into skin of its own colour
 ALIKE_HUE, ALIKE_SAT, ALIKE_DARKER, ALIKE_LIGHTER = 8.0, 0.14, 0.22, 0.15
+BLUSH_FLOOR = 0.08
 BODY_FLOOR = 0.22          # off-white and cream cloth is under this; a body's palest skin is over it
 
 
@@ -240,7 +241,8 @@ def skin_mask(a, heads, exclude=(), cloth=None, cell=(CELL_W, CELL_H), front=5):
     r, g, b = (a[..., i].astype(int) for i in range(3))
     opaque = a[..., 3] > 0
     warm_edge = opaque & (r >= g) & (g >= b) & (h >= 18) & (h <= 50) & (s <= 0.80) & (v >= 0.60)
-    blush = opaque & ((h >= 340) | (h <= 10)) & (s <= 0.45) & (v >= 0.60)
+    # A blush is pink: a neutral white or grey (an eye's white, teeth: no saturation, so hue 0) is not one.
+    blush = opaque & ((h >= 340) | (h <= 10)) & (s >= BLUSH_FLOOR) & (s <= 0.45) & (v >= 0.60)
     sheen = opaque & (r >= g) & (g >= b) & (r - b >= 12) & (s >= 0.04) & (s <= 0.45) & (v >= 0.85)
     if not heads:
         warm_edge &= s >= BODY_FLOOR
