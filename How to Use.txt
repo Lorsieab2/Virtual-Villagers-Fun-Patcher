@@ -1864,6 +1864,18 @@ Fun Patcher Data", one file per save slot:
         Virtual Villagers <N> Village Roster - Save <slot>.dat  as it was at
                                                     each save, all five games)
 
+    Revive Snapshots\                              (Cause of Death: the complete
+        Virtual Villagers <N> Revive Snapshots      record of every villager who
+          - Save <slot>.dat                         died or disappeared, kept for
+                                                    Revive Buried/Disappeared
+                                                    Villagers; added at each save,
+                                                    the newest 2,048 kept; all
+                                                    five games. Written in the
+                                                    save's own folder. Deleted by
+                                                    Start Over; delete it yourself
+                                                    and those villagers come back
+                                                    from the logs only)
+
     Village Statistics\, Stew Discoveries\, Village Elders\  (Village Statistics)
     Custom Titles\                                 (Story / Cheat Upgrades)
     Head Looks\                                    (Origins: Change Appearance's

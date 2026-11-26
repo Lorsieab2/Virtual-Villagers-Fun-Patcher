@@ -41,13 +41,19 @@ GRAVES = {
 
 SPECIAL = {
     "vv1": " The Golden Child is listed but can not come back: only his puzzle makes a Golden Child.",
-    "vv2": " An Esteemed Elder comes back as an ordinary villager (their totem stays as it is).",
-    "vv3": " A Tribal Chief comes back as an ordinary villager, not the chief (the robe makes a chief).",
+    "vv2": (" An Esteemed Elder whose complete record was kept comes back an Esteemed Elder (their totem stays the"
+            " only one); from the logs only, as an ordinary villager."),
+    "vv3": (" A Tribal Chief whose complete record was kept comes back the Tribal Chief while no other Chief lives;"
+            " otherwise, or from the logs only, as an ordinary villager."),
     "vv4": "",
     "vv5": (" A Heathen whose death or disappearance the logs record (\"Faction: Heathen\") is listed and comes back as a"
-            " Heathen in the camp, through the game's own Heathen creator (an ordinary Heathen)."
-            " New Believers' puzzle Heathens (the Heathen Chief, the Heathen Mommy and the others) are listed but can"
-            " not come back, and a believer who left to become a Heathen is listed as alive among the Heathens."),
+            " Heathen in the camp, through the game's own Heathen creator, with their Faith, masks and every other"
+            " detail. New Believers' puzzle Heathens (the Heathen Doctor, the Heathen Chief, the three Masters and the"
+            " Heathen Mommy; the owner, 2026-11-26) come back in their own role and mask, set up as the game sets that"
+            " role up - the Chief with every skill 100, the Mommy with her infant by a living adult Heathen of the"
+            " camp, never \"Unknown\" - or as an ordinary Heathen, with every other detail, when a living Heathen holds"
+            " that role now, its puzzle is solved, or (the Mommy) no other adult Heathen lives. A believer who left to"
+            " become a Heathen is listed as alive among the Heathens."),
 }
 
 
@@ -66,9 +72,16 @@ def row(game: str, digest: str) -> dict:
         "villager who vanished, from the village's own Deaths and Disappearances log, with their name, sex, age at "
         "death, cause of death or what happened, grave line and epitaph, likes and dislikes, head and body, parents, "
         "mask, custom title and special title, and their skills from the last Village History snapshot of them; "
-        "anything the logs do not hold is shown as unknown. The one you pick comes back as the same person - name "
-        "and last name, sex, parents, likes and dislikes, looks, mask, custom title and skills - aged 5, through the "
-        "game's own villager creator, and their grave is removed. It can be bought again and again. **Refused, with "
+        "anything the logs do not hold is shown as unknown. The one you pick comes back as the same person, aged 5, "
+        "through the game's own villager creator, and their grave is removed. **Every detail (v1.35.101): when a "
+        "villager dies or disappears, by any path, the Cause of Death row now keeps their complete record - every "
+        "field the game's own save keeps of them - and what the patcher's files keep for them (head look, gender "
+        "presentation, mask, story traits, A New Home's parents), in its own file per save slot; the revived "
+        "villager gets all of it back: name and last name, sex, looks and personal number, family, parents, likes, "
+        "dislikes, every skill with its fractions, job preference and titles. Only the age (5), health, sickness, a "
+        "pregnancy and what they were doing start fresh.** A death from before v1.35.101 comes back from the logs "
+        "(name and last name, sex, parents, likes and dislikes, looks, mask, custom title, and skills from the last "
+        "Village History snapshot), and the list says which. It can be bought again and again. **Refused, with "
         "nothing charged, while the village is at its maximum population or has fewer tech points than it costs.** "
         "**The list comes from the logs: villagers are listed only when \"Write Births and Conceptions Log to Text "
         "File\" and \"Show Cause of Death and Epitaphs on Graves, and Log Every Death\" logged their death or "
@@ -98,6 +111,15 @@ def row(game: str, digest: str) -> dict:
             "predicate and a free record first) at age 100 (5 years), then the name, head, body, every like and "
             "dislike the record holds room for, the skills, the parents (A New Home: with Show Parents in Details "
             "Screen), the custom title and the mask.",
+            "Every detail (v1.35.101): \"VVFP Cause of Death.dll\" keeps each departing villager's saved record "
+            "fields (native/shared/revive_snapshot.h, the windows each game's own save writer and loader keep) and the "
+            "patcher files' head look, gender presentation, mask, story traits and A New Home's parents, at the moment "
+            "the game frees the record, and adds them at the next save to \"Revive Snapshots\\Virtual Villagers N "
+            "Revive Snapshots - Save S.dat\" in the save's own folder (never the save). Each log record is matched to "
+            "its snapshot by name, sex, head, body, age at death, likes and dislikes; two different snapshots that "
+            "could be the same person are never guessed between. The revival writes every persistent field onto the "
+            "record the game's creator made, all or none, read back and checked; any difference and the record is the "
+            "creator's again and the villager comes back from the logs.",
             f"The grave ({title}): {GRAVES[game]}. Matched by name and age at death"
             + (" and the head and body" if game in ("vv4", "vv5") else "")
             + ", each grave to one record in log order; a grave that changed since the list was made is never "

@@ -75260,6 +75260,191 @@
    "notes": "a patcher window; %1 = a number (number)"
   },
   {
+   "stem": "patch/0x4946dd",
+   "english": "{name} sees a heartfelt memorial.",
+   "games": [
+    "vv5"
+   ],
+   "mechanism": "e",
+   "context": "data/builds.json (an exe patch's text at 0x4946DD)",
+   "notes": "text an exe patch writes, shown by the game"
+  },
+  {
+   "stem": "patch/0x494818",
+   "english": "{name} sees the decorated encampment.",
+   "games": [
+    "vv5"
+   ],
+   "mechanism": "e",
+   "context": "data/builds.json (an exe patch's text at 0x494818)",
+   "notes": "text an exe patch writes, shown by the game"
+  },
+  {
+   "stem": "vvfp.story/story_revive.rv_details.s28",
+   "english": "Special villager: %s. They come back in that role and its mask, set up as the game sets the role up (the Heathen Chief with every skill 100, the Heathen Mommy with her infant by a living adult Heathen) - unless a living Heathen holds the role now or its puzzle is solved: then as an ordinary Heathen, with every other detail.\r\n",
+   "games": [
+    "vv1",
+    "vv2",
+    "vv3",
+    "vv4",
+    "vv5"
+   ],
+   "mechanism": "b",
+   "context": "VVFP Story Upgrades.dll",
+   "notes": "a patcher window; %1 = text (person when it is a villager's name)",
+   "route": "key"
+  },
+  {
+   "stem": "vvfp.story/story_revive.rv_details.s29",
+   "english": " (kept: they come back with it where the game allows it)",
+   "games": [
+    "vv1",
+    "vv2",
+    "vv3",
+    "vv4",
+    "vv5"
+   ],
+   "mechanism": "b",
+   "context": "VVFP Story Upgrades.dll",
+   "notes": "a patcher window",
+   "route": "key"
+  },
+  {
+   "stem": "vvfp.story/story_revive.rv_details.s30",
+   "english": "Skills (kept at their death):\r\n",
+   "games": [
+    "vv1",
+    "vv2",
+    "vv3",
+    "vv4",
+    "vv5"
+   ],
+   "mechanism": "b",
+   "context": "VVFP Story Upgrades.dll",
+   "notes": "a patcher window",
+   "route": "key"
+  },
+  {
+   "stem": "vvfp.story/story_revive.rv_details.s31",
+   "english": "\r\nKept afterwards by Repair Saves & Logs, from %s saved %s: their name, sex, looks, family, parents, likes and dislikes exactly; their skills, job preference and titles %s.\r\n",
+   "games": [
+    "vv1",
+    "vv2",
+    "vv3",
+    "vv4",
+    "vv5"
+   ],
+   "mechanism": "b",
+   "context": "VVFP Story Upgrades.dll",
+   "notes": "a patcher window; %1 = text (person when it is a villager's name); %2 = text (person when it is a villager's name); %3 = text (person when it is a villager's name)",
+   "route": "key"
+  },
+  {
+   "stem": "vvfp.story/story_revive.rv_details.s32",
+   "english": "the copy of their record the save still held",
+   "games": [
+    "vv1",
+    "vv2",
+    "vv3",
+    "vv4",
+    "vv5"
+   ],
+   "mechanism": "b",
+   "context": "VVFP Story Upgrades.dll",
+   "notes": "a patcher window",
+   "route": "key"
+  },
+  {
+   "stem": "vvfp.story/story_revive.rv_details.s33",
+   "english": "a backup of the save",
+   "games": [
+    "vv1",
+    "vv2",
+    "vv3",
+    "vv4",
+    "vv5"
+   ],
+   "mechanism": "b",
+   "context": "VVFP Story Upgrades.dll",
+   "notes": "a patcher window",
+   "route": "key"
+  },
+  {
+   "stem": "vvfp.story/story_revive.rv_details.s34",
+   "english": "as they were at the end",
+   "games": [
+    "vv1",
+    "vv2",
+    "vv3",
+    "vv4",
+    "vv5"
+   ],
+   "mechanism": "b",
+   "context": "VVFP Story Upgrades.dll",
+   "notes": "a patcher window",
+   "route": "key"
+  },
+  {
+   "stem": "vvfp.story/story_revive.rv_details.s35",
+   "english": "as they were then (they may have grown since)",
+   "games": [
+    "vv1",
+    "vv2",
+    "vv3",
+    "vv4",
+    "vv5"
+   ],
+   "mechanism": "b",
+   "context": "VVFP Story Upgrades.dll",
+   "notes": "a patcher window",
+   "route": "key"
+  },
+  {
+   "stem": "vvfp.story/story_revive.rv_details.s36",
+   "english": "\r\nEvery detail was kept at their death: they come back with their own looks, family, parents, likes, dislikes, skills, job preference and titles, and what the patcher keeps for them. Only their age (5), health and what they were doing start fresh.\r\n",
+   "games": [
+    "vv1",
+    "vv2",
+    "vv3",
+    "vv4",
+    "vv5"
+   ],
+   "mechanism": "b",
+   "context": "VVFP Story Upgrades.dll",
+   "notes": "a patcher window",
+   "route": "key"
+  },
+  {
+   "stem": "vvfp.story/story_revive.rv_details.s37",
+   "english": "\r\nFrom the logs only: more than one kept record could be this villager, so none is used.\r\n",
+   "games": [
+    "vv1",
+    "vv2",
+    "vv3",
+    "vv4",
+    "vv5"
+   ],
+   "mechanism": "b",
+   "context": "VVFP Story Upgrades.dll",
+   "notes": "a patcher window",
+   "route": "key"
+  },
+  {
+   "stem": "vvfp.story/story_revive.rv_details.s38",
+   "english": "\r\nFrom the logs only: no complete record was kept (they left before v1.35.101, or Show Cause of Death and Epitaphs on Graves was off). What the logs do not say, the game picks.\r\n",
+   "games": [
+    "vv1",
+    "vv2",
+    "vv3",
+    "vv4",
+    "vv5"
+   ],
+   "mechanism": "b",
+   "context": "VVFP Story Upgrades.dll",
+   "notes": "a patcher window",
+   "route": "key"
+  },
+  {
    "stem": "vvfp.gui/rename_tribe.long_name_note",
    "english": "Allowed. This name is longer than the game keeps in its save, so the save keeps a short form of it. The game shows the whole name only with \"Render Unicode with In-Game Fonts\" or \"Use Unicode Font\" patched in; otherwise it shows the short form (for example \"Alexandria Montg...\").",
    "games": [
@@ -75398,26 +75583,6 @@
    "mechanism": "b",
    "context": "Game Mechanics window (the tick box beside Auto-refresh: show only the vital statistics and numbers)",
    "notes": "a patcher window"
-  },
-  {
-   "stem": "patch/0x4946dd",
-   "english": "{name} sees a heartfelt memorial.",
-   "games": [
-    "vv5"
-   ],
-   "mechanism": "e",
-   "context": "data/builds.json (an exe patch's text at 0x4946DD)",
-   "notes": "text an exe patch writes, shown by the game"
-  },
-  {
-   "stem": "patch/0x494818",
-   "english": "{name} sees the decorated encampment.",
-   "games": [
-    "vv5"
-   ],
-   "mechanism": "e",
-   "context": "data/builds.json (an exe patch's text at 0x494818)",
-   "notes": "text an exe patch writes, shown by the game"
   }
  ]
 }

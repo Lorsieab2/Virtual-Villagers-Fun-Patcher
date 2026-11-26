@@ -428,3 +428,8 @@ EXPORTS
     VvfpStoryProbeHeathenAging=_VvfpStoryProbeHeathenAging@12
     VvfpStoryProbeReviveLoadShared=_VvfpStoryProbeReviveLoadShared@20
     VvfpStoryProbeHeathenEvents=_VvfpStoryProbeHeathenEvents@8
+    VvfpStoryProbeReviveSnapshotFile=_VvfpStoryProbeReviveSnapshotFile@8
+    VvfpStoryProbeReviveCapture=_VvfpStoryProbeReviveCapture@32
+    VvfpStoryProbeReviveSnapshotOf=_VvfpStoryProbeReviveSnapshotOf@4
+    VvfpStoryProbeReviveRestored=_VvfpStoryProbeReviveRestored@0
+    VvfpStoryProbeReviveRole=_VvfpStoryProbeReviveRole@0

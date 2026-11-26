@@ -266,7 +266,7 @@ class ListTests(unittest.TestCase):
     def test_special_villagers_who_can_not_come_back(self):
         cases = {
             "vv1": death(1, "Goldie", 100, "Male", 1, 1, extra="  Special villager: Golden Child\n"),
-            "vv5": death(1, "Moma", 800, "Female", 1, 1, extra="  Special villager: Heathen Mommy\n"),
+            # New Believers' puzzle Heathens come back since 2026-11-26 (PuzzleHeathenTests)
         }
         for game, r in self._each():
             if game not in cases:
@@ -706,7 +706,8 @@ class RowTests(unittest.TestCase):
         source = SOURCE.read_text(encoding="utf-8")
         self.assertIn('#define RV_FLAG_FILE "VVFP Revive From Graves.txt"', source)
         self.assertIn("#define RV_PRICE 100000", source)
-        self.assertIn("#define RV_AGE 100", source)
+        self.assertIn("#define RV_AGE_YEARS 5", source)          # the owner, 2026-11-25: "keep age 5"
+        self.assertIn("#define RV_AGE (RV_AGE_YEARS * 20)", source)
 
 
 class BridgeTests(unittest.TestCase):
@@ -731,6 +732,308 @@ class BridgeTests(unittest.TestCase):
                 self.assertIn("vvfp_story_add_revive_button(", source)
                 self.assertIn("VVFP_STORY_REVIVE_ID", source)
 
+
+# ---- Every detail (the owner, 2026-11-25): the complete record kept at the departure --------------------------
+
+def _keep_spans(n):
+    from test_revive_snapshot_windows import _spans
+    return _spans(f"VV_RS_KEEP_{n}")
+
+
+ENTRY_BYTES = 1000   # at least sizeof(vv_rs_entry); the probe returns the real size
+
+
+class Snap:
+    """A villager with every persistent field set in record `index`, captured as the departure keeps it."""
+
+    def __init__(self, r, index, name="Ana Rua", seed=1, age=1300, head=5, body=6, family=23):
+        self.r, self.index = r, index
+        L = r.v.L
+        n = L["n"]
+        rec = r.v.put(index, sex="f", years=age / 20, name=name, head=head, body=body)
+        p = r.p
+        skip = set()
+        for off, size in ((L["sex"][0], 4), (L["name"], L["name_cap"]), (L["head"], 4), (L["body"], 4),
+                          (L["likes"], 4 * L["slots"]), (L["dislikes"], 4 * L["slots"]),
+                          (L["skills"], 4 * L["skill_count"])):
+            skip |= set(range(off, off + size))
+        if n == 5:
+            skip |= set(range(0x1CFC, 0x1D00))      # the role: an ordinary believer here
+        for off, size in _keep_spans(n):
+            for k in range(off, off + size):
+                if k not in skip:
+                    p.write(rec + k, bytes([((k * 13 + seed * 71) & 0x7F) | 1]))
+        for k, (like, dislike) in enumerate(((0, 17), (5, -1))):
+            p.put32(rec + L["likes"] + 4 * k, like & 0xFFFFFFFF)
+            p.put32(rec + L["dislikes"] + 4 * k, dislike & 0xFFFFFFFF)
+        for k in range(L["skill_count"]):
+            if L["floats"]:
+                p.write(rec + L["skills"] + 4 * k, struct.pack("<f", 40.75 + k + seed))
+            else:
+                p.put32(rec + L["skills"] + 4 * k, 40 + k + seed)
+        fam = {1: 0x36C, 2: 0x554, 3: 0xDD0, 4: 0x1B98, 5: 0x1B98}[n]
+        p.put32(rec + fam, family)
+        p.put32(rec + L["health"], 0)                 # a body, as the game frees it
+        p.put32(rec + L["age"], age)
+        self.kept = {off: bytes(p.read(rec + off, size)) for off, size in _keep_spans(n)}
+        out = p.alloc(ENTRY_BYTES)
+        size = p.export("VvfpStoryProbeReviveCapture", n, index, 0, -1, -1, -1, 0, out)
+        assert size > 0, "capture"
+        self.entry = bytes(p.read(out, size))
+
+    def gone(self):
+        """The game frees the record (the burial, the vanishing)."""
+        self.r.p.write(self.r.v.record(self.index), bytes(self.r.v.L["stride"]))
+
+
+def snapshot_file(r, entries):
+    data = struct.pack("<4I", 0x31535256, 1, r.v.L["n"], len(entries)) + b"".join(entries)
+    at = r.p.alloc(len(data) + 16)
+    r.p.write(at, data)
+    r.p.export("VvfpStoryProbeReviveSnapshotFile", at, len(data))
+
+
+def ana_death(age=1300, name="Ana Rua"):
+    return death(1, name, age, "Female", 5, 6, likes="ants, turnips", dislikes="the ocean")
+
+
+@emulated
+class EveryDetailTests(unittest.TestCase):
+    """Revive brings back every persistent field kept at the departure, in every game and population mode."""
+
+    def _each(self, modes=MODES):
+        for game in GAMES:
+            if have_stock(game):
+                for mode in modes:
+                    yield game, mode, Revive(game, mode)
+
+    def _same(self, r, made, snap):
+        rec = r.v.record(made)
+        wrong = []
+        for off, want in snap.kept.items():
+            got = bytes(r.p.read(rec + off, len(want)))
+            wrong += [hex(off + k) for k in range(len(want)) if got[k] != want[k]]
+        return wrong
+
+    def test_the_villager_comes_back_field_for_field(self):
+        for game, mode, r in self._each():
+            with self.subTest(game=game, mode=mode):
+                snap = Snap(r, 9)
+                snap.gone()
+                snapshot_file(r, [snap.entry])
+                self.assertEqual(r.load(ana_death()), 1)
+                self.assertEqual(r.p.export("VvfpStoryProbeReviveSnapshotOf", 0), 1)
+                details = r.row(0)[2]
+                self.assertIn("Every detail was kept at their death", details)
+                self.assertIn("Skills (kept at their death):", details)
+                answer, made = r.buy(0)
+                self.assertEqual(answer, 1)
+                self.assertEqual(r.p.export("VvfpStoryProbeReviveRestored"), 1)
+                self.assertEqual(self._same(r, made, snap), [], "persistent bytes not the villager's own")
+                self.assertEqual(r.v.i32(made, r.v.L["age"]), 100)          # age 5: RV_AGE_YEARS
+                self.assertGreater(r.v.i32(made, r.v.L["health"]), 0)        # alive: the creator's health
+                self.assertEqual(r.tech(), 150000 - PRICE)
+
+    def test_a_death_logged_before_the_snapshots_comes_back_from_the_logs(self):
+        for game, mode, r in self._each(("collection_progression",)):
+            with self.subTest(game=game):
+                snapshot_file(r, [])
+                self.assertEqual(r.load(ana_death()), 1)
+                self.assertEqual(r.p.export("VvfpStoryProbeReviveSnapshotOf", 0), 0)
+                self.assertIn("From the logs only: no complete record was kept", r.row(0)[2])
+                answer, made = r.buy(0)
+                self.assertEqual(answer, 1)
+                self.assertEqual(r.p.export("VvfpStoryProbeReviveRestored"), 0)
+                self.assertEqual(r.v.name(made), "Ana Rua")
+                self.assertEqual(r.v.i32(made, r.v.L["age"]), 100)
+                r.p.export("VvfpStoryProbeReviveSnapshotFile", 0, 0)
+
+    def test_a_reused_record_never_gives_the_wrong_snapshot(self):
+        # Two people in turn in the SAME record (the cap reached): each comes back with their own details.
+        for game, mode, r in self._each(("collection_progression",)):
+            with self.subTest(game=game):
+                ana = Snap(r, 4, name="Ana Rua", seed=1, age=1300)
+                ana.gone()
+                mira = Snap(r, 4, name="Mira Tane", seed=2, age=900, family=31)
+                mira.gone()
+                snapshot_file(r, [ana.entry, mira.entry])
+                text = ana_death() + death(2, "Mira Tane", 900, "Female", 5, 6, likes="ants, turnips",
+                                           dislikes="the ocean")
+                self.assertEqual(r.load(text), 2)
+                rows = {r.row(k)[1].split(",")[0]: k for k in range(2)}
+                for who, snap in (("Mira Tane", mira), ("Ana Rua", ana)):
+                    self.assertEqual(r.p.export("VvfpStoryProbeReviveSnapshotOf", rows[who]), 1)
+                    r.set_tech(150000)
+                    answer, made = r.buy(rows[who])
+                    self.assertEqual(answer, 1)
+                    self.assertEqual(self._same(r, made, snap), [], who)
+
+    def test_two_different_records_that_could_be_the_same_person_are_never_guessed(self):
+        for game, mode, r in self._each(("collection_progression",)):
+            with self.subTest(game=game):
+                one = Snap(r, 4, seed=1)
+                two = Snap(r, 5, seed=2)        # the same name, looks, likes and age at death; other details
+                one.gone()
+                two.gone()
+                snapshot_file(r, [one.entry, two.entry])
+                self.assertEqual(r.load(ana_death()), 1)
+                self.assertEqual(r.p.export("VvfpStoryProbeReviveSnapshotOf", 0), 0xFFFFFFFF)   # -1
+                self.assertIn("From the logs only: more than one kept record", r.row(0)[2])
+                answer, made = r.buy(0)
+                self.assertEqual((answer, r.p.export("VvfpStoryProbeReviveRestored")), (1, 0))
+
+    def test_a_snapshot_repair_made_afterwards_brings_them_back(self):
+        # Repair Saves & Logs (src/vv_revive_backfill.py) made it from a backup saved when she was 45: the file
+        # the module writes is the one the companion reads; a capture at the death would win over it.
+        import vv_revive_backfill as rb
+        for game, mode, r in self._each(("collection_progression",)):
+            with self.subTest(game=game):
+                snap = Snap(r, 9, age=900)
+                snap.gone()
+                n = r.v.L["n"]
+                data = snap.entry[128:128 + sum(size for _o, size in rb.SAVED[n])]
+                backfilled = rb.Snapshot(n, data, rb.FROM_BACKUP, rb.EXACT_IDENTITY, 133_000_000_000_000_000)
+                file = rb.build(n, [backfilled])
+                at = r.p.alloc(len(file) + 16)
+                r.p.write(at, file)
+                r.p.export("VvfpStoryProbeReviveSnapshotFile", at, len(file))
+                self.assertEqual(r.load(ana_death(age=1300)), 1)          # she died older than the backup
+                self.assertEqual(r.p.export("VvfpStoryProbeReviveSnapshotOf", 0), 1)
+                details = r.row(0)[2]
+                self.assertIn("Kept afterwards by Repair Saves & Logs, from a backup of the save", details)
+                self.assertIn("as they were then", details)
+                answer, made = r.buy(0)
+                self.assertEqual((answer, r.p.export("VvfpStoryProbeReviveRestored")), (1, 1))
+                self.assertEqual(self._same(r, made, snap), [])
+    def test_a_damaged_snapshot_file_is_never_used(self):
+        for game, mode, r in self._each(("collection_progression",)):
+            with self.subTest(game=game):
+                snap = Snap(r, 9)
+                snap.gone()
+                bad = bytearray(snap.entry)
+                bad[100] ^= 0x40
+                snapshot_file(r, [bytes(bad)])
+                self.assertEqual(r.load(ana_death()), 1)
+                self.assertEqual(r.p.export("VvfpStoryProbeReviveSnapshotOf", 0), 0)
+
+# ---- New Believers' puzzle Heathens (the owner, 2026-11-26: they "CAN be revived, any time") ------------------
+
+ROLE_TITLES = {12: "Heathen Doctor", 13: "Heathen Chief", 14: "Heathen Master Scientist",
+               15: "Heathen Master Builder", 16: "Heathen Master Farmer", 17: "Heathen Mommy"}
+ROLE_PUZZLE = {12: 1, 13: 16, 14: 13, 15: 9, 16: 5, 17: 17}
+ROLE_FAITH = {12: -14, 13: -94, 14: -74, 15: -74, 16: -74, 17: -25}
+FINDER = 0x470690
+
+
+@emulated
+class PuzzleHeathenTests(unittest.TestCase):
+    """A dead puzzle Heathen comes back in their role and mask, set up as the game sets the role up, while the role
+    is free and its puzzle unsolved; otherwise an ordinary Heathen.  The game's own role finder 0x470690 runs on the
+    village afterwards and finds exactly one holder."""
+
+    def _revive(self, mode="collection_progression"):
+        r = Revive("vv5", mode)
+
+        def heathen(q):                               # the creator: a Heathen in the first free record
+            index = r.s._create(r.v.L["sex"][2] if q.arg(3) == 1 else r.v.L["sex"][1], q.arg(4))
+            rec = r.v.record(index)
+            r.p.write(rec + 0x1CEC, b"\1")
+            r.p.put32(rec + 0x1CFC, q.arg(7))
+            return index, 0x24
+        r.p.stub(0x46FD20, heathen)
+        for puzzle in set(ROLE_PUZZLE.values()):      # every puzzle unsolved: need 1, progress 0
+            r.p.put32(0x51DF30 + 4 * puzzle, 1)
+            r.p.put32(0x51E008 + 8 * puzzle, 0)
+        # a living adult Heathen in the camp (the Mommy's infant's other parent)
+        rec = r.v.put(2, sex="f", years=40, name="Hana Camp", head=7, body=8, faction=1)
+        r.p.write(rec + 0x1CEC, b"\1")
+        return r
+
+    def _manager(self, r):
+        return r.v.base - 0x48
+
+    def _finder(self, r, role):
+        return r.p.call(FINDER, [role], ecx=self._manager(r))
+
+    def _dead(self, role, word="Heathen"):
+        return death(1, "Tama Role", 900, "Male", 4, 5, extra=f"  Faction: {word}\n  Special villager: "
+                                                              f"{ROLE_TITLES[role]}\n")
+
+    def test_each_role_comes_back_in_its_role(self):
+        if not have_stock("vv5"):
+            self.skipTest("no stock executable")
+        for mode in MODES:
+            for role in range(12, 18):
+                r = self._revive(mode)
+                with self.subTest(mode=mode, role=role):
+                    self.assertEqual(r.load(self._dead(role)), 1)
+                    self.assertEqual(r.state(0)[0], 1)                    # listed and can come back
+                    self.assertIn("They come back in that role", r.row(0)[2])
+                    answer, made = r.buy(0)
+                    self.assertEqual(answer, 1)
+                    self.assertEqual(r.p.export("VvfpStoryProbeReviveRole"), role)
+                    rec = r.v.record(made)
+                    self.assertEqual(r.v.i32(made, 0x1CFC), role)
+                    self.assertEqual(r.v.byte(made, 0x1CEC), 1)
+                    self.assertEqual((r.v.byte(made, 0x1CED), r.v.byte(made, 0x1CEE)), (0, 0))   # the role's mask
+                    self.assertEqual(r.v.i32(made, 0x1CF0), ROLE_FAITH[role])
+                    self.assertEqual(r.v.i32(made, r.v.L["age"]), 100)
+                    if role == 13:
+                        self.assertEqual([r.v.f32(made, 0x1C5C + 4 * k) for k in range(6)], [100.0] * 6)
+                    if role == 17:
+                        self.assertNotEqual(r.v.i32(made, 0x1C4C), 0)          # carrying her infant
+                        self.assertEqual(r.v.i32(made, 0x1C50), 1)
+                        father = r.p.read(rec + 0x1C10, 0x18).split(b"\0")[0].decode()
+                        self.assertEqual(father, "Hana Camp")                # named: a living adult Heathen
+                        self.assertNotEqual(father, "Unknown")
+                        self.assertEqual((r.v.i32(made, 0x1C30), r.v.i32(made, 0x1C2C)), (7, 8))
+                    # the game's own role finder finds the one revived holder
+                    self.assertEqual(self._finder(r, role), rec)
+
+    def test_a_held_role_or_a_solved_puzzle_brings_back_an_ordinary_heathen(self):
+        if not have_stock("vv5"):
+            self.skipTest("no stock executable")
+        for role in range(12, 18):
+            for why in ("held", "solved"):
+                r = self._revive()
+                holder = None
+                if why == "held":
+                    holder = r.v.put(5, sex="m", years=30, name="Now Holder", faction=1)
+                    r.p.write(holder + 0x1CEC, b"\1")
+                    r.p.put32(holder + 0x1CFC, role)
+                else:
+                    r.p.put32(0x51E008 + 8 * ROLE_PUZZLE[role], 1)
+                with self.subTest(role=role, why=why):
+                    self.assertEqual(r.load(self._dead(role)), 1)
+                    answer, made = r.buy(0)
+                    self.assertEqual(answer, 1)
+                    self.assertEqual(r.p.export("VvfpStoryProbeReviveRole"), 0)
+                    self.assertEqual(r.v.i32(made, 0x1CFC), 0)              # an ordinary Heathen
+                    self.assertEqual(r.v.byte(made, 0x1CEC), 1)
+                    self.assertEqual(r.v.name(made), "Tama Role")
+                    # the finder still finds the one holder (or none: the solved puzzle took the role away)
+                    self.assertEqual(self._finder(r, role), holder or 0)
+
+    def test_the_mommy_with_no_other_adult_heathen_comes_back_an_ordinary_heathen(self):
+        if not have_stock("vv5"):
+            self.skipTest("no stock executable")
+        r = self._revive()
+        r.p.write(r.v.record(2), bytes(r.v.L["stride"]))           # nobody to be the other parent
+        self.assertEqual(r.load(self._dead(17)), 1)
+        answer, made = r.buy(0)
+        self.assertEqual(answer, 1)
+        self.assertEqual((r.p.export("VvfpStoryProbeReviveRole"), r.v.i32(made, 0x1CFC)), (0, 0))
+        self.assertEqual(r.v.i32(made, 0x1C4C), 0)                   # no infant with an "Unknown" parent
+
+    def test_the_guardians_of_isola_titles_name_the_roles_too(self):
+        if not have_stock("vv5"):
+            self.skipTest("no stock executable")
+        r = self._revive()
+        text = death(1, "Tama Role", 900, "Male", 4, 5,
+                     extra="  Faction: Isolan\n  Special villager: Chief of the Native Isola Tribe\n")
+        self.assertEqual(r.load(text), 1)
+        answer, made = r.buy(0)
+        self.assertEqual((answer, r.p.export("VvfpStoryProbeReviveRole")), (1, 13))
 
 if __name__ == "__main__":
     unittest.main()
