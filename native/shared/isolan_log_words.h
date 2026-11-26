@@ -25,6 +25,9 @@
 #define VV5_REPLACED_OLD_AGE_ISOLAN "Replaced an Isolan who died of old age"
 #define VV5_REPLACED_EVENT_HEATHEN "Replaced a Heathen lost in an island event"
 #define VV5_REPLACED_EVENT_ISOLAN "Replaced an Isolan lost in an island event"
+/* ...and of a camp child made in the place of one who grew up (Heathen Tribe Expansion and Evolution, v1.35.101). */
+#define VV5_REPLACED_CHILD_HEATHEN "Replaced a Heathen child who grew up"
+#define VV5_REPLACED_CHILD_ISOLAN "Replaced an Isolan child who grew up"
 /* The Village Statistics log's row of New Believers' conversions. */
 #define VV5_CONVERTED_ROW_HEATHENS "Heathens Converted"
 #define VV5_CONVERTED_ROW_ISOLANS "Isolans Converted"
@@ -41,6 +44,10 @@ static const char *vv5_word_replaced(int island_event) {
     int isolan = vv5_guardians_of_isola();
     return island_event ? (isolan ? VV5_REPLACED_EVENT_ISOLAN : VV5_REPLACED_EVENT_HEATHEN)
                         : (isolan ? VV5_REPLACED_OLD_AGE_ISOLAN : VV5_REPLACED_OLD_AGE_HEATHEN);
+}
+
+static const char *vv5_word_replaced_child(void) {
+    return vv5_guardians_of_isola() ? VV5_REPLACED_CHILD_ISOLAN : VV5_REPLACED_CHILD_HEATHEN;
 }
 
 static const char *vv5_word_converted_row(void) {

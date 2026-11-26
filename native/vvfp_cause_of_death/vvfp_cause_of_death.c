@@ -374,7 +374,7 @@ static unsigned int cod_name_hash(const unsigned char *record) {
 /* ---- The log -------------------------------------------------------------- */
 
 enum { LOG_DEATH = 2, LOG_DISAPPEARED = 3, LOG_EPITAPH = 4, LOG_UNACCOUNTED = 5, LOG_ARRIVED = 6,
-       LOG_LOST_BIRTH = 9, LOG_ROLE = 12 };
+       LOG_LOST_BIRTH = 9, LOG_ROLE = 12, LOG_RETIRED = 13 };
 
 typedef int (__stdcall *write_record_fn)(int game, int kind, const void *record, int check,
                                          const char *before, const char *after, int detail);

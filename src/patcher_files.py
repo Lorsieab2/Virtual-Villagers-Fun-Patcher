@@ -159,14 +159,10 @@ PATCHER_READS: frozenset[str] = frozenset({
     "VVFP Island Events Scale Stored.txt",
     # The Heathen aging rows (New Believers): which rows are ticked, read by VVFP Heathen Aging.dll at start.
     "VVFP Heathen Aging Former.txt",
-    "VVFP Heathen Aging Tribe.txt",
     "VVFP Heathen Skeletons Former.txt",
-    "VVFP Heathen Skeletons All.txt",
-    # Heathens can be selected in Island Events/Heathen-Exclusive Events: the same companion carries island events'
-    # Heathen deaths and births.
-    "VVFP Heathen Aging Events.txt",
-    # (Since v1.35.101 the Tribe, Skeletons All and Events flags are retired -- still honoured, removed by a re-patch:
-    # vv_fun_patcher.RETIRED_PATCHER_FILES -- and this one stands for them.)  Heathen Tribe Expansion and Evolution:
+    # (Since v1.35.101 no row ships the Tribe, Skeletons All and Events flags: the companions still honour them, and a
+    # re-patch removes an older patcher's copies -- vv_fun_patcher.RETIRED_PATCHER_FILES; this one stands for
+    # them.)  Heathen Tribe Expansion and Evolution:
     # read by "VVFP Heathen Aging.dll", "VVFP Heathen Life.dll" and "VVFP Heathen Mausoleum.dll" at start.
     "VVFP Heathen Tribe Evolution.txt",
     # A New Home's The Golden Child May Be Born Female (50:50): a flag file whose presence beside the companions tells

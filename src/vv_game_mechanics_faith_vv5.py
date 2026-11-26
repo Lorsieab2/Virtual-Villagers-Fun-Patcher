@@ -128,6 +128,21 @@ def _heathen_evolution_facts(add, village, where: str) -> None:
         "eldest adult Heathen takes the role -- for show until The Last Heathen is solved (the role's skills, mask "
         "and title), the real role after it; a regrown camp of 6 adults gets a real Chief and Masters. Any sex after "
         "the first. A show Chief who joins the tribe becomes a real Retired Chief.", sub=True)
+    # vvfp_heathen_aging.c grew_up / replace_child (the Rascal: the Details title 0x4430AE, the stock camp 0x424D23).
+    add("Children who grow up: when one of the camp's own children (no recorded parents, never one who left the "
+        "tribe) reaches 280 age units (14 years), a new child takes their place at once in the same camp role and "
+        "mask: the Rascal -- the camp's orange-masked child, whom the Details screen calls \"Rascal\" and who chases "
+        "believers it meets as every orange Heathen does -- by a new Rascal of 140 units, a blue child by one of 120 "
+        "or 240, as the game's own camp has them. Couples' babies and arrivals' children are not replaced. Only "
+        "while 10 villager records stay free (else it waits), and after The Last Heathen only while New Heathen "
+        "Arrivals is above 0.", sub=True)
+    # retire_elders: the elder test 0x46F790; the walk 0x4659C5 / 0x465A06.
+    add("Elders retire: at the game's elder age (1,000 age units at Medicine 1, 160 more for each further level; the "
+        "game's own test) a Heathen with a camp role or a puzzle role -- the Heathen Doctor, a Heathen Master, the "
+        "Heathen Mommy -- gives it to the eldest adult Heathen who is not an elder and holds none, with the role's "
+        "own skill, Faith and (the Mommy) infant, and lives at the encampment. The Heathen Chief never retires. With "
+        "nobody younger the elder keeps the role. Elder Heathens walk at their normal pace; elder believers walk at "
+        "the slow pace (40) as in the game.", sub=True)
     # Heathen Life's unit (vvfp_heathen_life.c): onset 0x465F50; damage 60 in 100, floor 21; recovery +1 (elders 20%);
     # doctors by the skill check 0x46B270's rule; no healer: 1 in 240 a unit.
     add("Sickness: an ordinary Heathen falls sick by the believers' own rule (Medicine 1: 4 in 1,440 a unit; "

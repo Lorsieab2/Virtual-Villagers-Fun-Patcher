@@ -248,6 +248,7 @@ typedef void (__stdcall *cod_died_fn)(int game, int index, int cause);
 typedef void (__stdcall *cod_arrived_fn)(int game, int index, const char *how);
 
 static int g_installed;
+static int g_walk_installed;            /* the elder walk-pace site (walk_stub) */
 static int g_former_row, g_tribe_row, g_bones_former, g_bones_all, g_events_row;
 static int g_evo;                      /* Heathen Tribe Expansion and Evolution (HE_FLAG_ROW) */
 static unsigned int g_births_tenths = HE_BIRTHS_DEFAULT, g_arrivals_tenths = HE_ARRIVALS_DEFAULT;
@@ -1236,15 +1237,42 @@ static void pair_one_couple(void) {
     }
 }
 
-/* The partner of the Heathen in `record` (either sex), a living adult Heathen, or NULL. */
+/* The partner of the Heathen in `record` (either sex), a living adult Heathen, or NULL.  The cache is a hint only:
+   both records are checked against the couple's own saved identities every time (Codex, #883: a partner who
+   vanished in an island event can have their record reused by a replacement before the next look -- the newcomer
+   is never taken for the partner). */
 static unsigned char *partner_of(const unsigned char *record) {
-    int at = rec_index(record), m;
+    int at = rec_index(record), m, c;
+    unsigned int me, other;
     unsigned char *partner;
-    if (at < 0 || at >= 256 || (m = g_partner[at]) < 0 || (unsigned int)m >= g_slots) {
+    if (at < 0 || at >= 256 || (m = g_partner[at]) < 0 || (unsigned int)m >= g_slots || m >= 256) {
         return NULL;
     }
     partner = rec_at(m);
-    return partner[R_FACTION] != 0 && living(partner) && i32(partner, R_AGE) >= ADULT ? partner : NULL;
+    if (record[R_FACTION] == 0 || !living(record) || partner[R_FACTION] == 0 || !living(partner)
+        || i32(partner, R_AGE) < ADULT || g_partner[m] != at) {
+        return NULL;
+    }
+    me = identity(record);
+    if ((c = couple_find(me)) < 0) {
+        return NULL;
+    }
+    other = g_couples[c].first == me ? g_couples[c].second : g_couples[c].first;
+    return identity(partner) == other ? partner : NULL;
+}
+
+/* A Heathen in record `index` left the camp (a death, an island event, a conversion): neither they nor their
+   partner keeps a cached pairing, whatever comes into the record next. */
+static void forget_partner(int index) {
+    int m;
+    if (index < 0 || index >= 256) {
+        return;
+    }
+    m = g_partner[index];
+    g_partner[index] = -1;
+    if (m >= 0 && m < 256 && g_partner[m] == index) {
+        g_partner[m] = -1;
+    }
 }
 
 /* Her partner when he is a man (a natural conception is a woman's and a man's), or NULL. */
@@ -1441,6 +1469,8 @@ static int store_mask(unsigned char *record, int mask) {
    original shows, "Heathen Chief" / "Heathen Master ..." or the Guardians of Isola Rewrite's own (the owner,
    2026-11-26: "while still a Heathen, his title is the same as the original chief"); kept in the file); then its
    "Took the role" record.  1 when someone took it. */
+static int elder(const unsigned char *r);   /* the game's elder test 0x46F790 (below) */
+
 static int pass_role(int role, const unsigned char *dead) {
     static const int SKILL_OF[4] = { -1, 3, 4, 0 };     /* 13 all, 14 Research, 15 Building, 16 Farming */
     unsigned char *heir = NULL;
@@ -1449,7 +1479,8 @@ static int pass_role(int role, const unsigned char *dead) {
     for (i = 0; i < g_slots; ++i) {
         unsigned char *r = rec_at((int)i);
         if (r != dead && r[R_FACTION] != 0 && living(r) && i32(r, R_AGE) >= ADULT && i32(r, R_ROLE) >= 0
-            && i32(r, R_ROLE) <= 11 && held_role(r) == 0 && (heir == NULL || i32(r, R_AGE) > i32(heir, R_AGE))) {
+            && i32(r, R_ROLE) <= 11 && held_role(r) == 0 && (role == 13 || !elder(r))   /* a Master is never an elder */
+            && (heir == NULL || i32(r, R_AGE) > i32(heir, R_AGE))) {
             heir = r;
         }
     }
@@ -1554,6 +1585,8 @@ static void roles_follow(void) {
 /* ---- the bridge into "VVFP Heathen Life.dll" (heathen_evo.h section 3) ------------------------------------- */
 static he_life_unit_fn g_life;
 
+static void retire_elders(void);
+
 /* ---- the throttled look of the expansion (the age credit's, every HA_KEEP_MS) --------------------------------- */
 static void evo_pass(void) {
     unsigned int i;
@@ -1563,6 +1596,7 @@ static void evo_pass(void) {
         return;                            /* the village's couples are not known yet */
     }
     roles_follow();
+    retire_elders();                       /* the elders give their places to younger ones (not the Chief) */
     couples_refresh();
     if (g_clock_units > 0) {
         pair_one_couple();                 /* gradually: at most one a look, as the village's clock moves */
@@ -1597,6 +1631,35 @@ static void forget_village_evo(void) {
     g_clock_units = 0;
 }
 
+/* The Heathen Mommy's infant, as the restored puzzle makes her carry it: one infant by the game's own conception
+   (forced), its other parent named -- one of her family or any adult (mommy_parent), else the eldest, else the one
+   the dead Mommy's own infant had -- the statistics' twins and triplets put back, the Conception record written. */
+static void mommy_infant(unsigned char *r) {
+    unsigned char *father;
+    int twins = *(volatile int *)(UINT_PTR)G_TWINS, triplets = *(volatile int *)(UINT_PTR)G_TRIPLETS;
+    father = mommy_parent(r);
+    if (father == NULL && g_mommy_parent_name[0] == 0) {
+        father = eldest_heathen(r);      /* never "Unknown" while anyone is there (the owner) */
+    }
+    if (father != NULL) {
+        ((tc7_fn)(UINT_PTR)G_CONCEIVE)(r, NULL, i32(father, R_LINEAGE), 1, 50, (int)(UINT_PTR)(father + R_NAME),
+                                       i32(father, R_HEAD), i32(father, R_BODY), 1);
+    } else if (g_mommy_parent_name[0] != 0) {
+        /* nobody else alive to name: the one the dead Mommy's own infant had */
+        ((tc7_fn)(UINT_PTR)G_CONCEIVE)(r, NULL, 1, 1, 50, (int)(UINT_PTR)g_mommy_parent_name,
+                                       g_mommy_parent_head, g_mommy_parent_body, 1);
+    } else {
+        ((tc7_fn)(UINT_PTR)G_CONCEIVE)(r, NULL, 1, 1, 50, (int)(UINT_PTR)"Unknown", 2, 2, 1);
+    }
+    *(volatile int *)(UINT_PTR)G_TWINS = twins;
+    *(volatile int *)(UINT_PTR)G_TRIPLETS = triplets;
+    *(int *)(r + R_LITTER) = 1;          /* one infant, as the stock Mommy */
+    if (i32(r, R_PREGNANT) == 0) {
+        *(int *)(r + R_PREGNANT) = 1;
+    }
+    log_conception(r, father);           /* the game's hook skips a forced conception */
+}
+
 /* The stock camp's set-up of each puzzle role (0x424AC0; the Heathen Mommy as the restored puzzle makes her). */
 static int create_role(int role) {
     int index;
@@ -1619,34 +1682,155 @@ static int create_role(int role) {
     case 17:
         index = create(0, 1, 70, -1, 400, 0, 0, 17, -25);
         if (index >= 0) {
-            unsigned char *father;
-            int twins = *(volatile int *)(UINT_PTR)G_TWINS, triplets = *(volatile int *)(UINT_PTR)G_TRIPLETS;
-            r = rec_at(index);
-            father = mommy_parent(r);
-            if (father == NULL && g_mommy_parent_name[0] == 0) {
-                father = eldest_heathen(r);      /* never "Unknown" while anyone is there (the owner) */
-            }
-            if (father != NULL) {
-                ((tc7_fn)(UINT_PTR)G_CONCEIVE)(r, NULL, i32(father, R_LINEAGE), 1, 50, (int)(UINT_PTR)(father + R_NAME),
-                                               i32(father, R_HEAD), i32(father, R_BODY), 1);
-            } else if (g_mommy_parent_name[0] != 0) {
-                /* nobody else alive to name: the one the dead Mommy's own infant had */
-                ((tc7_fn)(UINT_PTR)G_CONCEIVE)(r, NULL, 1, 1, 50, (int)(UINT_PTR)g_mommy_parent_name,
-                                               g_mommy_parent_head, g_mommy_parent_body, 1);
-            } else {
-                ((tc7_fn)(UINT_PTR)G_CONCEIVE)(r, NULL, 1, 1, 50, (int)(UINT_PTR)"Unknown", 2, 2, 1);
-            }
-            *(volatile int *)(UINT_PTR)G_TWINS = twins;
-            *(volatile int *)(UINT_PTR)G_TRIPLETS = triplets;
-            *(int *)(r + R_LITTER) = 1;          /* one infant, as the stock Mommy */
-            if (i32(r, R_PREGNANT) == 0) {
-                *(int *)(r + R_PREGNANT) = 1;
-            }
-            log_conception(r, father);           /* the game's hook skips a forced conception */
+            mommy_infant(rec_at(index));
         }
         return index;
     default:
         return -1;
+    }
+}
+
+/* ---- the elders retire (the owner, 2026-11-26: "above elderly age, heathens will "retire" and go to the
+   encampment where younger ones will take their place"; "Puzzle roles too"; "the chief shouldn't retire") -------
+
+   ELDER is the game's own test, 0x46F790 (`age +0x1B8C >= 160 x Medicine + 840`, Medicine from 0x423600(1) on
+   0x51D5CC: 1,000 units at Medicine 1, 55 years later at each level; the believers' elder sickness 0x465FE2 and
+   recovery 0x472F46 use it, and the walk 0x4659CB).  A living Heathen elder who holds a place in the camp gives it
+   up to a younger one, once a look:
+     a camp role 1-11 (the stock camp's work: 0x424AC0's roles) -- to the eldest adult Heathen who is not an elder
+       and has none (role 0), who keeps their own mask;
+     a puzzle role while its puzzle is unsolved -- the Heathen Doctor 12, the three Masters 14-16, the Heathen Mommy
+       17 -- to the eldest such younger adult, or with none of them the eldest younger adult of a camp role (the
+       puzzle comes first), set up as the stock camp sets that role up (its skill, its Faith; the mask the game
+       draws from the role, 0x4728C6; the Mommy carrying her infant with a named other parent, mommy_infant), so
+       the role finder 0x470690 finds the successor and the puzzle goes on; the elder Mommy's infant goes with the
+       role;
+     a Master's role after The Last Heathen, or one for show (decision 6) -- to the heir pass_role picks;
+     NEVER the Chief (13), whether the original, a later real one or one for show: they keep the role until death
+       or conversion (the owner).
+   The elder then has role 0 -- the Heathen AI's default case (0x46EAD9: role - 1 above 0x11 goes to 0x46F007,
+   the camp wander at the encampment, walk area 0x39), so they live at the encampment; "VVFP Heathen Life.dll"
+   gives an elder no show action away from it.  Their skills stay.  With no younger adult nobody retires: the
+   elder keeps the place until one grows up or arrives, so no puzzle is ever left without its Heathen.  Each
+   retirement has its "Retired to the encampment" record and the successor's "Took the role" record. */
+static int elder(const unsigned char *r) {
+    return i32(r, R_AGE) >= 160 * *(const volatile int *)(UINT_PTR)G_MEDICINE + 840;
+}
+
+typedef void (__stdcall *he_retired_fn)(int game, int index, int role);
+
+static void log_retired(int index, int role) {
+    HMODULE module = GetModuleHandleA(HE_CAUSE_DLL);
+    he_retired_fn told = module != NULL ? (he_retired_fn)(void *)GetProcAddress(module, HE_RETIRED_EXPORT) : NULL;
+    if (told != NULL) {
+        told(HA_GAME, index, role);
+    }
+}
+
+/* The eldest adult Heathen who is not an elder and holds nothing (role 0, no role for show); with `any_role` a camp
+   role 1-11 holder when there is none.  NULL: nobody younger. */
+static unsigned char *younger_successor(const unsigned char *elder_one, int any_role) {
+    unsigned char *best = NULL, *backup = NULL;
+    unsigned int i;
+    for (i = 0; i < g_slots; ++i) {
+        unsigned char *r = rec_at((int)i);
+        int role = i32(r, R_ROLE);
+        if (r == elder_one || r[R_FACTION] == 0 || !living(r) || i32(r, R_AGE) < ADULT || elder(r)
+            || role < 0 || role > 11 || held_role(r) != 0 || i32(r, R_PREGNANT) != 0) {
+            continue;
+        }
+        if (role == 0) {
+            if (best == NULL || i32(r, R_AGE) > i32(best, R_AGE)) {
+                best = r;
+            }
+        } else if (any_role && (backup == NULL || i32(r, R_AGE) > i32(backup, R_AGE))) {
+            backup = r;
+        }
+    }
+    return best != NULL ? best : backup;
+}
+
+/* The successor of a puzzle role (12, 14-17), set up as create_role sets the role up. */
+static void take_puzzle_role(unsigned char *heir, int role) {
+    static const int SKILL[6] = { 2, -1, 3, 4, 0, 1 };      /* 12 Healing, -, 14 Research, 15 Building, 16 Farming, 17 */
+    static const int FAITH[6] = { -14, 0, -74, -74, -74, -25 };
+    static const unsigned int VALUE[6] = { 0x428C0000u, 0, FLOAT_90, FLOAT_90, FLOAT_90, 0x428C0000u };   /* 70 / 90 */
+    int k = role - 12;
+    *(int *)(heir + R_ROLE) = role;
+    heir[R_ORANGE] = 0;
+    heir[R_RED] = 0;
+    if (SKILL[k] >= 0) {
+        ((unsigned int *)(heir + R_SKILLS))[SKILL[k]] = VALUE[k];
+    }
+    *(int *)(heir + R_FAITH) = FAITH[k];
+    if (role == 17) {
+        mommy_infant(heir);
+    }
+}
+
+/* One elder's retirement, when a younger one can take the place: 1 done. */
+static int retire(unsigned char *old) {
+    int role = i32(old, R_ROLE), show = held_role(old), puzzle;
+    unsigned char *heir;
+    if (role == 13 || show == 13) {
+        return 0;                                   /* the Chief never retires (the owner) */
+    }
+    if (show >= 14 && show <= 16 && (role < 13 || role > 16)) {           /* a Master for show */
+        if (younger_successor(old, 0) == NULL) {
+            return 0;
+        }
+        known_drop(identity(old), KIND_ROLE + (unsigned int)(show - 13));
+        (void)store_mask(old, MASK_STORE_BLUE);
+        log_retired(rec_index(old), show);
+        return pass_role(show, old);
+    }
+    if (role >= 14 && role <= 16 && puzzle_done(puzzle_of_role(role))) {   /* a real Master after the puzzle */
+        if (younger_successor(old, 0) == NULL) {
+            return 0;
+        }
+        *(int *)(old + R_ROLE) = 0;
+        log_retired(rec_index(old), role);
+        return pass_role(role, old);
+    }
+    puzzle = puzzle_of_role(role);
+    if (role >= 12 && role <= 17) {
+        if (puzzle != 0 && puzzle_done(puzzle)) {
+            return 0;                               /* a solved puzzle's Heathen: no place to give up */
+        }
+        if ((heir = younger_successor(old, 1)) == NULL) {
+            return 0;
+        }
+        *(int *)(old + R_ROLE) = 0;
+        if (role == 17) {                           /* her infant goes with the role */
+            *(int *)(old + R_PREGNANT) = 0;
+            *(int *)(old + R_LITTER) = 0;
+            ((tc1_fn)(UINT_PTR)G_CARRY)(old, NULL, -1);
+        }
+        log_retired(rec_index(old), role);
+        take_puzzle_role(heir, role);
+        log_role(rec_index(heir), role);
+        return 1;
+    }
+    if (role >= 1 && role <= 11) {
+        if ((heir = younger_successor(old, 0)) == NULL) {
+            return 0;
+        }
+        *(int *)(old + R_ROLE) = 0;
+        log_retired(rec_index(old), role);
+        *(int *)(heir + R_ROLE) = role;
+        log_role(rec_index(heir), role);
+        return 1;
+    }
+    return 0;
+}
+
+static void retire_elders(void) {
+    unsigned int i;
+    for (i = 0; i < g_slots; ++i) {
+        unsigned char *r = rec_at((int)i);
+        if (r[R_FACTION] != 0 && living(r) && ages(r) && elder(r) && (i32(r, R_ROLE) != 0 || held_role(r) != 0)) {
+            (void)retire(r);
+        }
     }
 }
 
@@ -1685,11 +1869,55 @@ static int replace(int role, unsigned char orange, unsigned char red) {
    cause when it is paid), the Faith kept (its negation, bits 8-15; 0: the camp's -38 - rand(30)), red (7), orange
    (6), the role (0-5). */
 #define OWED_EVENT 0x10000u
+#define OWED_CHILD 0x20000u   /* bit 17: a camp child who grew up, replaced by a child (replace_child) */
+static int g_owing_child;
 
 static unsigned int owed_pack(int role, int orange, int red, int faith, int number) {
     return 0x80000000u | ((unsigned int)(number & 0xFF) << 20) | ((unsigned int)(-faith & 0xFF) << 8)
         | ((unsigned int)(red != 0) << 7) | ((unsigned int)(orange != 0) << 6) | (unsigned int)(role & 0x3F)
-        | (g_replace_words == REPLACED_EVENT ? OWED_EVENT : 0u);
+        | (g_replace_words == REPLACED_EVENT ? OWED_EVENT : 0u) | (g_owing_child ? OWED_CHILD : 0u);
+}
+
+/* ---- a camp child who grows up (the owner, 2026-11-26: "if the heathen children age up immediately spawn
+   replacements!!! especially the rascal!!!!!!!!!!") --------------------------------------------------------------
+
+   The stock camp (0x424AC0) makes three children, role 0, Healing 0: ages 120 (0x424CF9), 140 in the orange mask
+   (0x424D23) and 240 (0x424D4D).  The orange one is THE RASCAL: the Details panel titles a Heathen younger than 280
+   (0x4430B2) in the orange mask (+0x1CED, 0x4430C6) "Rascal" (string 0xD2, eSayRascal, 0x4430D1), every other
+   Heathen child "Child" (0xC4, 0x4430E3).  An orange Heathen, child or adult, chases a believer it meets (the
+   meeting 0x46E2E0: orange at 0x46E32C, its behaviour 0x14 and the believer's 0x15; a red one scares, 0x16) and
+   keeps out of the rain only in weather 5 (0x46EA31); no puzzle reads it.  With this row the camp ages, so a camp
+   child who reaches 280 units would leave the camp without its child: a new child is made at once by the
+   creator, in the same role and mask (the Rascal's replacement is a Rascal again, age 140; a blue one 120 or 240,
+   as the stock camp's two), Healing 0, the stock camp's Faith (-38 - rand(30)).  The grown one stays, an adult
+   in the same role (the stock children's role 0 is the ordinary camp role, as the stock adult of 0x424F59).
+   A CAMP CHILD is one the camp keeps a place for: a Heathen with no recorded parents (the camp's own, their
+   replacements, an island event's or the Barrel's), never a former villager's (as at a death) and never a baby
+   born of a couple or an arrival's child (they are the tribe's growth, not a place of the camp's).  Only while
+   10 records stay free (heathens_fit), else owed; after The Last Heathen only while New Heathen Arrivals is not
+   0, as arrivals. */
+#define CHILD_AGE_RASCAL 140
+#define CHILD_AGE_YOUNG 120
+#define CHILD_AGE_OLDER 240
+
+static int camp_child(const unsigned char *r) {
+    int role = i32(r, R_ROLE);
+    return r[R_FACTION] != 0 && !former_villager(r) && r[R_FATHER_NAME] == 0 && r[R_MOTHER_NAME] == 0
+        && role >= 0 && role <= 11;
+}
+
+static int children_replaced_now(void) {
+    return g_evo && (!puzzle_done(LAST_HEATHEN) || g_arrivals_tenths > 0);
+}
+
+static int replace_child(int role, int orange, int red) {
+    int age = orange ? CHILD_AGE_RASCAL : (he_below(2) ? CHILD_AGE_OLDER : CHILD_AGE_YOUNG);
+    int index = heathens_fit(1) < 1 ? -1 : create(0, 2, 0, -1, age, orange, red, role, camp_faith());
+    if (index < 0) {
+        return 0;
+    }
+    tell_arrived(index, vv5_word_replaced_child());
+    return 1;
 }
 
 static int owed_count(void) {
@@ -1724,12 +1952,34 @@ static int living_heathens(void);
 
 static void pay_owed(void) {
     int i;
-    if (puzzle_done(LAST_HEATHEN) || living_heathens() == 0) {
-        drop_owed();                       /* nobody is replaced any more, and never from nothing */
+    if (living_heathens() == 0) {
+        drop_owed();                       /* never from nothing */
+        return;
+    }
+    for (i = g_known_count; i-- > 0;) {
+        if (g_known[i].kind == KIND_OWED && (g_known[i].identity & OWED_CHILD) != 0) {
+            unsigned int packed = g_known[i].identity;
+            if (!children_replaced_now()) {
+                known_drop(packed, KIND_OWED);     /* after The Last Heathen with no arrivals: none any more */
+            } else if (replace_child((int)(packed & 0x3F), (int)((packed >> 6) & 1), (int)((packed >> 7) & 1))) {
+                known_drop(packed, KIND_OWED);
+            } else {
+                continue;                          /* still no room: kept */
+            }
+            i = g_known_count;                     /* the list moved */
+        }
+    }
+    if (puzzle_done(LAST_HEATHEN)) {
+        for (i = g_known_count; i-- > 0;) {        /* nobody who died is replaced any more */
+            if (g_known[i].kind == KIND_OWED && (g_known[i].identity & OWED_CHILD) == 0) {
+                known_drop(g_known[i].identity, KIND_OWED);
+                i = g_known_count;
+            }
+        }
         return;
     }
     for (i = g_known_count; i-- > 0 && free_records() > 0;) {
-        if (g_known[i].kind == KIND_OWED) {
+        if (g_known[i].kind == KIND_OWED && (g_known[i].identity & OWED_CHILD) == 0) {
             unsigned int packed = g_known[i].identity;
             g_replace_faith = -(int)((packed >> 8) & 0xFF);
             g_replace_words = (packed & OWED_EVENT) ? REPLACED_EVENT : REPLACED_OLD_AGE;   /* the real cause */
@@ -1743,6 +1993,22 @@ static void pay_owed(void) {
             known_drop(packed, KIND_OWED);
             i = g_known_count;             /* the list moved */
         }
+    }
+}
+
+/* A camp child in `record` has just reached 280 units: a new child in the same role and mask at once, or owed. */
+static void grew_up(const unsigned char *record) {
+    int role, orange, red;
+    if (!camp_child(record) || !children_replaced_now() || living_heathens() == 0) {
+        return;
+    }
+    role = i32(record, R_ROLE);
+    orange = record[R_ORANGE] != 0;
+    red = record[R_RED] != 0;
+    if (!replace_child(role, orange, red)) {
+        g_owing_child = 1;
+        owe(role, (unsigned char)orange, (unsigned char)red, 0);
+        g_owing_child = 0;
     }
 }
 
@@ -1770,6 +2036,7 @@ static void copy_name(unsigned char *to, const unsigned char *from, unsigned int
 
 static int gone(unsigned char *record, int how, int cause) {
     known_drop(identity(record), KIND_EXPECTING);
+    forget_partner(rec_index(record));     /* before a replacement can take the record */
     int role = i32(record, R_ROLE);
     int faith = i32(record, R_FAITH);
     unsigned char orange = record[R_ORANGE], red = record[R_RED];
@@ -2016,6 +2283,9 @@ static int __cdecl unit(unsigned char *record) {
         threshold = 160 * *(const volatile int *)(UINT_PTR)G_MEDICINE + 940;
         *(int *)(record + R_PROCESSED) = processed + 1;
         answer = 1;
+        if (processed < ADULT && processed + 1 >= ADULT) {
+            grew_up(record);               /* a camp child's place is filled at once */
+        }
         if (processed % 20 == 0 && processed > threshold
             && ha_rand(100) < 10 * (processed / 20 - threshold / 20)) {
             died(record);
@@ -2094,6 +2364,34 @@ static const unsigned char CREDIT_STOCK[10] = { 0x38, 0x9E, 0xEC, 0x1C, 0x00, 0x
 static const unsigned char CREDIT_STATS[10] = { 0x38, 0x9E, 0xEC, 0x1C, 0x00, 0x00, 0x8B, 0xF8, 0x75, 0x38 };
 static const unsigned char TICK_STOCK[9] = { 0x80, 0xBE, 0xB0, 0x00, 0x00, 0x00, 0x00, 0x74, 0x1B };
 
+/* An elder Heathen keeps their pace (the owner, 2026-11-26: "their speed must not be impacted at elderly age for
+   balance reasons").  The walk set-up 0x465980 (esi the villager, edi the walk) gives the walk speed 0x28 (40, the
+   slow pace a sick villager walks at) to an elder -- `lea ecx, [esi+0x1B8C]; call 0x46F790` (the game's elder
+   test) at 0x4659C5, then `test al, al; jne 0x465A06` (`mov dword [edi], 0x28`) -- and otherwise to one who
+   dislikes running (preference 0x26) when not fleeing or chasing (0x4659D4..0x465A04).  A Heathen skips the
+   elder test only: the dislike test and everything else run as for anyone, and a believer elder still slows.
+   Installed with the expansion's row, apart from the two sites above (all or none of its own). */
+#define SITE_WALK 0x4659C5u
+#define WALK_AFTER 0x4659D0u            /* the stock `test al, al` after the elder test */
+#define WALK_NOT_ELDER 0x4659D4u        /* the stock path of a villager who is not an elder */
+#define G_ELDER 0x46F790u
+static const unsigned char WALK_STOCK[11] = { 0x8D, 0x8E, 0x8C, 0x1B, 0x00, 0x00, 0xE8, 0xC0, 0x9D, 0x00, 0x00 };
+static const unsigned int g_walk_after = WALK_AFTER;
+static const unsigned int g_walk_not_elder = WALK_NOT_ELDER;
+static const unsigned int g_elder_test = G_ELDER;
+
+__declspec(naked) static void walk_stub(void) {
+    __asm {
+        cmp byte ptr [esi + 0x1CEC], 0          ; R_FACTION: a Heathen
+        jne heathen
+        lea ecx, [esi + 0x1B8C]
+        call dword ptr [g_elder_test]
+        jmp dword ptr [g_walk_after]
+    heathen:
+        jmp dword ptr [g_walk_not_elder]
+    }
+}
+
 /* "VVFP Statistics Export.dll" (Village Elders): 1 when Roster of the Dead entry `entry` of `game` is a Heathen's
    grave (written down above), else 0 -- a Heathen never counts. */
 int __stdcall VvfpHeathenAgingGrave(int game, int entry) {
@@ -2134,13 +2432,8 @@ int __stdcall VvfpHeathenAgingCoupleOf(int index) {
         return -1;
     }
     __try {
-        const unsigned char *r = rec_at(index), *partner;
-        if (r[R_FACTION] != 0 && living(r) && g_partner[index] >= 0 && (unsigned int)g_partner[index] < g_slots) {
-            partner = rec_at(g_partner[index]);
-            if (partner[R_FACTION] != 0 && living(partner) && g_partner[g_partner[index]] == index) {
-                answer = g_partner[index];
-            }
-        }
+        const unsigned char *partner = partner_of(rec_at(index));   /* checked against the couple's identities */
+        answer = partner != NULL ? rec_index(partner) : -1;
     } __except (EXCEPTION_EXECUTE_HANDLER) {
         answer = -1;
     }
@@ -2305,6 +2598,11 @@ void __stdcall VvfpStartup(int game, unsigned int shipped) {
     vvfp_site_branch(&sites[1], SITE_TICK, 9, TICK_STOCK, 0xE9, (const void *)tick_stub);
     if (vvfp_install_sites(sites, HA_SITES)) {
         g_installed = 1;
+    }
+    if (g_installed && g_evo) {
+        vvfp_site_write walk;
+        vvfp_site_branch(&walk, SITE_WALK, 11, WALK_STOCK, 0xE9, (const void *)walk_stub);
+        g_walk_installed = vvfp_install_sites(&walk, 1);
     }
 }
 

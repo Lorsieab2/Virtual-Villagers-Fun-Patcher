@@ -1392,7 +1392,7 @@ enum {
     KIND_CONCEPTION = 0, KIND_BIRTH = 1, KIND_DEATH = 2, KIND_DISAPPEARED = 3,
     KIND_EPITAPH = 4, KIND_UNACCOUNTED = 5, KIND_ARRIVED = 6, KIND_APPEARANCE = 7,
     KIND_ISLAND_EVENT = 8, KIND_LOST_BIRTH = 9, KIND_NAME_CHANGE = 10,
-    KIND_COUPLE = 11, KIND_ROLE = 12
+    KIND_COUPLE = 11, KIND_ROLE = 12, KIND_RETIRED = 13
 };
 
 /* NEW BELIEVERS' HEATHENS (the owner, 2026-11-22: "do the logs log heathens
@@ -1894,6 +1894,7 @@ static int read_log_header_read(const wchar_t *path, char *out, size_t size, int
         || strncmp(line, "Epitaph changed", 15) == 0 || strncmp(line, "Arrived ", 8) == 0
         || strncmp(line, "Appearance changed", 18) == 0 || strncmp(line, "Name changed", 12) == 0
         || strncmp(line, "Couple formed", 13) == 0 || strncmp(line, "Took the role", 13) == 0
+        || strncmp(line, "Retired to the encampment", 25) == 0
         || vv_is_birth_heading(line)) {
         *read = 1;
         fclose(file);
@@ -5785,8 +5786,8 @@ __declspec(dllexport) int __stdcall WriteVillageRecord(
     int written;
 
     if (game_id < GAME_VV1 || game_id > GAME_VV5 || record == NULL
-        || kind < KIND_DEATH || (kind > KIND_NAME_CHANGE && kind != KIND_ROLE)
-        || (kind == KIND_ROLE && game_id != GAME_VV5)) {
+        || kind < KIND_DEATH || (kind > KIND_NAME_CHANGE && kind != KIND_ROLE && kind != KIND_RETIRED)
+        || ((kind == KIND_ROLE || kind == KIND_RETIRED) && game_id != GAME_VV5)) {
         return 0;
     }
     g = layout_of(game_id);
@@ -5803,7 +5804,7 @@ __declspec(dllexport) int __stdcall WriteVillageRecord(
     if (!check && !memory_is_readable(record, g->stride)) {
         return 0;
     }
-    if (kind == KIND_ROLE && record[VV5_FACTION] == 0) {
+    if ((kind == KIND_ROLE || kind == KIND_RETIRED) && record[VV5_FACTION] == 0) {
         return 0;                       /* a Took the role record is a Heathen's only */
     }
     if (kind == KIND_LOST_BIRTH) {
@@ -5831,6 +5832,8 @@ __declspec(dllexport) int __stdcall WriteVillageRecord(
         heading = "Name changed\n";
     } else if (kind == KIND_ROLE) {
         heading = "Took the role\n";
+    } else if (kind == KIND_RETIRED) {
+        heading = "Retired to the encampment\n";
     }
     copy_villager_name(g, record, name, sizeof name);
     preference_text(g, record, g->likes, likes, sizeof likes);

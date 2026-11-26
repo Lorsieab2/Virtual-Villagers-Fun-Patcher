@@ -11704,10 +11704,6 @@ def _remove_unselected_companions(
     # The third word's chain companion is shipped by the patcher with the rows that need it, never by a record.
     more = _safe_companion_destination(MORE_COMPANIONS_DLL)
     candidates.setdefault(more.as_posix().casefold(), _more_companions_companion())
-    # Files of rows folded into another: removed when byte for byte what the older patcher shipped.
-    for destination, digest in RETIRED_PATCHER_FILES.get(build.id, ()):
-        retired = _safe_companion_destination(destination)
-        candidates.setdefault(retired.as_posix().casefold(), {"destination": destination, "sha256": digest})
     removed: list[dict[str, str]] = []
     long_staging = patcher_files.long_path(staging_folder)
 
@@ -11742,6 +11738,12 @@ def _remove_unselected_companions(
                 "an older patcher's loose copy: the patcher's files are now in "
                 f"'{patcher_files.PATCHER_FILES_FOLDER}'",
             )
+    # Files of rows folded into another (no row ships them, so they are not the patcher's classified files any
+    # more): removed from the patcher's folder, and an older patcher's loose copy, when byte for byte what it shipped.
+    for destination, digest in RETIRED_PATCHER_FILES.get(build.id, ()):
+        retired_item = {"destination": destination, "sha256": digest}
+        for relative in (Path(patcher_files.PATCHER_FILES_FOLDER) / destination, Path(destination)):
+            remove(relative, retired_item, "a file of a row folded into another (no longer shipped)")
     removed += _remove_legacy_collection_folder(long_staging)
     # The reports of the build the source folder came from (a folder an
     # earlier patcher produced): they describe that build, not this one, which

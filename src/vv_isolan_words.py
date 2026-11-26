@@ -33,6 +33,8 @@ NO_GRAVE_ISOLANS = "no grave (died among the Isolans: nothing was left)"
 REPLACED = {
     "Replaced a Heathen who died of old age": "Replaced an Isolan who died of old age",
     "Replaced a Heathen lost in an island event": "Replaced an Isolan lost in an island event",
+    # a camp child made in the place of one who grew up (Heathen Tribe Expansion and Evolution, v1.35.101)
+    "Replaced a Heathen child who grew up": "Replaced an Isolan child who grew up",
 }
 
 # Heathen Tribe Expansion and Evolution (v1.35.101; native/shared/heathen_evo.h HE_ARRIVED_*): a new Heathen's

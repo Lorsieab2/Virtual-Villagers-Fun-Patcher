@@ -254,6 +254,7 @@ LOG_PAIRS = {
     "no grave (died among the Heathens: nothing was left)": "no grave (died among the Isolans: nothing was left)",
     "Replaced a Heathen who died of old age": "Replaced an Isolan who died of old age",
     "Replaced a Heathen lost in an island event": "Replaced an Isolan lost in an island event",
+    "Replaced a Heathen child who grew up": "Replaced an Isolan child who grew up",
     "Heathens Converted": "Isolans Converted",
     "Former Heathen (blue mask)": "Former Isolan (blue mask)",
     "Former Heathen (orange mask)": "Former Isolan (orange mask)",

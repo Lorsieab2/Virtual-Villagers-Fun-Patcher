@@ -134,7 +134,10 @@ class Evo(Village):
         self.api_handlers["CreateFileW"] = self._create_file_w
         self.api_handlers["GetCurrentProcessId"] = lambda p: (0x1234, 0)
         self.stub(COLLECTION, lambda p: (int(p.arg(0) in self.collections), 4))
-        stubs = self.alloc(0x60)
+        stubs = self.alloc(0x70)
+        self.retired_logged: list[tuple[int, int]] = []
+        self.cod_exports["VvfpCauseHeathenRetired"] = stubs + 0x50
+        self.stub(stubs + 0x50, lambda p: (self.retired_logged.append((p.arg(1), p.arg(2))), (0, 12))[1])
         self.parentage_exports["WriteParentageRecordWithFather"] = stubs
         self.parentage_exports["WriteParentageHeathenCouple"] = stubs + 0x10
         self.cod_exports["VvfpCauseHeathenRole"] = stubs + 0x20
@@ -1064,6 +1067,220 @@ class ChangeTribe(unittest.TestCase):
         v.seed(first_output((2400, 0), (10000, 9000)))
         v.life_tick()
         self.assertEqual([v.cstring(args[3]) for _c, args in v.conceived], ["Ioane"], "the father is B's partner")
+
+
+# ---- the owner, 2026-11-26: children grow up, elders retire and keep their pace, a reused record is no partner ---
+ELDER_AT_MEDICINE_1 = 1000                              # 0x46F790: 160 x Medicine + 840
+ROLE_FINDER = 0x470690
+CHILD_WORDS = "Replaced a Heathen child who grew up"
+OWED_CHILD = 0x20000
+
+
+def _grow(v: Evo, index: int, *, orange: int = 0, parents: bool = False, role: int = 0) -> int:
+    """A camp child one unit short of 280: the next life tick makes them an adult."""
+    r = v.villager(index, heathen=True, age=280, orange=orange, parents=parents, role=role, name=f"Kid{index}")
+    v.put32(r + PROCESSED, 279)
+    return r
+
+
+def _fill_records(v: Evo, keep_free: int) -> None:
+    """Every record but `keep_free` (from the top) present, so only that many are free."""
+    for i in range(v.slots - keep_free):
+        if v.read(v.record(i) + PRESENT, 1) == b"\0":
+            v.villager(i, heathen=False, age=400, name=f"B{i}")
+
+
+@unittest.skipIf(_skip(), _skip() or "")
+class GrowingUp(unittest.TestCase):
+    """"if the heathen children age up immediately spawn replacements!!! especially the rascal!!!!!!!!!!" -- the
+    Rascal is the camp's orange-masked child (the Details title 0x4430AE: younger than 280 and +0x1CED)."""
+
+    def test_the_rascal_who_grows_up_is_replaced_by_a_new_rascal_at_once(self):
+        v = Evo()
+        v.villager(0, heathen=True, name="Elder")
+        kid = _grow(v, 5, orange=1)
+        v.life_tick()
+        self.assertEqual(len(v.created), 1)
+        index, args = v.created[0]
+        lineage, skill, value, sex, age, orange, red, role, _faith = args
+        self.assertEqual((skill, value, age, orange, red, role), (2, 0, 140, 1, 0, 0),
+                         "the stock Rascal's set-up (0x424D23): Healing 0, age 140, orange, role 0")
+        self.assertTrue(-67 <= v.i32(v.record(index), 0x1CF0) <= -38, "the stock camp's Faith")
+        self.assertEqual(v.arrived, [(index, CHILD_WORDS)])
+        self.assertEqual((v.i32(kid, AGE), v.read(kid + PRESENT, 1)), (280, b"\x01"), "the grown one stays")
+
+    def test_a_blue_camp_child_gets_a_blue_child_in_the_same_role(self):
+        v = Evo()
+        v.villager(0, heathen=True)
+        _grow(v, 5, role=0)
+        v.life_tick()
+        (_, args), = v.created
+        self.assertIn(args[4], (120, 240), "a stock blue child's age")
+        self.assertEqual((args[5], args[6], args[7]), (0, 0, 0))
+
+    def test_a_couples_baby_is_the_tribes_growth_not_a_place(self):
+        v = Evo()
+        v.villager(0, heathen=True)
+        _grow(v, 5, parents=True)
+        v.life_tick()
+        self.assertEqual(v.created, [])
+
+    def test_no_room_owes_the_child_until_there_is(self):
+        v = Evo()
+        v.villager(0, heathen=True)
+        _grow(v, 5, orange=1)
+        _fill_records(v, 10)                          # only the 10 kept free: none fits
+        v.life_tick()
+        self.assertEqual(v.created, [])
+        v.look(0)
+        self.assertTrue(any((who & 0x80000000) and (who & OWED_CHILD) for who, _kind in v.known_entries()),
+                        "owed in the slot's file, marked a child")
+        v.write(v.record(139) + PRESENT, b"\x00")     # room again (a believer of the filled ones gone)
+        v.put32(v.record(0) + AGE, v.i32(v.record(0), AGE) + 1)
+        v.life_tick()
+        self.assertEqual([(args[4], args[5]) for _, args in v.created], [(140, 1)], "paid: a Rascal")
+
+    def test_after_the_last_heathen_only_with_arrivals(self):
+        for arrivals, made in (("0", 0), ("1", 1)):
+            with self.subTest(arrivals=arrivals):
+                v = Evo(arrivals=arrivals)
+                v.solve(25)
+                v.villager(0, heathen=True)
+                _grow(v, 5, orange=1)
+                v.life_tick()
+                self.assertEqual(len(v.created), made)
+
+
+@unittest.skipIf(_skip(), _skip() or "")
+class PartnerReuse(unittest.TestCase):
+    """Codex, #883: a partner who vanished in an island event, their record reused by the replacement in the same
+    tick -- the newcomer is never taken for the partner."""
+
+    def test_no_conception_with_the_newcomer_in_the_partners_record(self):
+        v = Evo()
+        v.villager(0, heathen=True, age=100, name="Child")   # record 0 taken (a child never pairs)
+        man, woman = _couple(v, 1, 2)
+        self.assertEqual(v.couple_of(2), 1)
+        create = v._create
+
+        def male_newcomer(p):                         # the replacement is a man, in the record the partner left
+            answer = create(p)
+            if answer[0] != 0xFFFFFFFF:
+                v.put32(v.record(answer[0]) + SEX, 0)
+            return answer
+        v.stub(0x46FD20, male_newcomer)
+        self.assertEqual(v.export("VvfpHeathenAgingEventGone", 5, 1, 1, 5), 1, "taken: the replacement is owed")
+        v.put32(woman + AGE, v.i32(woman, AGE) + 1)
+        v.seed(first_output((2400, 0), (10000, 9000)))
+        v.life_tick()                                 # pays the owed replacement first, then her unit
+        self.assertEqual([i for i, _ in v.created], [1], "the newcomer took the partner's record")
+        self.assertEqual(v.conceived, [], "no conception with someone she never paired with")
+        self.assertEqual(v.couple_of(2), -1)
+
+
+def _role_holder(v: Evo, index: int, role: int, age: int = ELDER_AT_MEDICINE_1, **kw) -> int:
+    return v.villager(index, heathen=True, age=age, role=role, name=f"R{index}", **kw)
+
+
+@unittest.skipIf(_skip(), _skip() or "")
+class Retirement(unittest.TestCase):
+    """"above elderly age, heathens will "retire" and go to the encampment where younger ones will take their
+    place"; "Puzzle roles too"; "the chief shouldn't retire"."""
+
+    def test_a_camp_role_goes_to_the_eldest_younger_one(self):
+        v = Evo()
+        old = _role_holder(v, 3, 5)
+        v.villager(4, heathen=True, age=500, name="Young")
+        v.villager(6, heathen=True, age=700, name="Older")
+        v.villager(7, heathen=True, age=999, name="Not yet")       # one short of an elder: the successor
+        v.villager(8, heathen=True, age=1200, name="Elder")         # an elder never succeeds
+        v.look(4)
+        self.assertEqual(v.i32(old, ROLE), 0, "retired to the encampment (role 0: the camp wander)")
+        self.assertEqual(v.i32(v.record(7), ROLE), 5)
+        self.assertEqual((v.retired_logged, v.roles_logged), ([(3, 5)], [(7, 5)]))
+
+    def test_with_nobody_younger_the_elder_keeps_the_place(self):
+        v = Evo()
+        old = _role_holder(v, 3, 5)
+        v.villager(8, heathen=True, age=1200, name="Elder")
+        v.villager(9, heathen=True, age=100, name="Child")
+        v.look(3)
+        self.assertEqual(v.i32(old, ROLE), 5)
+        self.assertEqual((v.retired_logged, v.roles_logged), ([], []))
+
+    def test_the_chief_never_retires(self):
+        v = Evo()
+        chief = _role_holder(v, 3, 13, age=1400)
+        v.villager(4, heathen=True, age=500)
+        v.look(4)
+        self.assertEqual(v.i32(chief, ROLE), 13)
+        self.assertEqual(v.retired_logged, [])
+
+    def test_each_puzzle_role_goes_on_and_its_puzzle_still_finds_its_heathen(self):
+        set_up = {12: (2, 70.0, -14), 14: (3, 90.0, -74), 15: (4, 90.0, -74), 16: (0, 90.0, -74), 17: (1, 70.0, -25)}
+        for role, (skill, value, faith) in set_up.items():
+            with self.subTest(role=role):
+                v = Evo()
+                old = _role_holder(v, 3, role)
+                heir = v.villager(4, heathen=True, age=500, name="Heir", sex=1)
+                v.look(4)
+                self.assertEqual((v.i32(old, ROLE), v.i32(heir, ROLE)), (0, role))
+                self.assertEqual(v.call(ROLE_FINDER, [role], ecx=v.manager), heir, "the role finder finds the heir")
+                self.assertAlmostEqual(struct.unpack("<f", v.read(heir + SKILLS + 4 * skill, 4))[0], value)
+                self.assertEqual(v.i32(heir, 0x1CF0), faith)
+                self.assertEqual((v.retired_logged, v.roles_logged), ([(3, role)], [(4, role)]))
+                if role == 17:
+                    self.assertEqual(len(v.conceived), 1, "the Mommy's successor carries her infant")
+                    self.assertEqual(v.i32(old, PREGNANT), 0, "the infant went with the role")
+
+    def test_a_puzzle_role_takes_a_camp_role_holder_when_nobody_holds_none(self):
+        v = Evo()
+        old = _role_holder(v, 3, 14)
+        worker = v.villager(4, heathen=True, age=500, role=6, name="Builder")
+        v.look(4)
+        self.assertEqual((v.i32(old, ROLE), v.i32(worker, ROLE)), (0, 14), "the puzzle comes first")
+
+    def test_a_solved_puzzles_heathen_has_no_place_to_give_up(self):
+        v = Evo()
+        v.solve(1)                                     # the Heathen Doctor's puzzle (puzzle_of_role(12) = 1)
+        old = _role_holder(v, 3, 12)
+        v.villager(4, heathen=True, age=500)
+        v.look(4)
+        self.assertEqual(v.i32(old, ROLE), 12)
+
+
+WALK_TEST, WALK_END, WALK = 0x4659C5, 0x465A0C, 0x0BC00000
+
+
+@unittest.skipIf(_skip(), _skip() or "")
+class ElderPace(unittest.TestCase):
+    """"their speed must not be impacted at elderly age for balance reasons": the walk set-up 0x465980 gives an
+    elder the slow pace 0x28 (40) at 0x465A06 -- never a Heathen with the row; a believer elder still slows."""
+
+    def _pace(self, v: Evo, record: int) -> int:
+        if not hasattr(v, "walk_mapped"):
+            v.mu.mem_map(WALK, 0x1000)
+            v.walk_mapped = True
+        v.put32(WALK, 0x64)
+        v.set_reg("esp", 0x0FF00000 - 0x3000)        # the emulator's stack (story_emulator STACK_TOP)
+        v.set_reg("esi", record)
+        v.set_reg("edi", WALK)
+        v.run(WALK_TEST, WALK_END)
+        return v.u32(WALK)
+
+    def test_an_elder_heathen_keeps_their_pace_and_a_believer_elder_slows(self):
+        v = Evo()
+        self.assertEqual(v.read(WALK_TEST, 1), b"\xE9", "the site is spliced with the row")
+        heathen = v.villager(3, heathen=True, age=1500)
+        believer = v.villager(4, heathen=False, age=1500)
+        young = v.villager(5, heathen=False, age=500)
+        self.assertEqual(self._pace(v, heathen), 0x64, "an elder Heathen: their pace")
+        self.assertEqual(self._pace(v, believer), 0x28, "a believer elder: the slow pace, as in the stock game")
+        self.assertEqual(self._pace(v, young), 0x64)
+
+    def test_without_the_row_nothing_is_spliced(self):
+        v = Evo(flags=(TRIBE,))
+        self.assertEqual(v.read(WALK_TEST, 11), bytes.fromhex("8D8E8C1B0000E8C09D0000"))
 
 
 if __name__ == "__main__":

@@ -39,12 +39,14 @@ except Exception:  # pragma: no cover - environment dependent
     HAVE = False
 
 ROLE = 12            # Parentage Export's KIND_ROLE (and Cause of Death's LOG_ROLE)
+RETIRED = 13         # ...KIND_RETIRED / LOG_RETIRED (the owner, 2026-11-26)
 FACTION = 0x1CEC
 
 
 @unittest.skipIf(not HAVE, "the stock executable or the Cause of Death test build is missing")
 class TookTheRole(unittest.TestCase):
-    def took(self, *, heathen: bool = True, role: int = 13, isolan: bool = False) -> list[dict]:
+    def took(self, *, heathen: bool = True, role: int = 13, isolan: bool = False,
+             export: str = "VvfpCauseHeathenRole", kind: int = 12) -> list[dict]:
         g, w = later("vv5")
         # The game image for GetModuleHandleA(NULL), as in a game (heathen_word.h reads the string table at the
         # executable's own base); no other companion is loaded.
@@ -54,8 +56,8 @@ class TookTheRole(unittest.TestCase):
         r = w.villager(3, "Makoa", 900, 80)
         g.p.write(r + FACTION, b"\x01" if heathen else b"\x00")
         g.tick()
-        g.p.export("VvfpCauseHeathenRole", 5, 3, role)
-        return [e for e in g.of_kind(ROLE) if e["record"] == r]
+        g.p.export(export, 5, 3, role)
+        return [e for e in g.of_kind(kind) if e["record"] == r]
 
     def test_a_heathen_who_takes_a_role_gets_a_took_the_role_record(self):
         for role, title in ((13, "Heathen Chief"), (14, "Heathen Master Scientist"), (15, "Heathen Master Builder"),
@@ -72,10 +74,25 @@ class TookTheRole(unittest.TestCase):
         self.assertEqual(self.took(role=13, isolan=True)[0]["Role"], "Chief of the Native Isola Tribe")
         self.assertEqual(self.took(role=16, isolan=True)[0]["Role"], "Esteemed Isolan Farmer")
 
-    def test_a_believer_or_another_role_writes_nothing(self):
+    def test_a_believer_or_no_role_writes_nothing(self):
         self.assertEqual(self.took(heathen=False), [])
-        for role in (0, 12, 17):
+        for role in (0, 18):
             self.assertEqual(self.took(role=role), [], role)
+
+    def test_a_retirements_successor_of_any_role(self):
+        """The owner (2026-11-26): an elder retires and a younger one takes the place -- the puzzle roles by their
+        own names, the camp's ordinary roles as its work."""
+        self.assertEqual(self.took(role=12)[0]["Role"], "Heathen Doctor")
+        self.assertEqual(self.took(role=17)[0]["Role"], "Heathen Mommy")
+        self.assertEqual(self.took(role=5)[0]["Role"], "a place in the camp's work")
+
+    def test_an_elder_who_retires_gets_a_retired_to_the_encampment_record(self):
+        records = self.took(role=14, export="VvfpCauseHeathenRetired", kind=RETIRED)
+        self.assertEqual(len(records), 1)
+        self.assertEqual((records[0]["Age"], records[0]["Role"]), ("900", "Heathen Master Scientist"))
+        self.assertEqual(self.took(role=13, export="VvfpCauseHeathenRetired", kind=RETIRED), [],
+                         "the Chief never retires (the owner)")
+        self.assertEqual(self.took(heathen=False, role=5, export="VvfpCauseHeathenRetired", kind=RETIRED), [])
 
 
 class ExportsPinned(unittest.TestCase):
@@ -138,7 +155,8 @@ class ArrivedWords(unittest.TestCase):
         for how in ("Arrived at the Heathen camp", "Arrived at the Isolan camp",
                     "Arrived at the Heathen camp with 1 other", "Arrived at the Heathen camp with 3 others",
                     "Arrived at the Isolan camp with 2 others", "Replaced a Heathen who died of old age",
-                    "Replaced an Isolan lost in an island event"):
+                    "Replaced an Isolan lost in an island event", "Replaced a Heathen child who grew up",
+                    "Replaced an Isolan child who grew up"):
             self.assertTrue(words.is_heathen_arrival(how), how)
         for how in ("unknown", "Converted from the Heathens", "Converted from the Isolans", "", None,
                     "Arrived at the Heathen camp with 0 others"):
@@ -163,7 +181,7 @@ def block(text: str) -> additions.Block:
 
 class NewRecordsRead(unittest.TestCase):
     def test_the_new_headings_are_records(self):
-        for heading in ("Couple formed", "Took the role"):
+        for heading in ("Couple formed", "Took the role", "Retired to the encampment"):
             self.assertTrue(vv_reconcile.RECORD_HEAD.match(heading), heading)
 
     def test_a_heathens_arrival_never_came_as_a_believer(self):

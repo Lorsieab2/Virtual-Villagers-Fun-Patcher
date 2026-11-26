@@ -1688,6 +1688,17 @@ of its own:
   children play in the nursery while someone teaches there.
 - Skills grow by practice, Devotion included (no tech bonus, no trophies); a
   Heathen keeps them on joining your tribe.
+- When one of the camp's own children reaches 14, a new child takes their
+  place at once in the same role and mask: the Rascal, the camp's orange-
+  masked child, is replaced by a new Rascal. Couples' babies and arrivals'
+  children are not replaced. After The Last Heathen only while New Heathen
+  Arrivals is above 0.
+- At the game's elder age (55, later with Medicine) a Heathen with a camp role
+  or a puzzle role (the Heathen Doctor, a Master, the Heathen Mommy) retires to
+  the encampment and the eldest younger adult takes the role, with the
+  puzzle's own set-up, so every puzzle can still be solved. The Heathen Chief
+  never retires. With nobody younger the elder keeps the role. Elder Heathens
+  keep their walking pace; elder believers still slow down.
 - Every Heathen who dies leaves a skeleton. Heathens bury their own dead at
   the mud hut (believers do it, still to the mud hut, when no Heathen can,
   once The Buried Mausoleum is solved). Click the mud hut, or drop a villager

@@ -174,6 +174,11 @@ typedef int (__stdcall *he_couple_log_fn)(int game, const void *records, const v
 #define HE_CAUSE_DLL "VVFP Cause of Death.dll"
 #define HE_ARRIVED_EXPORT "VvfpCauseHeathenArrived"
 #define HE_ROLE_EXPORT "VvfpCauseHeathenRole"
+/* VvfpCauseHeathenRetired ("VVFP Cause of Death.dll", the owner 2026-11-26): void __stdcall (int game, int index,
+   int role) -- a "Retired to the encampment" record for the elder Heathen in record `index` who has just given up
+   `role` (1-17, never 13) to a younger one, marked a Heathen.  VvfpCauseHeathenRole also takes roles 1-12 and 14-17
+   for the successor of a retirement. */
+#define HE_RETIRED_EXPORT "VvfpCauseHeathenRetired"
 typedef void (__stdcall *he_arrived_fn)(int game, int index, const char *how);
 typedef void (__stdcall *he_role_fn)(int game, int index, int role);
 

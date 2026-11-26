@@ -75,6 +75,16 @@ LIFE_SITES = (
 )
 
 
+# "VVFP Heathen Aging.dll" with this row's flag only (vvfp_heathen_aging.c walk_stub; the owner, 2026-11-26: an elder
+# Heathen's "speed must not be impacted at elderly age").
+WALK_SITES = (
+    (0x4659C5, "8D8E8C1B0000E8C09D0000", "E9",
+     "the walk set-up 0x465980's elder test (`lea ecx, [esi+0x1B8C]; call 0x46F790`, the slow pace 0x28 for an "
+     "elder at 0x465A06): a Heathen skips it and walks at the pace of anyone who is not an elder; a believer elder "
+     "still slows"),
+)
+
+
 def _call(va: int, target: int) -> str:
     return "E8" + ((target - (va + 5)) & 0xFFFFFFFF).to_bytes(4, "little").hex().upper()
 
@@ -162,6 +172,17 @@ def description() -> str:
         "is solved, the real role after it; a regrown camp of six adults gets a Chief and Masters again. Every later "
         "Chief, Master, Doctor or Mommy can be of either sex. A show Chief who joins your tribe becomes a real "
         "Retired Chief. "
+        "CHILDREN GROW UP: when one of the camp's own children reaches 14, a new child takes their place at once, in "
+        "the same camp role and mask -- the Rascal, the camp's orange-masked child, is replaced by a new Rascal -- "
+        "and the grown one stays as an adult (an Arrived record \"Replaced a Heathen child who grew up\"). Babies of "
+        "Heathen couples, arrivals' children and children who left your tribe are the tribe's growth and are not "
+        "replaced. After The Last Heathen this happens only while New Heathen Arrivals is above 0. "
+        "ELDERS RETIRE: at the game's elder age (55, later with Medicine) a Heathen with a camp role or a puzzle role "
+        "-- the Heathen Doctor, a Heathen Master, the Heathen Mommy -- retires to the encampment and the eldest "
+        "younger adult Heathen takes the role, with the puzzle's own set-up (the Mommy's successor carries her "
+        "infant), so every puzzle can still be solved. **The Heathen Chief never retires.** With nobody younger the "
+        "elder keeps the role until someone grows up or arrives. Elder Heathens keep their walking pace; elder "
+        "believers still slow down as in the game. "
         "SICKNESS AND HEATHEN DOCTORS: Heathens fall sick by the believers' rule; ordinary Heathens with Healing "
         "skill heal them (never the puzzle's Heathen Doctor); with nobody able they get well on their own. A sick "
         "Heathen never dies of it and never drops below 21 health. Heathens never eat from your food store and never "
@@ -186,7 +207,8 @@ def description() -> str:
         "event but nothing in it really happens to them (\"(no effect)\"); in the game's own events a Heathen's Faith "
         "never changes; outcomes for the whole tribe happen to the Heathens' village when only Heathens are in an "
         "event (\"(no effect)\"). "
-        "LOGS: each Heathen's conception, birth, couple, arrival, new role, death and grave goes in the logs, marked "
+        "LOGS: each Heathen's conception, birth, couple, arrival, new role, retirement, death and grave goes in the "
+        "logs, marked "
         "as a Heathen. **Heathens never count in the Village Statistics.** Heathens always leave 10 villager records "
         "free. "
         "This row replaces \"Heathen Tribe Ages, Dies and Has Children\", \"All Heathens Leave Skeletons\" and "
@@ -228,6 +250,26 @@ EVOLUTION_CHANGES = [
     "the purple mask through the Origins mask store, the original's own title through Story / Cheat Upgrades' "
     "VvfpStorySetCustomTitle); a regrown camp of 6 adults gets a real Chief and Masters; a show Chief who converts "
     "is given role 13 (the Retired Chief) and the show title is taken off.",
+    "Children who grow up (the owner, 2026-11-26): when a camp child (a Heathen with no recorded parents, never a "
+    "former villager; roles 0-11) reaches 280 units in the life tick, a new child is made at once by the Heathen "
+    "creator 0x46FD20 in the same role and mask, Healing 0, the stock camp's Faith: the Rascal (the Details title "
+    "0x4430AE..0x4430D6, string 0xD2: a Heathen younger than 280 in the orange mask; the stock camp's 0x424D23, "
+    "age 140) by a Rascal of 140, a blue child at 120 or 240 (0x424CF9, 0x424D4D); its Arrived record \"Replaced a "
+    "Heathen child who grew up\" (\"... an Isolan child ...\").  No room (10 records kept free): owed in the slot's "
+    "file.  After The Last Heathen only while New Heathen Arrivals is above 0.",
+    "Elders retire (the owner, 2026-11-26; \"the chief shouldn't retire\"): an elder by the game's test 0x46F790 "
+    "(age >= 160 x Medicine + 840) who holds a camp role 1-11, a puzzle role 12, 14-17 while its puzzle is "
+    "unsolved, or a Master's role for show or after The Last Heathen gives it, at a throttled look, to the eldest "
+    "adult Heathen who is not an elder and holds none (for a puzzle role a camp-role holder when there is none), "
+    "set up as the stock camp sets the role up (skill, Faith; the Mommy's infant by the game's forced conception "
+    "with a named other parent) -- never the Chief (13); the elder's role becomes 0, the Heathen AI's default "
+    "(0x46EAD9 -> 0x46F007, the camp wander at the encampment).  Nobody younger: no retirement.  Records \"Retired "
+    "to the encampment\" (VvfpCauseHeathenRetired) and \"Took the role\" (VvfpCauseHeathenRole).",
+    "Elders keep their pace: at 0x4659C5 (the walk set-up 0x465980's `lea ecx, [esi+0x1B8C]; call 0x46F790`, the "
+    "slow pace 0x28 for an elder at 0x465A06) a Heathen skips the elder test; a believer elder still slows.",
+    "Partners: the life tick's partner cache is checked against the couple's saved identities before every use, "
+    "and a Heathen who leaves (a death, an island event) is dropped from it at once, so a reused record is never "
+    "taken for a partner.",
     "Room (decision 18 as changed): Heathens are made only while 10 villager records stay free, in every population "
     "mode and in the 256 build.",
     "\"VVFP Heathen Life.dll\" (VvfpHeathenLifeUnit, called by Heathen Aging's life-tick splice): the believers' "
@@ -316,7 +358,7 @@ def row() -> dict:
                             "runtime/player confirmation pending"),
         "companion_files": files,
         "patches": [],
-        "runtime_detours": (aging_detours + detours(LIFE_SITES, LIFE_DLL) + detours(MAUSOLEUM_SITES, MAUSOLEUM_DLL)
+        "runtime_detours": (aging_detours + detours(WALK_SITES, AGING_DLL) + detours(LIFE_SITES, LIFE_DLL) + detours(MAUSOLEUM_SITES, MAUSOLEUM_DLL)
                             + story_detours),
     }
 

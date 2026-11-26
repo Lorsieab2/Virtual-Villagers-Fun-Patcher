@@ -615,6 +615,18 @@ static void plan_practice(unsigned char *record, int which) {
 /* An adult's show action (the age rules: see the header's AGE RULES; the caller has checked the adult test). */
 static int show(unsigned char *record) {
     int open[SHOW_COUNT], areas[SHOW_COUNT], count = 0, choice, area, age = i32(record, R_AGE);
+    if (elder(record)) {
+        /* An elder has retired to the encampment ("VVFP Heathen Aging.dll"; the owner, 2026-11-26: they "go to the
+           encampment where younger ones will take their place"): only what is done there -- a meal, devotion at
+           the mud hut. */
+        if (rnd(2) == 0) {
+            look_meal(record);
+        } else {
+            look_devotion(record);
+            plan_practice(record, SKILL_DEVOTION);
+        }
+        return 1;
+    }
     if (puzzle_done(P_FENCE)) { open[count] = SHOW_NONI; areas[count++] = A_NONI; }
     if (puzzle_done(P_FARM)) { open[count] = SHOW_CROPS; areas[count++] = A_CROPS; }
     if (puzzle_done(P_LAKE)) { open[count] = SHOW_FISH; areas[count++] = A_LAKE; }
