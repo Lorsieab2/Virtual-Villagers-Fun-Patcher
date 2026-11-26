@@ -135,6 +135,25 @@ class LeftTheTribe(unittest.TestCase):
         again = self.kind()
         self.assertEqual((again.decided, again.asked), (0, 0), "done once")
 
+    def test_the_camps_own_heathens_never_left_the_tribe(self):
+        """The owner's village, 2026-11-25: Repair added "Left the tribe" for all 28 camp Heathens and the Heathen
+        Mommy -- their own Arrived records ("How: Founder" / "added outside a recorded event", "Faction: Isolan"
+        with Guardians of Isola, "Faction: Heathen" without) were counted as coming as a believer.  A Heathen's own
+        Arrived or Birth record is never a believer's."""
+        for word in ("Heathen", "Isolan"):
+            with self.subTest(word=word):
+                def camp(n, name, head, body, how):
+                    return arrived(n, name, head, body, how).replace("  How:", f"  Faction: {word}\n  How:")
+                self.village(person(1, "Tawa", 3, 4, word) + person(2, "Ahi", 17, 26, word, "Male")
+                             + person(3, "Baby", 5, 6, word) + person(4, "Leaf", 7, 8, word),
+                             camp(1, "Tawa", 3, 4, "Founder") + camp(2, "Ahi", 17, 26, "added outside a recorded event")
+                             + "Birth 1\n  Child: Baby (head 5, body 6)\n  Faction: Heathen\n  Litter: 1\n\n"
+                             + arrived(3, "Leaf", 7, 8, "Founder"),
+                             death(1, "Old", 9, 9))
+                kind = self.kind()
+                self.assertEqual((kind.decided, kind.asked), (1, 0), "only Leaf, who came as a believer")
+                self.assertEqual([i.line.count("Name: Leaf") for i in kind.inserts], [1])
+
     def test_each_time_back_as_a_believer_needs_its_leaving(self):
         deaths = self.village(person(1, "Twice", 3, 4, "Heathen"),
                               arrived(1, "Twice", 3, 4, "Founder")

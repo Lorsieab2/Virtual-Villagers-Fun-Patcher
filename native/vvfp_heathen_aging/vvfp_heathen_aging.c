@@ -70,7 +70,8 @@
    random sex, the stock camp's Faith (0x470E60: -38 - rand(30), or the dead one's own when it was one of the
    five easy blue Faiths -5, -9, -16, -23, -30); a puzzle Heathen whose puzzle is not solved yet by a new one in the same role,
    set up exactly as the stock camp sets that role up (the Doctor, Chief with every skill 100, the three Masters;
-   the Heathen Mommy with her infant, its father an adult Heathen man when there is one).  Its Faith is written
+   the Heathen Mommy with her infant, its other parent a named adult Heathen of either sex, of her own family when
+   there is one: mommy_parent).  Its Faith is written
    after the creator (the creator's own SetFaith would run to-a-Heathen on a record still a believer: its "stopped
    believing" message and the Cause of Death companion's "Left the tribe" record).  The Cause of Death companion
    writes its Arrived record (VvfpCauseHeathenArrived).  A full table: the replacement waits (kept per save slot),

@@ -164,7 +164,6 @@ EXPORTS
     VvfpStoryProbeGraphVv1Parent=_VvfpStoryProbeGraphVv1Parent@20
     VvfpStoryProbeGraphHeadLook=_VvfpStoryProbeGraphHeadLook@12
     VvfpStoryProbeGraphPresentation=_VvfpStoryProbeGraphPresentation@12
-    VvfpStoryProbeGraphBornMale=_VvfpStoryProbeGraphBornMale@4
     VvfpStoryProbeGraphNoDeliver=_VvfpStoryProbeGraphNoDeliver@4
     VvfpStoryProbeGraphPresented=_VvfpStoryProbeGraphPresented@4
     VvfpStoryProbeGraphLateAt=_VvfpStoryProbeGraphLateAt@4
@@ -381,7 +380,6 @@ EXPORTS
     VvfpStoryProbeGraphVv1Parent=_VvfpStoryProbeGraphVv1Parent@20
     VvfpStoryProbeGraphHeadLook=_VvfpStoryProbeGraphHeadLook@12
     VvfpStoryProbeGraphPresentation=_VvfpStoryProbeGraphPresentation@12
-    VvfpStoryProbeGraphBornMale=_VvfpStoryProbeGraphBornMale@4
     VvfpStoryProbeGraphNoDeliver=_VvfpStoryProbeGraphNoDeliver@4
     VvfpStoryProbeGraphPresented=_VvfpStoryProbeGraphPresented@4
     VvfpStoryProbeGraphLateAt=_VvfpStoryProbeGraphLateAt@4
