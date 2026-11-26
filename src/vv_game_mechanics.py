@@ -451,6 +451,13 @@ TRAINING = "Jobs and training"
 GROUPS = GROUPS[:GROUPS.index(HIDDEN)] + (TRAINING,) + GROUPS[GROUPS.index(HIDDEN):]
 
 
+# Every villager one by one -- health in every game; New Believers' Faith, and each Heathen as fully as a believer
+# with their mask, role and preaching wait (src/vv_game_mechanics_villagers.py, the owner 2026-11-26) -- right after
+# the villager timers.
+VILLAGERS = "Villagers"
+GROUPS = GROUPS[:GROUPS.index("Villager timers") + 1] + (VILLAGERS,) + GROUPS[GROUPS.index("Villager timers") + 1:]
+
+
 def training_facts(village: "Village") -> list[Fact]:
     """The Jobs and training group for `village` (found by name)."""
     return list(importlib.import_module("vv_game_mechanics_training").facts(village))

@@ -1,0 +1,5 @@
+LIBRARY "VVFP Window Restore.test.dll"
+EXPORTS
+    VvfpStartup=_VvfpStartup@8
+    VvfpWindowRestoreInstalled=_VvfpWindowRestoreInstalled@0
+    VvfpWindowRestoreResyncs DATA
