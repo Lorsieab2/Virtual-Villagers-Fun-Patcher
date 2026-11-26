@@ -10851,8 +10851,9 @@ static const char *cg_refusal(int game, unsigned int *planned) {
             return why;
         }
     }
-    if (cg_g.req_cond != (int)CG_NONE) {
-        /* Version 3: "only after a puzzle is solved" -- every puzzle the event lists for this game. */
+    if (cg_g.req_cond != (int)CG_NONE && !cg_override_now) {
+        /* Version 3: "only after a puzzle is solved" -- every puzzle the event lists for this game.  Not asked for a
+           Pick Island Event bought with the override (story_more_events.inc cg_override_now): a story requirement. */
         const unsigned char *all = cg_cond_at(&cg_g, cg_g.req_cond);
         int k;
         for (k = 0; k < all[1]; ++k) {
@@ -11776,14 +11777,18 @@ __declspec(dllexport) const char *__stdcall VvfpStoryProbeGraphQueue(int game, c
     /* due's bit 8: the cast is strict (the rare roll / Pick), else prefer (a purchase); bits 9-10 the origin. */
     cg_cast_now = (due & 0x100) ? CG_CAST_STRICT : CG_CAST_PREFER;
     cg_origin_now = (due >> 9) & 3;
+    /* bit 11: a Pick Island Event bought with the override (as sc_pick_buy queues it: the library's cast) */
+    cg_override_now = (due & 0x800) != 0;
     due &= 0xFF;
     refusal = cg_refusal(game, &planned);
     if (refusal != NULL) {
+        cg_override_now = 0;
         cg_origin_now = CG_ORIGIN_PURCHASE;
         return refusal;
     }
     /* due 0: armed without making the island event due (the engine tests drive the entry points). */
     refusal = cg_queue(game, planned, due) ? NULL : "not armed";
+    cg_override_now = 0;
     cg_origin_now = CG_ORIGIN_PURCHASE;
     return refusal;
 }

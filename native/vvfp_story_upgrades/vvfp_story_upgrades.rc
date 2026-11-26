@@ -54,7 +54,9 @@
 /* 301 (v1.35.80): resizable; the lists' entries wrap (owner-drawn, every
    word shown); 3012 the Gong's "still random" warning; 3013 / 3014 the
    villager sort selector, shown with a villager editor.  Pick Gong of
-   Wonder Outcome is this same dialog: its left list is the Gong's results. */
+   Wonder Outcome is this same dialog: its left list is the Gong's results.
+   3015 (v1.35.101) the override checkbox (story_override.inc), hidden for
+   the Gong. */
 301 DIALOGEX 0, 0, 560, 344
 STYLE DS_MODALFRAME | DS_SETFONT | DS_CENTER | WS_POPUP | WS_CAPTION | WS_SYSMENU | WS_THICKFRAME | WS_MINIMIZEBOX | WS_MAXIMIZEBOX
 CAPTION "Pick Island Event"
@@ -73,6 +75,7 @@ BEGIN
     EDITTEXT    3005, 246, 266, 80, 13, ES_AUTOHSCROLL | WS_TABSTOP
     LTEXT       "", 3006, 332, 268, 220, 10
     LISTBOX     3007, 246, 266, 306, 52, LBS_NOTIFY | LBS_EXTENDEDSEL | LBS_NOINTEGRALHEIGHT | WS_VSCROLL | WS_BORDER | WS_TABSTOP
+    CONTROL     "", 3015, "Button", BS_AUTOCHECKBOX | WS_TABSTOP, 8, 325, 300, 12
     DEFPUSHBUTTON "OK", 1, 416, 324, 64, 15
     PUSHBUTTON  "Cancel", 2, 488, 324, 64, 15
 END

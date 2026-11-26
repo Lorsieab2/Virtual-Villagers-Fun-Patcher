@@ -264,6 +264,8 @@ def confirm_and_delete(
     vv_delete_slot._refuse_if_running(Path(folder), processes if processes is not None
                                       else vv_save_backup.WindowsProcesses())
     plan = vv_delete_slot.plan_delete(game, folder, slot)
+    if recycle is None:
+        vv_delete_slot.warm_recycle_bin(Path(folder))     # answered while the player reads the list
     if not preview(parent, DELETE_TITLE, delete_text(folder, plan), plan.preview(), "Delete it?"):
         return None
     if not ask(parent, DELETE_TITLE, delete_final_text(plan)):
