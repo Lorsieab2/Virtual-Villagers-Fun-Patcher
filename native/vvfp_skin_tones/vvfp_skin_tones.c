@@ -2,11 +2,14 @@
    "implement the skin tone mod in all 5 games!! with inheritance and mixing"; "babies conceived from two
    parents inherit skin tones same as head rules").  All five games.
 
-   THIS DLL IS THE DATA HALF.  It keeps every villager's tone in the patcher's own per-save file, gives a
-   tone to whoever has none, and answers the other companions.  It writes nothing into the game and nothing
-   into a villager record.  The draws that show a tone (each game's head and body sheets, swapped per
-   villager for that tone's sheet) ask VvfpSkinToneGet; until they are in, VvfpSkinToneDrawn says 0 and
-   every villager is drawn with the game's own art.
+   THE DATA.  It keeps every villager's tone in the patcher's own per-save file, gives a tone to whoever
+   has none, and answers the other companions.  Nothing is ever written into a villager record.
+
+   THE DRAWS (The Tree of Life and New Believers so far; "the draws" below).  Where the game fetches the
+   sheet it is about to draw a villager's head or body from, the fetch is followed by a look at that
+   villager's tone, and the sheet handed on is that tone's copy of it -- a picture file in the game's own
+   Images folder, made from the player's own art.  Any sheet that is not there is the game's own.  In the
+   other three games VvfpSkinToneDrawn says 0 and every villager is drawn with the game's own art.
 
    THE FILE.  "Virtual Villagers Fun Patcher\Save <S>\Data\Skin Tones\Skin Tones - Save <S>.dat", the Head
    Looks' store (native/vvfp_head_look/head_look_store.inc) with its own magic 'VST2' and a second byte per
@@ -44,6 +47,7 @@
 #include "../shared/mask_follow.h"
 #include "../shared/foreign_sidecar.h"
 #include "../shared/game_save_slot.h"
+#include "../shared/install_sites.h"
 #include "../shared/vv3_villager_table.h"
 #include "../shared/vv4_villager_table.h"
 #include "../shared/vv5_villager_table.h"
@@ -395,6 +399,246 @@ static int st_tone_ok(int tone) {
     return (tone >= 1 && tone <= VVFP_SKIN_TONE_COUNT) || tone == VVFP_SKIN_TONE_GAMES_OWN;
 }
 
+/* ---- the draws: The Tree of Life and New Believers ------------------------------------------------
+
+   HOW THESE TWO GAMES DRAW A VILLAGER.  The draw asks one of two routines for the sheet: the BODY fetcher
+   (pose, sex, body) and the HEAD fetcher (head turn, sex, head).  Each looks the sheet's number up in the
+   animation table, gets the sheet from the game's sprite registry (one object per sheet for the whole
+   game) and writes it through a pointer the caller gave; the caller then draws from it.  So the one place
+   a villager's own sheet can be chosen is right after the fetch.
+
+   THE SITES: the `call` of a fetcher in the village draw, the Villager Details big figure and the small
+   figure of each game (three head fetches, three body fetches).  The villager's record is in ESI at every
+   one (the Head Look's compares in the same routines read it there).  Each `call` (5 bytes) is pointed at
+   a stub that calls the game's own fetcher with the same arguments and then, when the sheet fetched is
+   one of the eight villager sheets and the villager has a tone, puts that tone's sheet in its place.
+   The memorial list's figures (the dead: no record) and the Villager Details parents' small figures
+   (drawn from the child's record) are not sites: they keep the game's own art.
+
+   A TONE'S SHEET is "vvfp_skin_<NN>_<the game's own name>" in the game's Images folder, NN the tone 01..10
+   (vvfp_skin_05_male_heads00.png, ..._bigbodies.png): the same grid, built by the game's own sheet
+   constructor from the game's own description of the sheet.  It is loaded the first time a villager of
+   that tone is drawn from it, and only when every file of it is there; otherwise the game's own sheet
+   is drawn, for that sheet only. */
+#ifndef VVFP_SKIN_TONE_HARNESS
+
+#define ST_SHEETS 8                     /* heads, bodies, actions of each sex, the big heads, the big bodies */
+
+typedef struct {
+    unsigned int alloc;                 /* the game's operator new */
+    unsigned int grid_ctor;             /* thiscall (name, extension, files across, down, columns, rows), ret 0x18 */
+    unsigned int one_ctor;              /* thiscall (file name, columns, rows), ret 0xC */
+    unsigned int sheets;                /* the first of the eight sheet descriptions, 0x30 bytes each */
+    unsigned int head_fetch, body_fetch;
+    unsigned int head_sites[3], body_sites[3];
+} st_draws;
+
+/* A sheet description (the game's own, read by its registry at VV4 0x44C9B0 / VV5 0x44F870): +4 the name,
+   +8 columns, +0xC rows, +0x10 the extension, +0x14 files across (0: one file, named in full), +0x18 files
+   down, +0x2C the sheet once loaded. */
+static const st_draws VV4_DRAWS = {
+    0x470C5Cu, 0x40ABA0u, 0x40AB10u, 0x4C3B88u, 0x44EA00u, 0x44E960u,
+    { 0x467F36u, 0x45F6BAu, 0x45F99Cu }, { 0x4681C7u, 0x45F616u, 0x45F917u },
+};
+static const st_draws VV5_DRAWS = {
+    0x47BBDCu, 0x40B0A0u, 0x40B010u, 0x4D1DA8u, 0x451DA0u, 0x451D00u,
+    { 0x47233Bu, 0x466DB7u, 0x4670CCu }, { 0x472683u, 0x466D17u, 0x467047u },
+};
+
+static const st_draws *g_draws;
+static void *g_toned[VVFP_SKIN_TONE_COUNT + 1][ST_SHEETS];
+static unsigned char g_toned_tried[VVFP_SKIN_TONE_COUNT + 1][ST_SHEETS];
+static char g_toned_name[VVFP_SKIN_TONE_COUNT + 1][ST_SHEETS][64];
+
+static const unsigned int *st_sheet_desc(int k) {
+    return (const unsigned int *)(UINT_PTR)(g_draws->sheets + (unsigned int)k * 0x30u);
+}
+
+/* 1 when "<the game's folder>\Images\<name><suffix>" is a file. */
+static int st_picture_there(const char *name, const char *suffix) {
+    char path[MAX_PATH];
+    DWORD n = GetModuleFileNameA(NULL, path, MAX_PATH), attrs;
+    while (n > 0 && path[n - 1] != '\\') {
+        --n;
+    }
+    if (n == 0 || n + 8 + (DWORD)lstrlenA(name) + (DWORD)lstrlenA(suffix) >= MAX_PATH) {
+        return 0;
+    }
+    path[n] = '\0';
+    lstrcatA(path, "Images\\");
+    lstrcatA(path, name);
+    lstrcatA(path, suffix);
+    attrs = GetFileAttributesA(path);
+    return attrs != INVALID_FILE_ATTRIBUTES && (attrs & FILE_ATTRIBUTE_DIRECTORY) == 0;
+}
+
+/* The sheet of `tone` (1..COUNT) for the game's sheet number `k` (0..7), or NULL when it is not all there
+   (tried once: a picture added while the game runs shows after a restart). */
+static void *st_toned_sheet(int tone, int k) {
+    const unsigned int *desc = st_sheet_desc(k);
+    const char *own = (const char *)(UINT_PTR)desc[1];
+    const char *ext = (const char *)(UINT_PTR)desc[4];
+    char *name = g_toned_name[tone][k];
+    unsigned int across = desc[5], down = desc[6], cols = desc[2], rows = desc[3], a, d;
+    unsigned int alloc = g_draws->alloc, ctor;
+    unsigned int *obj;
+    int i;
+    if (g_toned_tried[tone][k]) {
+        return g_toned[tone][k];
+    }
+    g_toned_tried[tone][k] = 1;
+    if (own == NULL || lstrlenA(own) > 40 || cols == 0 || rows == 0) {
+        return NULL;
+    }
+    lstrcpyA(name, "vvfp_skin_");
+    name[10] = (char)('0' + tone / 10);
+    name[11] = (char)('0' + tone % 10);
+    name[12] = '_';
+    lstrcpyA(name + 13, own);
+    if (across != 0) {
+        char suffix[16];
+        if (ext == NULL || lstrlenA(ext) > 8 || across > 9 || down > 9) {
+            return NULL;
+        }
+        for (a = 0; a < across; ++a) {
+            for (d = 0; d < down; ++d) {
+                suffix[0] = (char)('0' + a);
+                suffix[1] = (char)('0' + d);
+                lstrcpyA(suffix + 2, ext);
+                if (!st_picture_there(name, suffix)) {
+                    return NULL;
+                }
+            }
+        }
+    } else if (!st_picture_there(name, "")) {
+        return NULL;
+    }
+    /* Built as the Origins masks' atlas is (native/vv4_origins_icons vv_ensure_mask_atlas, which draws
+       in these same routines): room for the clip bounds the scaled draw reads, zeroed, then the game's
+       own constructor. */
+    obj = ((unsigned int *(__cdecl *)(unsigned int))(UINT_PTR)alloc)(0x70u);
+    if (obj == NULL) {
+        return NULL;
+    }
+    for (i = 0; i < 0x70 / 4; ++i) {
+        obj[i] = 0;
+    }
+    if (across != 0) {
+        ctor = g_draws->grid_ctor;
+        __asm {
+            push rows
+            push cols
+            push down
+            push across
+            push ext
+            push name
+            mov  ecx, obj
+            call ctor
+        }
+    } else {
+        ctor = g_draws->one_ctor;
+        __asm {
+            push rows
+            push cols
+            push name
+            mov  ecx, obj
+            call ctor
+        }
+    }
+    obj[0x18] = (unsigned int)-30000;   /* +0x60 the clip's left */
+    obj[0x19] = (unsigned int)-30000;   /* +0x64 top */
+    obj[0x1A] = 30000u;                 /* +0x68 right */
+    obj[0x1B] = 30000u;                 /* +0x6C bottom */
+    if (obj[4] == 0) {                  /* +0x10 the cell width: 0 after a load that failed */
+        return NULL;
+    }
+    g_toned[tone][k] = obj;
+    return obj;
+}
+
+/* What a stub keeps across the game's fetcher (the game draws on one thread, and a fetch never fetches). */
+static unsigned int g_swap_ret;
+static void **g_swap_out;
+static const unsigned char *g_swap_rec;
+static unsigned int g_fetch_head, g_fetch_body;
+
+/* After a fetch: *g_swap_out is the sheet the game fetched for the villager in g_swap_rec. */
+static void __cdecl st_swap(void) {
+    void **out = g_swap_out;
+    void *sheet;
+    int k, tone;
+    if (out == NULL || *out == NULL || g_draws == NULL) {
+        return;
+    }
+    for (k = 0; k < ST_SHEETS && (void *)(UINT_PTR)st_sheet_desc(k)[11] != *out; ++k) {
+    }
+    if (k == ST_SHEETS) {
+        return;                             /* not a villager sheet (a mask, an item): the game's own */
+    }
+    tone = st_drawn_tone(st_value(g_swap_rec));     /* 0 unless ESI is a held villager of this village */
+    if (tone == 0) {
+        return;
+    }
+    sheet = st_toned_sheet(tone, k);
+    if (sheet != NULL) {
+        *out = sheet;
+    }
+}
+
+/* The head fetcher's sixth argument and the body fetcher's seventh are where the sheet is written. */
+static __declspec(naked) void st_head_stub(void) {
+    __asm {
+        mov  eax, [esp + 0x18]
+        mov  g_swap_out, eax
+        mov  g_swap_rec, esi
+        pop  eax                            ; the site's return address; the arguments are the fetcher's again
+        mov  g_swap_ret, eax
+        call dword ptr [g_fetch_head]       ; the game's own fetcher, which pops its arguments
+        push eax
+        call st_swap
+        pop  eax                            ; the fetcher's own answer
+        jmp  dword ptr [g_swap_ret]
+    }
+}
+
+static __declspec(naked) void st_body_stub(void) {
+    __asm {
+        mov  eax, [esp + 0x1C]
+        mov  g_swap_out, eax
+        mov  g_swap_rec, esi
+        pop  eax
+        mov  g_swap_ret, eax
+        call dword ptr [g_fetch_body]
+        push eax
+        call st_swap
+        pop  eax
+        jmp  dword ptr [g_swap_ret]
+    }
+}
+
+static int g_drawn;
+
+/* Every site must hold the game's own `call` of its fetcher; then all six are written, or none. */
+static void st_install_draws(const st_draws *draws) {
+    vvfp_site_write w[6];
+    unsigned char stock[6][5];
+    int i;
+    g_draws = draws;
+    g_fetch_head = draws->head_fetch;
+    g_fetch_body = draws->body_fetch;
+    for (i = 0; i < 6; ++i) {
+        unsigned int va = i < 3 ? draws->head_sites[i] : draws->body_sites[i - 3];
+        unsigned int rel = (i < 3 ? draws->head_fetch : draws->body_fetch) - (va + 5u);
+        stock[i][0] = 0xE8;
+        memcpy(stock[i] + 1, &rel, 4);
+        vvfp_site_branch(&w[i], va, 5, stock[i], 0xE8, (const void *)(i < 3 ? st_head_stub : st_body_stub));
+    }
+    g_drawn = vvfp_install_sites(w, 6);
+}
+#else
+static int g_drawn;
+#endif
+
 /* ---- exports ---------------------------------------------------------------------------------------- */
 
 /* Called once at game start by "VVFP Startup.dll", outside DllMain. */
@@ -404,6 +648,13 @@ void __stdcall VvfpStartup(int game, unsigned int shipped) {
         return;
     }
     g_game = game;
+#ifndef VVFP_SKIN_TONE_HARNESS
+    if (game == 4) {
+        st_install_draws(&VV4_DRAWS);
+    } else if (game == 5) {
+        st_install_draws(&VV5_DRAWS);
+    }
+#endif
 }
 
 /* 1 when this DLL keeps `game`'s tones. */
@@ -411,19 +662,10 @@ int __stdcall VvfpSkinToneInstalled(int game) {
     return g_game != 0 && game == g_game;
 }
 
-/* 1 when `game`'s head and body draws follow the tone.  The draw companions set it (VvfpSkinToneSetDrawn)
-   once their own sites are in; until then every villager is drawn with the game's own art and the Change
-   Appearance windows do not offer the row. */
-static int g_drawn;
-
+/* 1 when `game`'s head and body draws follow the tone (the draws above are in); otherwise every villager
+   is drawn with the game's own art and the Change Appearance windows do not offer the row. */
 int __stdcall VvfpSkinToneDrawn(int game) {
     return g_game != 0 && game == g_game && g_drawn;
-}
-
-void __stdcall VvfpSkinToneSetDrawn(int game, int drawn) {
-    if (g_game != 0 && game == g_game) {
-        g_drawn = drawn != 0;
-    }
 }
 
 int __stdcall VvfpSkinToneCount(void) {

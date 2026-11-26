@@ -1,8 +1,8 @@
 $ErrorActionPreference = "Stop"
 
 # Builds "VVFP Skin Tones.dll" (each villager's skin tone, kept and handed down, all five games; the data half) from
-# native\vvfp_skin_tones.  32-bit, static CRT, like every other companion.  No row ships it yet
-# (the draws that show a tone are not in), so nothing pins it and the built DLL is not committed.
+# native\vvfp_skin_tones.  32-bit, static CRT, like every other companion.  No row ships it yet,
+# so nothing pins it; it is committed so that tests\test_skin_tone_draws.py can run it.
 
 $projectRoot = Split-Path -Parent $PSScriptRoot
 $nativeRoot = Join-Path $projectRoot "native\vvfp_skin_tones"

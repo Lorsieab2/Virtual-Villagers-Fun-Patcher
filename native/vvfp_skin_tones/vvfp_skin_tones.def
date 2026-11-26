@@ -3,7 +3,6 @@ EXPORTS
     VvfpStartup=_VvfpStartup@8
     VvfpSkinToneInstalled=_VvfpSkinToneInstalled@4
     VvfpSkinToneDrawn=_VvfpSkinToneDrawn@4
-    VvfpSkinToneSetDrawn=_VvfpSkinToneSetDrawn@8
     VvfpSkinToneCount=_VvfpSkinToneCount@0
     VvfpSkinToneGet=_VvfpSkinToneGet@8
     VvfpSkinToneOf=_VvfpSkinToneOf@8
