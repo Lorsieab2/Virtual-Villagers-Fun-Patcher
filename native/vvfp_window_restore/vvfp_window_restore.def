@@ -1,0 +1,4 @@
+LIBRARY "VVFP Window Restore"
+EXPORTS
+    VvfpStartup=_VvfpStartup@8
+    VvfpWindowRestoreInstalled=_VvfpWindowRestoreInstalled@0

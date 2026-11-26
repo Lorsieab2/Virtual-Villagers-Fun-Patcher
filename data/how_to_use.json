@@ -543,6 +543,7 @@
         "On the Villager Details screen, a villager's name is only ever saved back to that villager, even when the arrows are clicked quickly; a name you type is still kept.",
         "Healers keep learning Healing while the game is closed (and during Time Warp), as they do while you play.",
         "The game's own island events never pick the Golden Child for an outcome that could kill him or make him vanish; Pick Island Event and Custom Island Event still can.",
+        "The picture no longer freezes when a maximized or full screen game comes back from the taskbar (the game kept playing behind a still picture).",
         "Nothing to click. On by default."
       ]
     },
@@ -556,6 +557,7 @@
         "On the Villager Details screen, a villager's name is only ever saved back to that villager; a name you type is still kept.",
         "Healers keep learning Healing while the game is closed (and during Time Warp), as they do while you play.",
         "The Overview Map's fire flickers like the village's fire instead of showing a still yellow blob.",
+        "The picture no longer freezes when a maximized or full screen game comes back from the taskbar (the game kept playing behind a still picture).",
         "The fish and the field's protection from birds never go below 0. Nothing to click. On by default."
       ]
     },
@@ -569,6 +571,7 @@
         "On the Villager Details screen, a villager's name is only ever saved back to that villager; a name you type is still kept.",
         "After a Time Warp or time away, builders now really build started population huts. A raindrop of no length can no longer crash the game.",
         "The hospital tables' broken legs are fixed (art by Lorsieab2). Unpausing at another speed gives the fire that speed's length.",
+        "The picture no longer freezes when a maximized or full screen game comes back from the taskbar (the game kept playing behind a still picture).",
         "The Overview Map's water fits its riverbeds. Keep it on with 256 Villagers (Experimental). On by default."
       ]
     },
@@ -582,6 +585,7 @@
         "Unpausing at another speed gives the Fire Pit that speed's length. Nursery School lessons no longer always pick Building on a tie.",
         "Rain can no longer crash the game, and the Overview Map's water (rivers, waterfalls and their animations) lines up with its riverbeds.",
         "After The Frog Rescue, frogs leap all along the river's blue water around the island, never on grass or the ladder, as often as in the original game. On by default.",
+        "The picture no longer freezes when a maximized or full screen game comes back from the taskbar (the game kept playing behind a still picture).",
         "No cutting tool is used up on an empty bush (with Cloth Sacks, no sack on an empty fruit tree). Cutting-tool berries count for The Grand Feast."
       ]
     },
@@ -1409,6 +1413,7 @@
         "Nursery School lessons no longer nearly always go to Devotion (a tie is broken at random). The Last Heathen's hovel fits the map (art by Lorsieab2).",
         "The Puzzles screen shows how many hours The Hungry Totem took (it always said 0); a village that already solved it shows its real time too.",
         "The Defector is always a Heathen of 14 or more, like the envoy in Outreach? (the original game could pick a Heathen child).",
+        "The picture no longer freezes when a maximized or full screen game comes back from the taskbar (the game kept playing behind a still picture).",
         "Polishing the Tribute Statue now gives 1 Divine Energy each time, as the game's tip says (never above the cap); it still trains Building. Nothing to click. On by default."
       ]
     },
