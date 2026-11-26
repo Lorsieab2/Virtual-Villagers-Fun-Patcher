@@ -313,6 +313,24 @@ class Rules(unittest.TestCase):
                 found = rb.save_entries(game, bytes(save))
                 self.assertIn(people[-1], found)                   # the last slot, its bytes all there
                 self.assertEqual(sum(1 for d in people if d in found), 106)
+    def test_the_logs_are_read_in_their_numbers_order_and_the_newest_death_is_kept(self):
+        # Codex, PR #880: the shared log list sorted the paths as text, "Log 10.txt" before "Log 9.txt", so a second
+        # death in Log 10 was overwritten by the first in Log 9.  The list now sorts numbers as numbers
+        # (scripts/vvfp_consistency_check.py log_files, as the companions read them), and departed() keeps the last.
+        import vv_log_tools as tools
+        checker = tools.load_checker()
+        game = 3
+        root = checker.log_roots(self.folder)[-1] / "Deaths and Disappearances"
+        root.mkdir(parents=True)
+        for n in (2, 9, 10, 11):
+            (root / f"Virtual Villagers 3 Deaths and Disappearances Log {n}.txt").write_text("", encoding="utf-8")
+        names = [p.name for p in checker.log_files(self.folder)]
+        self.assertEqual([int(n.rsplit(" ", 1)[1][:-4]) for n in names], [2, 9, 10, 11])
+        first = death_block("Ana Rua", "Female", 1300, 5, 6, "(none)", "(none)", heading="Death 1")
+        second = death_block("Ana Rua", "Female", 400, 5, 6, "(none)", "(none)", heading="Death 2")
+        with mock.patch("vv_log_additions.person_blocks", return_value=[first, second]):   # Log 9, then Log 10
+            people = rb.departed(self.folder, game, 1)
+        self.assertEqual([(p.name, p.age) for p in people], [("Ana Rua", 400)])
     def test_the_file_layout_is_the_dlls(self):
         header = (ROOT / "native" / "shared" / "revive_snapshot.h").read_text(encoding="utf-8")
         self.assertIn("#define VV_RS_MAGIC 0x31535256u", header)
