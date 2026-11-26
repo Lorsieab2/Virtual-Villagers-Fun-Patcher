@@ -5,11 +5,11 @@
    THE DATA.  It keeps every villager's tone in the patcher's own per-save file, gives a tone to whoever
    has none, and answers the other companions.  Nothing is ever written into a villager record.
 
-   THE DRAWS (The Tree of Life and New Believers so far; "the draws" below).  Where the game fetches the
-   sheet it is about to draw a villager's head or body from, the fetch is followed by a look at that
-   villager's tone, and the sheet handed on is that tone's copy of it -- a picture file in the game's own
-   Images folder, made from the player's own art.  Any sheet that is not there is the game's own.  In the
-   other three games VvfpSkinToneDrawn says 0 and every villager is drawn with the game's own art.
+   THE DRAWS (The Secret City, The Tree of Life and New Believers so far; "the draws" below).  Where the
+   game is about to draw a villager's head or body from a sheet, a look at that villager's tone comes
+   first, and the sheet drawn from is that tone's copy of it -- a picture file in the game's own Images
+   folder, made from the player's own art.  Any sheet that is not there is the game's own.  In A New Home
+   and The Lost Children VvfpSkinToneDrawn says 0 and every villager is drawn with the game's own art.
 
    THE FILE.  "Virtual Villagers Fun Patcher\Save <S>\Data\Skin Tones\Skin Tones - Save <S>.dat", the Head
    Looks' store (native/vvfp_head_look/head_look_store.inc) with its own magic 'VST2' and a second byte per
@@ -399,51 +399,72 @@ static int st_tone_ok(int tone) {
     return (tone >= 1 && tone <= VVFP_SKIN_TONE_COUNT) || tone == VVFP_SKIN_TONE_GAMES_OWN;
 }
 
-/* ---- the draws: The Tree of Life and New Believers ------------------------------------------------
+/* ---- the draws -----------------------------------------------------------------------------------
 
-   HOW THESE TWO GAMES DRAW A VILLAGER.  The draw asks one of two routines for the sheet: the BODY fetcher
+   A TONE'S SHEET is "vvfp_skin_<NN>_<the game's own name>" in the game's Images folder, NN the tone 01..10
+   (vvfp_skin_05_male_heads00.png, ..._bigbodies.png, ..._female_heads_old.png): the same grid, built by
+   the game's own sheet constructor from the game's own description of the sheet.  It is loaded the first
+   time a villager of that tone is drawn from it, and only when every file of it is there; otherwise the
+   game's own sheet is drawn, for that sheet only.
+
+   THE TREE OF LIFE AND NEW BELIEVERS.  The draw asks one of two routines for the sheet: the BODY fetcher
    (pose, sex, body) and the HEAD fetcher (head turn, sex, head).  Each looks the sheet's number up in the
    animation table, gets the sheet from the game's sprite registry (one object per sheet for the whole
    game) and writes it through a pointer the caller gave; the caller then draws from it.  So the one place
-   a villager's own sheet can be chosen is right after the fetch.
+   a villager's own sheet can be chosen is right after the fetch.  THE SITES: the `call` of a fetcher in
+   the village draw, the Villager Details big figure and the small figure of each game (three head
+   fetches, three body fetches).  Each `call` (5 bytes) is pointed at a stub that calls the game's own
+   fetcher with the same arguments and then puts the tone's sheet in the place of the one fetched.
 
-   THE SITES: the `call` of a fetcher in the village draw, the Villager Details big figure and the small
-   figure of each game (three head fetches, three body fetches).  The villager's record is in ESI at every
-   one (the Head Look's compares in the same routines read it there).  Each `call` (5 bytes) is pointed at
-   a stub that calls the game's own fetcher with the same arguments and then, when the sheet fetched is
-   one of the eight villager sheets and the villager has a tone, puts that tone's sheet in its place.
-   The memorial list's figures (the dead: no record) and the Villager Details parents' small figures
-   (drawn from the child's record) are not sites: they keep the game's own art.
+   THE SECRET CITY keeps its eight villager sheets in the village manager and hands one to a draw as its
+   first argument.  THE SITES: the entry of the village's draw 0x42E5E0 (called for a villager's body at
+   0x460C53 and head at 0x460C7F), and the entry of the thunk 0x409FB0 that the Villager Details portrait
+   and an island event's figure call (and the village's draw itself, after it).  At each the sheet is
+   the first argument on the stack, and it is changed there before the game's own code goes on.
 
-   A TONE'S SHEET is "vvfp_skin_<NN>_<the game's own name>" in the game's Images folder, NN the tone 01..10
-   (vvfp_skin_05_male_heads00.png, ..._bigbodies.png): the same grid, built by the game's own sheet
-   constructor from the game's own description of the sheet.  It is loaded the first time a villager of
-   that tone is drawn from it, and only when every file of it is there; otherwise the game's own sheet
-   is drawn, for that sheet only. */
+   THE VILLAGER.  The record is in ESI at every site (the Head Look's compares in the same routines read
+   it there); anything else in ESI -- the renderer, when the village's draw reaches the thunk -- is no
+   villager and changes nothing.  A sheet that is not one of the eight villager sheets (a mask, the
+   skeleton) is never changed.  The memorial list's figures (the dead: no record) and the Villager Details
+   parents' small figures (drawn from the child's record) keep the game's own art. */
 #ifndef VVFP_SKIN_TONE_HARNESS
 
-#define ST_SHEETS 8                     /* heads, bodies, actions of each sex, the big heads, the big bodies */
+#define ST_SHEETS 8
 
 typedef struct {
     unsigned int alloc;                 /* the game's operator new */
     unsigned int grid_ctor;             /* thiscall (name, extension, files across, down, columns, rows), ret 0x18 */
     unsigned int one_ctor;              /* thiscall (file name, columns, rows), ret 0xC */
     unsigned int sheets;                /* the first of the eight sheet descriptions, 0x30 bytes each */
+    unsigned int slots;                 /* where the game keeps the eight loaded sheets (0: in each description, +0x2C) */
+    unsigned char slot_at[ST_SHEETS];   /* ... each sheet's dword there, as an offset */
+    unsigned int object_bytes;          /* what is allocated for a sheet */
+    int clip;                           /* 1: the clip bounds at +0x60 are opened (see st_toned_sheet) */
     unsigned int head_fetch, body_fetch;
     unsigned int head_sites[3], body_sites[3];
 } st_draws;
 
-/* A sheet description (the game's own, read by its registry at VV4 0x44C9B0 / VV5 0x44F870): +4 the name,
-   +8 columns, +0xC rows, +0x10 the extension, +0x14 files across (0: one file, named in full), +0x18 files
-   down, +0x2C the sheet once loaded. */
+/* A sheet description (the game's own: The Secret City's resource table 0x4A95A0, read by its cache 0x42E750;
+   the registries VV4 0x44C9B0 / VV5 0x44F870): +4 the name, +8 columns, +0xC rows, +0x10 the extension,
+   +0x14 files across (0: one file, named in full), +0x18 files down. */
+static const st_draws VV3_DRAWS = {
+    0x46EC93u, 0x40AF90u, 0x40AF10u, 0x4AAE60u,
+    /* ids 0x84..0x8B in the manager 0x59E110 (the loader 0x45C730): the women's heads, old heads, bodies,
+       actions, then the men's. */
+    0x59E110u + 0x127C20u, { 0x10, 0x18, 0x00, 0x08, 0x14, 0x1C, 0x04, 0x0C },
+    0x34u, 0, 0u, 0u, { 0u, 0u, 0u }, { 0u, 0u, 0u },
+};
 static const st_draws VV4_DRAWS = {
-    0x470C5Cu, 0x40ABA0u, 0x40AB10u, 0x4C3B88u, 0x44EA00u, 0x44E960u,
+    0x470C5Cu, 0x40ABA0u, 0x40AB10u, 0x4C3B88u, 0u, { 0 }, 0x70u, 1, 0x44EA00u, 0x44E960u,
     { 0x467F36u, 0x45F6BAu, 0x45F99Cu }, { 0x4681C7u, 0x45F616u, 0x45F917u },
 };
 static const st_draws VV5_DRAWS = {
-    0x47BBDCu, 0x40B0A0u, 0x40B010u, 0x4D1DA8u, 0x451DA0u, 0x451D00u,
+    0x47BBDCu, 0x40B0A0u, 0x40B010u, 0x4D1DA8u, 0u, { 0 }, 0x70u, 1, 0x451DA0u, 0x451D00u,
     { 0x47233Bu, 0x466DB7u, 0x4670CCu }, { 0x472683u, 0x466D17u, 0x467047u },
 };
+#define VV3_VILLAGE_DRAW 0x42E5E0u      /* fild dword [esp+8]; push ebx  (5 bytes), then 0x42E5E5 */
+#define VV3_DRAW_THUNK 0x409FB0u        /* mov ecx, [ecx]; jmp 0x4093A0  (7 bytes) */
+#define VV3_DRAW_ENTRY 0x4093A0u
 
 static const st_draws *g_draws;
 static void *g_toned[VVFP_SKIN_TONE_COUNT + 1][ST_SHEETS];
@@ -452,6 +473,14 @@ static char g_toned_name[VVFP_SKIN_TONE_COUNT + 1][ST_SHEETS][64];
 
 static const unsigned int *st_sheet_desc(int k) {
     return (const unsigned int *)(UINT_PTR)(g_draws->sheets + (unsigned int)k * 0x30u);
+}
+
+/* The game's own loaded sheet number `k`. */
+static void *st_own_sheet(int k) {
+    if (g_draws->slots != 0) {
+        return *(void **)(UINT_PTR)(g_draws->slots + g_draws->slot_at[k]);
+    }
+    return (void *)(UINT_PTR)st_sheet_desc(k)[11];
 }
 
 /* 1 when "<the game's folder>\Images\<name><suffix>" is a file. */
@@ -480,9 +509,8 @@ static void *st_toned_sheet(int tone, int k) {
     const char *ext = (const char *)(UINT_PTR)desc[4];
     char *name = g_toned_name[tone][k];
     unsigned int across = desc[5], down = desc[6], cols = desc[2], rows = desc[3], a, d;
-    unsigned int alloc = g_draws->alloc, ctor;
+    unsigned int alloc = g_draws->alloc, ctor, bytes = g_draws->object_bytes, i;
     unsigned int *obj;
-    int i;
     if (g_toned_tried[tone][k]) {
         return g_toned[tone][k];
     }
@@ -513,14 +541,14 @@ static void *st_toned_sheet(int tone, int k) {
     } else if (!st_picture_there(name, "")) {
         return NULL;
     }
-    /* Built as the Origins masks' atlas is (native/vv4_origins_icons vv_ensure_mask_atlas, which draws
-       in these same routines): room for the clip bounds the scaled draw reads, zeroed, then the game's
-       own constructor. */
-    obj = ((unsigned int *(__cdecl *)(unsigned int))(UINT_PTR)alloc)(0x70u);
+    /* Built as each game's Origins mask atlas is (The Secret City: VV3GetMaskAtlas, 0x34 bytes; the later
+       two: vv_ensure_mask_atlas, which draws in these same routines -- room for the clip bounds the scaled
+       draw reads there, zeroed), then the game's own constructor. */
+    obj = ((unsigned int *(__cdecl *)(unsigned int))(UINT_PTR)alloc)(bytes);
     if (obj == NULL) {
         return NULL;
     }
-    for (i = 0; i < 0x70 / 4; ++i) {
+    for (i = 0; i < bytes / 4u; ++i) {
         obj[i] = 0;
     }
     if (across != 0) {
@@ -545,10 +573,12 @@ static void *st_toned_sheet(int tone, int k) {
             call ctor
         }
     }
-    obj[0x18] = (unsigned int)-30000;   /* +0x60 the clip's left */
-    obj[0x19] = (unsigned int)-30000;   /* +0x64 top */
-    obj[0x1A] = 30000u;                 /* +0x68 right */
-    obj[0x1B] = 30000u;                 /* +0x6C bottom */
+    if (g_draws->clip) {
+        obj[0x18] = (unsigned int)-30000;   /* +0x60 the clip's left */
+        obj[0x19] = (unsigned int)-30000;   /* +0x64 top */
+        obj[0x1A] = 30000u;                 /* +0x68 right */
+        obj[0x1B] = 30000u;                 /* +0x6C bottom */
+    }
     if (obj[4] == 0) {                  /* +0x10 the cell width: 0 after a load that failed */
         return NULL;
     }
@@ -556,13 +586,13 @@ static void *st_toned_sheet(int tone, int k) {
     return obj;
 }
 
-/* What a stub keeps across the game's fetcher (the game draws on one thread, and a fetch never fetches). */
+/* What a stub hands over (the game draws on one thread, and neither a fetch nor a draw's entry re-enters). */
 static unsigned int g_swap_ret;
 static void **g_swap_out;
 static const unsigned char *g_swap_rec;
 static unsigned int g_fetch_head, g_fetch_body;
 
-/* After a fetch: *g_swap_out is the sheet the game fetched for the villager in g_swap_rec. */
+/* *g_swap_out is the sheet the game is about to draw the villager in g_swap_rec from. */
 static void __cdecl st_swap(void) {
     void **out = g_swap_out;
     void *sheet;
@@ -570,10 +600,10 @@ static void __cdecl st_swap(void) {
     if (out == NULL || *out == NULL || g_draws == NULL) {
         return;
     }
-    for (k = 0; k < ST_SHEETS && (void *)(UINT_PTR)st_sheet_desc(k)[11] != *out; ++k) {
+    for (k = 0; k < ST_SHEETS && st_own_sheet(k) != *out; ++k) {
     }
     if (k == ST_SHEETS) {
-        return;                             /* not a villager sheet (a mask, an item): the game's own */
+        return;                             /* not a villager sheet (a mask, the skeleton): the game's own */
     }
     tone = st_drawn_tone(st_value(g_swap_rec));     /* 0 unless ESI is a held villager of this village */
     if (tone == 0) {
@@ -616,14 +646,57 @@ static __declspec(naked) void st_body_stub(void) {
     }
 }
 
+/* The Secret City: at both entries the sheet is the first argument, [esp + 4].  Every register and the
+   flags are as the game had them when its own code goes on. */
+static __declspec(naked) void st_vv3_village_stub(void) {
+    __asm {
+        pushfd
+        pushad
+        lea  eax, [esp + 0x28]              ; past the registers, the flags and the return address
+        mov  g_swap_out, eax
+        mov  g_swap_rec, esi
+        call st_swap
+        popad
+        popfd
+        fild dword ptr [esp + 8]            ; the entry's own two instructions
+        push ebx
+        push VV3_VILLAGE_DRAW + 5
+        ret
+    }
+}
+
+static __declspec(naked) void st_vv3_thunk_stub(void) {
+    __asm {
+        pushfd
+        pushad
+        lea  eax, [esp + 0x28]
+        mov  g_swap_out, eax
+        mov  g_swap_rec, esi
+        call st_swap
+        popad
+        popfd
+        mov  ecx, [ecx]                     ; the thunk's own two instructions
+        push VV3_DRAW_ENTRY
+        ret
+    }
+}
+
 static int g_drawn;
 
-/* Every site must hold the game's own `call` of its fetcher; then all six are written, or none. */
+/* Every site must hold the game's own bytes; then all of a game's sites are written, or none. */
 static void st_install_draws(const st_draws *draws) {
+    static const unsigned char VILLAGE_STOCK[5] = { 0xDB, 0x44, 0x24, 0x08, 0x53 };
+    static const unsigned char THUNK_STOCK[7] = { 0x8B, 0x09, 0xE9, 0xE9, 0xF3, 0xFF, 0xFF };
     vvfp_site_write w[6];
     unsigned char stock[6][5];
     int i;
     g_draws = draws;
+    if (draws == &VV3_DRAWS) {
+        vvfp_site_branch(&w[0], VV3_VILLAGE_DRAW, 5, VILLAGE_STOCK, 0xE9, (const void *)st_vv3_village_stub);
+        vvfp_site_branch(&w[1], VV3_DRAW_THUNK, 7, THUNK_STOCK, 0xE9, (const void *)st_vv3_thunk_stub);
+        g_drawn = vvfp_install_sites(w, 2);
+        return;
+    }
     g_fetch_head = draws->head_fetch;
     g_fetch_body = draws->body_fetch;
     for (i = 0; i < 6; ++i) {
@@ -649,7 +722,9 @@ void __stdcall VvfpStartup(int game, unsigned int shipped) {
     }
     g_game = game;
 #ifndef VVFP_SKIN_TONE_HARNESS
-    if (game == 4) {
+    if (game == 3) {
+        st_install_draws(&VV3_DRAWS);
+    } else if (game == 4) {
         st_install_draws(&VV4_DRAWS);
     } else if (game == 5) {
         st_install_draws(&VV5_DRAWS);
