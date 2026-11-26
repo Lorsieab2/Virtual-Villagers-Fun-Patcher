@@ -559,6 +559,7 @@ static const char *const TR_KEY_STEMS[] = {
     "vvfp.story/story_revive.rv_refusal_text.s4",
     "vvfp.story/story_revive.rv_refusal_text.s5",
     "vvfp.story/story_revive.rv_refusal_text.s6",
+    "vvfp.story/story_revive.rv_role_age_note.s0",
     "vvfp.story/story_revive.rv_row_text.s0",
     "vvfp.story/story_revive.rv_row_text.s1",
     "vvfp.story/story_revive.rv_row_text.s2",

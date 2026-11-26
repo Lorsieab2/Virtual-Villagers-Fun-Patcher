@@ -44,16 +44,20 @@ SPECIAL = {
     "vv2": (" An Esteemed Elder whose complete record was kept comes back an Esteemed Elder (their totem stays the"
             " only one); from the logs only, as an ordinary villager."),
     "vv3": (" A Tribal Chief whose complete record was kept comes back the Tribal Chief while no other Chief lives;"
-            " otherwise, or from the logs only, as an ordinary villager."),
+            " otherwise as an ordinary villager wearing their own original body, not the robe (the owner,"
+            " 2026-11-26); from the logs only, as an ordinary villager."),
     "vv4": "",
     "vv5": (" A Heathen whose death or disappearance the logs record (\"Faction: Heathen\") is listed and comes back as a"
             " Heathen in the camp, through the game's own Heathen creator, with their Faith, masks and every other"
             " detail. New Believers' puzzle Heathens (the Heathen Doctor, the Heathen Chief, the three Masters and the"
             " Heathen Mommy; the owner, 2026-11-26) come back in their own role and mask, set up as the game sets that"
-            " role up - the Chief with every skill 100, the Mommy with her infant by a living adult Heathen of the"
+            " role up and at the role's own age (the Doctor and the Mommy 20 years, the Masters 27, the Chief 50), so"
+            " the role works - the Chief with every skill 100, the Mommy with her infant by a living adult Heathen of the"
             " camp, never \"Unknown\" - or as an ordinary Heathen, with every other detail, when a living Heathen holds"
             " that role now, its puzzle is solved, or (the Mommy) no other adult Heathen lives. A believer who left to"
-            " become a Heathen is listed as alive among the Heathens."),
+            " become a Heathen is listed as alive among the Heathens. A Heathen buried at the mud hut (\"VVFP Heathen"
+            " Mausoleum.dll\") is found there and their grave is taken away through that companion. Heathens come back"
+            " as Heathens even after The Last Heathen is solved."),
 }
 
 

@@ -2221,16 +2221,16 @@ vv1	vvfp.story/story_revive.rv_details.s22	key	yes		    Mother: %s\r\n
 vv1	vvfp.story/story_revive.rv_details.s23	key	yes		Parents: unknown\r\n
 vv1	vvfp.story/story_revive.rv_details.s24	key	yes		(A New Home keeps parents only with Show Parents in Details Screen.)\r\n
 vv1	vvfp.story/story_revive.rv_details.s25	key	yes		\r\nCan not come back: %s.\r\n
-vv1	vvfp.story/story_revive.rv_details.s26	key	yes		\r\nComes back as this same person at age 5, a Heathen in the camp.\r\n
-vv1	vvfp.story/story_revive.rv_details.s27	key	yes		\r\nComes back as this same person at age 5.\r\n
+vv1	vvfp.story/story_revive.rv_details.s26	key	yes		\r\nComes back as this same person at age %d, a Heathen in the camp.\r\n
+vv1	vvfp.story/story_revive.rv_details.s27	key	yes		\r\nComes back as this same person at age %d.\r\n
 vv1	vvfp.story/story_revive.rv_dialog.s0	key	yes		Bring back a villager who was buried or vanished: they return as the same person, aged 5, and their grave is removed. Each revival costs %s tech points (your village has %d).
 vv1	vvfp.story/story_revive.rv_dialog.s1	key	yes		Revive (%s tech points)
 vv1	vvfp.story/story_revive.rv_dialog.s2	key	yes		Nobody to bring back: the village's Deaths and Disappearances log has no villager who is not in the village now. (Deaths are logged with Write Births and Conceptions Log to Text File and Show Cause of Death and Epitaphs on Graves, and Log Every Death ticked.)
 vv1	vvfp.story/story_revive.rv_dialog.s3	key	yes		Choose a villager in the list first.
 vv1	vvfp.story/story_revive.rv_dialog.s4	key	yes		%s can not be brought back: %s.
-vv1	vvfp.story/story_revive.story_revive_from_graves.s0	key	yes		Do you want to bring back %s for %s tech points?\r\nThey return as the same person, aged 5%s.\r\n\r\nPress OK to confirm, or Cancel.
+vv1	vvfp.story/story_revive.story_revive_from_graves.s0	key	yes		Do you want to bring back %s for %s tech points?\r\nThey return as the same person, aged %d%s.\r\n\r\nPress OK to confirm, or Cancel.
 vv1	vvfp.story/story_revive.story_revive_from_graves.s1	key	yes		, and their grave is removed
-vv1	vvfp.story/story_revive.story_revive_from_graves.s2	key	yes		%s is back in the village, aged 5.
+vv1	vvfp.story/story_revive.story_revive_from_graves.s2	key	yes		%s is back in the village, aged %d.
 vv1	vvfp.story/vvfp_story_upgrades.dlg3.s0	content	yes		Revive (100,000 tech points)
 vv1	vvfp.more_island_events/adv_text.NO_EFFECT	key	yes		(no effect)
 vv1	vvfp.more_island_events/cave_text.NO_EFFECT	key	yes		(no effect)
@@ -2273,7 +2273,7 @@ vv1	vvfp.story/story_graph.cg_encampment_kind.s0	content	yes		Honoring the dead 
 vv1	vvfp.story/story_graph.cg_encampment_kind.s1	content	yes		Reflecting (at the encampment)
 vv1	vvfp.story/story_graph.cg_encampment_kind.s2	content	yes		Honoring the dead or reflecting (at the encampment)
 vv1	vvfp.story/story_graph.cg_cond_words.s7	content	yes		fewer than %d graves
-vv1	vvfp.story/story_revive.rv_details.s28	key	yes		Special villager: %s. They come back in that role and its mask, set up as the game sets the role up (the Heathen Chief with every skill 100, the Heathen Mommy with her infant by a living adult Heathen) - unless a living Heathen holds the role now or its puzzle is solved: then as an ordinary Heathen, with every other detail.\r\n
+vv1	vvfp.story/story_revive.rv_details.s28	key	yes		Special villager: %s. They come back in that role and its mask, set up as the game sets the role up and at the role's own age, %d (the Heathen Chief with every skill 100, the Heathen Mommy with her infant by a living adult Heathen) - unless a living Heathen holds the role now or its puzzle is solved: then as an ordinary Heathen, with every other detail.\r\n
 vv1	vvfp.story/story_revive.rv_details.s29	key	yes		 (kept: they come back with it where the game allows it)
 vv1	vvfp.story/story_revive.rv_details.s30	key	yes		Skills (kept at their death):\r\n
 vv1	vvfp.story/story_revive.rv_details.s31	key	yes		\r\nKept afterwards by Repair Saves & Logs, from %s saved %s: their name, sex, looks, family, parents, likes and dislikes exactly; their skills, job preference and titles %s.\r\n
@@ -2281,9 +2281,10 @@ vv1	vvfp.story/story_revive.rv_details.s32	key	yes		the copy of their record the
 vv1	vvfp.story/story_revive.rv_details.s33	key	yes		a backup of the save
 vv1	vvfp.story/story_revive.rv_details.s34	key	yes		as they were at the end
 vv1	vvfp.story/story_revive.rv_details.s35	key	yes		as they were then (they may have grown since)
-vv1	vvfp.story/story_revive.rv_details.s36	key	yes		\r\nEvery detail was kept at their death: they come back with their own looks, family, parents, likes, dislikes, skills, job preference and titles, and what the patcher keeps for them. Only their age (5), health and what they were doing start fresh.\r\n
+vv1	vvfp.story/story_revive.rv_details.s36	key	yes		\r\nEvery detail was kept at their death: they come back with their own looks, family, parents, likes, dislikes, skills, job preference and titles, and what the patcher keeps for them. Only their age, health and what they were doing start fresh.\r\n
 vv1	vvfp.story/story_revive.rv_details.s37	key	yes		\r\nFrom the logs only: more than one kept record could be this villager, so none is used.\r\n
 vv1	vvfp.story/story_revive.rv_details.s38	key	yes		\r\nFrom the logs only: no complete record was kept (they left before v1.35.101, or Show Cause of Death and Epitaphs on Graves was off). What the logs do not say, the game picks.\r\n
+vv1	vvfp.story/story_revive.rv_role_age_note.s0	key	yes		 A puzzle Heathen (the Doctor, the Chief, the Masters, the Mommy) comes back at their role's own age, so the role works.
 vv1	vvfp.gui/rename_tribe.long_name_note	content	yes		Allowed. This name is longer than the game keeps in its save, so the save keeps a short form of it. The game shows the whole name only with "Render Unicode with In-Game Fonts" or "Use Unicode Font" patched in; otherwise it shows the short form (for example "Alexandria Montg...").
 vv1	vvfp.gui/difficulty_sliders.title	content	yes		Difficulty Sliders
 vv1	vvfp.gui/difficulty_sliders.button	content	yes		Difficulty Sliders...
@@ -4947,16 +4948,16 @@ vv2	vvfp.story/story_revive.rv_details.s22	key	yes		    Mother: %s\r\n
 vv2	vvfp.story/story_revive.rv_details.s23	key	yes		Parents: unknown\r\n
 vv2	vvfp.story/story_revive.rv_details.s24	key	yes		(A New Home keeps parents only with Show Parents in Details Screen.)\r\n
 vv2	vvfp.story/story_revive.rv_details.s25	key	yes		\r\nCan not come back: %s.\r\n
-vv2	vvfp.story/story_revive.rv_details.s26	key	yes		\r\nComes back as this same person at age 5, a Heathen in the camp.\r\n
-vv2	vvfp.story/story_revive.rv_details.s27	key	yes		\r\nComes back as this same person at age 5.\r\n
+vv2	vvfp.story/story_revive.rv_details.s26	key	yes		\r\nComes back as this same person at age %d, a Heathen in the camp.\r\n
+vv2	vvfp.story/story_revive.rv_details.s27	key	yes		\r\nComes back as this same person at age %d.\r\n
 vv2	vvfp.story/story_revive.rv_dialog.s0	key	yes		Bring back a villager who was buried or vanished: they return as the same person, aged 5, and their grave is removed. Each revival costs %s tech points (your village has %d).
 vv2	vvfp.story/story_revive.rv_dialog.s1	key	yes		Revive (%s tech points)
 vv2	vvfp.story/story_revive.rv_dialog.s2	key	yes		Nobody to bring back: the village's Deaths and Disappearances log has no villager who is not in the village now. (Deaths are logged with Write Births and Conceptions Log to Text File and Show Cause of Death and Epitaphs on Graves, and Log Every Death ticked.)
 vv2	vvfp.story/story_revive.rv_dialog.s3	key	yes		Choose a villager in the list first.
 vv2	vvfp.story/story_revive.rv_dialog.s4	key	yes		%s can not be brought back: %s.
-vv2	vvfp.story/story_revive.story_revive_from_graves.s0	key	yes		Do you want to bring back %s for %s tech points?\r\nThey return as the same person, aged 5%s.\r\n\r\nPress OK to confirm, or Cancel.
+vv2	vvfp.story/story_revive.story_revive_from_graves.s0	key	yes		Do you want to bring back %s for %s tech points?\r\nThey return as the same person, aged %d%s.\r\n\r\nPress OK to confirm, or Cancel.
 vv2	vvfp.story/story_revive.story_revive_from_graves.s1	key	yes		, and their grave is removed
-vv2	vvfp.story/story_revive.story_revive_from_graves.s2	key	yes		%s is back in the village, aged 5.
+vv2	vvfp.story/story_revive.story_revive_from_graves.s2	key	yes		%s is back in the village, aged %d.
 vv2	vvfp.story/vvfp_story_upgrades.dlg3.s0	content	yes		Revive (100,000 tech points)
 vv2	vvfp.more_island_events/adv_text.NO_EFFECT	key	yes		(no effect)
 vv2	vvfp.story/story_graph.cg_heathen_believer_words.s0	content	yes		, a believer,
@@ -4998,7 +4999,7 @@ vv2	vvfp.story/story_graph.cg_encampment_kind.s0	content	yes		Honoring the dead 
 vv2	vvfp.story/story_graph.cg_encampment_kind.s1	content	yes		Reflecting (at the encampment)
 vv2	vvfp.story/story_graph.cg_encampment_kind.s2	content	yes		Honoring the dead or reflecting (at the encampment)
 vv2	vvfp.story/story_graph.cg_cond_words.s7	content	yes		fewer than %d graves
-vv2	vvfp.story/story_revive.rv_details.s28	key	yes		Special villager: %s. They come back in that role and its mask, set up as the game sets the role up (the Heathen Chief with every skill 100, the Heathen Mommy with her infant by a living adult Heathen) - unless a living Heathen holds the role now or its puzzle is solved: then as an ordinary Heathen, with every other detail.\r\n
+vv2	vvfp.story/story_revive.rv_details.s28	key	yes		Special villager: %s. They come back in that role and its mask, set up as the game sets the role up and at the role's own age, %d (the Heathen Chief with every skill 100, the Heathen Mommy with her infant by a living adult Heathen) - unless a living Heathen holds the role now or its puzzle is solved: then as an ordinary Heathen, with every other detail.\r\n
 vv2	vvfp.story/story_revive.rv_details.s29	key	yes		 (kept: they come back with it where the game allows it)
 vv2	vvfp.story/story_revive.rv_details.s30	key	yes		Skills (kept at their death):\r\n
 vv2	vvfp.story/story_revive.rv_details.s31	key	yes		\r\nKept afterwards by Repair Saves & Logs, from %s saved %s: their name, sex, looks, family, parents, likes and dislikes exactly; their skills, job preference and titles %s.\r\n
@@ -5006,9 +5007,10 @@ vv2	vvfp.story/story_revive.rv_details.s32	key	yes		the copy of their record the
 vv2	vvfp.story/story_revive.rv_details.s33	key	yes		a backup of the save
 vv2	vvfp.story/story_revive.rv_details.s34	key	yes		as they were at the end
 vv2	vvfp.story/story_revive.rv_details.s35	key	yes		as they were then (they may have grown since)
-vv2	vvfp.story/story_revive.rv_details.s36	key	yes		\r\nEvery detail was kept at their death: they come back with their own looks, family, parents, likes, dislikes, skills, job preference and titles, and what the patcher keeps for them. Only their age (5), health and what they were doing start fresh.\r\n
+vv2	vvfp.story/story_revive.rv_details.s36	key	yes		\r\nEvery detail was kept at their death: they come back with their own looks, family, parents, likes, dislikes, skills, job preference and titles, and what the patcher keeps for them. Only their age, health and what they were doing start fresh.\r\n
 vv2	vvfp.story/story_revive.rv_details.s37	key	yes		\r\nFrom the logs only: more than one kept record could be this villager, so none is used.\r\n
 vv2	vvfp.story/story_revive.rv_details.s38	key	yes		\r\nFrom the logs only: no complete record was kept (they left before v1.35.101, or Show Cause of Death and Epitaphs on Graves was off). What the logs do not say, the game picks.\r\n
+vv2	vvfp.story/story_revive.rv_role_age_note.s0	key	yes		 A puzzle Heathen (the Doctor, the Chief, the Masters, the Mommy) comes back at their role's own age, so the role works.
 vv2	vvfp.gui/rename_tribe.long_name_note	content	yes		Allowed. This name is longer than the game keeps in its save, so the save keeps a short form of it. The game shows the whole name only with "Render Unicode with In-Game Fonts" or "Use Unicode Font" patched in; otherwise it shows the short form (for example "Alexandria Montg...").
 vv2	vvfp.gui/difficulty_sliders.title	content	yes		Difficulty Sliders
 vv2	vvfp.gui/difficulty_sliders.button	content	yes		Difficulty Sliders...
@@ -7469,16 +7471,16 @@ vv3	vvfp.story/story_revive.rv_details.s22	key	yes		    Mother: %s\r\n
 vv3	vvfp.story/story_revive.rv_details.s23	key	yes		Parents: unknown\r\n
 vv3	vvfp.story/story_revive.rv_details.s24	key	yes		(A New Home keeps parents only with Show Parents in Details Screen.)\r\n
 vv3	vvfp.story/story_revive.rv_details.s25	key	yes		\r\nCan not come back: %s.\r\n
-vv3	vvfp.story/story_revive.rv_details.s26	key	yes		\r\nComes back as this same person at age 5, a Heathen in the camp.\r\n
-vv3	vvfp.story/story_revive.rv_details.s27	key	yes		\r\nComes back as this same person at age 5.\r\n
+vv3	vvfp.story/story_revive.rv_details.s26	key	yes		\r\nComes back as this same person at age %d, a Heathen in the camp.\r\n
+vv3	vvfp.story/story_revive.rv_details.s27	key	yes		\r\nComes back as this same person at age %d.\r\n
 vv3	vvfp.story/story_revive.rv_dialog.s0	key	yes		Bring back a villager who was buried or vanished: they return as the same person, aged 5, and their grave is removed. Each revival costs %s tech points (your village has %d).
 vv3	vvfp.story/story_revive.rv_dialog.s1	key	yes		Revive (%s tech points)
 vv3	vvfp.story/story_revive.rv_dialog.s2	key	yes		Nobody to bring back: the village's Deaths and Disappearances log has no villager who is not in the village now. (Deaths are logged with Write Births and Conceptions Log to Text File and Show Cause of Death and Epitaphs on Graves, and Log Every Death ticked.)
 vv3	vvfp.story/story_revive.rv_dialog.s3	key	yes		Choose a villager in the list first.
 vv3	vvfp.story/story_revive.rv_dialog.s4	key	yes		%s can not be brought back: %s.
-vv3	vvfp.story/story_revive.story_revive_from_graves.s0	key	yes		Do you want to bring back %s for %s tech points?\r\nThey return as the same person, aged 5%s.\r\n\r\nPress OK to confirm, or Cancel.
+vv3	vvfp.story/story_revive.story_revive_from_graves.s0	key	yes		Do you want to bring back %s for %s tech points?\r\nThey return as the same person, aged %d%s.\r\n\r\nPress OK to confirm, or Cancel.
 vv3	vvfp.story/story_revive.story_revive_from_graves.s1	key	yes		, and their grave is removed
-vv3	vvfp.story/story_revive.story_revive_from_graves.s2	key	yes		%s is back in the village, aged 5.
+vv3	vvfp.story/story_revive.story_revive_from_graves.s2	key	yes		%s is back in the village, aged %d.
 vv3	vvfp.story/vvfp_story_upgrades.dlg3.s0	content	yes		Revive (100,000 tech points)
 vv3	vvfp.more_island_events/adv_text.NO_EFFECT	key	yes		(no effect)
 vv3	vvfp.more_island_events/dive_text.NO_EFFECT	key	yes		(no effect)
@@ -7521,7 +7523,7 @@ vv3	vvfp.story/story_graph.cg_encampment_kind.s0	content	yes		Honoring the dead 
 vv3	vvfp.story/story_graph.cg_encampment_kind.s1	content	yes		Reflecting (at the encampment)
 vv3	vvfp.story/story_graph.cg_encampment_kind.s2	content	yes		Honoring the dead or reflecting (at the encampment)
 vv3	vvfp.story/story_graph.cg_cond_words.s7	content	yes		fewer than %d graves
-vv3	vvfp.story/story_revive.rv_details.s28	key	yes		Special villager: %s. They come back in that role and its mask, set up as the game sets the role up (the Heathen Chief with every skill 100, the Heathen Mommy with her infant by a living adult Heathen) - unless a living Heathen holds the role now or its puzzle is solved: then as an ordinary Heathen, with every other detail.\r\n
+vv3	vvfp.story/story_revive.rv_details.s28	key	yes		Special villager: %s. They come back in that role and its mask, set up as the game sets the role up and at the role's own age, %d (the Heathen Chief with every skill 100, the Heathen Mommy with her infant by a living adult Heathen) - unless a living Heathen holds the role now or its puzzle is solved: then as an ordinary Heathen, with every other detail.\r\n
 vv3	vvfp.story/story_revive.rv_details.s29	key	yes		 (kept: they come back with it where the game allows it)
 vv3	vvfp.story/story_revive.rv_details.s30	key	yes		Skills (kept at their death):\r\n
 vv3	vvfp.story/story_revive.rv_details.s31	key	yes		\r\nKept afterwards by Repair Saves & Logs, from %s saved %s: their name, sex, looks, family, parents, likes and dislikes exactly; their skills, job preference and titles %s.\r\n
@@ -7529,9 +7531,10 @@ vv3	vvfp.story/story_revive.rv_details.s32	key	yes		the copy of their record the
 vv3	vvfp.story/story_revive.rv_details.s33	key	yes		a backup of the save
 vv3	vvfp.story/story_revive.rv_details.s34	key	yes		as they were at the end
 vv3	vvfp.story/story_revive.rv_details.s35	key	yes		as they were then (they may have grown since)
-vv3	vvfp.story/story_revive.rv_details.s36	key	yes		\r\nEvery detail was kept at their death: they come back with their own looks, family, parents, likes, dislikes, skills, job preference and titles, and what the patcher keeps for them. Only their age (5), health and what they were doing start fresh.\r\n
+vv3	vvfp.story/story_revive.rv_details.s36	key	yes		\r\nEvery detail was kept at their death: they come back with their own looks, family, parents, likes, dislikes, skills, job preference and titles, and what the patcher keeps for them. Only their age, health and what they were doing start fresh.\r\n
 vv3	vvfp.story/story_revive.rv_details.s37	key	yes		\r\nFrom the logs only: more than one kept record could be this villager, so none is used.\r\n
 vv3	vvfp.story/story_revive.rv_details.s38	key	yes		\r\nFrom the logs only: no complete record was kept (they left before v1.35.101, or Show Cause of Death and Epitaphs on Graves was off). What the logs do not say, the game picks.\r\n
+vv3	vvfp.story/story_revive.rv_role_age_note.s0	key	yes		 A puzzle Heathen (the Doctor, the Chief, the Masters, the Mommy) comes back at their role's own age, so the role works.
 vv3	vvfp.gui/rename_tribe.long_name_note	content	yes		Allowed. This name is longer than the game keeps in its save, so the save keeps a short form of it. The game shows the whole name only with "Render Unicode with In-Game Fonts" or "Use Unicode Font" patched in; otherwise it shows the short form (for example "Alexandria Montg...").
 vv3	vvfp.gui/difficulty_sliders.title	content	yes		Difficulty Sliders
 vv3	vvfp.gui/difficulty_sliders.button	content	yes		Difficulty Sliders...
@@ -9807,16 +9810,16 @@ vv4	vvfp.story/story_revive.rv_details.s22	key	yes		    Mother: %s\r\n
 vv4	vvfp.story/story_revive.rv_details.s23	key	yes		Parents: unknown\r\n
 vv4	vvfp.story/story_revive.rv_details.s24	key	yes		(A New Home keeps parents only with Show Parents in Details Screen.)\r\n
 vv4	vvfp.story/story_revive.rv_details.s25	key	yes		\r\nCan not come back: %s.\r\n
-vv4	vvfp.story/story_revive.rv_details.s26	key	yes		\r\nComes back as this same person at age 5, a Heathen in the camp.\r\n
-vv4	vvfp.story/story_revive.rv_details.s27	key	yes		\r\nComes back as this same person at age 5.\r\n
+vv4	vvfp.story/story_revive.rv_details.s26	key	yes		\r\nComes back as this same person at age %d, a Heathen in the camp.\r\n
+vv4	vvfp.story/story_revive.rv_details.s27	key	yes		\r\nComes back as this same person at age %d.\r\n
 vv4	vvfp.story/story_revive.rv_dialog.s0	key	yes		Bring back a villager who was buried or vanished: they return as the same person, aged 5, and their grave is removed. Each revival costs %s tech points (your village has %d).
 vv4	vvfp.story/story_revive.rv_dialog.s1	key	yes		Revive (%s tech points)
 vv4	vvfp.story/story_revive.rv_dialog.s2	key	yes		Nobody to bring back: the village's Deaths and Disappearances log has no villager who is not in the village now. (Deaths are logged with Write Births and Conceptions Log to Text File and Show Cause of Death and Epitaphs on Graves, and Log Every Death ticked.)
 vv4	vvfp.story/story_revive.rv_dialog.s3	key	yes		Choose a villager in the list first.
 vv4	vvfp.story/story_revive.rv_dialog.s4	key	yes		%s can not be brought back: %s.
-vv4	vvfp.story/story_revive.story_revive_from_graves.s0	key	yes		Do you want to bring back %s for %s tech points?\r\nThey return as the same person, aged 5%s.\r\n\r\nPress OK to confirm, or Cancel.
+vv4	vvfp.story/story_revive.story_revive_from_graves.s0	key	yes		Do you want to bring back %s for %s tech points?\r\nThey return as the same person, aged %d%s.\r\n\r\nPress OK to confirm, or Cancel.
 vv4	vvfp.story/story_revive.story_revive_from_graves.s1	key	yes		, and their grave is removed
-vv4	vvfp.story/story_revive.story_revive_from_graves.s2	key	yes		%s is back in the village, aged 5.
+vv4	vvfp.story/story_revive.story_revive_from_graves.s2	key	yes		%s is back in the village, aged %d.
 vv4	vvfp.story/vvfp_story_upgrades.dlg3.s0	content	yes		Revive (100,000 tech points)
 vv4	vvfp.more_island_events/adv_text.NO_EFFECT	key	yes		(no effect)
 vv4	vvfp.story/story_graph.cg_heathen_believer_words.s0	content	yes		, a believer,
@@ -9858,7 +9861,7 @@ vv4	vvfp.story/story_graph.cg_encampment_kind.s0	content	yes		Honoring the dead 
 vv4	vvfp.story/story_graph.cg_encampment_kind.s1	content	yes		Reflecting (at the encampment)
 vv4	vvfp.story/story_graph.cg_encampment_kind.s2	content	yes		Honoring the dead or reflecting (at the encampment)
 vv4	vvfp.story/story_graph.cg_cond_words.s7	content	yes		fewer than %d graves
-vv4	vvfp.story/story_revive.rv_details.s28	key	yes		Special villager: %s. They come back in that role and its mask, set up as the game sets the role up (the Heathen Chief with every skill 100, the Heathen Mommy with her infant by a living adult Heathen) - unless a living Heathen holds the role now or its puzzle is solved: then as an ordinary Heathen, with every other detail.\r\n
+vv4	vvfp.story/story_revive.rv_details.s28	key	yes		Special villager: %s. They come back in that role and its mask, set up as the game sets the role up and at the role's own age, %d (the Heathen Chief with every skill 100, the Heathen Mommy with her infant by a living adult Heathen) - unless a living Heathen holds the role now or its puzzle is solved: then as an ordinary Heathen, with every other detail.\r\n
 vv4	vvfp.story/story_revive.rv_details.s29	key	yes		 (kept: they come back with it where the game allows it)
 vv4	vvfp.story/story_revive.rv_details.s30	key	yes		Skills (kept at their death):\r\n
 vv4	vvfp.story/story_revive.rv_details.s31	key	yes		\r\nKept afterwards by Repair Saves & Logs, from %s saved %s: their name, sex, looks, family, parents, likes and dislikes exactly; their skills, job preference and titles %s.\r\n
@@ -9866,9 +9869,10 @@ vv4	vvfp.story/story_revive.rv_details.s32	key	yes		the copy of their record the
 vv4	vvfp.story/story_revive.rv_details.s33	key	yes		a backup of the save
 vv4	vvfp.story/story_revive.rv_details.s34	key	yes		as they were at the end
 vv4	vvfp.story/story_revive.rv_details.s35	key	yes		as they were then (they may have grown since)
-vv4	vvfp.story/story_revive.rv_details.s36	key	yes		\r\nEvery detail was kept at their death: they come back with their own looks, family, parents, likes, dislikes, skills, job preference and titles, and what the patcher keeps for them. Only their age (5), health and what they were doing start fresh.\r\n
+vv4	vvfp.story/story_revive.rv_details.s36	key	yes		\r\nEvery detail was kept at their death: they come back with their own looks, family, parents, likes, dislikes, skills, job preference and titles, and what the patcher keeps for them. Only their age, health and what they were doing start fresh.\r\n
 vv4	vvfp.story/story_revive.rv_details.s37	key	yes		\r\nFrom the logs only: more than one kept record could be this villager, so none is used.\r\n
 vv4	vvfp.story/story_revive.rv_details.s38	key	yes		\r\nFrom the logs only: no complete record was kept (they left before v1.35.101, or Show Cause of Death and Epitaphs on Graves was off). What the logs do not say, the game picks.\r\n
+vv4	vvfp.story/story_revive.rv_role_age_note.s0	key	yes		 A puzzle Heathen (the Doctor, the Chief, the Masters, the Mommy) comes back at their role's own age, so the role works.
 vv4	vvfp.gui/rename_tribe.long_name_note	content	yes		Allowed. This name is longer than the game keeps in its save, so the save keeps a short form of it. The game shows the whole name only with "Render Unicode with In-Game Fonts" or "Use Unicode Font" patched in; otherwise it shows the short form (for example "Alexandria Montg...").
 vv4	vvfp.gui/difficulty_sliders.title	content	yes		Difficulty Sliders
 vv4	vvfp.gui/difficulty_sliders.button	content	yes		Difficulty Sliders...
@@ -12186,16 +12190,16 @@ vv5	vvfp.story/story_revive.rv_details.s22	key	yes		    Mother: %s\r\n
 vv5	vvfp.story/story_revive.rv_details.s23	key	yes		Parents: unknown\r\n
 vv5	vvfp.story/story_revive.rv_details.s24	key	yes		(A New Home keeps parents only with Show Parents in Details Screen.)\r\n
 vv5	vvfp.story/story_revive.rv_details.s25	key	yes		\r\nCan not come back: %s.\r\n
-vv5	vvfp.story/story_revive.rv_details.s26	key	yes		\r\nComes back as this same person at age 5, a Heathen in the camp.\r\n
-vv5	vvfp.story/story_revive.rv_details.s27	key	yes		\r\nComes back as this same person at age 5.\r\n
+vv5	vvfp.story/story_revive.rv_details.s26	key	yes		\r\nComes back as this same person at age %d, a Heathen in the camp.\r\n
+vv5	vvfp.story/story_revive.rv_details.s27	key	yes		\r\nComes back as this same person at age %d.\r\n
 vv5	vvfp.story/story_revive.rv_dialog.s0	key	yes		Bring back a villager who was buried or vanished: they return as the same person, aged 5, and their grave is removed. Each revival costs %s tech points (your village has %d).
 vv5	vvfp.story/story_revive.rv_dialog.s1	key	yes		Revive (%s tech points)
 vv5	vvfp.story/story_revive.rv_dialog.s2	key	yes		Nobody to bring back: the village's Deaths and Disappearances log has no villager who is not in the village now. (Deaths are logged with Write Births and Conceptions Log to Text File and Show Cause of Death and Epitaphs on Graves, and Log Every Death ticked.)
 vv5	vvfp.story/story_revive.rv_dialog.s3	key	yes		Choose a villager in the list first.
 vv5	vvfp.story/story_revive.rv_dialog.s4	key	yes		%s can not be brought back: %s.
-vv5	vvfp.story/story_revive.story_revive_from_graves.s0	key	yes		Do you want to bring back %s for %s tech points?\r\nThey return as the same person, aged 5%s.\r\n\r\nPress OK to confirm, or Cancel.
+vv5	vvfp.story/story_revive.story_revive_from_graves.s0	key	yes		Do you want to bring back %s for %s tech points?\r\nThey return as the same person, aged %d%s.\r\n\r\nPress OK to confirm, or Cancel.
 vv5	vvfp.story/story_revive.story_revive_from_graves.s1	key	yes		, and their grave is removed
-vv5	vvfp.story/story_revive.story_revive_from_graves.s2	key	yes		%s is back in the village, aged 5.
+vv5	vvfp.story/story_revive.story_revive_from_graves.s2	key	yes		%s is back in the village, aged %d.
 vv5	vvfp.story/vvfp_story_upgrades.dlg3.s0	content	yes		Revive (100,000 tech points)
 vv5	vvfp.more_island_events/adv_text.NO_EFFECT	key	yes		(no effect)
 vv5	vvfp.story/story_graph.cg_heathen_believer_words.s0	content	yes		, a believer,
@@ -12239,7 +12243,7 @@ vv5	vvfp.story/story_graph.cg_encampment_kind.s2	content	yes		Honoring the dead 
 vv5	vvfp.story/story_graph.cg_cond_words.s7	content	yes		fewer than %d graves
 vv5	patch/0x4946dd	patch	yes		{name} sees a heartfelt memorial.
 vv5	patch/0x494818	patch	yes		{name} sees the decorated encampment.
-vv5	vvfp.story/story_revive.rv_details.s28	key	yes		Special villager: %s. They come back in that role and its mask, set up as the game sets the role up (the Heathen Chief with every skill 100, the Heathen Mommy with her infant by a living adult Heathen) - unless a living Heathen holds the role now or its puzzle is solved: then as an ordinary Heathen, with every other detail.\r\n
+vv5	vvfp.story/story_revive.rv_details.s28	key	yes		Special villager: %s. They come back in that role and its mask, set up as the game sets the role up and at the role's own age, %d (the Heathen Chief with every skill 100, the Heathen Mommy with her infant by a living adult Heathen) - unless a living Heathen holds the role now or its puzzle is solved: then as an ordinary Heathen, with every other detail.\r\n
 vv5	vvfp.story/story_revive.rv_details.s29	key	yes		 (kept: they come back with it where the game allows it)
 vv5	vvfp.story/story_revive.rv_details.s30	key	yes		Skills (kept at their death):\r\n
 vv5	vvfp.story/story_revive.rv_details.s31	key	yes		\r\nKept afterwards by Repair Saves & Logs, from %s saved %s: their name, sex, looks, family, parents, likes and dislikes exactly; their skills, job preference and titles %s.\r\n
@@ -12247,9 +12251,10 @@ vv5	vvfp.story/story_revive.rv_details.s32	key	yes		the copy of their record the
 vv5	vvfp.story/story_revive.rv_details.s33	key	yes		a backup of the save
 vv5	vvfp.story/story_revive.rv_details.s34	key	yes		as they were at the end
 vv5	vvfp.story/story_revive.rv_details.s35	key	yes		as they were then (they may have grown since)
-vv5	vvfp.story/story_revive.rv_details.s36	key	yes		\r\nEvery detail was kept at their death: they come back with their own looks, family, parents, likes, dislikes, skills, job preference and titles, and what the patcher keeps for them. Only their age (5), health and what they were doing start fresh.\r\n
+vv5	vvfp.story/story_revive.rv_details.s36	key	yes		\r\nEvery detail was kept at their death: they come back with their own looks, family, parents, likes, dislikes, skills, job preference and titles, and what the patcher keeps for them. Only their age, health and what they were doing start fresh.\r\n
 vv5	vvfp.story/story_revive.rv_details.s37	key	yes		\r\nFrom the logs only: more than one kept record could be this villager, so none is used.\r\n
 vv5	vvfp.story/story_revive.rv_details.s38	key	yes		\r\nFrom the logs only: no complete record was kept (they left before v1.35.101, or Show Cause of Death and Epitaphs on Graves was off). What the logs do not say, the game picks.\r\n
+vv5	vvfp.story/story_revive.rv_role_age_note.s0	key	yes		 A puzzle Heathen (the Doctor, the Chief, the Masters, the Mommy) comes back at their role's own age, so the role works.
 vv5	vvfp.gui/rename_tribe.long_name_note	content	yes		Allowed. This name is longer than the game keeps in its save, so the save keeps a short form of it. The game shows the whole name only with "Render Unicode with In-Game Fonts" or "Use Unicode Font" patched in; otherwise it shows the short form (for example "Alexandria Montg...").
 vv5	vvfp.gui/difficulty_sliders.title	content	yes		Difficulty Sliders
 vv5	vvfp.gui/difficulty_sliders.button	content	yes		Difficulty Sliders...

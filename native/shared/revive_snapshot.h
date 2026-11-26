@@ -68,6 +68,9 @@
 #define VV_RS_MASK          0x04u         /* mask: the Origins companion's cosmetic mask (0 none, 1..5) */
 #define VV_RS_TRAITS        0x08u         /* traits: the story traits (VvfpStoryTraitsOf) */
 #define VV_RS_PARENTS       0x10u         /* A New Home's parents (VVFP VV1 Parentage.dll: names, looks) */
+#define VV_RS_ORIGINAL      0x20u         /* original_*: VVFP Original Look.dll's look before any change (The Secret
+                                             City: a Chief who comes back while another Chief lives takes their
+                                             own body, not the robe -- the owner's decision, 2026-11-26) */
 
 /* Where a snapshot came from (vv_rs_entry.source).  Repair Saves & Logs (src/vv_revive_backfill.py, the owner
    2026-11-26: "repair logs/saves should also retroactively make revival files for any deceased/disappeared
@@ -93,6 +96,7 @@ typedef struct {
     int presentation;
     int mask;
     unsigned int traits;
+    int original_head, original_body, original_mask;   /* VV_RS_ORIGINAL: their look before any change */
     int parent_looks[4];                 /* A New Home: father head, body, mother head, body (-1 unknown) */
     char father[VV_RS_NAME];             /* A New Home's parents' names ("" unknown) */
     char mother[VV_RS_NAME];
@@ -236,6 +240,7 @@ static void vv_rs_begin(vv_rs_entry *e, int game) {
     e->source = VV_RS_CAPTURED;
     e->exact = VV_RS_EXACT_IDENTITY | VV_RS_EXACT_LATER;
     e->head_look = e->presentation = e->mask = -1;
+    e->original_head = e->original_body = e->original_mask = -1;
     e->parent_looks[0] = e->parent_looks[1] = e->parent_looks[2] = e->parent_looks[3] = -1;
 }
 
@@ -317,7 +322,8 @@ static int vv_rs_same_keep(const vv_rs_entry *a, const vv_rs_entry *b) {
         }
     }
     return a->flags == b->flags && a->head_look == b->head_look && a->presentation == b->presentation
-        && a->mask == b->mask && a->traits == b->traits && memcmp(a->parent_looks, b->parent_looks, sizeof a->parent_looks) == 0
+        && a->mask == b->mask && a->traits == b->traits && a->original_body == b->original_body
+        && memcmp(a->parent_looks, b->parent_looks, sizeof a->parent_looks) == 0
         && lstrcmpA(a->father, b->father) == 0 && lstrcmpA(a->mother, b->mother) == 0;
 }
 

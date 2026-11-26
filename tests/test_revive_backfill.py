@@ -223,7 +223,7 @@ class Rules(unittest.TestCase):
         self.assertIn("#define VV_RS_MAGIC 0x31535256u", header)
         self.assertIn("#define VV_RS_MAX 2048", header)
         self.assertIn("#define VV_RS_DATA_MAX 0x300u", header)
-        self.assertEqual(rb.ENTRY, 896)
+        self.assertEqual(rb.ENTRY, 908)
         self.assertIn("approve_repair", (ROOT / "src" / "vv_log_tools.py").read_text(encoding="utf-8"))
         self.assertIn("vv_revive_backfill.backfill(folder, game, slot)",
                       (ROOT / "src" / "vv_log_tools.py").read_text(encoding="utf-8"))

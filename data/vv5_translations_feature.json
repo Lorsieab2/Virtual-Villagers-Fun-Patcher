@@ -25,7 +25,7 @@
     {
       "source": "assets/translations/VVFP Translations.dll",
       "destination": "VVFP Translations.dll",
-      "sha256": "392D1A567C17638650A0A155A3F6EB4B0E2E52BE63A3DB7DDC297412CC3FE7A5"
+      "sha256": "19D46AB72C543A93104D1BA62E8598207EA45D2B6E26B9D99D62081306482391"
     }
   ],
   "patches": [],

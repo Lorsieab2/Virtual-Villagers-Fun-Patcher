@@ -78,6 +78,17 @@ static void rvs_sidecars(vv_rs_entry *e, int index, const unsigned char *record)
         e->mask = mask;
         e->flags |= VV_RS_MASK;
     }
+    {
+        typedef int (__stdcall *rvs_original_fn)(int game, const void *record, int *head, int *body, int *mask);
+        rvs_original_fn original = (rvs_original_fn)(void *)rvs_export("VVFP Original Look.dll", "VvfpOriginalLookGet");
+        int head = -1, body = -1, kept_mask = -1;
+        if (original != NULL && original(g_game, record, &head, &body, &kept_mask) == 1) {
+            e->original_head = head;
+            e->original_body = body;
+            e->original_mask = kept_mask;
+            e->flags |= VV_RS_ORIGINAL;
+        }
+    }
     get = (rvs_record_fn)(void *)rvs_export("VVFP Story Upgrades.dll", "VvfpStoryTraitsOf");
     if (get != NULL) {
         e->traits = (unsigned int)get(g_game, record);

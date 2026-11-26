@@ -891,7 +891,7 @@ class EveryDetailTests(unittest.TestCase):
                 snap = Snap(r, 9, age=900)
                 snap.gone()
                 n = r.v.L["n"]
-                data = snap.entry[128:128 + sum(size for _o, size in rb.SAVED[n])]
+                data = snap.entry[rb.ENTRY_HEAD.size:rb.ENTRY_HEAD.size + sum(size for _o, size in rb.SAVED[n])]
                 backfilled = rb.Snapshot(n, data, rb.FROM_BACKUP, rb.EXACT_IDENTITY, 133_000_000_000_000_000)
                 file = rb.build(n, [backfilled])
                 at = r.p.alloc(len(file) + 16)
@@ -922,6 +922,7 @@ ROLE_TITLES = {12: "Heathen Doctor", 13: "Heathen Chief", 14: "Heathen Master Sc
                15: "Heathen Master Builder", 16: "Heathen Master Farmer", 17: "Heathen Mommy"}
 ROLE_PUZZLE = {12: 1, 13: 16, 14: 13, 15: 9, 16: 5, 17: 17}
 ROLE_FAITH = {12: -14, 13: -94, 14: -74, 15: -74, 16: -74, 17: -25}
+ROLE_AGE = {12: 400, 13: 1000, 14: 540, 15: 540, 16: 540, 17: 400}
 FINDER = 0x470690
 
 
@@ -969,6 +970,8 @@ class PuzzleHeathenTests(unittest.TestCase):
                     self.assertEqual(r.load(self._dead(role)), 1)
                     self.assertEqual(r.state(0)[0], 1)                    # listed and can come back
                     self.assertIn("They come back in that role", r.row(0)[2])
+                    self.assertIn(f"at the role's own age, {ROLE_AGE[role] // 20} (", r.row(0)[2])
+                    self.assertIn(f"Comes back as this same person at age {ROLE_AGE[role] // 20}, a Heathen", r.row(0)[2])
                     answer, made = r.buy(0)
                     self.assertEqual(answer, 1)
                     self.assertEqual(r.p.export("VvfpStoryProbeReviveRole"), role)
@@ -977,7 +980,8 @@ class PuzzleHeathenTests(unittest.TestCase):
                     self.assertEqual(r.v.byte(made, 0x1CEC), 1)
                     self.assertEqual((r.v.byte(made, 0x1CED), r.v.byte(made, 0x1CEE)), (0, 0))   # the role's mask
                     self.assertEqual(r.v.i32(made, 0x1CF0), ROLE_FAITH[role])
-                    self.assertEqual(r.v.i32(made, r.v.L["age"]), 100)
+                    # the role's own age, as the seeding makes it (the owner, 2026-11-26), so the role works
+                    self.assertEqual(r.v.i32(made, r.v.L["age"]), ROLE_AGE[role])
                     if role == 13:
                         self.assertEqual([r.v.f32(made, 0x1C5C + 4 * k) for k in range(6)], [100.0] * 6)
                     if role == 17:
@@ -1034,6 +1038,91 @@ class PuzzleHeathenTests(unittest.TestCase):
         self.assertEqual(r.load(text), 1)
         answer, made = r.buy(0)
         self.assertEqual((answer, r.p.export("VvfpStoryProbeReviveRole")), (1, 13))
+
+# ---- New Believers' mud-hut graves (VVFP Heathen Mausoleum.dll) and The Secret City's Chief's own body -----------
+
+HUT_DLL = 0x74000000
+
+
+@emulated
+class MudHutAndChiefTests(unittest.TestCase):
+    def _hut(self, r, graves):
+        """The Heathen Mausoleum companion loaded, holding `graves` = (name, age, head, body): its exports stubbed
+        over a table in the stock 0x5C layout."""
+        p = r.p
+        table = p.alloc(0x5C * 8)
+        for k, (name, age, head, body) in enumerate(graves):
+            g = table + 0x5C * k
+            p.write(g, name.encode() + b"\0")
+            p.put32(g + 0x1C, age)
+            p.put32(g + 0x20, head)
+            p.put32(g + 0x24, body)
+            p.write(g + 0x38, b"Rest by the hut\0")
+        removed = []
+        exports = {"VvfpCauseArrivedBy": p.alloc(0x10), "VvfpCauseArrivedParents": p.alloc(0x10),
+                   "VvfpHeathenMausoleumCount": p.alloc(0x10), "VvfpHeathenMausoleumEntry": p.alloc(0x10),
+                   "VvfpHeathenMausoleumRemove": p.alloc(0x10)}
+        modules = {"VVFP Cause of Death.dll": 0x73000000, "VVFP Heathen Mausoleum.dll": HUT_DLL}
+        p.api_handlers["GetModuleHandleA"] = lambda q: (modules.get(q.cstring(q.arg(0)), 0), 4)
+        p.api_handlers["GetProcAddress"] = lambda q: (exports.get(q.cstring(q.arg(1)), 0), 8)
+        p.stub(exports["VvfpCauseArrivedBy"], lambda q: (0, 12))
+        p.stub(exports["VvfpCauseArrivedParents"], lambda q: (0, 12))
+        p.stub(exports["VvfpHeathenMausoleumCount"], lambda q: (len(graves), 0))
+        p.stub(exports["VvfpHeathenMausoleumEntry"],
+               lambda q: ((table + 0x5C * q.arg(0)) if q.arg(0) < len(graves) else 0, 4))
+        p.stub(exports["VvfpHeathenMausoleumRemove"], lambda q: (removed.append(q.arg(0)) or 1, 4))
+        return removed
+
+    def test_a_heathen_buried_at_the_mud_hut_is_found_and_their_grave_goes(self):
+        if not have_stock("vv5"):
+            self.skipTest("no stock executable")
+        r = PuzzleHeathenTests._revive(PuzzleHeathenTests(), "collection_progression")
+        removed = self._hut(r, [("Other Heathen", 700, 1, 2), ("Rua Grave", 900, 6, 7)])
+        text = death(1, "Rua Grave", 900, "Male", 6, 7, grave="the mud hut memorial (Master Builder)",
+                     extra="  Faction: Heathen\n")
+        self.assertEqual(r.load(text), 1)
+        self.assertIn("buried here (the grave is removed when they come back)", r.row(0)[2])
+        self.assertIn("Rest by the hut", r.row(0)[2])
+        answer, made = r.buy(0)
+        self.assertEqual(answer, 1)
+        self.assertEqual(removed, [1])                    # the companion's own Remove, of their grave alone
+        self.assertEqual(r.v.byte(made, 0x1CEC), 1)       # back a Heathen
+
+    def test_a_secret_city_chief_back_while_another_chief_lives_wears_their_own_body(self):
+        if not have_stock("vv3"):
+            self.skipTest("no stock executable")
+        import vv_revive_backfill as rb
+        r = Revive("vv3")
+        snap = Snap(r, 9)
+        snap.gone()
+        holder = r.v.put(3, sex="m", years=50, name="Now Chief", body=29)
+        r.p.write(holder + 0xE80, b"\1")
+        file = rb.parse(struct.pack("<4I", 0x31535256, 1, 3, 1) + snap.entry, 3)
+        s = file[0]
+        data = bytearray(s.data)
+        k = 0
+        for off, size in rb.SAVED[3]:
+            if off <= 0xE80 < off + size:
+                data[k + 0xE80 - off] = 1                 # they were the Tribal Chief
+                break
+            k += size
+        k = 0
+        for off, size in rb.SAVED[3]:
+            if off <= 0xDF4 < off + size:
+                data[k + 0xDF4 - off:k + 0xDF4 - off + 4] = struct.pack("<i", 29)   # in the robe
+                break
+            k += size
+        s.data, s.flags, s.original = bytes(data), s.flags | 0x20, (5, 11, 0)       # VV_RS_ORIGINAL: body 11
+        file_bytes = rb.build(3, [s])
+        at = r.p.alloc(len(file_bytes) + 16)
+        r.p.write(at, file_bytes)
+        r.p.export("VvfpStoryProbeReviveSnapshotFile", at, len(file_bytes))
+        text = death(1, "Ana Rua", 1300, "Female", 5, 29, likes="ants, turnips", dislikes="the ocean")
+        self.assertEqual(r.load(text), 1)
+        answer, made = r.buy(0)
+        self.assertEqual((answer, r.p.export("VvfpStoryProbeReviveRestored")), (1, 1))
+        self.assertEqual(r.v.byte(made, 0xE80), 0)        # not the Chief: one lives
+        self.assertEqual(r.v.i32(made, 0xDF4), 11)        # their own body, not the robe
 
 if __name__ == "__main__":
     unittest.main()

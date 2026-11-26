@@ -93,6 +93,7 @@
 
 #include "../shared/log_slot.h"      /* the logs' folders, in their reading order */
 #include "../shared/revive_snapshot.h"   /* the complete records kept at each departure */
+#include "../shared/heathen_mausoleum.h" /* New Believers' mud-hut graves (VVFP Heathen Mausoleum.dll) */
 
 #define RV_PRICE 100000               /* with Story / Cheat Upgrades cost Tech Points ticked; else 0 (rv_price) */
 /* The age a revived villager comes back at, in years (the owner, 2026-11-22 "reset them to age.... 5? same
@@ -150,6 +151,7 @@ typedef struct {
     int listed;                       /* 0: in the village (not shown) or replaced by a newer record */
     int snap;                         /* their complete record (rv_snaps), -1 none: from the logs */
     int snap_ambiguous;               /* more than one different snapshot could be them: from the logs */
+    int grave_hut;                    /* New Believers: their grave at the mud hut (VVFP Heathen Mausoleum.dll), -1 none */
 } rv_person;
 
 static rv_person *rv_people;         /* grown on the process heap (rv_room), up to RV_MAX */
@@ -375,6 +377,7 @@ static void rv_begin(rv_person *p, int kind, int number) {
     p->grave = -1;
     p->listed = 1;
     p->snap = -1;
+    p->grave_hut = -1;
 }
 
 static int rv_same_person(const rv_person *x, const rv_person *y);
@@ -772,6 +775,51 @@ static int rv_grave_remove(int game, int place) {
     return 1;
 }
 
+/* ---- New Believers' mud-hut graves (the owner, 2026-11-26) ---------------------------------------------------
+
+   With "VVFP Heathen Mausoleum.dll" a Heathen is buried at the mud hut, in the companion's own Roster of the Dead
+   (native/shared/heathen_mausoleum.h): the stock layout, name +0, age +0x1C, head +0x20, body +0x24, epitaph +0x38.
+   A Heathen's Death record is matched to such a grave as a believer's is to the game's (name, age at death, head,
+   body), and the revival takes it away through the companion's own Remove (the later graves move down, the file
+   follows at the next save).  The DLL is found loaded (GetModuleHandleA), never loaded from here; without it there
+   are no mud-hut graves. */
+static FARPROC rv_hut_export(const char *name) {
+    HMODULE module = GetModuleHandleA(HE_MAUSOLEUM_DLL);
+    return module != NULL ? GetProcAddress(module, name) : NULL;
+}
+
+static int rv_hut_count(void) {
+    hm_count_fn count = (hm_count_fn)(void *)rv_hut_export(HM_COUNT_EXPORT);
+    int n = count != NULL ? count() : 0;
+    return n >= 0 && n <= 500 ? n : 0;
+}
+
+static const unsigned char *rv_hut_entry(int place) {
+    hm_entry_fn entry = (hm_entry_fn)(void *)rv_hut_export(HM_ENTRY_EXPORT);
+    return entry != NULL && place >= 0 ? entry(place) : NULL;
+}
+
+/* Whether mud-hut grave `place` is `p`'s. */
+static int rv_hut_is(int place, const rv_person *p) {
+    const unsigned char *g = rv_hut_entry(place);
+    char name[RV_NAME];
+    int k;
+    if (g == NULL || p->age <= 0 || *(const int *)(g + 0x1C) != p->age || *(const int *)(g + 0x20) != p->head
+        || *(const int *)(g + 0x24) != p->body) {
+        return 0;
+    }
+    for (k = 0; k + 1 < RV_NAME && k < 0x19 && g[k] != 0; ++k) {
+        name[k] = (char)g[k];
+    }
+    name[k] = '\0';
+    return lstrcmpA(name, p->name) == 0;
+}
+
+static int rv_hut_remove(int place) {
+    hm_remove_fn remove = (hm_remove_fn)(void *)rv_hut_export(HM_REMOVE_EXPORT);
+    return remove != NULL && remove(place) == 1;
+}
+
 /* ---- Who is listed ----------------------------------------------------------------- */
 
 /* Whether a record in the village now (alive, or a body awaiting burial) is this person. */
@@ -1039,11 +1087,13 @@ static int rv_snap_puzzle_role(int game, const vv_rs_entry *e) {
    (0x4668B0 clears it, the Chief's apart), so its role is never made again.
    Role -> puzzle: 12 -> 1, 13 -> 16, 14 -> 13, 15 -> 9, 16 -> 5, 17 -> 17. */
 typedef struct {
-    int role, puzzle, faith;
+    int role, puzzle, faith, age;   /* age: the seeding's, age units (the owner, 2026-11-26: a role Heathen comes back
+                                        at it, so the role works -- the role AI waits for 280) */
 } rv_role_def;
 
 static const rv_role_def RV_ROLES[6] = {
-    { 12, 1, -14 }, { 13, 16, -94 }, { 14, 13, -74 }, { 15, 9, -74 }, { 16, 5, -74 }, { 17, 17, -25 },
+    { 12, 1, -14, 400 }, { 13, 16, -94, 1000 }, { 14, 13, -74, 540 }, { 15, 9, -74, 540 }, { 16, 5, -74, 540 },
+    { 17, 17, -25, 400 },
 };
 #define RV_PUZZLE_PROGRESS 0x51E008u
 #define RV_PUZZLE_NEEDED 0x51DF30u
@@ -1173,6 +1223,13 @@ static void rv_set_up_role(const ce_adapter *a, int index, unsigned char *r, int
     }
 }
 
+/* The age, in years, p comes back at: RV_AGE_YEARS, or a puzzle Heathen's role's own while the role is free. */
+static int rv_years_back(int game, const rv_person *p) {
+    const ce_adapter *a = ce_adapter_for(game);
+    int role = rv_role_of(game, p);
+    return role != 0 && a != NULL && rv_role_free(a, role) ? rv_role_def_of(role)->age / 20 : RV_AGE_YEARS;
+}
+
 /* The Secret City: whether a villager other than record `self` is the Tribal Chief now. */
 static int rv_other_chief(int game, const ce_adapter *a, int self) {
     unsigned int at = VV_RS_LAYOUT[game].chief;
@@ -1236,6 +1293,31 @@ static void rv_settle(int game, const ce_adapter *a) {
                     claimed[place] = 1;
                     p->grave = place;
                     rv_grave_epitaph(game, &y, place, p->epitaph, (int)sizeof p->epitaph);
+                    break;
+                }
+            }
+        }
+    }
+    /* New Believers: a Heathen's grave at the mud hut (VVFP Heathen Mausoleum.dll), each to one record. */
+    if (game == 5) {
+        unsigned char hut_claimed[500];
+        int huts = rv_hut_count();
+        memset(hut_claimed, 0, sizeof hut_claimed);
+        for (i = 0; i < rv_count && huts > 0; ++i) {
+            rv_person *p = &rv_people[i];
+            if (p->kind != RV_DEATH || p->grave >= 0 || strncmp(p->grave_line, "no grave", 8) == 0) {
+                continue;
+            }
+            for (place = 0; place < huts; ++place) {
+                if (!hut_claimed[place] && rv_hut_is(place, p)) {
+                    const unsigned char *g = rv_hut_entry(place);
+                    int k;
+                    hut_claimed[place] = 1;
+                    p->grave_hut = place;
+                    for (k = 0; k < 0x20 && k + 1 < (int)sizeof p->epitaph && g[0x38 + k] != 0; ++k) {
+                        p->epitaph[k] = (char)(g[0x38 + k] >= 0x20 ? g[0x38 + k] : '?');
+                    }
+                    p->epitaph[k] = '\0';
                     break;
                 }
             }
@@ -1520,6 +1602,9 @@ static int rv_buy(int game, int which, int *made) {
             return RV_IN_VILLAGE;     /* the graveyard changed since the list was made: look again */
         }
     }
+    if (p->grave_hut >= 0 && !rv_hut_is(p->grave_hut, p)) {
+        return RV_IN_VILLAGE;         /* the mud hut's graves changed since the list was made */
+    }
     e = rv_snapshot_of(game, a, p);
     rv_copy(father, RV_NAME, p->father);
     rv_copy(mother, RV_NAME, p->mother);
@@ -1536,7 +1621,9 @@ static int rv_buy(int game, int which, int *made) {
     memset(&s, 0, sizeof s);
     s.count = 1;
     s.sex = p->sex;
-    s.age = RV_AGE;
+    /* Age 5 (RV_AGE_YEARS); a puzzle Heathen back in the role at the role's own age, as the seeding makes it (the
+       owner, 2026-11-26), so the role works. */
+    s.age = role_kept ? rv_role_def_of(role)->age : RV_AGE;
     rv_copy(s.name, CE_NAME_BYTES, p->name);
     if (e != NULL) {
         vv_rs_name(e, s.name, CE_NAME_BYTES);   /* the record's own bytes (the same name) */
@@ -1605,6 +1692,16 @@ static int rv_buy(int game, int which, int *made) {
                                        chief != NULL && *chief != 0 && !rv_other_chief(game, a, index));
         story_preferences_changing(game, 1);
     }
+    /* The Secret City: a Tribal Chief who comes back while another Chief lives is not the Chief, so they wear their
+       own original body, not the robe (the owner's decision, 2026-11-26; VVFP Original Look.dll's, kept at their
+       death).  Unknown: the body they had stays. */
+    if (rv_last_restored && game == 3 && VV_RS_LAYOUT[3].chief != 0u) {
+        const unsigned char *chief = vv_rs_at(e, VV_RS_LAYOUT[3].chief, 1);
+        if (chief != NULL && *chief != 0 && r[VV_RS_LAYOUT[3].chief] == 0 && (e->flags & VV_RS_ORIGINAL)
+            && e->original_body >= 0 && e->original_body < a->body_count) {
+            *(int *)(r + a->off_body) = e->original_body;
+        }
+    }
     /* From the logs: the likes and dislikes, every one the record holds room for. */
     if (!rv_last_restored) {
         int *likes = (int *)(r + a->off_likes);
@@ -1661,6 +1758,9 @@ static int rv_buy(int game, int which, int *made) {
     if (p->grave >= 0) {
         (void)rv_grave_remove(game, p->grave);
     }
+    if (p->grave_hut >= 0) {
+        (void)rv_hut_remove(p->grave_hut);
+    }
     if (rv_price(game) > 0) {
         a->change_tech(CE_AMOUNT_SUBTRACT, rv_price(game));
     }
@@ -1711,7 +1811,7 @@ static void rv_row_text(const rv_person *p, char *out, int size) {
                 p->age >= 0 ? years : vvfp_tr("vvfp.story/story_revive.rv_row_text.s4", "an unknown age", 60),
                 p->refusal != NULL ? vvfp_tr("vvfp.story/story_revive.rv_row_text.s5", " - can not come back", 60)
                 : p->heathen ? vv5_isolan(cg_guardians_on(), vvfp_tr("vvfp.story/story_revive.rv_row_text.s6", " - a Heathen", 40))
-                : p->grave >= 0 ? vvfp_tr("vvfp.story/story_revive.rv_row_text.s7", " - buried", 40) : "");
+                : p->grave >= 0 || p->grave_hut >= 0 ? vvfp_tr("vvfp.story/story_revive.rv_row_text.s7", " - buried", 40) : "");
     lstrcpynA(out, row, size);
 }
 
@@ -1809,14 +1909,14 @@ static void rv_details(int game, const ce_adapter *a, const rv_person *p, char *
     if (p->kind == RV_DEATH) {
         wsprintfA(line, vvfp_tr("vvfp.story/story_revive.rv_details.s5", "Grave: %s\r\nEpitaph: %s\r\nWhere: %s\r\n", 400),
                     p->grave_line[0] ? p->grave_line : "unknown", p->epitaph[0] ? p->epitaph : "(none)",
-                    p->grave >= 0 ? vvfp_tr("vvfp.story/story_revive.rv_details.s6", "buried here (the grave is removed when they come back)", 120)
+                    p->grave >= 0 || p->grave_hut >= 0 ? vvfp_tr("vvfp.story/story_revive.rv_details.s6", "buried here (the grave is removed when they come back)", 120)
                                   : vvfp_tr("vvfp.story/story_revive.rv_details.s7", "no grave in the graveyard now", 120));
         rv_add(out, size, line);
     }
     if (game == 5 && rv_role_of(game, p) != 0) {
         const char *title = VV5_ROLE_TITLES_HEATHEN[rv_role_of(game, p) - 12];
-        wsprintfA(line, vv5_isolan(cg_guardians_on(), vvfp_tr("vvfp.story/story_revive.rv_details.s28", "Special villager: %s. They come back in that role and its mask, set up as the game sets the role up (the Heathen Chief with every skill 100, the Heathen Mommy with her infant by a living adult Heathen) - unless a living Heathen holds the role now or its puzzle is solved: then as an ordinary Heathen, with every other detail.\r\n", 600)),
-                  p->special[0] != '\0' ? p->special : title);
+        wsprintfA(line, vv5_isolan(cg_guardians_on(), vvfp_tr("vvfp.story/story_revive.rv_details.s28", "Special villager: %s. They come back in that role and its mask, set up as the game sets the role up and at the role's own age, %d (the Heathen Chief with every skill 100, the Heathen Mommy with her infant by a living adult Heathen) - unless a living Heathen holds the role now or its puzzle is solved: then as an ordinary Heathen, with every other detail.\r\n", 600)),
+                  p->special[0] != '\0' ? p->special : title, rv_years_back(game, p));
         rv_add(out, size, line);
     } else if (p->special[0] != '\0') {
         wsprintfA(line, vvfp_tr("vvfp.story/story_revive.rv_details.s8", "Special villager: %s%s\r\n", 400), p->special,
@@ -1913,7 +2013,7 @@ static void rv_details(int game, const ce_adapter *a, const rv_person *p, char *
                                                  : vvfp_tr("vvfp.story/story_revive.rv_details.s35", "as they were then (they may have grown since)", 120));
         rv_add(out, size, line);
     } else if (p->snap >= 0) {
-        rv_add(out, size, vvfp_tr("vvfp.story/story_revive.rv_details.s36", "\r\nEvery detail was kept at their death: they come back with their own looks, family, parents, likes, dislikes, skills, job preference and titles, and what the patcher keeps for them. Only their age (5), health and what they were doing start fresh.\r\n", 600));
+        rv_add(out, size, vvfp_tr("vvfp.story/story_revive.rv_details.s36", "\r\nEvery detail was kept at their death: they come back with their own looks, family, parents, likes, dislikes, skills, job preference and titles, and what the patcher keeps for them. Only their age, health and what they were doing start fresh.\r\n", 600));
     } else if (p->snap_ambiguous) {
         rv_add(out, size, vvfp_tr("vvfp.story/story_revive.rv_details.s37", "\r\nFrom the logs only: more than one kept record could be this villager, so none is used.\r\n", 400));
     } else {
@@ -1922,9 +2022,10 @@ static void rv_details(int game, const ce_adapter *a, const rv_person *p, char *
     if (p->refusal != NULL) {
         wsprintfA(line, vvfp_tr("vvfp.story/story_revive.rv_details.s25", "\r\nCan not come back: %s.\r\n", 400), rv_why(p->refusal));
     } else {
-        lstrcpyA(line, p->heathen && RV_HEATHENS_STAY_HEATHENS
-                           ? vv5_isolan(cg_guardians_on(), vvfp_tr("vvfp.story/story_revive.rv_details.s26", "\r\nComes back as this same person at age 5, a Heathen in the camp.\r\n", 400))
-                           : vvfp_tr("vvfp.story/story_revive.rv_details.s27", "\r\nComes back as this same person at age 5.\r\n", 400));
+        wsprintfA(line, p->heathen && RV_HEATHENS_STAY_HEATHENS
+                            ? vv5_isolan(cg_guardians_on(), vvfp_tr("vvfp.story/story_revive.rv_details.s26", "\r\nComes back as this same person at age %d, a Heathen in the camp.\r\n", 400))
+                            : vvfp_tr("vvfp.story/story_revive.rv_details.s27", "\r\nComes back as this same person at age %d.\r\n", 400),
+                  rv_years_back(game, p));
     }
     rv_add(out, size, line);
 }
@@ -1945,6 +2046,11 @@ static void rv_fill_details(HWND window) {
         rv_details(rv_game, a, &rv_people[rv_order[sel]], text, (int)sizeof text);
     }
     SetDlgItemTextA(window, IDC_RG_DETAILS, text);
+}
+
+/* New Believers' intro adds: a puzzle Heathen comes back at the role's own age (the owner, 2026-11-26). */
+static const char *rv_role_age_note(void) {
+    return vv5_isolan(cg_guardians_on(), vvfp_tr("vvfp.story/story_revive.rv_role_age_note.s0", " A puzzle Heathen (the Doctor, the Chief, the Masters, the Mommy) comes back at their role's own age, so the role works.", 300));
 }
 
 static INT_PTR CALLBACK rv_dialog(HWND window, UINT message, WPARAM wparam, LPARAM lparam) {
@@ -1979,6 +2085,9 @@ static INT_PTR CALLBACK rv_dialog(HWND window, UINT message, WPARAM wparam, LPAR
             wsprintfA(button, vvfp_tr("vvfp.story/story_revive.rv_dialog.s1", "Revive (%s tech points)", 120),
                       rv_price_text(rv_game));
             SetDlgItemTextA(window, IDOK, button);
+        }
+        if (rv_game == 5) {
+            rv_add(intro, (int)sizeof intro, rv_role_age_note());
         }
         SetDlgItemTextA(window, IDC_RG_INTRO, intro);
         if (rv_rows > 0) {
@@ -2075,9 +2184,9 @@ static int story_revive_from_graves(int game, HWND owner) {
     }
     wsprintfA(text,
                 vvfp_tr("vvfp.story/story_revive.story_revive_from_graves.s0",
-                        "Do you want to bring back %s for %s tech points?\r\nThey return as the same person, aged 5%s.\r\n\r\nPress OK to confirm, or Cancel.", 500),
-                rv_people[rv_chosen].name, rv_price_text(game),
-                rv_people[rv_chosen].grave >= 0
+                        "Do you want to bring back %s for %s tech points?\r\nThey return as the same person, aged %d%s.\r\n\r\nPress OK to confirm, or Cancel.", 500),
+                rv_people[rv_chosen].name, rv_price_text(game), rv_years_back(game, &rv_people[rv_chosen]),
+                rv_people[rv_chosen].grave >= 0 || rv_people[rv_chosen].grave_hut >= 0
                     ? vvfp_tr("vvfp.story/story_revive.story_revive_from_graves.s1", ", and their grave is removed", 100) : "");
     if (MessageBoxA(owner, text, vvfp_tr("vvfp.storybridge/story_bridge.vvfp_story_add_revive_button.s0", "Revive Buried/Disappeared Villagers", 128),
                     MB_OKCANCEL | MB_ICONQUESTION | MB_TOPMOST | MB_SETFOREGROUND) != IDOK) {
@@ -2089,8 +2198,8 @@ static int story_revive_from_graves(int game, HWND owner) {
                     MB_OK | MB_ICONINFORMATION | MB_TOPMOST | MB_SETFOREGROUND);
         return 0;
     }
-    wsprintfA(text, vvfp_tr("vvfp.story/story_revive.story_revive_from_graves.s2", "%s is back in the village, aged 5.", 200),
-              rv_people[rv_chosen].name);
+    wsprintfA(text, vvfp_tr("vvfp.story/story_revive.story_revive_from_graves.s2", "%s is back in the village, aged %d.", 200),
+              rv_people[rv_chosen].name, rv_last_role != 0 ? rv_role_def_of(rv_last_role)->age / 20 : RV_AGE_YEARS);
     MessageBoxA(owner, text, vvfp_tr("vvfp.storybridge/story_bridge.vvfp_story_add_revive_button.s0", "Revive Buried/Disappeared Villagers", 128),
                 MB_OK | MB_ICONINFORMATION | MB_TOPMOST | MB_SETFOREGROUND);
     return 1;

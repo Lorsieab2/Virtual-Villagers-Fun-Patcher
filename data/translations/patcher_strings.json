@@ -74514,7 +74514,7 @@
   },
   {
    "stem": "vvfp.story/story_revive.rv_details.s26",
-   "english": "\r\nComes back as this same person at age 5, a Heathen in the camp.\r\n",
+   "english": "\r\nComes back as this same person at age %d, a Heathen in the camp.\r\n",
    "games": [
     "vv1",
     "vv2",
@@ -74529,7 +74529,7 @@
   },
   {
    "stem": "vvfp.story/story_revive.rv_details.s27",
-   "english": "\r\nComes back as this same person at age 5.\r\n",
+   "english": "\r\nComes back as this same person at age %d.\r\n",
    "games": [
     "vv1",
     "vv2",
@@ -74619,7 +74619,7 @@
   },
   {
    "stem": "vvfp.story/story_revive.story_revive_from_graves.s0",
-   "english": "Do you want to bring back %s for %s tech points?\r\nThey return as the same person, aged 5%s.\r\n\r\nPress OK to confirm, or Cancel.",
+   "english": "Do you want to bring back %s for %s tech points?\r\nThey return as the same person, aged %d%s.\r\n\r\nPress OK to confirm, or Cancel.",
    "games": [
     "vv1",
     "vv2",
@@ -74649,7 +74649,7 @@
   },
   {
    "stem": "vvfp.story/story_revive.story_revive_from_graves.s2",
-   "english": "%s is back in the village, aged 5.",
+   "english": "%s is back in the village, aged %d.",
    "games": [
     "vv1",
     "vv2",
@@ -75281,7 +75281,7 @@
   },
   {
    "stem": "vvfp.story/story_revive.rv_details.s28",
-   "english": "Special villager: %s. They come back in that role and its mask, set up as the game sets the role up (the Heathen Chief with every skill 100, the Heathen Mommy with her infant by a living adult Heathen) - unless a living Heathen holds the role now or its puzzle is solved: then as an ordinary Heathen, with every other detail.\r\n",
+   "english": "Special villager: %s. They come back in that role and its mask, set up as the game sets the role up and at the role's own age, %d (the Heathen Chief with every skill 100, the Heathen Mommy with her infant by a living adult Heathen) - unless a living Heathen holds the role now or its puzzle is solved: then as an ordinary Heathen, with every other detail.\r\n",
    "games": [
     "vv1",
     "vv2",
@@ -75401,7 +75401,7 @@
   },
   {
    "stem": "vvfp.story/story_revive.rv_details.s36",
-   "english": "\r\nEvery detail was kept at their death: they come back with their own looks, family, parents, likes, dislikes, skills, job preference and titles, and what the patcher keeps for them. Only their age (5), health and what they were doing start fresh.\r\n",
+   "english": "\r\nEvery detail was kept at their death: they come back with their own looks, family, parents, likes, dislikes, skills, job preference and titles, and what the patcher keeps for them. Only their age, health and what they were doing start fresh.\r\n",
    "games": [
     "vv1",
     "vv2",
@@ -75432,6 +75432,21 @@
   {
    "stem": "vvfp.story/story_revive.rv_details.s38",
    "english": "\r\nFrom the logs only: no complete record was kept (they left before v1.35.101, or Show Cause of Death and Epitaphs on Graves was off). What the logs do not say, the game picks.\r\n",
+   "games": [
+    "vv1",
+    "vv2",
+    "vv3",
+    "vv4",
+    "vv5"
+   ],
+   "mechanism": "b",
+   "context": "VVFP Story Upgrades.dll",
+   "notes": "a patcher window",
+   "route": "key"
+  },
+  {
+   "stem": "vvfp.story/story_revive.rv_role_age_note.s0",
+   "english": " A puzzle Heathen (the Doctor, the Chief, the Masters, the Mommy) comes back at their role's own age, so the role works.",
    "games": [
     "vv1",
     "vv2",

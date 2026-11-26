@@ -52,8 +52,9 @@ NAME = 32
 CAPTURED, FROM_SAVE, FROM_BACKUP = 0, 1, 2
 EXACT_IDENTITY, EXACT_LATER = 0x01, 0x02
 # vv_rs_entry: check, game, bytes, flags, source, exact, when_lo, when_hi, head_look, presentation, mask, traits,
+# original_head, original_body, original_mask,
 # parent_looks[4], father[32], mother[32], data[0x300]
-ENTRY_HEAD = struct.Struct("<IIIIIIIIiiiI4i32s32s")
+ENTRY_HEAD = struct.Struct("<IIIIIIIIiiiI3i4i32s32s")
 ENTRY = ENTRY_HEAD.size + DATA_MAX
 
 # The saved windows, record offsets, in the snapshot's order (revive_snapshot.h VV_RS_SAVED_*).
@@ -132,6 +133,7 @@ class Snapshot:
     presentation: int = -1
     mask: int = -1
     traits: int = 0
+    original: tuple = (-1, -1, -1)
     parent_looks: tuple = (-1, -1, -1, -1)
     father: bytes = b""
     mother: bytes = b""
@@ -139,7 +141,7 @@ class Snapshot:
     def pack(self) -> bytes:
         body = ENTRY_HEAD.pack(0, self.game, sum(n for _o, n in SAVED[self.game]), self.flags, self.source,
                                self.exact, self.when & 0xFFFFFFFF, self.when >> 32, self.head_look,
-                               self.presentation, self.mask, self.traits, *self.parent_looks,
+                               self.presentation, self.mask, self.traits, *self.original, *self.parent_looks,
                                self.father[:NAME - 1].ljust(NAME, b"\0"), self.mother[:NAME - 1].ljust(NAME, b"\0"))
         body += self.data.ljust(DATA_MAX, b"\0")
         return struct.pack("<I", _fnv(body[4:])) + body[4:]
@@ -177,12 +179,12 @@ def parse(raw: bytes, game: int) -> list[Snapshot] | None:
         e = raw[HEADER + k * ENTRY: HEADER + (k + 1) * ENTRY]
         (check, g, nbytes, flags, source, exact, lo, hi, head_look, presentation, mask, traits, *rest) = \
             ENTRY_HEAD.unpack_from(e)
-        looks, father, mother = tuple(rest[:4]), rest[4], rest[5]
+        original, looks, father, mother = tuple(rest[:3]), tuple(rest[3:7]), rest[7], rest[8]
         if (g != game or nbytes != want or source > FROM_BACKUP or check != _fnv(e[4:])
                 or father[NAME - 1] != 0 or mother[NAME - 1] != 0):
             return None
         out.append(Snapshot(game, bytes(e[ENTRY_HEAD.size:ENTRY_HEAD.size + want]), source, exact, lo | hi << 32,
-                            flags, head_look, presentation, mask, traits, looks, father.rstrip(b"\0"),
+                            flags, head_look, presentation, mask, traits, original, looks, father.rstrip(b"\0"),
                             mother.rstrip(b"\0")))
     return out
 
