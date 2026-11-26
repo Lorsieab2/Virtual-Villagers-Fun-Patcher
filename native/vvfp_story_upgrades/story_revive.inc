@@ -822,7 +822,16 @@ static int rv_hut_remove(int place) {
 
 /* ---- Who is listed ----------------------------------------------------------------- */
 
-/* Whether a record in the village now (alive, or a body awaiting burial) is this person. */
+#define RV_ROBE 29                    /* The Secret City's Tribal Chief's robe, the body the robing 0x45FBDE writes */
+
+/* Whether `p` died a robed Tribal Chief of The Secret City: their logged body is the robe.  Such a Chief who comes back
+   beside a living Chief takes another body (rv_chief_body), so who they are is told without the body. */
+static int rv_robed(const rv_person *p) {
+    return rv_game == 3 && p->body == RV_ROBE;
+}
+
+/* Whether a record in the village now (alive, or a body awaiting burial) is this person.  The list and the purchase
+   both ask this: a robed Chief brought back in their own body is still "in the village" (Codex, PR #880). */
 static int rv_in_village(const ce_adapter *a, const rv_person *p) {
     int i, k;
     for (i = 0; i < a->record_count; ++i) {
@@ -834,7 +843,7 @@ static int rv_in_village(const ce_adapter *a, const rv_person *p) {
             continue;
         }
         if (ce_sex(a, r) != p->sex || *(const int *)(r + a->off_head) != p->head
-            || *(const int *)(r + a->off_body) != p->body) {
+            || (!rv_robed(p) && *(const int *)(r + a->off_body) != p->body)) {
             continue;
         }
         ce_copy_name(name, RV_NAME, r + a->off_name, a->name_bytes);
@@ -1241,7 +1250,6 @@ static int rv_years_back(int game, const rv_person *p) {
    keep for them (a birth copies each parent's head and body onto the child: +0xE2C..+0xE38) when it is not the
    robe -- a living villager whose parent is their name and head.  1 their own kept original, 2 a child's record,
    0 none (the body the game's creator gave the new villager stays: its own rule for a new villager).  *body set. */
-#define RV_ROBE 29
 static int rv_chief_body(const ce_adapter *a, const rv_person *p, const vv_rs_entry *e, int *body) {
     int i;
     if (e != NULL && (e->flags & VV_RS_ORIGINAL) && e->original_body >= 0 && e->original_body != RV_ROBE
@@ -1732,9 +1740,9 @@ static int rv_buy(int game, int which, int *made) {
     }
     s.head = p->head;
     s.body = p->body;
-    if (game == 3 && e != NULL && VV_RS_LAYOUT[3].chief != 0u) {
-        const unsigned char *chief = vv_rs_at(e, VV_RS_LAYOUT[3].chief, 1);
-        if (chief != NULL && *chief != 0 && rv_other_chief(game, a, -1)) {
+    if (game == 3 && rv_other_chief(game, a, -1)) {
+        const unsigned char *chief = e != NULL ? vv_rs_at(e, VV_RS_LAYOUT[3].chief, 1) : NULL;
+        if ((chief != NULL && *chief != 0) || rv_robed(p)) {
             s.body = CE_KEEP;         /* not the Chief: never the robe -- the creator's own pick stays the fallback */
         }
     }
@@ -1811,6 +1819,12 @@ static int rv_buy(int game, int which, int *made) {
             rv_last_chief_body = rv_chief_body(a, p, e, &body);
             *(int *)(r + a->off_body) = body;
         }
+    } else if (!rv_last_restored && rv_robed(p) && s.body == CE_KEEP) {
+        /* From the logs only, beside a living Chief: never the robe either (the creator's pick, else a child's
+           record of them). */
+        int body = *(const int *)(r + a->off_body);
+        rv_last_chief_body = rv_chief_body(a, p, NULL, &body);
+        *(int *)(r + a->off_body) = body;
     }
     /* From the logs: the likes and dislikes, every one the record holds room for. */
     if (!rv_last_restored) {
@@ -2040,11 +2054,11 @@ static void rv_details(int game, const ce_adapter *a, const rv_person *p, char *
                     : vvfp_tr("vvfp.story/story_revive.rv_details.s9", " (they come back as an ordinary villager)", 120));
         rv_add(out, size, line);
     }
-    if (game == 3 && p->snap >= 0 && p->snap < rv_snap_count && VV_RS_LAYOUT[3].chief != 0u) {
-        const vv_rs_entry *e = &rv_snaps[p->snap];
-        const unsigned char *chief = vv_rs_at(e, VV_RS_LAYOUT[3].chief, 1);
+    if (game == 3 && rv_other_chief(game, a, -1)) {
+        const vv_rs_entry *e = p->snap >= 0 && p->snap < rv_snap_count ? &rv_snaps[p->snap] : NULL;
+        const unsigned char *chief = e != NULL ? vv_rs_at(e, VV_RS_LAYOUT[3].chief, 1) : NULL;
         int body = -1;
-        if (chief != NULL && *chief != 0 && rv_other_chief(game, a, -1)) {
+        if ((chief != NULL && *chief != 0) || (e == NULL && rv_robed(p))) {
             rv_add(out, size, rv_chief_body_note(rv_chief_body(a, p, e, &body)));
         }
     }

@@ -1267,6 +1267,38 @@ class RobedChiefTests(unittest.TestCase):
         self.assertNotEqual(r.v.i32(made, 0xDF4), 29)         # never the robe
         self.assertEqual(r.v.i32(made, 0xDF4), 4)              # the creator's (the fixture's creator gives body 4)
 
+    ROBED_DEATH = ("Ana Rua", 1300, "Female", 5, 29)
+
+    def _robed_text(self, extra=""):
+        name, age, sex, head, body = self.ROBED_DEATH
+        return death(1, name, age, sex, head, body, likes="ants, turnips", dislikes="the ocean", extra=extra)
+
+    def test_a_revived_robed_chief_is_never_offered_or_sold_again(self):
+        # Codex, PR #880: back beside a living Chief in another body, they are still the person in the village --
+        # the list (reloaded) and the purchase tell who they are without the robe's body.
+        r = self._chief(29)
+        answer, made = r.buy(0)
+        self.assertEqual(answer, 1)
+        self.assertNotEqual(r.v.i32(made, 0xDF4), 29)
+        self.assertEqual(r.buy(0)[0], -3)                     # the same list: never bought twice
+        tech = r.tech()
+        self.assertEqual(r.load(self._robed_text()), 0)       # reopened: not offered
+        self.assertEqual(r.tech(), tech)
+
+    def test_a_robed_chief_from_the_logs_only_is_never_in_the_robe_beside_a_chief(self):
+        if not have_stock("vv3"):
+            self.skipTest("no stock executable")
+        r = Revive("vv3")
+        holder = r.v.put(3, sex="m", years=50, name="Now Chief", body=29)
+        r.p.write(holder + 0xE80, b"\1")
+        r.p.export("VvfpStoryProbeReviveSnapshotFile", 0, 0)
+        text = self._robed_text(extra="  Special villager: Tribal Chief\n")
+        self.assertEqual(r.load(text), 1)
+        self.assertIn("so the game picks one as it does for a new villager", r.row(0)[2])
+        answer, made = r.buy(0)
+        self.assertEqual((answer, r.p.export("VvfpStoryProbeReviveRestored")), (1, 0))
+        self.assertEqual((r.v.byte(made, 0xE80), r.v.i32(made, 0xDF4)), (0, 4))   # the creator's body, no robe
+        self.assertEqual(r.load(text), 0)                      # reopened: not offered again
     def test_their_own_pre_robe_body_kept_at_their_death(self):
         r = self._chief(11)                                   # cod_revive.inc kept the body before the robe
         self.assertIn("in their own body from before the robe.", r.row(0)[2])
