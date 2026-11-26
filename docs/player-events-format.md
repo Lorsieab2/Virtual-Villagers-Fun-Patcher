@@ -155,8 +155,8 @@ knock, fever, forget / forgot, memory, magic, spell or charm.
 | `GROUP song`, `GROUP stories elder`, `GROUP WORK Farming` | the whole village (or that villager) relaxes, swims, dances, prays, celebrates, goes to the pond, plays, tells stories, sings, chants or gives a speech; the whole village's workers of that skill work. Sickness or a cure for everyone is `EVERYONE: ILLNESS` / `EVERYONE: CURE` | group (kind, who; work, skill) |
 | `NEXT EVENT SOONER 2 TO 6 HOURS`, `NEXT EVENT LATER 12 HOURS`, `TECH LEVEL UP Medicine`, `TECH LEVEL DOWN`, `WEATHER rain` | the next island event's time (1..72 hours), one technology level (no area: a random one), the weather (clear, rain, storm, fog in VV3-VV5; sun in VV4-VV5) | village (event_timer, tech_level, weather) |
 
-**Casting:** PREGNANT and NURSING go to a villager born female and 18 or more; `(ANY BIRTH SEX)` (the owner's cases:
-magic, or a father caring for a baby) lets any villager carry. Each effect's own engine rules hold (cie-v6-binary.md).
+**Casting:** PREGNANT and NURSING go to a villager of any sex, 18 or more (the owner, 2026-11-26: "Remove it, any
+sex"); `(ANY BIRTH SEX)` is still accepted in old files but no longer needed. Each effect's own engine rules hold (cie-v6-binary.md).
 
 ## 5. Full events (anything the engine can play)
 

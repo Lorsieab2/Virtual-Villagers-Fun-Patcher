@@ -100,15 +100,6 @@ static void vvfp_gp_refused_text(char *out, const char *name, int special) {
 typedef int (__stdcall *vvfp_gp_born_female_fn)(int game, const void *record);
 
 #ifdef VV_SEX_CHANGE_H
-/* Was the villager in `record` born female?  The DLL's answer when it is in the game; the log's otherwise
-   (native/shared/sex_change.h vv_sex_born_female_by_log). */
-static int vvfp_born_female(int game, const unsigned char *record) {
-    HMODULE dll = GetModuleHandleA(VVFP_GP_DLL);
-    vvfp_gp_born_female_fn born = dll != NULL
-        ? (vvfp_gp_born_female_fn)(void *)GetProcAddress(dll, VVFP_GP_BORN_FEMALE) : NULL;
-    return born != NULL ? born(game, record) == 1 : vv_sex_born_female_by_log(game, record);
-}
-
 typedef struct {
     vvfp_gp_api api;
     int offered;                 /* the checkbox is shown */

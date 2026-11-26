@@ -375,8 +375,8 @@ class EveryReaderTakesBoth(unittest.TestCase):
                 ("vv5_heathen_masks_restore.py", 'mask = TITLE_MASK.get(heathen_form(b.value("Special villager") or ""))'),
                 ("vv_graves.py", 'record_title = heathen_form(record_title or "")'),
                 ("vv_game_mechanics_counts.py", "rows[heathen_form(m.group(1))] ="),
-                ("vv_log_additions.py", '(converted if (b.value("How") or "").strip() in CONVERTED_HOWS else believer)'),
-                ("vv_log_additions.py", 'add(b.identity, 1 if (b.value("How") or "").strip() in CONVERTED_HOWS else 0)'),
+                ("vv_log_additions.py", 'if (b.value("How") or "").strip() in CONVERTED_HOWS:\n                    converted.add(b.identity)'),
+                ("vv_log_additions.py", 'if (b.value("How") or "").strip() in CONVERTED_HOWS:\n                    add(b.identity, 1)'),
                 ("vv_genealogy.py", 'if (b.value("How") or "").strip() in CONVERTED_HOWS:'),
                 ("vv_genealogy.py", "if how and how not in CONVERTED_HOWS and")):
             with self.subTest(reader=name, site=site[:40]):
