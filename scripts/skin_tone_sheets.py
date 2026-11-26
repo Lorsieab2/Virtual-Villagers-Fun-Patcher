@@ -511,14 +511,19 @@ def audit(art: Art, out: Path):
     return lines
 
 
+def installed_name(tone_number: int, name: str) -> str:
+    """A tone's sheet as "VVFP Skin Tones.dll" looks for it in a game's Images folder
+    (native/vvfp_skin_tones/vvfp_skin_tones.c st_toned_sheet): vvfp_skin_<NN>_<the game's own file name>."""
+    return f"vvfp_skin_{tone_number:02d}_{name}"
+
+
 def write_sheets(art: Art, out: Path):
-    """Every tone's sheets as <out>/<tone number>/<the game's own file name>."""
+    """Every tone's sheets into `out`, named as the game's companion looks for them (installed_name)."""
+    out.mkdir(parents=True, exist_ok=True)
     for number, tone in enumerate(core.TONES, 1):
-        folder = out / str(number)
-        folder.mkdir(parents=True, exist_ok=True)
         for name in art.specs:
-            Image.fromarray(art.sheet(name, tone)).save(folder / name)
-    print("wrote", len(core.TONES) * len(art.specs), "sheets under", out)
+            Image.fromarray(art.sheet(name, tone)).save(out / installed_name(number, name))
+    print("wrote", len(core.TONES) * len(art.specs), "sheets in", out)
 
 
 # ---- the GIMP workbench ------------------------------------------------------------------------------
