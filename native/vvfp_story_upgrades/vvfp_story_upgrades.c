@@ -1521,13 +1521,13 @@ static int story_pick_island_event(int game, HWND owner) {
     }
     /* The village may have moved on while the boxes were open. */
     possible_now = g->possible(event) || (settings->unlocked && oc_unlock_possible(game, event))
-                   || (settings->override && ov_possible(game, event, why, sizeof why));
+                   || (chooser.buy_override[chosen] && ov_possible(game, event, why, sizeof why));
     if (ce_armed || g->island_pending() || !possible_now || !arm_pick(game, event)) {
         MessageBoxA(owner, "That island event can not happen right now. No tech points have been deducted.",
                     "Origins Upgrades", MB_OK | MB_ICONINFORMATION | MB_TOPMOST | MB_SETFOREGROUND);
         return 0;
     }
-    if (settings->override) {
+    if (chooser.buy_override[chosen]) {
         pick_override_event = event;    /* story_override.inc: delivered past its condition, cast if need be */
     }
     oc_arm(game, event->slot, settings);
@@ -1665,6 +1665,11 @@ __declspec(dllexport) int __stdcall VvfpStoryProbeSetPick(int game, int position
 /* The armed pick bought with the picker's override ticked (1) or not (0), as story_pick_island_event marks it. */
 __declspec(dllexport) void __stdcall VvfpStoryProbeSetOverride(int on) {
     pick_override_event = on ? pick_event : NULL;
+}
+
+/* Whether the armed pick (any game) is one bought with the override: 1 / 0. */
+__declspec(dllexport) int __stdcall VvfpStoryProbeOverrideArmed(void) {
+    return pick_slot >= 0 && pick_override_event != NULL && pick_override_event == pick_event;
 }
 
 /* story_override.inc for event `position` of `game`: whether the override makes it possible now (and why not, into

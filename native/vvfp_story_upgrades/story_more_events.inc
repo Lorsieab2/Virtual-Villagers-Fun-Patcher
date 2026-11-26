@@ -51,6 +51,12 @@ static struct {
    nobody meets is dropped and the event's own requirement is not asked; the content filters, kinship, the
    protected villagers and "a villager for each role" stay), instead of the strict cast the rare roll uses. */
 static int sc_pick_override;
+/* 1 only while a collection event is checked or queued for a Pick Island Event with the override ticked
+   (story_collection.inc sc_check / sc_pick_buy, story_living.inc lv_check_entry): story_graph.inc cg_refusal then
+   does not ask the event's "only after <puzzle> is solved" -- a story requirement, never one its code needs (the
+   engine reads a puzzle only in that check and in the story's own branch conditions, which stay).  Every other
+   caller leaves it 0, so nothing else changes. */
+static int cg_override_now;
 
 /* The list grown to hold `need` entries (all six arrays together); 1 when it does. */
 static int sm_reserve(int need) {

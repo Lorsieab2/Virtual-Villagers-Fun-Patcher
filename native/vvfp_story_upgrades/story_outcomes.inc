@@ -74,8 +74,7 @@ typedef struct {
     unsigned char who[OC_MAX_CONTROLS][OC_WHO_BYTES];
     int strength;
     int unlocked;                     /* deliver past a timing condition */
-    int override;                     /* bought with the picker's override ticked (story_override.inc) */
-} oc_settings;
+} oc_settings;                        /* its size is in the queue file's layout (story_queue.inc): never grown */
 
 typedef struct {
     const oc_site *sites;

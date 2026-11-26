@@ -929,7 +929,9 @@ static const char *lv_check_entry(int game, int i) {
         if (lv_excluded(game, lv_entry_seed[i], v)) {
             continue;
         }
+        cg_override_now = sc_pick_override;   /* the override: no puzzle requirement (story_more_events.inc) */
         refusal = lv_refusal(game, v, sc_pick_override ? CG_CAST_PREFER : CG_CAST_STRICT, CG_ORIGIN_PICK);
+        cg_override_now = 0;
         if (refusal == NULL) {
             return NULL;
         }

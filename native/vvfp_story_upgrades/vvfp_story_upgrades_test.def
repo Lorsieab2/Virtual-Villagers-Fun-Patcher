@@ -436,3 +436,4 @@ EXPORTS
     VvfpStoryProbeChooserOverride=_VvfpStoryProbeChooserOverride@4
     VvfpStoryProbeChooserWhy=_VvfpStoryProbeChooserWhy@12
     VvfpStoryProbeMoreOverride=_VvfpStoryProbeMoreOverride@4
+    VvfpStoryProbeOverrideArmed=_VvfpStoryProbeOverrideArmed@0

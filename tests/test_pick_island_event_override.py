@@ -500,5 +500,97 @@ class PickerTests(unittest.TestCase):
                       "IDC_PICK_OVERRIDE,", ui)
 
 
+@emulated
+class CollectionPuzzleTests(unittest.TestCase):
+    """The Isola Grand Event Collection under the override (story_more_events.inc cg_override_now): an event that
+    can only happen once a puzzle is solved is queued and plays with no puzzle solved; without the override -- the
+    strict pick, a library purchase, the library's cast for a pick -- it is still refused, word for word."""
+
+    def test_no_puzzle_requirement_with_the_override_only(self):
+        import test_story_cie_graph_runtime as rt  # noqa: PLC0415
+        ran = 0
+        for game in GAMES:
+            if not have_stock(game):
+                continue
+            n = int(game[2:])
+            puzzle = rt.cg.PUZZLES[n][1]
+            refused = f"\"Old Friends\" can only happen once {puzzle} is solved. Nothing has been queued."
+            pick = 1 << 9                                      # CG_ORIGIN_PICK
+            for due, label in ((0x100 | pick, "the strict pick"), (0, "a library purchase"),
+                               (pick, "the library's cast for a pick")):
+                with self.subTest(game=game, case=label):
+                    run = rt.Run(game)
+                    run.p.export("VvfpStoryProbeGraphPuzzles", 0)
+                    self.assertEqual(run.queue(rt.v3_with_puzzle(n), due), refused)
+                    self.assertEqual(run.state()["phase"], rt.IDLE)
+            with self.subTest(game=game, case="bought with the override"):
+                run = rt.Run(game)
+                run.p.export("VvfpStoryProbeGraphPuzzles", 0)
+                run.rolls([0] * 80)                            # the game's rolls answered, as every played run
+                run.force([])
+                if game in NEW:                                # the new villagers' allocations (no CRT heap here)
+                    run.p.stub(NEW[game], lambda p: (p.alloc(max(p.arg(0), 4)), 0))
+                self.assertIsNone(run.queue(rt.v3_with_puzzle(n), pick | 0x800), "queued with no puzzle solved")
+                shown = rt.play_answers(run, [])
+                self.assertTrue(shown, "delivered: its pages shown")
+                self.assertIn(run.state()["phase"], (rt.IDLE, rt.DONE))
+                run = rt.Run(game)                             # the flag was that purchase's only
+                run.p.export("VvfpStoryProbeGraphPuzzles", 0)
+                self.assertEqual(run.queue(rt.v3_with_puzzle(n), pick), refused)
+            ran += 1
+        if not ran:
+            self.skipTest("needs the stock executables")
+
+
+@emulated
+class QueueFileTests(unittest.TestCase):
+    """A stock-event pick bought with the override comes back an override pick after a quit (story_queue.inc
+    SQ_PICK_OVERRIDE, a bit of the record's `have`: the layout is unchanged); a file written before -- the bit
+    clear -- comes back a plain pick."""
+
+    def test_round_trip_and_an_old_file(self):
+        import test_story_queued_purchases as q  # noqa: PLC0415
+        ran = 0
+        for game in GAMES:
+            if not have_stock(game):
+                continue
+            with self.subTest(game=game):
+                story = q.fresh(game)
+                slot = story.proc.export("VvfpStoryProbeSetPick", story.n, 0, story.proc.tick)
+                story.proc.export("VvfpStoryProbeSetOverride", 1)
+                q.tick(story)
+                file = q.queue_file(story)
+                self.assertEqual(q.have(file, story) & (q.SQ_PICK | 128), q.SQ_PICK | 128)
+                story.proc.export("VvfpStoryProbeQueueSaved")
+                again = q.fresh(game)
+                q.session(again, file, q.LATE)
+                q.tick(again)
+                self.assertEqual(q.state(again)["pick"], slot)
+                self.assertEqual(again.proc.export("VvfpStoryProbeOverrideArmed"), 1, "still an override pick")
+                # A file written before v1.35.101 never has the bit: the same record without it.
+                again.proc.export("VvfpStoryProbeQueueLayout", SCRATCH)
+                at = struct.unpack("<7i", again.proc.read(SCRATCH, 28))[1]
+                old = bytearray(file)
+                struct.pack_into("<I", old, at, struct.unpack_from("<I", old, at)[0] & ~128)
+                plain = q.fresh(game)
+                q.session(plain, bytes(old), q.LATE)
+                q.tick(plain)
+                self.assertEqual(q.state(plain)["pick"], slot)
+                self.assertEqual(plain.proc.export("VvfpStoryProbeOverrideArmed"), 0, "an old file: no override")
+                bare = q.fresh(game)                           # bought without it: the bit never written
+                bare.proc.export("VvfpStoryProbeSetPick", bare.n, 0, bare.proc.tick)
+                q.tick(bare)
+                self.assertEqual(q.have(q.queue_file(bare), bare) & 128, 0)
+                ran += 1
+        if not ran:
+            self.skipTest("needs the stock executables")
+
+    def test_the_record_layout_is_the_one_before_the_override(self):
+        """oc_settings keeps its fields, so the queue record keeps its size and v1.35.100's files still read."""
+        source = (ROOT / "native" / "vvfp_story_upgrades" / "story_outcomes.inc").read_text(encoding="utf-8")
+        body = source[source.index("typedef struct {\n    int choice[OC_MAX_CONTROLS];"):source.index("} oc_settings;")]
+        self.assertEqual(body.count(";"), 4, "choice, who, strength, unlocked -- nothing added")
+
+
 if __name__ == "__main__":
     unittest.main()

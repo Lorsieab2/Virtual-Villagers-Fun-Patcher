@@ -1154,7 +1154,9 @@ static const char *sc_check(int game, int i, char *why, int cap) {
     }
     cg_cast_now = sc_pick_override ? CG_CAST_PREFER : CG_CAST_STRICT;   /* the picker's override: the library's cast */
     cg_origin_now = CG_ORIGIN_PICK;
+    cg_override_now = sc_pick_override;   /* the override: no puzzle requirement (story_more_events.inc) */
     refusal = cg_refusal(game, &planned);
+    cg_override_now = 0;
     cg_cast_now = keep_cast;
     cg_origin_now = keep_origin;
     if (refusal == NULL) {
@@ -1212,7 +1214,7 @@ static int sc_pick_fill(int game) {
 static int sc_pick_buy(int game, HWND owner, int ref) {
     char message[1800], why[SM_TEXT];
     unsigned int size = 0;
-    int i;
+    int i, refused;
     /* The list row's group, loaded again, and its row in it. */
     if (ref < 0 || ref >= sc_ref_count || sc_scan_group(game, sc_ref_group[ref]) == 0) {
         return 0;
@@ -1235,11 +1237,17 @@ static int sc_pick_buy(int game, HWND owner, int ref) {
                     "Origins Upgrades", MB_OK | MB_ICONINFORMATION | MB_TOPMOST | MB_SETFOREGROUND);
         return 0;
     }
-    if (sc_check(game, i, why, sizeof why) != NULL
-        || (lv_entry_living(i) ? !lv_arm_entry(game, i, CG_ORIGIN_PICK, sc_pick_override ? CG_CAST_PREFER : CG_CAST_STRICT)
-                               : (!sc_load_entry(i, &size)
-                                  || !cg_queue_origin(game, sc_bytes, size, CG_ORIGIN_PICK,
-                                                      sc_pick_override ? CG_CAST_PREFER : CG_CAST_STRICT)))) {
+    refused = sc_check(game, i, why, sizeof why) != NULL;
+    if (!refused) {
+        cg_override_now = sc_pick_override;   /* the override: no puzzle requirement (story_more_events.inc) */
+        refused = lv_entry_living(i) ? !lv_arm_entry(game, i, CG_ORIGIN_PICK,
+                                                     sc_pick_override ? CG_CAST_PREFER : CG_CAST_STRICT)
+                                     : (!sc_load_entry(i, &size)
+                                        || !cg_queue_origin(game, sc_bytes, size, CG_ORIGIN_PICK,
+                                                            sc_pick_override ? CG_CAST_PREFER : CG_CAST_STRICT));
+        cg_override_now = 0;
+    }
+    if (refused) {
         wsprintfA(message, vvfp_tr("vvfp.story/story_collection.sc_pick_buy.s0",
                                    "%s can not happen right now: %s No tech points have been deducted.", 200),
                   sc_list[i].title, cg_queue_refusal()[0] != '\0' ? cg_queue_refusal() : why);

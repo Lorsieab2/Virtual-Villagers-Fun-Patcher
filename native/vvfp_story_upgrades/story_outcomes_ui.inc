@@ -84,6 +84,7 @@ static struct {
     int possible[STORY_MAX_EVENTS];
     int base[STORY_MAX_EVENTS];         /* the possibility without the override */
     int override;                       /* the override is ticked (off each time the picker opens) */
+    int buy_override[STORY_MAX_EVENTS]; /* the event is bought with the override (story_override.inc) */
     char why[STORY_MAX_EVENTS][OV_WHY_BYTES];   /* with the override: why it is still not possible ("" = its own needs) */
     int listed[STORY_MAX_EVENTS];       /* the event is offered (event_listed) */
     int chosen;
@@ -1058,7 +1059,7 @@ static void chooser_set_override(int on) {
         }
         chooser.possible[i] = chooser.base[i] == OC_POSSIBLE_NO && over ? OC_POSSIBLE_OVERRIDE : chooser.base[i];
         /* an unlocked event bought with the override is cast as well when its own condition picks nobody */
-        chooser.settings[i].override = over;
+        chooser.buy_override[i] = over;
     }
     if (chooser.game == &GAMES[chooser.gid]) {
         /* The collection's rows (story_more_events.inc sc_pick_override): listed again, strict, then -- ticked -- as
@@ -1298,6 +1299,7 @@ static void chooser_prepare(int game, const story_game *g) {
         chooser.settings[i].unlocked = chooser.possible[i] == OC_POSSIBLE_UNLOCK;
         chooser.base[i] = chooser.possible[i];
         chooser.why[i][0] = '\0';
+        chooser.buy_override[i] = 0;
     }
     chooser.override = 0;               /* off each time the picker opens */
 }
@@ -1498,7 +1500,7 @@ __declspec(dllexport) void __stdcall VvfpStoryProbeChooserOverride(int on) {
    reason (into out). */
 __declspec(dllexport) int __stdcall VvfpStoryProbeChooserWhy(int index, char *out, int size) {
     lstrcpynA(out, chooser.why[index], size);
-    return chooser.settings[index].override;
+    return chooser.buy_override[index];
 }
 
 /* Whether the opened chooser lists event `index` (event_listed). */
