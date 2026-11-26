@@ -49,6 +49,7 @@ WORKBENCH = Path(os.environ.get("VVFP_SKIN_WORKBENCH",
                                 str(Path.home() / "OneDrive" / "Documents" / "VVFP Skin Tones Workbench")))
 GIMP = Path(os.environ.get("VVFP_GIMP", str(Path.home() / "AppData/Local/Programs/GIMP 3/bin/gimp-console-3.exe")))
 SEXES = ("male", "female")
+GAMES_OWN = "Game's own"                 # the game's own skin, as every picture and window calls it
 
 TITLES = {"vv1": "A New Home", "vv2": "The Lost Children", "vv3": "The Secret City",
           "vv4": "The Tree of Life", "vv5": "New Believers"}
@@ -280,7 +281,7 @@ def _rows(count, wanted):
 def previews(art: Art, out: Path, masks=False):
     g, title = art.game, TITLES[art.game]
     out.mkdir(parents=True, exist_ok=True)
-    tones = [("Default", None)] + [(f"S{i} {t[4]}", t) for i, t in enumerate(core.TONES, 1)]
+    tones = [(GAMES_OWN, None)] + [(f"S{i} {t[4]}", t) for i, t in enumerate(core.TONES, 1)]
     labels = [t[0] for t in tones]
     core.swatches(out / f"{g}_tone_table.png")
     if masks:
@@ -363,7 +364,7 @@ MOCKUP_BODIES_VV1 = {"male": 6, "female": 11}
 
 
 def mockup(root: Path, out: Path, edits_root: Path | None = None):
-    """ONE picture of all five games: a man, a woman and the held baby of each, as Default and in every
+    """ONE picture of all five games: a man, a woman and the held baby of each, as the game's own and in every
     tone.  all_games_male_female_10tones.png has each villager at 2x; the _2x file at 4x."""
     from PIL import ImageDraw
     rows = []
@@ -377,7 +378,7 @@ def mockup(root: Path, out: Path, edits_root: Path | None = None):
             print(f"{game} {word}: head {v['head']}, body {v['body']}")
         cell = art.specs["carrying.png"]["cell"]
         rows.append((f"{TITLES[game]}: held baby", cell, [art.baby(t) for t in [None] + list(core.TONES)]))
-    labels = ["Default"] + [f"S{i} {t[4]}" for i, t in enumerate(core.TONES, 1)]
+    labels = [GAMES_OWN] + [f"S{i} {t[4]}" for i, t in enumerate(core.TONES, 1)]
     out.mkdir(parents=True, exist_ok=True)
     for zoom, leaf in ((2, "all_games_male_female_10tones.png"), (4, "all_games_male_female_10tones_2x.png")):
         label_w, top = 100 * zoom, 34 + 22
@@ -386,7 +387,7 @@ def mockup(root: Path, out: Path, edits_root: Path | None = None):
         pic = Image.new("RGB", (label_w + cw * len(labels) + 6, height), (245, 242, 235))
         d = ImageDraw.Draw(pic)
         font = core._font(6 + 3 * zoom)
-        d.text((8, 6), "Skin tones in all five games: the game's own art (Default), then the ten tones.  "
+        d.text((8, 6), "Skin tones in all five games: the game's own art, then the ten tones.  "
                "Made from each game's own sheets; every pixel that is not skin is the game's own.",
                fill=(20, 20, 20), font=font)
         for j, text in enumerate(labels):
@@ -408,7 +409,7 @@ def mockup(root: Path, out: Path, edits_root: Path | None = None):
 
 
 def heathens(images: Path, out: Path):
-    """New Believers' Heathens in each mask colour, as Default and in every tone.  Drawn by the patcher's
+    """New Believers' Heathens in each mask colour, as the game's own and in every tone.  Drawn by the patcher's
     own copy of the game's villager draw (src/vv_pictures_vv5.py: the same sheets, anchors and mask
     placement as the game), from a scratch copy of the game's pictures with the toned sheets in it.  The
     mask sheet is never toned, so every mask is the game's own."""
@@ -440,7 +441,7 @@ def heathens(images: Path, out: Path):
             for i, (_label, look) in enumerate(looks):
                 drawn = pi.render_plan(renderer.sheets, renderer.planner.plan(look, pose))
                 rows[i].append(Image.open(io.BytesIO(drawn.to_png())).convert("RGBA"))
-    labels = ["Default"] + [f"S{i} {t[4]}" for i, t in enumerate(core.TONES, 1)]
+    labels = [GAMES_OWN] + [f"S{i} {t[4]}" for i, t in enumerate(core.TONES, 1)]
     size = (max(t.width for row in rows for t in row), max(t.height for row in rows for t in row))
     for zoom in (1, 4):
         core.grid(list(range(len(looks))), list(range(len(labels))), lambda r, c: rows[r][c],
@@ -489,8 +490,8 @@ def audit(art: Art, out: Path):
         lines += ["      " + f for f in failed]
     lines.append(f"  rows over the limits: {bad}")
     (out / f"{g}_audit.txt").write_text("\n".join(lines) + "\n", encoding="utf-8")
-    # The proof: whole villagers (neck, arms, legs, hands, feet all in view), Default, S5 and S10, 4x.
-    shown = [("Default", None), (f"S5 {core.TONES[4][4]}", core.TONES[4]), (f"S10 {core.TONES[9][4]}", core.TONES[9])]
+    # The proof: whole villagers (neck, arms, legs, hands, feet all in view), the game's own, S5 and S10, 4x.
+    shown = [(GAMES_OWN, None), (f"S5 {core.TONES[4][4]}", core.TONES[4]), (f"S10 {core.TONES[9][4]}", core.TONES[9])]
     bodies_n = 20 if g == "vv1" else 30
     people = [(f"{'Man' if sex == 'male' else 'Woman'}, head {head}, body {body}", {"sex": sex, "head": head, "body": body})
               for sex, head, body in (("male", 11, 6), ("female", 10, 3), ("male", 2, 14), ("female", 5, 11),

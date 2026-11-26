@@ -379,7 +379,7 @@ static unsigned char st_value(const unsigned char *record) {
 
 static const char *const ST_NAMES[VVFP_SKIN_TONE_COUNT] = VVFP_SKIN_TONE_NAMES;
 
-/* A tone as the windows and the logs write it: "Copper", or "Default" for the game's own art.  `out`
+/* A tone as the windows and the logs write it: "Copper", or "Game's own" for the game's own art.  `out`
    holds at least 40 characters. */
 static void st_name(char *out, int tone) {
     lstrcpyA(out, tone >= 1 && tone <= VVFP_SKIN_TONE_COUNT ? ST_NAMES[tone - 1] : VVFP_SKIN_TONE_GAMES_OWN_NAME);
@@ -949,7 +949,7 @@ int __stdcall VvfpSkinToneInherit(int father, int mother, unsigned int r100, uns
     return vvfp_skin_tone_inherit(father, mother, r100, r3, rn);
 }
 
-/* A tone's name into `out` (at least 40 characters): "Copper", or "Default" for the game's own art. */
+/* A tone's name into `out` (at least 40 characters): "Copper", or "Game's own" for the game's own art. */
 void __stdcall VvfpSkinToneName(int tone, char *out) {
     if (out != NULL) {
         st_name(out, tone);

@@ -3,7 +3,7 @@
    same numbers for the patcher's Python; tests/test_skin_tones.py holds the two together.
 
    A TONE.  0: none kept yet (drawn with the game's own art).  1..VVFP_SKIN_TONE_COUNT: light to dark, the
-   owner's ten, Porcelain to Ebony (2026-11-26).  15: the game's own art ("Default"), chosen in Change
+   owner's ten, Porcelain to Ebony (2026-11-26).  15: the game's own art ("Game's own"), chosen in Change
    Appearance.
 
    THE KEPT BYTES (two per villager, in the Head Looks' file shape with the magic 'VST2').  The second is
@@ -29,7 +29,7 @@
 #define VVFP_SKIN_TONE_NONE 0
 #define VVFP_SKIN_TONE_GAMES_OWN 15
 #define VVFP_SKIN_TONE_WORD "skin tone"         /* "Old skin tone" / "New skin tone" in "Appearance changed" */
-#define VVFP_SKIN_TONE_GAMES_OWN_NAME "Default"
+#define VVFP_SKIN_TONE_GAMES_OWN_NAME "Game's own"
 
 /* Each tone's own name, light to dark (src/vv_skin_tones.py TONE_TABLE). */
 #define VVFP_SKIN_TONE_NAMES { \

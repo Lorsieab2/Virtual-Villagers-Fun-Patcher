@@ -11,7 +11,7 @@
    a baby that names its parents gets a tone by the head rule on theirs; the tone rolled at a conception is
    what the held baby shows and exactly what the newborn gets, also when the father is gone by then, and is
    spent afterwards; twins are alike; a parent not known counts as the other; Change Appearance's set, the
-   chosen "Default", the Revive read and write; a set that cannot be written changes nothing.  It also
+   chosen "Game's own", the Revive read and write; a set that cannot be written changes nothing.  It also
    prints the rule itself for every case (INHERIT lines) for the test to compare with the Python rule.
    Exit code 0 when every check passes. */
 #include <stdio.h>
@@ -337,9 +337,9 @@ int main(void) {
           "a number that is no tone is refused");
     check(VvfpSkinToneSet(GAME, rec(0), VVFP_SKIN_TONE_GAMES_OWN) == 1 && tone(0) == 0
           && (VvfpSkinToneOf(GAME, rec(0)) & 0xFF) == VVFP_SKIN_TONE_GAMES_OWN
-          && VvfpSkinToneBirth(GAME, rec(0)) == k, "Default: drawn with the game's own art, and kept; the birth tone stays");
+          && VvfpSkinToneBirth(GAME, rec(0)) == k, "Game's own, chosen: drawn with the game's own art, and kept; the birth tone stays");
     later();
-    check(tone(0) == 0, "a chosen Default is not given a random tone again");
+    check(tone(0) == 0, "a chosen Game's own is not given a random tone again");
     {
         const void *both[2];
         int tones2[2] = { 2, 8 };

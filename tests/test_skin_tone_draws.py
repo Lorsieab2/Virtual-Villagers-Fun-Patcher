@@ -10,7 +10,7 @@ Proved here, per game: every site installed, or none (a site that does not hold 
 game); the fetcher gets the game's own arguments and its answer comes back untouched; a villager with a tone
 gets that tone's sheet, built once by the game's own constructor from the game's own description of the
 sheet, under the name "vvfp_skin_<NN>_<the game's name>"; the game's own sheet stays when a picture of the
-set is missing, when the load fails, for Default, for a register that is no villager, and for a sheet that
+set is missing, when the load fails, for a chosen Game's own, for a register that is no villager, and for a sheet that
 is not a villager's (a mask); and all of it in the patcher's three modes with every patch.
 
 The game's fetcher, allocator and sheet constructor are stood in for (they read the picture files through
@@ -260,15 +260,15 @@ class _Base:
         self.assertEqual(t.draw(site, record, t.own[3]), t.own[3], "tried once, not again in this session")
         self.assertEqual(len(t.built), 1)
 
-    def test_default_and_no_villager_and_other_sheets_are_the_games_own(self):
+    def test_games_own_chosen_and_no_villager_and_other_sheets_are_the_games_own(self):
         t = Draws(self.GAME)
         record = t.villager(GAMES_OWN)
         for k in range(8):
             for tone in range(1, 11):
                 t.picture(tone, k)
         head, body = DRAWS[self.GAME]["head_sites"][0], DRAWS[self.GAME]["body_sites"][0]
-        self.assertEqual(t.draw(head, record, t.own[3]), t.own[3], "Default chosen")
-        self.assertEqual(t.draw(body, record, t.own[4]), t.own[4], "Default chosen")
+        self.assertEqual(t.draw(head, record, t.own[3]), t.own[3], "Game's own chosen")
+        self.assertEqual(t.draw(body, record, t.own[4]), t.own[4], "Game's own chosen")
         toned = t.villager(4, 6)
         mask_sheet = t.p.alloc(0x40)
         self.assertEqual(t.draw(head, toned, mask_sheet), mask_sheet, "a sheet that is not a villager's (a mask)")
@@ -441,7 +441,7 @@ class TheSecretCity(unittest.TestCase):
 
     def test_the_games_own_sheet_otherwise(self):
         t = Draws3()
-        toned, default = t.villager(4, 3), t.villager(GAMES_OWN, 4)
+        toned, own = t.villager(4, 3), t.villager(GAMES_OWN, 4)
         t.picture(4, 4)                                             # only the men's young heads of tone 4
         t.picture(4, 6, missing=2)                                  # the men's bodies: one file short
         for tone in range(1, 11):
@@ -449,8 +449,8 @@ class TheSecretCity(unittest.TestCase):
         self.assertNotIn(t.village(toned, t.own[4]), t.own)
         self.assertEqual(t.village(toned, t.own[5]), t.own[5], "no picture of that sheet")
         self.assertEqual(t.village(toned, t.own[6]), t.own[6], "half a set")
-        self.assertEqual(t.village(default, t.own[0]), t.own[0], "Default chosen")
-        self.assertEqual(t.thunk(default, t.own[0]), t.own[0], "Default chosen")
+        self.assertEqual(t.village(own, t.own[0]), t.own[0], "Game's own chosen")
+        self.assertEqual(t.thunk(own, t.own[0]), t.own[0], "Game's own chosen")
         skeleton = t.p.alloc(0x40)
         self.assertEqual(t.village(toned, skeleton), skeleton, "a sheet that is not a villager's")
         self.assertEqual(t.thunk(VV3["renderer"], t.own[4]), t.own[4], "ESI is not a villager")

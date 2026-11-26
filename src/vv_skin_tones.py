@@ -3,7 +3,7 @@
 One place for what every part must agree on ("VVFP Skin Tones.dll" in native/vvfp_skin_tones keeps the same
 numbers; tests/test_skin_tones.py holds the two together):
 
-THE TONES.  Tone 0 is the game's own art ("Default").  Tones 1..TONE_COUNT run from light to dark:
+THE TONES.  Tone 0 is the game's own art, called "Game's own" wherever the player sees it.  Tones 1..TONE_COUNT run from light to dark:
 Porcelain ... Ebony, the owner's ten (2026-11-26).  TONE_TABLE gives each tone's lit mid-skin;
 scripts/skin_tone_preview.py turns it into pictures.
 
@@ -40,7 +40,7 @@ import struct
 from pathlib import Path
 
 # THE TEN TONES (the owner, 2026-11-26: "Skin tones should be similar to this", a picture of a Lost Children
-# woman as Default and S1..S10).  Name and colour of each tone's lit mid-skin, light to dark; the colours
+# woman as the game's own and S1..S10).  Name and colour of each tone's lit mid-skin, light to dark; the colours
 # are the picture's own swatches.  (scripts/build_vv2_skin_atlases.py holds an older list of ten, a little
 # different: its TARGETS.)
 TONE_COLOURS = (
@@ -79,7 +79,7 @@ TONE_TABLE = tuple((name, text) + _oklch(text) for name, text in TONE_COLOURS)
 TONE_COUNT = len(TONE_TABLE)
 TONE_NONE = 0               # no tone kept yet: drawn with the game's own art
 TONE_GAMES_OWN = 15         # the game's own art, chosen in Change Appearance
-GAMES_OWN_NAME = "Default"
+GAMES_OWN_NAME = "Game's own"       # the owner, 2026-11-26: never "Default"
 
 MAGIC = 0x32545356          # 'VST2'
 MAGIC_ONE_BYTE = 0x31545356  # 'VST1': no birth tones; still read
@@ -89,7 +89,7 @@ BIRTH_LINE = "Skin tone"    # "Skin tone: ..." in a Birth record
 
 
 def tone_name(tone: int) -> str:
-    """A tone as the windows and the logs write it: "Copper", or "Default" for the game's own art."""
+    """A tone as the windows and the logs write it: "Copper", or "Game's own" for the game's own art."""
     if 1 <= tone <= TONE_COUNT:
         return TONE_TABLE[tone - 1][0]
     return GAMES_OWN_NAME

@@ -54,8 +54,8 @@ class Table(unittest.TestCase):
 
     def test_names(self) -> None:
         self.assertEqual(tones.tone_name(5), "Copper")
-        self.assertEqual(tones.tone_name(0), "Default")
-        self.assertEqual(tones.tone_name(tones.TONE_GAMES_OWN), "Default")
+        self.assertEqual(tones.tone_name(0), "Game's own")
+        self.assertEqual(tones.tone_name(tones.TONE_GAMES_OWN), "Game's own")
 
     def test_the_dll_has_the_same_numbers(self) -> None:
         text = RULES_H.read_text(encoding="utf-8")
@@ -93,7 +93,7 @@ class Inherit(unittest.TestCase):
         for r3 in range(3):
             self.assertEqual(tones.inherit(0, 6, 50, r3, 0), 5 + r3)        # the other parent's tone, +-1
             self.assertEqual(tones.inherit(6, 0, 50, r3, 0), 5 + r3)
-            self.assertEqual(tones.inherit(99, 6, 50, r3, 0), 5 + r3)       # 15 "Default" is not a tone either
+            self.assertEqual(tones.inherit(99, 6, 50, r3, 0), 5 + r3)       # 15, the game's own chosen, is not a tone either
         self.assertEqual({tones.inherit(0, 0, 50, 1, rn) for rn in range(10)}, set(range(1, 11)))
 
     def test_nothing_depends_on_which_parent(self) -> None:

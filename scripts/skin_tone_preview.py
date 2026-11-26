@@ -33,7 +33,7 @@ EIGHT = np.ones((3, 3), bool)
 
 # ---- the tones: ONE table, src/vv_skin_tones.py ----------------------------------------------------
 # Each row is (name, hex, OKLab lightness, chroma, hue in degrees) of the LIT MID-SKIN: the owner's ten,
-# Porcelain to Ebony.  Tone 0 (the game's own art, "Default") is not in the table.
+# Porcelain to Ebony.  Tone 0 (the game's own art) is not in the table.
 import sys as _sys
 _sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
 import vv_skin_tones as _model  # noqa: E402
