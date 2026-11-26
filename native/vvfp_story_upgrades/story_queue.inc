@@ -94,6 +94,11 @@
    after it (story_custom_ui.inc ce_behind_barrel; Codex, #745: a quit in between left the custom event
    for the next natural island event). */
 #define SQ_BARREL_FIRST 64u
+/* With the pick's item (v1.35.101): the game's own event was bought with Pick Island Event's override ticked
+   (story_override.inc), and comes back so.  A file written before has the bit clear (no override); a build before
+   reads the bit as nothing, its pick then a plain one -- the record's layout is unchanged.  (A More Island Events
+   pick keeps its override in its pick_index: story_more_events.inc SM_QUEUE_OVER_BASE.) */
+#define SQ_PICK_OVERRIDE 128u
 #define SQ_ITEMS  4
 
 typedef struct {
@@ -504,6 +509,9 @@ static void sq_capture(int game, sq_file *f) {
         f->have |= SQ_PICK;
         f->pick_slot = pick_slot;
         f->pick_index = (int)(pick_event - GAMES[game].events);
+        if (pick_override_event != NULL && pick_override_event == pick_event) {
+            f->have |= SQ_PICK_OVERRIDE;
+        }
         if (oc.state == OC_ARMED && oc.game == game) {
             f->pick_outcome = 1;
             f->pick_settings = oc.set;
@@ -574,6 +582,7 @@ static int sq_item_differs(const sq_file *a, const sq_file *b, unsigned int bit)
     switch (bit) {
     case SQ_PICK:
         return a->pick_slot != b->pick_slot || a->pick_index != b->pick_index
+            || (a->have & SQ_PICK_OVERRIDE) != (b->have & SQ_PICK_OVERRIDE)
             || a->pick_outcome != b->pick_outcome
             || memcmp(&a->pick_settings, &b->pick_settings, sizeof a->pick_settings) != 0;
     case SQ_CUSTOM:
@@ -640,6 +649,7 @@ static unsigned int sq_restore(int game, int slot, sq_file *f, const ce_choice *
         pick_event = &GAMES[game].events[f->pick_index];
         pick_tick = STORY_TICK();           /* its ten minutes start again */
         pick_village = story_village_now(game);
+        pick_override_event = (f->have & SQ_PICK_OVERRIDE) ? pick_event : NULL;   /* bought with the override */
         if (f->pick_outcome) {
             oc_arm(game, pick_slot, &f->pick_settings);
         }
