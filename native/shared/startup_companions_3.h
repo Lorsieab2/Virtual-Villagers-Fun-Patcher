@@ -63,6 +63,9 @@ static const char *const VVFP_STARTUP_COMPANIONS_3[] = {
     /* 0.1-10x Divine Energy Gain (New Believers): the believers' Divine Energy earnings times the slider's number (VVFP
        Divine Energy Gain.txt beside it; the owner, 2026-11-25). */
     "VVFP Divine Energy Gain.dll",
+    /* Fix Vanilla Bugs (all five games): the picture no longer freezes when a maximized or full screen game window
+       comes back from being minimized (SDL 2.0.3 never told its renderer the window was back; the owner, 2026-11-26). */
+    "VVFP Window Restore.dll",
     /* APPEND ONLY (see above). */
 };
 #define VVFP_STARTUP_COMPANION_COUNT_3 \

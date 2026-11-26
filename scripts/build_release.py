@@ -171,6 +171,8 @@ FILES = [
     "assets/founder_x_buttons/VVFP Founder X Buttons.dll",
     # Max Divine Energy Continues to Increase (New Believers): the companion.
     "assets/divine_energy_cap/VVFP Divine Energy Cap.dll",
+    # Fix Vanilla Bugs (all five games): no frozen picture after a maximized or full screen window comes back.
+    "assets/window_restore/VVFP Window Restore.dll",
     # Louder Wind Flutes (The Tree of Life): the wind flute sounds louder (the slider).
     "assets/vv4_louder_flutes/VVFP VV4 Louder Flutes.dll",
     # Children Play Tag and Build Sandcastles (all five games): tag and sandcastles as normal play choices.
