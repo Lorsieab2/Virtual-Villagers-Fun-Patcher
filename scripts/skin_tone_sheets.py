@@ -11,7 +11,7 @@ builds and reads back the owner's workbench:
 
 THE WORKBENCH (never in the repository: it holds game art).  One .xcf per head and body sheet, written
 by GIMP itself, with layers bottom to top: "Game's own art" (locked), "Skin mask" (white = skin, hidden),
-"Tone 01 - Monk 1" ... one per tone (skin pixels only; all hidden but one), "Hair and non-skin (vanilla)"
+"Tone 01 - S1 Porcelain" ... one per tone (skin pixels only; all hidden but one), "Hair and non-skin (vanilla)"
 (locked).  `import` asks GIMP to export every layer again and keeps what the owner changed in
 <workbench>\\<game>\\edits\\<sheet>\\: mask.png and tone_NN.png.  Whatever is there wins over the generated
 art, here and wherever the sheets are made (Art(..., edits=...)).
@@ -617,8 +617,9 @@ THE LAYERS (bottom to top)
   Game's own art               The original sheet. Locked. For reference.
   Skin mask                    White where the patcher treats a pixel as skin. Hidden.
                                Paint white to make a pixel skin, erase to make it not skin.
-  Tone 01 - Monk 1 ... 14      One layer per skin tone, light to dark. Only the skin pixels
-                               are on it. All hidden but one; click the eye to see another.
+  Tone 01 - S1 Porcelain ...   One layer per skin tone, light to dark, to Tone 10 - S10 Ebony.
+                               Only the skin pixels are on it. All hidden but one; click the
+                               eye to see another.
   Hair and non-skin (vanilla)  The original's hair, eyes, mouths and clothes. Locked, on top,
                                so painting a tone layer never covers them.
 
