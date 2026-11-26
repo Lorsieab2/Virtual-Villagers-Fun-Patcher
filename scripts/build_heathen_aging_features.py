@@ -111,8 +111,9 @@ def description(row: str) -> str:
             "Heathen whose puzzle is not solved yet is replaced by a new one in the same role, set up as the game "
             "sets that role up (the Heathen Mommy with her infant), so every puzzle can still be solved; a solved "
             "puzzle's Heathen never comes back. **A villager who left your tribe is not replaced when they die**, so "
-            "defections never grow the camp. Heathen couples now and then have children (about once in 20 years for "
-            "each woman from 14 to 45 with a man in the camp), only while at least 10 places stay free for your own "
+            "defections never grow the camp. Heathen couples have children: about one baby for the whole tribe every 24 "
+            "real-life hours on Normal speed (12 on Fast, 40 on Slow), from the women aged 14 to 45 with a man in the "
+            "camp, only while at least 10 places stay free for your own "
             "village's babies; a Heathen child grows up in the camp. **Once The Last Heathen is solved no new Heathen "
             "comes from this patch at all** -- nobody is replaced and no Heathen baby is conceived or born (a "
             "pregnancy already started waits, as in the stock game) -- so the camp empties over time; and **with no "
@@ -179,7 +180,7 @@ AGING_CHANGES = [
 ]
 TRIBE_CHANGES = [
     "Heathen babies: an aging Heathen woman (+0x1B90 1) aged 280-900 units, not expecting, not the Heathen Mommy "
-    "(role 17), with a living adult Heathen man, conceives on rand(400) == 0 each unit through 0x465E00 forced "
+    "(role 17), with a living adult Heathen man, conceives on rand(240 x the number of such women) == 0 each unit (about one baby for the whole tribe in 240 units, 24 real hours on Normal: the owner, 2026-11-25) through 0x465E00 forced "
     "(father a random adult Heathen man), only while more than 10 records are free and The Last Heathen (puzzle 25) "
     "is unsolved; the twins and triplets counters "
     "0x51D380 / 0x51D384 are put back. 40 units later (+0x1C4C + 0x28 < processed age, the stock birth's rule), once the litter still leaves 10 records free (else the birth waits, the pregnancy kept), each "

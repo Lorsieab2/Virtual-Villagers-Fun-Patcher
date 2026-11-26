@@ -27,7 +27,9 @@ GUIDES_PATH = ROOT / "data" / "how_to_use.json"
 # 9 since 2026-11-19: the Default Patches guide's ninth line (the v1.35.97 merge); the owner's rule is never to drop
 # text for length, and the guide window scrolls.
 # 10 since 2026-11-22: the four Heathen aging patches and Revive Buried/Disappeared Villagers joined the Default Patches guide (never drop text).
-MAX_LINES = 10
+# 11 since 2026-11-26: New Believers' Fix Vanilla Bugs guide's eleventh line (the frozen picture after full screen or a
+# maximized window comes back; never drop text).
+MAX_LINES = 11
 MAX_LINE_CHARS = 180
 # 1,000 since 2026-11-11: the Default Patches guide must name every default-off patch, and the list grew past 900;
 # 1,100 since 2026-11-12, when the two Island Events Scale patches joined that list; 1,150 since 2026-11-12, when

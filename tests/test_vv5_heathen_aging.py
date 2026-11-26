@@ -591,6 +591,19 @@ class Tribe(unittest.TestCase):
 
 @unittest.skipIf(_skip(), _skip() or "")
 class Babies(unittest.TestCase):
+    def test_the_whole_tribe_shares_one_baby_in_240_units(self):
+        # The owner, 2026-11-25: "1 baby every 24 hours across the entire tribe" -- with three women who could
+        # conceive, each rolls 1 in 720, so the tribe still has about one baby in 240 units (24 h on Normal).
+        v = Village((TRIBE,))
+        v.villager(1, heathen=True, sex=0, name="Kalo")
+        for i in (2, 3, 4):
+            woman = v.villager(i, heathen=True, sex=1, name=f"Mele{i}")
+            v.put32(woman + AGE, 601)
+        v.rand_answers.extend([1, 1, 1])               # nobody conceives this unit
+        v.life_tick()
+        self.assertEqual(v.rand_calls[:3], [720, 720, 720])
+        self.assertEqual(v.conceived, [])
+
     def test_a_heathen_couple_has_a_heathen_baby_with_both_parents_recorded(self):
         v = Village((TRIBE,))
         man = v.villager(1, heathen=True, sex=0, name="Kalo")
@@ -598,9 +611,9 @@ class Babies(unittest.TestCase):
         v.put32(man + HEAD, 10)
         v.put32(woman + HEAD, 20)
         v.put32(woman + AGE, 601)
-        v.rand_answers.extend([0, 0])                  # conceive (1 in 400), pick the man
+        v.rand_answers.extend([0, 0])                  # conceive (1 in 240 x 1 woman), pick the man
         v.life_tick()
-        self.assertEqual(v.rand_calls[0], 400, "the owner (2026-11-23): 1 age unit in 400")
+        self.assertEqual(v.rand_calls[0], 240, "the owner (2026-11-25): one baby a tribe in 240 units (24 h)")
         self.assertEqual(len(v.conceived), 1)
         carrier, args = v.conceived[0]
         self.assertEqual((carrier, v.cstring(args[3]), args[6]), (woman, "Kalo", 1))
