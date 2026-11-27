@@ -1515,6 +1515,17 @@ static int pass_role(int role, const unsigned char *dead) {
     return 1;
 }
 
+/* A for-show role's title (set by pass_role through Story Upgrades) is taken off when the role is no longer
+   held: the holder converted (Codex, #883: a converted show Master kept "Heathen Master ...") or retired.
+   Story Upgrades' setter with no title removes it; without Story Upgrades no title was ever set. */
+static void clear_show_title(unsigned char *record) {
+    HMODULE story = GetModuleHandleA(HE_STORY_DLL);
+    he_set_title_fn title = story != NULL ? (he_set_title_fn)(void *)GetProcAddress(story, HE_TITLE_EXPORT) : NULL;
+    if (title != NULL) {
+        (void)title(HA_GAME, rec_index(record), NULL);
+    }
+}
+
 /* After The Last Heathen (the owner, 2026-11-26): a regrown camp of REGROWN_ADULTS adult Heathens or more gets a
    real Chief and Masters -- one vacant role (no living Heathen holds it) a look, the Chief first. */
 #define REGROWN_ADULTS 6
@@ -1567,14 +1578,11 @@ static void roles_follow(void) {
                 }
             }
             if (!heathen) {
-                if (believer != NULL && g_known[k].kind == KIND_ROLE) {
-                    HMODULE story = GetModuleHandleA(HE_STORY_DLL);
-                    he_set_title_fn title = story != NULL
-                        ? (he_set_title_fn)(void *)GetProcAddress(story, HE_TITLE_EXPORT) : NULL;
-                    *(int *)(believer + R_ROLE) = 13;
-                    if (title != NULL) {
-                        (void)title(HA_GAME, rec_index(believer), NULL);
+                if (believer != NULL) {
+                    if (g_known[k].kind == KIND_ROLE) {
+                        *(int *)(believer + R_ROLE) = 13;       /* only the show Chief becomes a real role */
                     }
+                    clear_show_title(believer);                 /* a show Master's "Heathen Master ..." too */
                 }
                 known_drop(who, g_known[k].kind);
             }
@@ -1780,6 +1788,7 @@ static int retire(unsigned char *old) {
             return 0;
         }
         known_drop(identity(old), KIND_ROLE + (unsigned int)(show - 13));
+        clear_show_title(old);                      /* the role's title goes with the role */
         (void)store_mask(old, MASK_STORE_BLUE);
         log_retired(rec_index(old), show);
         return pass_role(show, old);

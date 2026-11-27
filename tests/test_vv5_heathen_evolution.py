@@ -766,7 +766,7 @@ class Roles(unittest.TestCase):
     def test_a_show_chief_who_converts_is_a_real_retired_chief(self):
         """The owner, 2026-11-26: "Real role when he converts" -- role 13 on the believer (the game's own "Retired
         Chief" title and Spreading the Word), the show title taken off; any sex.  A show Master who converts just
-        stops being one."""
+        stops being one, and their "Heathen Master ..." title is taken off too (Codex, #883)."""
         for role, puzzle, sex in ((13, 16, 1), (13, 16, 0), (15, 9, 1)):
             with self.subTest(role=role, sex=sex):
                 v = Evo(story=True)
@@ -783,13 +783,28 @@ class Roles(unittest.TestCase):
                     self.assertEqual(v.titles[-1], (3, ""), "the show title taken off")
                 else:
                     self.assertEqual(v.i32(heir, ROLE), 2, "an ordinary believer")
-                    self.assertEqual(len(v.titles), 1)
+                    self.assertEqual(v.titles, [(3, "Heathen Master Builder"), (3, "")],
+                                     "the show Master's title taken off")
                 v.write(heir + FACTION, b"\x01")              # a Heathen again: no longer a show holder
                 v.put32(heir + ROLE, 2)
                 v.look(4)
                 _due_to_die(v, heir)
                 v.life_tick()
                 self.assertEqual(v.roles_logged, [(3, role)], "nothing passes on")
+
+    def test_a_show_master_who_retires_hands_on_the_title_too(self):
+        """Codex, #883: the "Heathen Master ..." title goes with the role -- off the retiring elder, onto the heir."""
+        v = Evo(story=True)
+        v.solve(9)
+        holder = self._camp(v, 15)
+        _due_to_die(v, holder)
+        v.life_tick()
+        heir = v.record(3)
+        self.assertEqual(v.titles, [(3, "Heathen Master Builder")])
+        v.put32(heir + AGE, ELDER_AT_MEDICINE_1)            # the show Master is an elder now
+        v.look(4)
+        self.assertEqual(v.titles, [(3, "Heathen Master Builder"), (3, ""), (4, "Heathen Master Builder")])
+        self.assertEqual(v.retired_logged, [(3, 15)])
 
     def test_the_real_role_after_the_last_heathen(self):
         v = Evo()
