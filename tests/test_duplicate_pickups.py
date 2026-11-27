@@ -53,7 +53,7 @@ try:
     from capstone import CS_ARCH_X86, CS_MODE_32, Cs
     from unicorn import UC_ARCH_X86, UC_HOOK_CODE, UC_MODE_32, Uc
     from unicorn.x86_const import (UC_X86_REG_EAX, UC_X86_REG_EBP, UC_X86_REG_EBX, UC_X86_REG_ECX,
-                                   UC_X86_REG_EDI, UC_X86_REG_EDX, UC_X86_REG_EIP, UC_X86_REG_ESI,
+                                   UC_X86_REG_EDI, UC_X86_REG_EIP, UC_X86_REG_ESI,
                                    UC_X86_REG_ESP)
 except ImportError:  # pragma: no cover
     pefile = None
@@ -453,8 +453,10 @@ class Render(unittest.TestCase):
                 self.skipTest(NO_STOCK)
             others = _others(game)
             for mode in MODES:
-                for ids in ((f"{game}_fix_vanilla_bugs",), (f"{game}_fix_vanilla_bugs", CHEAT.format(game)),
-                            others + (f"{game}_fix_vanilla_bugs",)):
+                variants = [(f"{game}_fix_vanilla_bugs",), others + (f"{game}_fix_vanilla_bugs",)]
+                if game != "vv1":                    # A New Home duplicates on its own; it has no cheat row
+                    variants.append((f"{game}_fix_vanilla_bugs", CHEAT.format(game)))
+                for ids in variants:
                     data = _render(game, mode, ids)
                     for offset, _before, after in fixes:
                         with self.subTest(game=game, mode=mode, n=len(ids), offset=hex(offset)):
