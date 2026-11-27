@@ -82,7 +82,9 @@ class Manifest(unittest.TestCase):
     def test_the_row_carries_the_fix_and_says_so(self) -> None:
         from vv_fun_patcher import load_fun_patches
         row = next(p for p in load_fun_patches() if p.id == FEATURE).raw
-        last = row["patches"][-1]
+        # The duplicate-pickup fix (tests/test_duplicate_pickups.py) comes after this one.
+        from test_duplicate_pickups import dupe_pickup_fixes
+        last = row["patches"][-1 - len(dupe_pickup_fixes("vv5"))]
         self.assertEqual((int(last["offset"], 16), bytes.fromhex(last["before"]), bytes.fromhex(last["after"])), FIX)
         self.assertIn('Clicking the finished Clothing Hut no longer says "Construction 100% completed"',
                       row["description"])

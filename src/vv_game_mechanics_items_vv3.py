@@ -546,6 +546,12 @@ def _items() -> list[Entry]:
              # only the carried id, so each child is paid.
              (patch("vv3_everyone_collects_like_vv1") + ": several children dropped on one mushroom or collectible "
               "each collect it and each is paid for it, so it is multiplied.", VERIFIED_C),
+             # vf0 0x42D5E0 removes the nearest item of the carried id within distance squared 0xF4240 (1,000
+             # pixels); Fix Vanilla Bugs' "VVFP Exact Pickups.dll" removes the slot the drop chose (vtable 0x482938,
+             # tests/test_duplicate_pickups.py).
+             (patch("vv3_fix_vanilla_bugs") + ": with several children on one item, each takes only the item it was "
+              "dropped on, and every other item stays, however close it lies; in the normal game each child after the first takes the nearest other item of the same "
+              "kind off the island (up to 1,000 pixels away), with no food or count for it.", VERIFIED_C),
              # The release listener 0x42DEB0: the area 14 test (0x42DF1A) is NOPed (vv3_collectibles_stay_collected).
              (patch("vv3_collectibles_stay_collected") + ": a mushroom a child has picked up counts wherever the "
               "child puts it down, once, not only at the food bin.", VERIFIED_C),

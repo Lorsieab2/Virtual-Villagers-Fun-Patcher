@@ -123,6 +123,10 @@ KEEP_JOB_PIECES = tuple((off, bytes.fromhex(code)) for off, code in (
 KEEP_JOB_FIXES = ((0x47CFF, bytes.fromhex("FF2485A8804400"), bytes.fromhex("E92ECE00009090")),) + tuple(
     (off, b"\xCC" * len(code), code) for off, code in KEEP_JOB_PIECES)
 FIXES = FIXES + LIKE_WORK_FIXES + KEEP_JOB_FIXES
+# A later child's mushroom pick removes no new mushroom elsewhere (tests/test_duplicate_pickups.py).
+from test_duplicate_pickups import dupe_pickup_fixes  # noqa: E402
+
+FIXES = FIXES + dupe_pickup_fixes("vv1")
 
 # Game addresses and fields.
 BLUE_VIAL = 0x419C3F           # resolve 0x419380's case for the blue vial

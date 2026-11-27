@@ -512,6 +512,12 @@ ITEMS = (
         ("With the patcher (Picked Up Collectibles Stay Collected When Dropped, off by default): a mushroom counts "
          "the moment it is picked up -- its food and Mushrooms Found, once -- even if the villager is moved or "
          "stops before the food store (in the normal game it counts only at the food store).", C),
+        # The pick (callback 42, 0x43A24B) sets the end time [mgr+0xACAC] to 1 for every child; Fix Vanilla Bugs
+        # reaches it only when the map's area under the child is the mushroom's 0x21 (tests/test_duplicate_pickups.py).
+        ("Several children dropped on the mushroom each pick it up and bring one back. With the patcher (Fix Vanilla "
+         "Bugs, on by default): each child takes the mushroom only when it is standing on it; in the normal game a "
+         "child picking after the first takes whatever mushroom is out by then, so a new one that has just grown "
+         "elsewhere vanishes with no food or count for it.", C),
         # The drop's adult call 0x425168: area 0x21 -> the Confused action 0x440040 and the message bar
         # (data/builds.json vv1_adult_confused: "VVFP Adult Confused.dll").
         ("With the patcher (Adults Dropped on Mushrooms or Collectibles Are Confused, on by default): a villager of "

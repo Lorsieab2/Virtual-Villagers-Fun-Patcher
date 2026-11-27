@@ -72,6 +72,7 @@ from test_vv5_hungry_totem_solve_time import FIX as HUNGRY_TOTEM_TIME  # noqa: E
 from test_vv5_statue_polish_energy import FIXES as STATUE_FIXES  # noqa: E402
 from test_vv5_nursery_foundation_caption import foundation_caption_fixes  # noqa: E402
 from test_vv5_clothing_hut_click import clothing_hut_click_fixes  # noqa: E402
+from test_duplicate_pickups import dupe_pickup_fixes  # noqa: E402
 SOUND_ENTRY = 0x4CE508          # {0x98, name, file, 0}
 TEXT_ENTRY = 0x4D7530           # {0x302, name, built-in text, 0}
 TEXT_TABLE = (0x4D31F0, 1409)   # 16-byte entries, as the loader 0x450A60 walks them (0x581)
@@ -110,6 +111,9 @@ class RowTests(unittest.TestCase):
         self.assertIn(FEATURE_ID, {p.id for p in load_public_fun_patches()})
         pinned = [(int(p["offset"], 16), bytes.fromhex(p["before"]), bytes.fromhex(p["after"]))
                   for p in row["patches"]]
+        dupe = list(dupe_pickup_fixes("vv5"))           # tests/test_duplicate_pickups.py
+        self.assertEqual(pinned[-len(dupe):], dupe)
+        pinned = pinned[:-len(dupe)]
         click = list(clothing_hut_click_fixes())       # tests/test_vv5_clothing_hut_click.py
         self.assertEqual(pinned[-len(click):], click)
         pinned = pinned[:-len(click)]

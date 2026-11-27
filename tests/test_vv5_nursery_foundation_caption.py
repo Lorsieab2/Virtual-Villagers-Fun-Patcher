@@ -69,7 +69,8 @@ class Manifest(unittest.TestCase):
         row = next(p for p in load_fun_patches() if p.id == FEATURE).raw
         # The Clothing Hut click fix (tests/test_vv5_clothing_hut_click.py) comes after this one.
         from test_vv5_clothing_hut_click import clothing_hut_click_fixes
-        later = len(clothing_hut_click_fixes())
+        from test_duplicate_pickups import dupe_pickup_fixes        # ... and the duplicate-pickup fix after that
+        later = len(clothing_hut_click_fixes()) + len(dupe_pickup_fixes("vv5"))
         last = row["patches"][-1 - later]
         self.assertEqual((int(last["offset"], 16), bytes.fromhex(last["before"]), bytes.fromhex(last["after"])), FIX)
         self.assertIn("sees a nursery school foundation", row["description"])

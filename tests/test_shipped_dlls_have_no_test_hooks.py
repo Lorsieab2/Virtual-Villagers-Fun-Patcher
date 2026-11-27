@@ -70,6 +70,7 @@ TEST_BUILDS = {
                                                               "vvfp_village_solidarity"),
     "assets/window_restore/VVFP Window Restore.dll": ("VVFP Window Restore.test.dll", "vvfp_window_restore"),
     "assets/fullscreen_mouse/VVFP Fullscreen Mouse.dll": ("VVFP Fullscreen Mouse.test.dll", "vvfp_fullscreen_mouse"),
+    "assets/exact_pickups/VVFP Exact Pickups.dll": ("VVFP Exact Pickups.test.dll", "vvfp_exact_pickups"),
 }
 
 # Test builds of code the shipped DLLs compile from a shared header, with no

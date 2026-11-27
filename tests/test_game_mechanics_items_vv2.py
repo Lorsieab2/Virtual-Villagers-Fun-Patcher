@@ -68,7 +68,7 @@ PINNED = {
     "The briar thorns": "C",
     "The scarecrow": "C",
     "The fire pit": "EC",
-    "Mushrooms": "EECCC",
+    "Mushrooms": "EECCCC",
     "Collectibles": "EECC",
     "Butterfly Collection": "EC",
     "Shell Collection": "EC",

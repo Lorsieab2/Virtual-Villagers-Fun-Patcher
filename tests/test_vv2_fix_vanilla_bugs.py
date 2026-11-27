@@ -181,13 +181,17 @@ STOP_AT_ZERO_FIXES = (
 # The briar continuation (0x4608F8, cmp byte [ecx+0x2E7B0], bl): the thorns' own finished flag +0x2E7E0, not the
 # vine wall's (tests/test_herb_study.py).
 THORNS_FIXES = ((0x608FA, bytes.fromhex("B0"), bytes.fromhex("E0")),)
+# A later child's pick removes no new mushroom or collectible elsewhere (tests/test_duplicate_pickups.py).
+from test_duplicate_pickups import dupe_pickup_fixes  # noqa: E402
+
+DUPE_FIXES = dupe_pickup_fixes("vv2")
 BURIAL_PASSED_OVER = 0x4653A8
 BURIAL_FREES = 0x46503B
 
 
 def _allowed() -> set[int]:
     allowed = set(range(HOOK_OFFSET, HOOK_OFFSET + 5)) | set(range(SWAP_OFFSET, SWAP_OFFSET + SWAP_LENGTH))
-    for offset, before, _ in NAME_FIXES + PERCENT_FIXES + LIKES_FIXES + NAME_IDENTITY_FIXES + TOTEM_FIXES + HEALING_FIXES + MAP_FIRE_FIXES + EVENT_K_FIXES + STOP_AT_ZERO_FIXES + THORNS_FIXES:
+    for offset, before, _ in NAME_FIXES + PERCENT_FIXES + LIKES_FIXES + NAME_IDENTITY_FIXES + TOTEM_FIXES + HEALING_FIXES + MAP_FIRE_FIXES + EVENT_K_FIXES + STOP_AT_ZERO_FIXES + THORNS_FIXES + DUPE_FIXES:
         allowed.update(range(offset, offset + len(before)))
     return allowed
 
@@ -332,10 +336,10 @@ class ManifestTests(unittest.TestCase):
         offsets = [(int(p["offset"], 16), len(bytes.fromhex(p["before"]))) for p in raw["patches"]]
         self.assertEqual(offsets, [(HOOK_OFFSET, 5), (SWAP_OFFSET, SWAP_LENGTH)]
                          + [(offset, len(before)) for offset, before, _ in
-                            NAME_FIXES + PERCENT_FIXES + LIKES_FIXES + NAME_IDENTITY_FIXES + TOTEM_FIXES + HEALING_FIXES + MAP_FIRE_FIXES + EVENT_K_FIXES + STOP_AT_ZERO_FIXES + THORNS_FIXES])
+                            NAME_FIXES + PERCENT_FIXES + LIKES_FIXES + NAME_IDENTITY_FIXES + TOTEM_FIXES + HEALING_FIXES + MAP_FIRE_FIXES + EVENT_K_FIXES + STOP_AT_ZERO_FIXES + THORNS_FIXES + DUPE_FIXES])
         self.assertEqual([(int(p["offset"], 16), bytes.fromhex(p["before"]), bytes.fromhex(p["after"]))
                           for p in raw["patches"][2:]],
-                         list(NAME_FIXES + PERCENT_FIXES + LIKES_FIXES + NAME_IDENTITY_FIXES + TOTEM_FIXES + HEALING_FIXES + MAP_FIRE_FIXES + EVENT_K_FIXES + STOP_AT_ZERO_FIXES + THORNS_FIXES))
+                         list(NAME_FIXES + PERCENT_FIXES + LIKES_FIXES + NAME_IDENTITY_FIXES + TOTEM_FIXES + HEALING_FIXES + MAP_FIRE_FIXES + EVENT_K_FIXES + STOP_AT_ZERO_FIXES + THORNS_FIXES + DUPE_FIXES))
         for offset, before, _ in TOTEM_FIXES:
             self.assertEqual(self.stock[offset:offset + len(before)], before)
         self.assertIn("Villagers never turn into totems", raw["description"])
