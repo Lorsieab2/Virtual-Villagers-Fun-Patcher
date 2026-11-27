@@ -37,8 +37,13 @@
    bytes of the three places above (its WM_SIZE switch, its SDL_WINDOWEVENT_MAXIMIZED case and the renderer watch's
    MINIMIZED / RESTORED cases); a different SDL2.dll installs nothing.  No byte of the game or of SDL2.dll is written.
    Started by VVFP More Companions.dll (the third word, native/shared/startup_companions_3.h) before WinMain, on the
-   game's own thread.  No file, no text, no save data, no debug output. */
+   game's own thread.  No file, no text, no save data, no debug output.
+
+   It also starts "VVFP Fullscreen Mouse.dll" (the full screen mouse fix, a companion of its own shipped by the same
+   Fix Vanilla Bugs rows), whatever SDL2.dll is: that companion makes its own checks. */
 #include <windows.h>
+
+#include "../shared/patcher_files.h"
 
 #define WR_SDL_PROP L"SDL_WindowData"
 
@@ -176,12 +181,28 @@ int __stdcall VvfpWindowRestoreInstalled(void) {
     return g_installed;
 }
 
+typedef void(__stdcall *wr_startup_fn)(int, unsigned int);
+
+/* The full screen mouse fix ("VVFP Fullscreen Mouse.dll", its own companion in the same Fix Vanilla Bugs rows):
+   started from here, by its full path in the patcher's folder, so it needs no startup word of its own.  Not
+   shipped, or a fault in it: nothing. */
+static void wr_start_fullscreen_mouse(int game, unsigned int shipped) {
+    HMODULE mouse = vvfp_load_patcher_dll("VVFP Fullscreen Mouse.dll");
+    wr_startup_fn startup = mouse != NULL ? (wr_startup_fn)GetProcAddress(mouse, "VvfpStartup") : NULL;
+    if (startup != NULL) {
+        __try {
+            startup(game, shipped);
+        } __except (EXCEPTION_EXECUTE_HANDLER) {
+        }
+    }
+}
+
 /* Called once by VVFP More Companions.dll before WinMain, on the game's own thread. */
 void __stdcall VvfpStartup(int game, unsigned int shipped) {
-    (void)shipped;
     if (g_installed || game < 1 || game > 5) {
         return;
     }
+    wr_start_fullscreen_mouse(game, shipped);
     if (!wr_sdl_is_stock()) {
         return;
     }

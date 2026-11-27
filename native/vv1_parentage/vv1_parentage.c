@@ -2251,16 +2251,52 @@ typedef unsigned int (__cdecl *sdl_get_mouse_state_t)(int *x, int *y);
 static sdl_get_mouse_state_t g_mouse;
 static int g_mouse_state;         /* 0 = not tried, 1 = resolved, -1 = unavailable */
 
+/* The game's own import of SDL_GetMouseState (its import table entry, which its event pump calls through).  Asked
+   through there, the mouse is in the same pixels as the game's own clicks: "VVFP Fullscreen Mouse.dll" (Fix Vanilla
+   Bugs) replaces that entry so that full screen and a bigger window give the game's pixels instead of the window's,
+   and this hover test then agrees with the game -- never converted twice. */
+static sdl_get_mouse_state_t volatile *g_mouse_import;
+
+static sdl_get_mouse_state_t volatile *vv1_game_import(const char *name) {
+    const unsigned char *base = (const unsigned char *)GetModuleHandleW(NULL);
+    const IMAGE_NT_HEADERS *nt = (const IMAGE_NT_HEADERS *)(base + ((const IMAGE_DOS_HEADER *)base)->e_lfanew);
+    const IMAGE_DATA_DIRECTORY *dir = &nt->OptionalHeader.DataDirectory[IMAGE_DIRECTORY_ENTRY_IMPORT];
+    const IMAGE_IMPORT_DESCRIPTOR *d;
+    if (dir->VirtualAddress == 0) {
+        return NULL;
+    }
+    for (d = (const IMAGE_IMPORT_DESCRIPTOR *)(base + dir->VirtualAddress); d->Name != 0; ++d) {
+        const IMAGE_THUNK_DATA *names;
+        const IMAGE_THUNK_DATA *slots;
+        if (lstrcmpiA((const char *)(base + d->Name), "SDL2.dll") != 0 || d->OriginalFirstThunk == 0) {
+            continue;
+        }
+        names = (const IMAGE_THUNK_DATA *)(base + d->OriginalFirstThunk);
+        slots = (const IMAGE_THUNK_DATA *)(base + d->FirstThunk);
+        for (; names->u1.AddressOfData != 0; ++names, ++slots) {
+            if (!IMAGE_SNAP_BY_ORDINAL(names->u1.Ordinal) &&
+                lstrcmpA((const char *)((const IMAGE_IMPORT_BY_NAME *)(base + names->u1.AddressOfData))->Name,
+                         name) == 0) {
+                return (sdl_get_mouse_state_t volatile *)&slots->u1.Function;
+            }
+        }
+    }
+    return NULL;
+}
+
 static int vv1_mouse(int *x, int *y) {
+    sdl_get_mouse_state_t through_game;
     if (g_mouse_state == 0) {
         HMODULE sdl = GetModuleHandleA("SDL2.dll");   /* the game's own, already loaded */
         g_mouse = sdl ? (sdl_get_mouse_state_t)GetProcAddress(sdl, "SDL_GetMouseState") : NULL;
+        g_mouse_import = vv1_game_import("SDL_GetMouseState");
         g_mouse_state = g_mouse ? 1 : -1;
     }
     if (g_mouse_state != 1) {
         return 0;
     }
-    g_mouse(x, y);
+    through_game = g_mouse_import != NULL ? *g_mouse_import : NULL;
+    (through_game != NULL ? through_game : g_mouse)(x, y);
     return 1;
 }
 

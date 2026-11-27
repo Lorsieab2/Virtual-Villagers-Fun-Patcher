@@ -1,0 +1,4 @@
+LIBRARY "VVFP Fullscreen Mouse"
+EXPORTS
+    VvfpStartup=_VvfpStartup@8
+    VvfpFullscreenMouseInstalled=_VvfpFullscreenMouseInstalled@0
