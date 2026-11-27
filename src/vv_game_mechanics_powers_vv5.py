@@ -113,8 +113,42 @@ EFFECTS = (
       "Anywhere else (not the food bin's area, where it is refused): 17 to 22 plants grow within 104 pixels, as the "
       "ground allows. While 10 to 12 mushroom places are left, each plant is a mushroom half the time (a brown or a "
       "red one, equally likely), otherwise a flower. A grown mushroom is a normal one (brown 6 food, red 35, counted "
-      "in Mushrooms Found when it reaches the food bin). Believers within 104 pixels dance; Heathens within 402 "
-      "pixels go to the plants.")),
+      "in Mushrooms Found when it reaches the food bin). Its mushrooms grow close together: with the VV1 "
+      "Mushroom/Collectible Duplication Cheat, children dropped on one of them used to take the island's other "
+      "mushrooms of that colour (one for each child after the first); with Fix Vanilla Bugs each child takes only "
+      "the mushroom it was dropped on, and the others stay, however close. Believers within 104 pixels dance; Heathens within 402 "
+      "pixels go to the plants.",
+      # The owner, 2026-11-27: "which is better: hand of bloom + 8 children collecting 1-3 red and or normal
+      # mushrooms all once, or the crop field?" and "hand of bloom + all 8 children duplicate 1-3 oranges + reds?
+      # with and without food mastery?"  Live crop trips pay 10, 7 or 4 crops on Fast, Normal or Slow, 7 while
+      # catching up (game_mechanics_farmers_vv5, event 14 at 0x46D0D0; Codex, #888); Food Mastery x1.5 rounded down /
+      # x2 on every food gain (0x41EB5B, 0x41EB62), so 800 crops at Food Mastery 2 pay 1,200 on Fast (15 a trip) and
+      # Slow (6 a trip) but 1,143 on Normal (10 a trip, 3 for the last 2 crops); the duplication row pays each child
+      # dropped on a mushroom (vv5_everyone_collects_like_vv1, tests/test_everyone_collects.py).
+      "Which is better, the field or mushrooms? Normally the field, when its crops are low: one cast there is up to "
+      "800 food (1,200 at Food Mastery 2, about 1,143 on Normal speed where each trip's half rounds down, and 1,600 "
+      "at Food Mastery 3), while a cast anywhere else gives at most "
+      "about 10 mushrooms and only 1 to 3 when the island already has mushrooms lying about (seen in play: few "
+      "mushroom places are left then). A Hand of Bloom mushroom is worth 20.5 food on average (brown 6 or red 35, "
+      "equally likely), 30.5 at Food Mastery 2 (9 or 52) and 41 at Food Mastery 3 (12 or 70). Both casts cost 150 "
+      "Divine Energy. Mushrooms reach the food bin sooner: children pick them all up at once, while the field's "
+      "food comes 10, 7 or 4 crops a trip (on Fast, Normal or Slow; 7 while the village catches up) as farmers "
+      "harvest it, and farmers also pick between the noni, the crops and the lake. "
+      "A full field gains nothing from a cast, and the Hydroponic Farm refills it to 800 by itself.",
+      f"With the patcher (\"{gm.feature_name('vv5_everyone_collects_like_vv1')}\", off by default): every child "
+      "dropped on a mushroom gets one, so 8 children "
+      "make 8 of each. 1 to 3 mushrooms then give on average 164 to 492 food (48 to 840 from all brown to all red), "
+      "244 to 732 at Food Mastery 2 (72 to 1,248) and 328 to 984 at Food Mastery 3 (96 to 1,680), all in one go, "
+      "long before the field's harvest is in. With 3 mushrooms that is about as much as the field, sooner; with 1 it is less. The Food "
+      "Point Doubler doubles both the mushrooms and the field's harvests. Seen in play (2026-11-27, Food Mastery "
+      "2): one cast grew 1 red and 1 brown mushroom, 8 children picked up both, and food went from 2,792 to 3,280: "
+      "+488, exactly 8 x 52 + 8 x 9. Also seen in play before Fix Vanilla Bugs fixed it: every child "
+      "dropped on one mushroom got a copy of it, but each extra copy took away another mushroom of the same colour "
+      "from the island (another red for a red, another brown for a brown), with no food for it, and the same went "
+      "for collectibles. At Food Mastery 2 one cast on "
+      "an empty field is worth 1,200 food on Fast or Slow (about 1,143 on Normal); to beat it at every speed with "
+      "one mushroom cast takes 8 children on 3 red mushrooms, 12 on 2 red, 20 on a red and a brown, 24 on 1 red, "
+      "45 on 3 brown (on Normal speed 8, 11, 19, 22 and 43 are enough).")),
     # Tempest: the handler's own weather call 0x4230C7; rain makes every spawn a mushroom (0x477040); The Lake's
     # point 0x43C7E0, 0x43C460.
     (5, f"starts a storm at full strength (weather 5, rain); it {WEATHER}. While it rains every random spawn is a "
