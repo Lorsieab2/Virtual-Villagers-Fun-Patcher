@@ -5343,16 +5343,21 @@ __declspec(dllexport) int __stdcall AppearanceChangedAtSave(int game_id, const v
     return written;
 }
 
-/* A Birth record, `note` (a whole "  Note: ...\n" line, or NULL) after its parents. */
-static int write_birth(
+/* The note WriteParentageBirthCarried gives the Birth record being written (a whole "  Note: ...\n" line), or
+   NULL. */
+static const char *g_birth_note;
+
+/* WriteParentageBirth with the delivery's babies given: 1-3, or -1 when not
+   known (no "Born as" line). */
+__declspec(dllexport) int __stdcall WriteParentageBirthLitter(
     int game_id,
     const char *child_name, int child_head, int child_body,
     const char *mother_name, int mother_head, int mother_body,
     const char *father_name, int father_head, int father_body,
     const void *child_record,
-    int litter,
-    const char *note
+    int litter
 ) {
+    const char *note = g_birth_note;
     char text[RECORD_TEXT_MAX];
     char carried[MAX_NAME_BYTES * 2 + 96];
     if (child_name == NULL || child_name[0] == '\0') {   /* the record is the name: the exe's splices */
@@ -5399,20 +5404,6 @@ static int write_birth(
     }
 }
 
-/* WriteParentageBirth with the delivery's babies given: 1-3, or -1 when not
-   known (no "Born as" line). */
-__declspec(dllexport) int __stdcall WriteParentageBirthLitter(
-    int game_id,
-    const char *child_name, int child_head, int child_body,
-    const char *mother_name, int mother_head, int mother_body,
-    const char *father_name, int father_head, int father_body,
-    const void *child_record,
-    int litter
-) {
-    return write_birth(game_id, child_name, child_head, child_body, mother_name, mother_head, mother_body,
-                       father_name, father_head, father_body, child_record, litter, NULL);
-}
-
 /* WriteParentageBirthLitter for a companion that gave the newborn's parents by sex itself (the owner,
    2026-11-27; parents_follow_sex): `carried_by`, when not empty, is the carrier -- a man, now the child's Father --
    and the record says so (CARRIED_BY_FATHER_FORMAT).  A New Home's Show Parents companion and New Believers'
@@ -5431,6 +5422,7 @@ __declspec(dllexport) int __stdcall WriteParentageBirthCarried(
     char mother[MAX_NAME_BYTES];
     const struct game_layout *g = game_id >= GAME_VV1 && game_id <= GAME_VV5 ? layout_of(game_id) : NULL;
     const char *note = NULL;
+    int result;
     if (carried_by != NULL && carried_by[0] != '\0' && g != NULL && layout_is_usable(g)) {
         copy_name_field((const unsigned char *)carried_by, carrier, sizeof carrier, g->name_capacity);
         mother[0] = '\0';
@@ -5443,8 +5435,11 @@ __declspec(dllexport) int __stdcall WriteParentageBirthCarried(
         carried_by_father_note(carrier, mother, carried, sizeof carried);
         note = carried;
     }
-    return write_birth(game_id, child_name, child_head, child_body, mother_name, mother_head, mother_body,
-                       father_name, father_head, father_body, child_record, litter, note);
+    g_birth_note = note;
+    result = WriteParentageBirthLitter(game_id, child_name, child_head, child_body, mother_name, mother_head,
+                                       mother_body, father_name, father_head, father_body, child_record, litter);
+    g_birth_note = NULL;
+    return result;
 }
 
 /* A New Home: the Birth record of a villager the Births log has none for,

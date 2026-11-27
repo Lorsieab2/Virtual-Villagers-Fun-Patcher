@@ -45,8 +45,8 @@ import vv_log_additions as additions
 import vv_log_tools as tools
 
 KIND_ID = "parents_sex"
-LABEL = ("Parents by their sex: a child recorded with a man as its Mother and a woman as its Father (whoever "
-         "carried) given her as the Mother and him as the Father")
+LABEL = ("Parents by their sex (a child recorded with a man as its Mother and a woman as its Father, whoever "
+         "carried, gets her as the Mother and him as the Father)")
 CHECKED = ("the parents of every child in the save and the Birth, History, Population and Unaccounted records, "
            "against the sex the save and the logs record for each parent, and the player's answers")
 ADDED = "Parents put by their sex"
@@ -251,8 +251,10 @@ def plan_kind(folder: Path, game: int, slot: int) -> additions.Kind:
         if child:
             p.children.add(child)
         return p
+    held: list[tuple] = []                             # the pair of each villager the save or the file keeps
     for _at, mother, father, child in _save_parents(folder, game, slot):
         pair_of(mother, father, child)
+        held.append((mother, father))
     if game == 1:
         for path in _vv1_files(folder, slot):
             try:
@@ -262,6 +264,7 @@ def plan_kind(folder: Path, game: int, slot: int) -> additions.Kind:
             for e, child in _vv1_entries(raw):
                 mother, father = _vv1_entry_parents(raw, e)
                 pair_of(mother, father, child)
+                held.append((mother, father))
     checker = tools.load_checker()
     villages = additions.current_villages(folder, game, slot)
     found: list[tuple] = []                            # (block, section)
@@ -337,6 +340,9 @@ def plan_kind(folder: Path, game: int, slot: int) -> additions.Kind:
                                                      by_answer={_yes(p.mother, p.father): note}))
         records = kind.context["records"].setdefault(str(b.path), [])
         records.append((p.question, _yes(p.mother, p.father)) if not p.decided else None)
+    # For the checklist row: the records and villagers the plan would put right (asked ones counted too).
+    kind.context["found"] = sum(len(v) for v in kind.context["records"].values()) + sum(
+        1 for key in held if key in kind.context["pairs"])
     decided = [p for p in kind.context["pairs"].values() if p.decided]
     if decided:
         kind.notes.append("Recorded with a man as the Mother and a woman as the Father, given her as the Mother and "

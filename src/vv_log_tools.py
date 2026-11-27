@@ -433,6 +433,7 @@ class ApprovalResult:
     rejoined: object | None = None              # src/vv5_rejoined_masks.py Result: rejoined villagers' masks given back
     heathen_masks: object | None = None         # src/vv5_heathen_masks_restore.py Result (or why not): Heathens' masks
     revive: object | None = None                # src/vv_revive_backfill.py Result: revival snapshots made afterwards
+    parents: list = field(default_factory=list)  # WordFix: files the parents were put by their sex in (the save...)
 
 
 def _refuse_if_running(folder: Path, processes: vv_save_backup.ProcessController) -> None:
@@ -736,7 +737,7 @@ def approve_repair(
             kept_backup = backup                # kept: an unneeded backup is never a fault
     return ApprovalResult(folder, slot, game, cleared, approval if rearm else None, kept_backup, words,
                           added.get("sex", []), added, answered, renamed, answer_lines, originals, rejoined,
-                          heathen_masks, revive)
+                          heathen_masks, revive, parents_swapped)
 
 
 # ---------------------------------------------------------------------------

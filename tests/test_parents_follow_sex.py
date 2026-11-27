@@ -85,8 +85,8 @@ class CompanionsCallIt(unittest.TestCase):
 
     def test_the_splice_swaps_before_the_last_name_and_the_number(self):
         source = (NATIVE / "parentage_export" / "parentage_export.c").read_text(encoding="utf-8")
-        body = source[source.index("static int write_birth("):source.index("__declspec(dllexport) int __stdcall "
-                                                                          "WriteParentageBirthLitter(")]
+        body = source[source.index("int __stdcall WriteParentageBirthLitter("):
+                      source.index("int __stdcall WriteParentageBirthCarried(")]
         self.assertLess(body.index("delivery_litter("), body.index("parents_follow_sex("),
                         "the litter is read from the carrier before the parents trade places")
         self.assertLess(body.index("parents_follow_sex("), body.index("rule_last_name("))
