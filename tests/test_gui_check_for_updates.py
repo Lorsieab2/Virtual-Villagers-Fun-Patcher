@@ -320,7 +320,9 @@ class ReleasesLinkTests(unittest.TestCase):
             # (function-level) the save's villagers and per-villager files as Last Names reads them, the save layout
             # and A New Home's departed list.
             ("vv_parents_follow_sex", {"vv_log_additions", "vv_log_tools", "vv_last_names", "vv_save_layout",
-                                       "vv1_parents_restore"}),
+                                       "vv1_parents_restore",
+                                       # the Original Looks file re-keyed with the child (Codex, #887)
+                                       "vv_original_look"}),
             # The original looks behind Change Appearance's Reset to original (v1.35.85): the per-save
             # files' places, and the logs and villagers its backfill reads (function-level).
             ("vv_original_look", {"vv_save_layout", "vv_last_names", "vv_reconcile", "vv_log_additions",

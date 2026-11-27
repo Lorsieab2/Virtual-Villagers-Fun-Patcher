@@ -224,6 +224,39 @@ class RepairBackfill(unittest.TestCase):
                 again = next(k for k in additions.plan(folder, game, 1) if k.id == pfs.KIND_ID)
                 self.assertEqual((again.questions, again.replaces, again.inserts), ({}, [], []))
 
+    def test_a_rename_keeps_the_carrier_found(self):
+        """Codex (#887): a rename through the name tools renames the names inside the "Carried by" note too (the
+        carrier's and the Mother's, by their parent lines' name and looks), and the carrier is found by the note
+        whatever name it gives."""
+        folder, save, header, ln, additions, tools = self._village(5)
+        people = ln.living(folder, 5, 1)
+        man = next(v for v in people if v.sex == "Male")
+        woman = next(v for v in people if v.sex == "Female")
+        note = (f"  Note: Carried by {man.name}, who is male (named as the Father; {woman.name} is named as the "
+                "Mother)\n")
+        record = _birth(1, "Coral", woman.identity, man.identity).replace("  Born as: Single birth\n",
+                                                                         "  Born as: Single birth\n" + note)
+        births = _write(folder, "Births and Conceptions/Virtual Villagers 5 Births and Conceptions Log 1.txt",
+                        f"{header}\n{record}")
+        for who, new in ((man, "Ahi Renamed"), (woman, "Vaihi Renamed")):
+            with self.subTest(renamed=who.name):
+                plan = ln.Plan({})
+                ln._plan_logs(plan, folder, 5, 1, {who.identity: new}, {})
+                (change,) = [c for c in plan.changes if c.path == births]
+                text = change.updated.decode("latin-1").replace("\r\n", "\n")
+                carrier = man.name if who is woman else new
+                mother = woman.name if who is man else new
+                self.assertIn(f"  Note: Carried by {carrier}, who is male (named as the Father; {mother} is named as "
+                              "the Mother)", text)
+                lines = text.split("\n")
+                birth = next(b for b in additions.blocks(births, lines) if additions.is_birth(b.heading))
+                self.assertEqual(additions.birth_carrier(birth), (carrier, man.head, man.body))
+        # A note an older rename left behind still names the Father as the carrier, by his own line.
+        stale = record.replace(f"  Father: {man.name}\n", "  Father: Someone Else\n")
+        lines = (f"{header}\n{stale}").split("\n")
+        birth = next(b for b in additions.blocks(births, lines) if additions.is_birth(b.heading))
+        self.assertEqual(additions.birth_carrier(birth), ("Someone Else", man.head, man.body))
+
     def test_a_new_home(self):
         """A New Home keeps the parents in its Parentage Records (VVFP VV1 Parentage.dll), not on the record."""
         import vv_parents_follow_sex as pfs
@@ -260,6 +293,69 @@ class RepairBackfill(unittest.TestCase):
         e = pfs.VV1_ENTRIES + 6 * 92
         self.assertEqual(pfs._vv1_entry_parents(after, e), (woman.identity, man.identity), "left alone")
         self.assertIn(f"  Mother: {woman.name}\r\n", births.read_bytes().decode("latin-1"))
+
+    def test_the_files_keyed_by_the_parents_follow_the_child(self):
+        """Codex (#887): every per-villager file whose identity holds the parents' names is re-keyed with the save --
+        Change Appearance's Original Looks (so Reset to original still finds the child's original), the island
+        events' story traits and The Tree of Life's yellow fruit tree roster."""
+        import vv_original_look as ol
+        import vv_parents_follow_sex as pfs
+        for game in (4, 5):
+            with self.subTest(game=game):
+                folder, save, header, ln, additions, tools = self._village(game)
+                people = ln.living(folder, game, 1)
+                man = next(v for v in people if v.sex == "Male")
+                woman = next(v for v in people if v.sex == "Female")
+                child = next(v for v in people if not self._parents(ln, game, save.read_bytes(), v)[0][0]
+                             and v not in (man, woman))
+                buf = bytearray(save.read_bytes())
+                self._put_parents(ln, game, buf, child, man.identity, woman.identity)   # a man as the Mother
+                save.write_bytes(bytes(buf))
+                f = ln.FIELDS[game]
+                before = {v.seen.at: v for v in ol.living(folder, game, 1)}[child.at]
+                record, count = before.seen.record, 150
+                entries = [ol.Entry() for _ in range(count)]
+                entries[record] = ol.Entry(roster=before.id, id=before.id, head=7, body=8, mask=0, source=1)
+                looks_path = ol.path(folder, 1)
+                looks_path.parent.mkdir(parents=True, exist_ok=True)
+                looks_path.write_bytes(ol.build(ol.OriginalLooks(game, entries, [ol.Logged(before.id, 7, 8, 0, 1)])))
+                worn = ln._store_identity(game, buf, child.at, f)
+                traits = bytearray(b"VST1" + struct.pack("<II", game, count) + bytes(count * 9 + 255 * 4))
+                struct.pack_into("<I", traits, 12 + 4 * record, worn)
+                struct.pack_into("<I", traits, 12 + 4 * count + 4 * record, worn)
+                traits_path = ln._data_file(folder, "Island Events", "Island Event Story Traits - Save 1.dat")
+                traits_path.parent.mkdir(parents=True, exist_ok=True)
+                traits_path.write_bytes(bytes(traits))
+                fruit_path = ln._data_file(folder, "Fruit Trees", "Virtual Villagers 4 Yellow Fruit Tree - Save 1.dat")
+                if game == 4:
+                    fruit = bytearray(b"VV4F" + struct.pack("<7I", 1, 4, 1, 500, 3, 1, 0) + bytes(256 * 4))
+                    struct.pack_into("<I", fruit, 32 + 4 * record, ln._mask_identities(game, buf, child.at)[0])
+                    fruit_path.parent.mkdir(parents=True, exist_ok=True)
+                    fruit_path.write_bytes(bytes(fruit))
+                kinds = additions.plan(folder, game, 1)
+                # The plan re-keys the logged look too (the backfill after the Repair may then spend it).
+                planned, _who = pfs.plan_save(folder, game, 1, next(k for k in kinds if k.id == pfs.KIND_ID), {})
+                (looks_change,) = [c for c in planned if c.path == looks_path]
+                planned_looks = ol.parse(looks_change.updated, game)
+                self.assertEqual(planned_looks.logged[0].id, planned_looks.entries[record].id)
+                self.assertNotEqual(planned_looks.logged[0].id, before.id)
+                tools.approve_repair(folder, game, 1, FakeProcesses(), datetime(2026, 11, 27, 12, 0),
+                                     chosen={pfs.KIND_ID}, answers={}, kinds=kinds, rearm=False)
+                data = save.read_bytes()
+                self.assertEqual(self._parents(ln, game, data, child), (woman.identity, man.identity))
+                after = {v.seen.at: v for v in ol.living(folder, game, 1)}[child.at]
+                self.assertNotEqual(after.id, before.id, "the identity holds the parents' names, in their order")
+                looks = ol.parse(looks_path.read_bytes(), game)
+                self.assertEqual((looks.entries[record].roster, looks.entries[record].id, looks.entries[record].head,
+                                  looks.entries[record].body), (after.id, after.id, 7, 8),
+                                 "Reset to original still finds the child's original")
+                new_worn = ln._store_identity(game, data, child.at, f)
+                raw = traits_path.read_bytes()
+                self.assertEqual(struct.unpack_from("<I", raw, 12 + 4 * record)[0], new_worn)
+                self.assertEqual(struct.unpack_from("<I", raw, 12 + 4 * count + 4 * record)[0], new_worn)
+                if game == 4:
+                    self.assertEqual(struct.unpack_from("<I", fruit_path.read_bytes(), 32 + 4 * record)[0],
+                                     ln._mask_identities(game, data, child.at)[0])
 
 
 if __name__ == "__main__":

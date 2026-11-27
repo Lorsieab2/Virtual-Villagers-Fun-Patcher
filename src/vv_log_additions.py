@@ -888,12 +888,15 @@ CARRIED_BY_FATHER = re.compile(r"^  Note: Carried by (.+), who is male \(named a
 
 def birth_carrier(b: Block) -> tuple | None:
     """(name, head, body) of the villager who carried a Birth record's baby: its Father when its note says the
-    Father carried it, else its Mother (every game records the carrier as the Mother)."""
+    Father carried it, else its Mother (every game records the carrier as the Mother).
+
+    The note is written only when the Father carried (native/parentage_export parents_follow_sex,
+    src/vv_parents_follow_sex.py), so it means the Father whatever name it gives: a rename that left the note's
+    name behind (an older patcher's rename, a hand edit) never turns the carrier back into the Mother -- the
+    Father's own line, its name and looks, is who carried (Codex, #887)."""
     father = _sub_identity(b, "Father")
-    for line in b.lines:
-        m = CARRIED_BY_FATHER.match(line)
-        if m and father is not None and father[0] == m.group(1).strip():
-            return father
+    if father is not None and any(CARRIED_BY_FATHER.match(line) for line in b.lines):
+        return father
     return _sub_identity(b, "Mother")
 
 

@@ -413,12 +413,17 @@ def plan_save(folder: Path, game: int, slot: int, kind: additions.Kind,
         buf = bytearray(original)
         worn_map: dict[int, int] = {}
         mask_map: dict[int, int] = {}
+        looks_map: dict[int, int] = {}
         for at, mother, father, child in _save_parents(folder, game, slot):
             if (mother, father) not in wanted:
                 continue
             old_worn, old_masks = ln._store_identity(game, buf, at, f), ln._mask_identities(game, buf, at)
+            old_look = _original_look_identity(game, buf, at, f)
             _swap_save(buf, at, f)
             new_worn, new_masks = ln._store_identity(game, buf, at, f), ln._mask_identities(game, buf, at)
+            new_look = _original_look_identity(game, buf, at, f)
+            if old_look != new_look:
+                looks_map[old_look] = new_look
             if old_worn != new_worn:
                 worn_map[old_worn] = new_worn
             for old_id, new_id in zip(old_masks, new_masks):
@@ -436,9 +441,91 @@ def plan_save(folder: Path, game: int, slot: int, kind: additions.Kind,
                 *((("Heathens Keep Masks", f"Masks Worn - Save {slot}.dat", (b"VKM1",), "the masks worn"),)
                   if game == 5 else ())):
             ln._plan_look_store(result, ln._data_file(folder, subfolder, name), magics, game, worn_map, {}, what)
+        # Every other per-villager file whose identity holds the parents' names, in their order (Codex, #887):
+        # Change Appearance's Original Looks (VVFP Original Look.dll ol_identity: its roster, its owners and its
+        # logged looks), the island events' story traits (native/vvfp_story_upgrades/story_traits.inc: the head
+        # looks' identity, roster and owners) and The Tree of Life's yellow fruit tree roster (the Origins
+        # fingerprint, the masks' identity).
+        _plan_original_looks(result, folder, game, slot, looks_map)
+        _plan_u32s(result, ln._data_file(folder, "Island Events", f"Island Event Story Traits - Save {slot}.dat"),
+                   game, worn_map, "the island events' story traits", _story_traits_ids)
+        if game == 4:
+            _plan_u32s(result, ln._data_file(folder, "Fruit Trees",
+                                             f"Virtual Villagers 4 Yellow Fruit Tree - Save {slot}.dat"),
+                       game, mask_map, "the yellow fruit tree", _fruit_tree_ids)
         changes += result.changes
     changes += _plan_roster(folder, game, slot, wanted)
     return changes, who
+
+
+def _original_look_identity(game: int, data, at: int, f) -> int:
+    """VVFP Original Look.dll's identity of the saved villager whose name is at `at` (src/vv_original_look.py)."""
+    import vv_original_look as ol
+    return ol.identity(game, bytes(data[at:at + ol.NAME_BYTES[game]]), bytes(data[at + f.sex:at + f.sex + 4]),
+                       bytes(data[at + f.father:at + f.father + ol.PARENT_BYTES]),
+                       bytes(data[at + f.mother:at + f.mother + ol.PARENT_BYTES]))[0]
+
+
+def _plan_original_looks(result, folder: Path, game: int, slot: int, mapping: dict[int, int]) -> None:
+    """The Original Looks file: each swapped villager's identity carried in the roster, the owners and the logged
+    looks, every other value as it was (the file rebuilt with its checksum).  A file the DLL would not read is left
+    as it is."""
+    import vv_last_names as ln
+    import vv_original_look as ol
+    if not mapping:
+        return
+    path = ol.path(folder, slot)
+    if not path.is_file():
+        return
+    original = path.read_bytes()
+    looks = ol.parse(original, game)
+    if looks is None:
+        result.notes.append(f"{path.name} is not an Original Looks file this patcher reads; left as it is.")
+        return
+    for e in looks.entries:
+        e.roster = mapping.get(e.roster, e.roster)
+        e.id = mapping.get(e.id, e.id)
+    for e in looks.logged:
+        e.id = mapping.get(e.id, e.id)
+    updated = ol.build(looks)
+    if updated != original:
+        result.changes.append(ln.Change(path, original, updated, "the original looks"))
+
+
+def _story_traits_ids(data: bytes, game: int) -> tuple[int, int] | None:
+    """(first offset, how many) of the identities of an island events' story traits file (story_traits.inc:
+    'VST1', game, count, roster[count], id[count], handle[count], traits[255])."""
+    if len(data) < 12 or data[:4] != b"VST1":
+        return None
+    file_game, count = struct.unpack_from("<II", data, 4)
+    if file_game != game or count not in (150, 256) or len(data) != 12 + count * 9 + 255 * 4:
+        return None
+    return 12, 2 * count
+
+
+def _fruit_tree_ids(data: bytes, game: int) -> tuple[int, int] | None:
+    """The yellow fruit tree file's roster (native/vvfp_vv4_fruit_supply: 'VV4F', version 1, game 4, slot, fruit,
+    units, count, reserved, roster[256])."""
+    if len(data) != 32 + 256 * 4 or data[:4] != b"VV4F":
+        return None
+    version, file_game = struct.unpack_from("<II", data, 4)
+    if version != 1 or file_game != game:
+        return None
+    return 32, 256
+
+
+def _plan_u32s(result, path: Path, game: int, mapping: dict[int, int], what: str, layout_of) -> None:
+    import vv_last_names as ln
+    if not mapping or not path.is_file():
+        return
+    original = path.read_bytes()
+    found = layout_of(original, game)
+    if found is None:
+        result.notes.append(f"{path.name} is not a file of {what} this patcher writes; left as it is.")
+        return
+    buf = bytearray(original)
+    if ln._replace_u32s(buf, found[0], found[1], 4, mapping, {}):
+        result.changes.append(ln.Change(path, original, bytes(buf), what))
 
 
 def _plan_roster(folder: Path, game: int, slot: int, wanted: set) -> list:
