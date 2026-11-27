@@ -370,6 +370,20 @@ int main(void) {
     check(file_size(path1) == 16, "and the file is rewritten without it");
     g_records[1][0] = 1;
 
+    /* -- VvfpStorySetCustomTitle: "VVFP Heathen Aging.dll"'s setter (the Heathen Tribe Expansion's show Chief and
+       Masters, decision 6) goes through titles_set, the file's only writer; NULL or "" takes the title off -- */
+    check(VvfpStorySetCustomTitle(3, 2, "Heathen Chief") == 1 && file_size(path1) == 16 + 84,
+          "the export sets a title and publishes it");
+    seen = titles_lookup(3, g_records[2]);
+    check(seen != NULL && lstrcmpA(seen, "Heathen Chief") == 0, "...bound to the villager in that record");
+    check(VvfpStorySetCustomTitle(3, 2, NULL) == 1 && titles_lookup(3, g_records[2]) == NULL
+          && file_size(path1) == 16, "NULL takes it off, and the file is rewritten without it");
+    check(VvfpStorySetCustomTitle(3, 2, "Heathen Master Farmer") == 1 && VvfpStorySetCustomTitle(3, 2, "") == 1
+          && titles_lookup(3, g_records[2]) == NULL, "\"\" takes it off too");
+    check(VvfpStorySetCustomTitle(3, -1, "Heathen Chief") == 0 && VvfpStorySetCustomTitle(9, 2, "Heathen Chief") == 0
+          && VvfpStorySetCustomTitle(3, 2, "This title is far too long to be shown") == 0
+          && titles_lookup(3, g_records[2]) == NULL, "a wrong index or game, or a title the file refuses: nothing");
+
     /* -- an invalid file is set aside, never overwritten ----------------- */
     new_session();
     write_bytes(path1, "garbage", 7);

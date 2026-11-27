@@ -2,7 +2,7 @@
 
 The owner (2026-11-25), with The Blind Totem's line: when a villager is held over the finished mud hut (the Heathen
 hovel) after The Last Heathen is solved, "name sees the decorated encampment"; when the hovel memorial is active,
-"name sees a heartfelt memorial."  Before The Last Heathen is solved, the game's own behaviour.
+"name sees a heartfelt memorial." (2026-11-26: "...the message should say name sees a heartfelt memorial shrine.").  Before The Last Heathen is solved, the game's own behaviour.
 
 A held villager over a place no area handler takes (the hover dispatcher 0x479780 answers 0) goes to the point-hover
 routine 0x444310 (0x4462CD -> 0x444306).  It names a heathen hut by its area (10..14), else the villager under the
@@ -15,7 +15,7 @@ Reflecting registration's push at 0x46409E (stock 0x457E90, the row 0x494DE1).
 
 The fix hooks the "no villager under the point" branch (0x444568, reached only by its je at 0x444438): with project 25
 done and the point in the hut, the gray bar shows "{name} sees the decorated encampment." (or "{name} sees a heartfelt
-memorial." with the memorial row) through the game's own {name} substitution 0x450710 (entered after its text-table
+memorial shrine." with the memorial row) through the game's own {name} substitution 0x450710 (entered after its text-table
 lookup, 0x45078A, with the patch's own text) and 0x44F060's 5-second clock, then the routine's own exit 0x444598;
 otherwise the displaced instructions and the stock deep-water test run as before.  Its pieces sit in .text tail
 padding no other patch uses.  The game's lines are "{name} sees the remnants of a totem." and the like, so the
@@ -44,13 +44,16 @@ FIXES = (
     (0x9442C, "00" * 52, "6A19B908E05100E8486AFAFF84C0741F8D8598F7FFFF3D8800000073128D8348FAFFFF3D880000007305E979"
                          "FFFFFFE9B0010000"),
     (0x94610, "00" * 12, "5355B9E88E7100E953FFFAFF"),
-    (0x943D4, "00" * 42, "B818484900803D9F404600E17505B8DD4649006A016A006A0031C9398F901B00000F94C151E9D20B0000"),
+    (0x943D4, "00" * 42, "B818484900803D9F404600E17505B8805F4C006A016A006A0031C9398F901B00000F94C151E9D20B0000"),
     (0x94FD0, "00" * 44, "8D979C1B0000526A0068FF00000068680F5200E830F5FFFFE86309F9FF89C1E8ECE6F6FF83C005E94CF5FFFF"),
     (0x94548, "00" * 10, "A368105200E94600FBFF"),
     (0x94518, "00" * 32, "81EC80000000890424A1A8974D0031E08944247C8B8C249C000000E980000000"),
     (0x945B8, "00" * 31, "8B9424840000008B842490000000894C2410895424148944240CE9B3C1FBFF"),
     (0x94818, "00" * 38, b"{name} sees the decorated encampment.\0".hex().upper()),
-    (0x946DD, "00" * 34, b"{name} sees a heartfelt memorial.\0".hex().upper()),
+    # "...memorial shrine." (the owner, 2026-11-26) is 41 bytes: past its old 34-byte place at 0x4946DD (0x494700 is the
+    # Puzzle 17 chain's), so it is in the zero tail of .rdata's last page, 0x4C5F80 (the respectful cover's name is at
+    # 0x4C5FD0, Fix Vanilla Bugs' "eTipDemo" at 0x4C5FF0).
+    (0xC5F80, "00" * 41, b"{name} sees a heartfelt memorial shrine.\0".hex().upper()),
 )
 FIXES = tuple((o, bytes.fromhex(b), bytes.fromhex(a)) for o, b, a in FIXES)
 HOVER, BAR, BAR_CLOCK = 0x444310, 0x520F68, 0x521068
@@ -59,7 +62,7 @@ GAME, CLOCK, SUBSTITUTE = 0x425950, 0x4036E0, 0x450710
 PROJECTS, THRESHOLDS, LAST_HEATHEN = 0x51E008, 0x51DF30, 25
 HUT = (2152, 2288, 1464, 1600)                 # x from, x to (not included), y from, y to
 ENCAMPMENT = b"Aipi sees the decorated encampment."
-HEARTFELT = b"Aipi sees a heartfelt memorial."
+HEARTFELT = b"Aipi sees a heartfelt memorial shrine."
 
 
 def hovel_hover_fixes() -> tuple:
@@ -118,14 +121,14 @@ class Manifest(unittest.TestCase):
                   for p in row["patches"][1:1 + len(FIXES)]]
         self.assertEqual(pinned, list(FIXES))
         self.assertIn("sees the decorated encampment.", row["description"])
-        self.assertIn("sees a heartfelt memorial.", row["description"])
+        self.assertIn("sees a heartfelt memorial shrine.", row["description"])
         self.assertTrue(row["description"].endswith("**Needs no other patch.**"))
 
     def test_the_texts_are_translatable(self) -> None:
         import vv_translations as vt
         rows = {r["stem"]: r for r in vt.load_patcher_strings()}
         self.assertEqual(rows["patch/0x494818"]["english"], "{name} sees the decorated encampment.")
-        self.assertEqual(rows["patch/0x4946dd"]["english"], "{name} sees a heartfelt memorial.")
+        self.assertEqual(rows["patch/0x4c5f80"]["english"], "{name} sees a heartfelt memorial shrine.")
 
 
 @unittest.skipUnless(STOCK.is_file(), "stock executables are not available")

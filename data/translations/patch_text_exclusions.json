@@ -211,6 +211,15 @@
    "functions": ["rv_parse_deaths", "rv_parse_history", "rv_load", "rv_buy", "rv_settle", "rv_mask_value", "rv_prefs", "rv_each_slot_log", "rv_each_file", "rv_offered", "rv_left_for_the_heathens", "rv_each_log", "rv_village_header"]
   },
   {
+   "reason": "The Heathens' graves at the mud hut (VVFP Heathen Mausoleum.dll, New Believers; native/shared/heathen_mausoleum.h): the Death record's \"Grave:\" words for a grave there (\"the Shrine to the Ancestors ...\", written to the log file only and read back by the Village Statistics; logs are never translated), its data folder and file names and its export and DLL names. Not the screen's title, drawn in the game: its own row is vvfp.heathen_mausoleum/vvfp_heathen_mausoleum.HM_TITLE.s0.",
+   "files": ["native/shared/heathen_mausoleum.h", "native/vvfp_heathen_mausoleum/*"],
+   "match": "^(?!Shrine to the Ancestors$)"
+  },
+  {
+   "reason": "The Heathen Tribe Expansion's shared names (native/shared/heathen_evo.h): flag, settings and data file and folder names, export and DLL names, option keys, and the Arrived records' \"How:\" words (written to the log file only; logs are never translated).",
+   "files": ["native/shared/heathen_evo.h"]
+  },
+  {
    "reason": "Revive's snapshot folder (native/shared/revive_snapshot.h VV_RS_FOLDER, \"Revive Snapshots\"): a folder name on disk, never shown.",
    "files": ["native/shared/revive_snapshot.h"],
    "match": "^Revive Snapshots$"

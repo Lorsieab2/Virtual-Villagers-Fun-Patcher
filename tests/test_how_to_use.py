@@ -35,6 +35,7 @@ DATA = json.loads((ROOT / "data" / "how_to_use.json").read_text(encoding="utf-8"
 # button gets a guide and a line here.
 CONTROLS = {
     "select_all", "default_patches", "owners_defaults", "deselect_all",
+    "heathen_tribe_births_multiplier", "heathen_arrivals_multiplier", "heathen_show_percent", "heathen_keep_blue",
     "patch_selection_settings", "patch_search",
     "output_location", "choose_exe", "validate", "dry_run", "create_modified_exe",
     "game_folders", "find_all_5", "validate_all_5", "dry_run_all_5", "patch_all_5",
@@ -135,7 +136,7 @@ class ContentTests(unittest.TestCase):
 
         # The island event controls are named together in the selection guides.
         names = {patch.id: ("island event controls"
-                            if re.search(r"_island_event_(filter_f|content_notes)|_island_events_any_time|_heathens_in_island_events", patch.id)
+                            if re.search(r"_island_event_(filter_f|content_notes)|_island_events_any_time", patch.id)
                             # The five 0.1x-10x sliders' rows, named together (the owner, 2026-11-17).
                             else "the 0.1-10x sliders"
                             if any(patch.id.endswith(s.row_suffix) for s in vfp.RUNTIME_SLIDERS)
@@ -153,10 +154,11 @@ class ContentTests(unittest.TestCase):
             # Fog of Doom Lets Red and Orange Heathens Listen and its option, named together likewise.
             if patch_id.startswith("vv5_fog_of_doom_"):
                 short = "both Fog of Doom patches"
-            # The four Heathen aging rows (New Believers, 2026-11-22), named together likewise.
-            if patch_id in ("vv5_former_villagers_keep_aging", "vv5_heathen_tribe_ages",
-                            "vv5_all_heathens_leave_skeletons", "vv5_former_villager_heathens_leave_skeletons"):
-                short = "the four Heathen aging patches"
+            # The three Heathen aging rows (New Believers: the two Former Villagers rows, 2026-11-22, and Heathen
+            # Tribe Expansion and Evolution, v1.35.101), named together likewise.
+            if patch_id in ("vv5_former_villagers_keep_aging", "vv5_former_villager_heathens_leave_skeletons",
+                            "vv5_heathen_tribe_evolution"):
+                short = "the three Heathen aging patches"
             with self.subTest(default_off=patch_id):
                 self.assertIn(short, default)
         owners = " ".join(how.guide("owners_defaults").lines)

@@ -856,6 +856,57 @@ __declspec(dllexport) void __stdcall VvfpCauseHeathenArrived(int game, int index
     cod_write(LOG_ARRIVED, record, 1, before, after, 2);
 }
 
+/* New Believers' Heathen Tribe Expansion and Evolution (decision 16; native/shared/heathen_evo.h section 4): "VVFP
+   Heathen Aging.dll" has just made the Heathen in record `index` the camp's `role` -- 13 the Chief, 14 the Master
+   Scientist, 15 the Master Builder, 16 the Master Farmer -- after the one before died or converted (the real role,
+   or for show while The Last Heathen is unsolved).  A "Took the role" record in the Births and Conceptions log,
+   beside the Arrived records: the name, the age and sex, "Role: " the game's own name for it ("Heathen Chief",
+   ..., or the Guardians of Isola Rewrite's, "Chief of the Native Isola Tribe", ...), the villager's identity, and
+   "Faction: Heathen" ("Isolan") from the exporter.  A believer or an empty record writes nothing. */
+/* The camp role's name in the Took the role and Retired to the encampment records: a puzzle role's own (12-17),
+   else the camp's ordinary work (roles 1-11, which the game never names). */
+#define COD_CAMP_ROLE_WORDS "a place in the camp's work"
+
+static const char *cod_heathen_role_title(int role) {
+    if (role >= 12 && role <= 17) {
+        return (vv5_guardians_of_isola() ? VV5_ROLE_TITLES_ISOLAN : VV5_ROLE_TITLES_HEATHEN)[role - 12];
+    }
+    return COD_CAMP_ROLE_WORDS;
+}
+
+static void cod_heathen_role_record(int kind, int game, int index, int role) {
+    char before[160];
+    unsigned char *record;
+    if (install_state != 1 || game != g_game || game != 5 || role < 1 || role > 17 || index < 0
+        || index >= RECORDS_MAX) {
+        return;
+    }
+    record = cod_record(index);
+    if (record == NULL || !rec_present(record) || rec_health(record) <= 0 || !arrival_heathen(record)) {
+        return;
+    }
+    wsprintfA(before, "  Age: %d\n  Sex: %s\n  Role: %s\n", rec_age(record),
+              roster_sex(*(const int *)(record + REC[g_game].sex)), cod_heathen_role_title(role));
+    faction_seen[index] = 1;
+    cod_write(kind, record, 1, before, NULL, 1);
+}
+
+/* (Since the owner's retirement rule, 2026-11-26, also a retiring elder's successor: any camp role 1-17.) */
+__declspec(dllexport) void __stdcall VvfpCauseHeathenRole(int game, int index, int role) {
+    cod_heathen_role_record(LOG_ROLE, game, index, role);
+}
+
+/* The owner (2026-11-26): "above elderly age, heathens will "retire" and go to the encampment where younger ones
+   will take their place" -- "VVFP Heathen Aging.dll" has just retired the elder Heathen in record `index` from
+   `role` (never the Chief, 13): a "Retired to the encampment" record in the Births and Conceptions log, beside
+   the successor's Took the role record, the same lines ("Role: " what they gave up), marked a Heathen. */
+__declspec(dllexport) void __stdcall VvfpCauseHeathenRetired(int game, int index, int role) {
+    if (role == 13) {
+        return;
+    }
+    cod_heathen_role_record(LOG_RETIRED, game, index, role);
+}
+
 /* ---- Birth records, backfilled (The Lost Children to New Believers) -------
 
    native/shared/arrival_backfill.h.  The same shape as the Arrived records'

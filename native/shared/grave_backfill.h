@@ -28,6 +28,10 @@
 #define VV_GRAVE_LINE 64
 #define VV_GRAVE_CAUSE 160
 #define VV_GRAVE_EPITAPH 80
+/* New Believers' places from 500 on are the Heathens' graves at the Shrine to the Ancestors ("VVFP Heathen
+   Mausoleum.dll"; place - 500 in its table), each a Heathen's: their backfilled Death record carries the Faction
+   line. */
+#define VV_GRAVE_SHRINE_FIRST 500
 
 /* What became of a grave (vv_grave_fact.outcome). */
 enum {
@@ -43,7 +47,8 @@ enum {
 };
 
 typedef struct {
-    int place;                      /* the grave's own place: VV1/VV2 grave 0-49, VV3-VV5 entry 0-499 */
+    int place;                      /* the grave's own place: VV1/VV2 grave 0-49, VV3-VV5 entry 0-499, New
+                                       Believers' Shrine to the Ancestors 500-999 (VV_GRAVE_SHRINE_FIRST) */
     int age;                        /* the age at death the grave holds, in age units */
     int covered;                    /* in: already known to have a record (kept by Cause of Death) */
     int outcome;                    /* out: VV_GRAVE_* */

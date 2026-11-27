@@ -590,8 +590,9 @@ class ReleasesLinkTests(unittest.TestCase):
             # The Time away (catch-up) group: the speed as Back Up Saves finds it, the villagers as Last Names
             # reads them (function-level).
             ("vv_game_mechanics_catchup", {"vv_game_mechanics", "vv_save_backup", "vv_last_names"}),
-            # New Believers' Faith and Heathens group: the villagers (function-level).
-            ("vv_game_mechanics_faith_vv5", {"vv_game_mechanics", "vv_game_mechanics_life"}),
+            # New Believers' Faith and Heathens group: the villagers, and Heathen Tribe Expansion and Evolution's
+            # slider and options files in the patcher's folder (function-level).
+            ("vv_game_mechanics_faith_vv5", {"vv_game_mechanics", "vv_game_mechanics_life", "patcher_files"}),
             # Village counts: the statistics log's place, the villagers, the Esteemed Elders' totems, The Tree of
             # Life's puzzles (all function-level).
             ("vv_game_mechanics_counts", {"vv_isolan_words", "vv_game_mechanics", "vv_game_mechanics_life", "vv_last_names",

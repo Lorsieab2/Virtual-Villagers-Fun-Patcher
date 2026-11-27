@@ -1058,6 +1058,20 @@ __declspec(dllexport) int __stdcall VvfpStoryCustomTitle(int game, const void *r
     return 1;
 }
 
+/* Heathen Tribe Expansion and Evolution (New Believers; native/shared/heathen_evo.h section 4, decision 6):
+   "VVFP Heathen Aging.dll" sets the custom title of a for-show Chief or Master (the original's own title text) and
+   takes it off again (NULL or "") when a show Chief converts and becomes a real Retired Chief.  This companion
+   stays the Custom Titles file's only writer: the title goes through titles_set, which binds it to the villager in
+   record `index` by the file's own rules (identity, looks) and publishes the file.  Returns 1 when the table now
+   says so and is published (a removal of a title nobody had included), else 0 (no record, no slot yet, a title
+   the file refuses: blank, or over VV_TITLE_BYTES - 1 characters; the table is then left as it was). */
+__declspec(dllexport) int __stdcall VvfpStorySetCustomTitle(int game, int index, const char *title) {
+    if (game < 1 || game > 5 || index < 0) {
+        return 0;
+    }
+    return titles_set(game, index, title != NULL && title[0] != '\0' ? title : NULL) ? 1 : 0;
+}
+
 /* VILLAGERS RENAMED AS THE VILLAGE LOADED (native/shared/villager_rekey.h): "VVFP Last Names.dll" names
    New Believers' Heathens with no last name right after the villager table's load, before the titles look,
    and hands the batch over.  Each custom title stays its villager's: the pairs are kept for the slot's file

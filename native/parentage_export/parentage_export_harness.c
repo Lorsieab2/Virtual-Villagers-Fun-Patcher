@@ -179,6 +179,7 @@ static int record_text_has(const char *record, const char *text) {
 }
 typedef int (__stdcall *carried_t)(int, const void *, const void *, const void *, int);
 static carried_t g_carried;          /* WriteParentageRecordCarried */
+static HMODULE g_dll;                /* the DLL under test */
 
 /* The next line indented by exactly two spaces: the start of the next block
    (a field line is indented by four, which also begins with two). */
@@ -447,6 +448,54 @@ static void run_game(write_t write, const struct layout *layout) {
         rec(14)[g->active] = 0;
     }
 
+    /* --- New Believers' Heathen Tribe Expansion and Evolution: "Couple formed" (WriteParentageHeathenCouple,
+       decision 16).  Two Heathens of either sex -- here two women -- both named, aged, sexed and looked, and
+       "Faction: Heathen"; never for a believer, nor in another game. --- */
+    {
+        typedef int (__stdcall *couple_t)(int, const void *, const void *, const void *);
+        couple_t couple = (couple_t)GetProcAddress(g_dll, "WriteParentageHeathenCouple");
+        static const unsigned int SEX[6] = { 0, 0x350, 0x538, 0xDC8, 0x1B90, 0x1B90 };
+        const char *c;
+        villager(15, "Kalani", 25 * 20, 3, 4);
+        villager(16, "Noelani", 27 * 20, 5, 6);
+        like(15, 0, 5);
+        *(int *)(rec(15) + SEX[g->game]) = g->game <= 2 ? 2 : 1;
+        *(int *)(rec(16) + SEX[g->game]) = g->game <= 2 ? 2 : 1;
+        if (couple == NULL) {
+            CHECK(0, "WriteParentageHeathenCouple is exported");
+        } else if (g->game != 5) {
+            ok = couple(g->game, records, rec(15), rec(16));
+            read_log();
+            CHECK(ok == 0 && strstr(logtext, "Couple formed") == NULL, "no Couple formed record outside New Believers");
+        } else {
+            ok = couple(5, records, rec(15), rec(16));
+            read_log();
+            CHECK(ok == 0 && strstr(logtext, "Couple formed") == NULL, "never for two believers");
+            rec(15)[0x1CEC] = 1;                       /* both Heathens */
+            rec(16)[0x1CEC] = 1;
+            ok = couple(5, records, rec(15), rec(16));
+            read_log();
+            c = strstr(logtext, "Couple formed\r\n");
+            CHECK(ok == 1 && c != NULL, "a Couple formed record for two Heathens");
+            if (c != NULL) {
+                printf("---- the record as written ----\n%.400s---- end ----\n", c);
+                CHECK(strstr(c, "Couple formed\r\n  First: Kalani\r\n    Age: 500\r\n    Sex: Female\r\n    Head: 3\r\n"
+                                "    Body: 4\r\n    Likes: turnips\r\n    Dislikes: (none)\r\n  Second: Noelani\r\n"
+                                "    Age: 540\r\n    Sex: Female\r\n    Head: 5\r\n    Body: 6\r\n    Likes: (none)\r\n"
+                                "    Dislikes: (none)\r\n  Faction: Heathen\r\n\r\n") == c,
+                      "both partners (either sex), their ages, looks, likes and dislikes, and the Faction line");
+                CHECK(strstr(c, "Conception") == NULL || strstr(c, "Conception") > strstr(c, "\r\n\r\n"),
+                      "...a record of its own, not numbered as a Conception");
+            }
+            ok = couple(5, records, rec(15), rec(15));
+            CHECK(ok == 0, "never one Heathen paired with themself");
+            rec(15)[0x1CEC] = 0;
+            rec(16)[0x1CEC] = 0;
+        }
+        rec(15)[g->active] = 0;
+        rec(16)[g->active] = 0;
+    }
+
     free(records);
     remove_logs();
 }
@@ -468,6 +517,7 @@ int main(int argc, char **argv) {
     write = (write_t)GetProcAddress(dll, "WriteParentageRecordWithFather");
     if (write == NULL) { fprintf(stderr, "WriteParentageRecordWithFather not exported\n"); return 2; }
     g_carried = (carried_t)GetProcAddress(dll, "WriteParentageRecordCarried");
+    g_dll = dll;
     printf("log folder: %s\n", folder);
     for (i = 0; i < 5; ++i) {
         run_game(write, &LAYOUTS[i]);
