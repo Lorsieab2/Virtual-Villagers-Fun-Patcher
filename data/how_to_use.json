@@ -1890,6 +1890,7 @@
         "Tick what to do, then Repair (backed up first). Reset corrupted skill values, old \"?\" names, children's \"Apprentice\" Job lines.",
         "New Believers: Catch up Heathen ages adds the time each villager spent among the Heathens to their age (the list is shown first).",
         "Older records get the Sex, Special villager, Custom title, Mask and Twin / Triplet lines they lack; you are asked what files cannot tell.",
+        "Parents by their sex: a child listed with a man as its Mother and a woman as its Father gets her as the Mother and him as the Father.",
         "Give villagers last names (Choose...): village rule, own rule or Random; in the game and every log.",
         "Number duplicate names: Soda I, Soda II..., oldest first (order of appearance), in game and logs.",
         "Fix grave information (Choose...): where a grave and its records differ, pick the value, or edit a grave.",

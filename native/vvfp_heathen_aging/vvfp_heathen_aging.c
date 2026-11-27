@@ -2160,19 +2160,74 @@ typedef int (__stdcall *pe_birth_fn)(int game, const char *child, int child_head
                                      const void *child_record, int litter);
 typedef void (__stdcall *cod_note_fn)(int game, const void *record);
 
-static void tell_born(unsigned char *baby, int litter) {
+typedef int (__stdcall *pe_birth_carried_fn)(int game, const char *child, int child_head, int child_body,
+                                             const char *mother, int mother_head, int mother_body,
+                                             const char *father, int father_head, int father_body,
+                                             const void *child_record, int litter, const char *carried_by);
+
+/* `carried_by`: the man who carried, now the baby's Father (follow_sex), or NULL. */
+static void tell_born(unsigned char *baby, int litter, const char *carried_by) {
     HMODULE cause = GetModuleHandleA("VVFP Cause of Death.dll");
     HMODULE parentage = GetModuleHandleA("VVFP Parentage Export.dll");
     cod_note_fn note = cause != NULL ? (cod_note_fn)(void *)GetProcAddress(cause, "VvfpCauseNoteArrival") : NULL;
     pe_birth_fn birth = parentage != NULL
         ? (pe_birth_fn)(void *)GetProcAddress(parentage, "WriteParentageBirthLitter") : NULL;
+    pe_birth_carried_fn carried = parentage != NULL
+        ? (pe_birth_carried_fn)(void *)GetProcAddress(parentage, "WriteParentageBirthCarried") : NULL;
     if (note != NULL) {
         note(HA_GAME, baby);
     }
-    if (birth != NULL && baby[R_NAME] != 0) {
+    if (baby[R_NAME] == 0) {
+        return;
+    }
+    if (carried != NULL) {
+        (void)carried(HA_GAME, (const char *)(baby + R_NAME), i32(baby, R_HEAD), i32(baby, R_BODY), NULL, -1, -1,
+                      NULL, -1, -1, baby, litter, carried_by);
+    } else if (birth != NULL) {
         (void)birth(HA_GAME, (const char *)(baby + R_NAME), i32(baby, R_HEAD), i32(baby, R_BODY), NULL, -1, -1, NULL,
                     -1, -1, baby, litter);
     }
+}
+
+/* PARENTS FOLLOW THEIR SEX (the owner, 2026-11-27; "VVFP Parentage Export.dll" parents_follow_sex does the same
+   for the game's own births): a baby whose carrier is a man and whose other parent a woman gets her as its Mother
+   and him as its Father, each with their own name, head and body; two of one sex keep the carrier as the Mother.
+   The other parent is the one present record (never the carrier, never a look-alike) of the name, head and body the
+   carrier expects; none or two, and the baby keeps the carrier as its Mother.  1 when the two traded places. */
+static int follow_sex(unsigned char *baby, const unsigned char *carrier) {
+    const unsigned char *other = NULL;
+    unsigned char name[R_MOTHER_NAME - R_FATHER_NAME];
+    unsigned int i;
+    int head, body;
+    if (i32(carrier, R_SEX) != 0) {
+        return 0;                                   /* a woman carried */
+    }
+    for (i = 0; i < g_slots; ++i) {
+        const unsigned char *r = rec_at((int)i);
+        if (r == carrier || r == baby || r[R_PRESENT] == 0 || r[R_LOOKALIKE] != 0
+            || i32(r, R_HEAD) != i32(carrier, R_BABY_FATHER_HEAD) || i32(r, R_BODY) != i32(carrier, R_BABY_FATHER_BODY)
+            || carrier[R_BABY_FATHER_NAME] == 0
+            || strncmp((const char *)(r + R_NAME), (const char *)(carrier + R_BABY_FATHER_NAME), 0x18) != 0) {
+            continue;
+        }
+        if (other != NULL) {
+            return 0;                               /* two answer to it: not certain */
+        }
+        other = r;
+    }
+    if (other == NULL || i32(other, R_SEX) != 1) {
+        return 0;                                   /* two men, or the other parent not certain */
+    }
+    memcpy(name, baby + R_FATHER_NAME, sizeof name);
+    memcpy(baby + R_FATHER_NAME, baby + R_MOTHER_NAME, sizeof name);
+    memcpy(baby + R_MOTHER_NAME, name, sizeof name);
+    head = i32(baby, R_FATHER_HEAD);
+    body = i32(baby, R_FATHER_BODY);
+    *(int *)(baby + R_FATHER_HEAD) = i32(baby, R_MOTHER_HEAD);
+    *(int *)(baby + R_FATHER_BODY) = i32(baby, R_MOTHER_BODY);
+    *(int *)(baby + R_MOTHER_HEAD) = head;
+    *(int *)(baby + R_MOTHER_BODY) = body;
+    return 1;
 }
 
 /* The birth, 40 units after conception, when there is room for every baby. */
@@ -2188,7 +2243,7 @@ static void deliver(unsigned char *mother) {
     }
     for (i = 0; i < litter; ++i) {
         int fh = i32(mother, R_BABY_FATHER_HEAD), mh = i32(mother, R_HEAD);
-        int orange = 0, red = 0, index;
+        int orange = 0, red = 0, index, swapped;
         if (g_evo) {
             roll_mask(&orange, &red);       /* decision 7: a newborn's own mask, not a parent's */
         }
@@ -2208,8 +2263,10 @@ static void deliver(unsigned char *mother) {
         if (ha_rand(100) < 95) {
             *(int *)(baby + R_HEAD) = clamp_head((fh + mh) / 2 + ha_rand(3) - 1);
         }
+        /* The parents by sex (follow_sex), before anything keys the baby by them. */
+        swapped = follow_sex(baby, mother);
         known_put(identity(baby), KIND_BORN);
-        tell_born(baby, litter);
+        tell_born(baby, litter, swapped ? (const char *)(mother + R_NAME) : NULL);
     }
     *(int *)(mother + R_PREGNANT) = 0;
     *(int *)(mother + R_LITTER) = 0;

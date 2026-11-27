@@ -1430,6 +1430,17 @@ Save <slot>.dat" in the "Virtual Villagers Fun Patcher Data\Parentage
 Records" folder beside the saves.
 Nothing is written into a villager record or the save.
 
+Who is the mother. A villager of either sex may carry a baby. When the two
+parents are a woman and a man, the woman is the mother and the man the
+father, whoever carried, each with their own name, head and body; the Birth
+record then says "Note: Carried by <him>, who is male". Two parents of one
+sex keep the one who carried as the mother. The Lost Children to New
+Believers do the same on the child's own record at the birth (with Write
+Births and Conceptions Log to Text File), and Repair Saves & Logs' "Parents
+by their sex" puts right children recorded before: a man as the mother and a
+woman as the father, by the sex the save and the logs record for each
+(asked when a parent's sex is not recorded).
+
 An entry is never erased. Death leaves it; growing up hides the figures but
 keeps the record, so a villager made young again shows their parents again.
 A villager who passed away keeps their entry in their old place while

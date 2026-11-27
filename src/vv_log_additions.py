@@ -79,6 +79,9 @@ CHECKED = {
                   "they died (Checked Skill Preferences are listed as Jobs on Graves), where the save still holds it; A New Home's Golden Child: \"Golden Child\", and the child "
                   "epitaph his grave holds where his record has none",
     "esteemed": "the records with skills and no Special villager line, and each grave against its villager's record still in the save, for three or more skills at the game's Master level (Esteemed Elders in Every Game)",
+    # src/vv_parents_follow_sex.py CHECKED, word for word (the owner, 2026-11-27).
+    "parents_sex": "the parents of every child in the save and the Birth, History, Population and Unaccounted "
+                   "records, against the sex the save and the logs record for each parent, and the player's answers",
 }
 ADDED = {"sex": "Sex added", "special": "Special villager added", "custom": "Custom title added",
          "mask": "Mask added", "born_as": "Born as added", "golden": "Golden Child's Birth added",
@@ -93,6 +96,7 @@ ADDED = {"sex": "Sex added", "special": "Special villager added", "custom": "Cus
          "misfiled": "Record moved to its own save's log",
          "apprentice": "Grave line rewritten as the game draws it",
          "esteemed": "Esteemed Elder title given",
+         "parents_sex": "Parents put by their sex",
          "reconcile": "Answered"}
 REMOVE_IT = "Remove"
 KEEP_IT = "Keep it"
@@ -712,10 +716,10 @@ def plan_born_as(folder: Path, game: int, slot: int) -> Kind:
             if not is_birth(b.heading):
                 k += 1
                 continue
-            mother = _sub_identity(b, "Mother")
+            mother = birth_carrier(b)           # who carried: the Conception's Mother
             group = [b]
             while k + len(group) < len(all_blocks) and is_birth(all_blocks[k + len(group)].heading) \
-                    and _sub_identity(all_blocks[k + len(group)], "Mother") == mother \
+                    and birth_carrier(all_blocks[k + len(group)]) == mother \
                     and len(group) < 3:
                 group.append(all_blocks[k + len(group)])
             k += len(group)
@@ -804,7 +808,7 @@ def plan_golden(folder: Path, game: int, slot: int) -> Kind:
                 if mother and father:
                     open_ = [o for o in open_ if o[0] != mother] + [(mother, father)]
             elif is_birth(c.heading) or c.heading == LOST_HEADING:
-                mother = _sub_identity(c, "Mother")
+                mother = birth_carrier(c) if is_birth(c.heading) else _sub_identity(c, "Mother")
                 open_ = [o for o in open_ if o[0] != mother]
         if not open_:
             kind.notes.append(f"{name}, the Golden Child: no pregnancy in the logs could be theirs; nothing added.")
@@ -874,6 +878,23 @@ def _sub_identity(b: Block, label: str) -> tuple | None:
             else:
                 body = int(m.group(2))
     return (name, head, body)
+
+
+# A Birth record whose Father carried the baby (the parents follow their sex, the owner 2026-11-27:
+# native/parentage_export CARRIED_BY_FATHER_FORMAT, src/vv_parents_follow_sex.py): the carrier -- whose Conception
+# names them as its Mother -- is named here.
+CARRIED_BY_FATHER = re.compile(r"^  Note: Carried by (.+), who is male \(named as the Father;")
+
+
+def birth_carrier(b: Block) -> tuple | None:
+    """(name, head, body) of the villager who carried a Birth record's baby: its Father when its note says the
+    Father carried it, else its Mother (every game records the carrier as the Mother)."""
+    father = _sub_identity(b, "Father")
+    for line in b.lines:
+        m = CARRIED_BY_FATHER.match(line)
+        if m and father is not None and father[0] == m.group(1).strip():
+            return father
+    return _sub_identity(b, "Mother")
 
 
 def _birth_anchor(b: Block) -> int:
@@ -959,7 +980,8 @@ def plan_lost(folder: Path, game: int, slot: int) -> Kind:
         every += [b for b in blocks(path) if b.of(slot, game, villages) and not b.not_kept]
     last: dict[tuple, Block | None] = {}           # mother -> her last Conception, None once closed
     for b in every:
-        mother = _sub_identity(b, "Mother")
+        # A Birth closes its carrier's pregnancy: its Father when he carried (birth_carrier).
+        mother = birth_carrier(b) if is_birth(b.heading) else _sub_identity(b, "Mother")
         if mother is None:
             continue
         if b.heading.startswith("Conception"):
@@ -1978,6 +2000,10 @@ def plan(folder: Path, game: int, slot: int, game_folders: list[Path] | None = N
         plan_apprentice(folder, game, slot, game_folders),
         plan_esteemed(folder, game, slot, people, current, game_folders),
     ]
+    # The parents by their sex (the owner, 2026-11-27; src/vv_parents_follow_sex.py): a child recorded with a man
+    # as its Mother and a woman as its Father, the way every game records who carried.
+    import vv_parents_follow_sex
+    kinds.append(vv_parents_follow_sex.plan_kind(folder, game, slot))
     # New Believers: the mask a villager wore when they rejoined the tribe, given back once (the owner,
     # 2026-11-22; src/vv5_rejoined_masks.py) -- listed here, so the player sees who before approving.
     if game == 5:

@@ -1852,8 +1852,20 @@ static int vv1_decode(unsigned char encoded) {
 /* One birth, straight to the log, from the live records and the entry just
    filled in, with the delivery's babies (1-3, or -1 when not known).
    Nothing here can fail the caller. */
+/* "VVFP Parentage Export.dll" WriteParentageBirthCarried: WriteParentageBirthLitter with the man who carried (now
+   the child's Father, vv1_follow_sex) named in the record; NULL with an earlier companion. */
+typedef int (__stdcall *vv1_write_birth_carried_t)(int game_id,
+                                                    const char *child_name, int child_head, int child_body,
+                                                    const char *mother_name, int mother_head, int mother_body,
+                                                    const char *father_name, int father_head, int father_body,
+                                                    const void *child_record, int litter, const char *carried_by);
+
+/* The children whose Father carried them (vv1_follow_sex), for their Birth record's note: born this session. */
+static unsigned char g_father_carried[VV1_RECORD_COUNT];
+
 static void vv1_log_birth(const unsigned char *records, const vv1_birth *birth, int litter) {
     vv1_write_birth_t write = vv1_log_writer();
+    vv1_write_birth_carried_t carried = NULL;
     const unsigned char *child;
     const vv1_parent_entry *e;
     char child_name[VV1_NAME_CAPACITY];
@@ -1863,14 +1875,78 @@ static void vv1_log_birth(const unsigned char *records, const vv1_birth *birth, 
     child = records + (unsigned int)birth->child * VV1_RECORD_STRIDE;
     e = &g_entries[birth->child];
     vv1_copy_name(child, child_name);
+    if (g_father_carried[birth->child]) {
+        HMODULE companion = GetModuleHandleA("VVFP Parentage Export.dll");
+        carried = companion != NULL
+            ? (vv1_write_birth_carried_t)GetProcAddress(companion, "WriteParentageBirthCarried") : NULL;
+    }
     /* `child` is the live record: the exporter reads the child's own likes,
        dislikes and skills from it, which the name and appearance values
        above cannot supply. */
+    if (carried != NULL) {
+        carried(1, child_name,
+                *(const int *)(child + VV1_HEAD_OFFSET), *(const int *)(child + VV1_BODY_OFFSET),
+                e->mother_name, vv1_decode(e->mother_head), vv1_decode(e->mother_body),
+                e->father_name, vv1_decode(e->father_head), vv1_decode(e->father_body),
+                child, litter, e->father_name);
+        return;
+    }
     write(1, child_name,
           *(const int *)(child + VV1_HEAD_OFFSET), *(const int *)(child + VV1_BODY_OFFSET),
           e->mother_name, vv1_decode(e->mother_head), vv1_decode(e->mother_body),
           e->father_name, vv1_decode(e->father_head), vv1_decode(e->father_body),
           child, litter);
+}
+
+/* PARENTS FOLLOW THEIR SEX (the owner, 2026-11-27: "make sure the parents appearances and names are fixed"):
+   child c's entry was just filled -- the villager who carried (`carrier`) as the Mother, the father the stash
+   kept as the Father.  When the carrier is a man and the other parent a woman, she is the Mother and he the
+   Father, each with their own name, head and body (the Details screen draws the Father with the men's sheets and
+   the Mother with the women's); two of one sex keep the carrier as the Mother.  The other parent is the one
+   occupied record of the stashed name, head and body (never the carrier or the child); none or two, and the entry
+   stays as the game's delivery made it.  1 when the two traded places. */
+static int vv1_follow_sex(const unsigned char *records, int c, const unsigned char *carrier) {
+    vv1_parent_entry *e = &g_entries[c];
+    const unsigned char *other = NULL;
+    unsigned char head, body;
+    char name[VV1_NAME_CAPACITY];
+    int i;
+    g_father_carried[c] = 0;
+    if (records == NULL || carrier == NULL || *(const int *)(carrier + VV1_GENDER_OFFSET) != VV1_GENDER_MALE
+        || e->father_name[0] == '\0' || e->father_head == 0 || e->father_body == 0) {
+        return 0;
+    }
+    for (i = 0; i < VV1_RECORD_COUNT; ++i) {
+        const unsigned char *r = records + (unsigned int)i * VV1_RECORD_STRIDE;
+        char now[VV1_NAME_CAPACITY];
+        if (r == carrier || i == c || !r[VV1_OCCUPIED_OFFSET]
+            || vv1_plus_one(*(const int *)(r + VV1_HEAD_OFFSET)) != e->father_head
+            || vv1_plus_one(*(const int *)(r + VV1_BODY_OFFSET)) != e->father_body) {
+            continue;
+        }
+        vv1_copy_name(r, now);
+        if (strncmp(now, e->father_name, VV1_NAME_CAPACITY) != 0) {
+            continue;
+        }
+        if (other != NULL) {
+            return 0;                   /* two answer to it: not certain */
+        }
+        other = r;
+    }
+    if (other == NULL || *(const int *)(other + VV1_GENDER_OFFSET) != 2) {
+        return 0;                       /* two men, or the other parent not certain */
+    }
+    memcpy(name, e->father_name, VV1_NAME_CAPACITY);
+    memcpy(e->father_name, e->mother_name, VV1_NAME_CAPACITY);
+    memcpy(e->mother_name, name, VV1_NAME_CAPACITY);
+    head = e->father_head;
+    body = e->father_body;
+    e->father_head = e->mother_head;
+    e->father_body = e->mother_body;
+    e->mother_head = head;
+    e->mother_body = body;
+    g_father_carried[c] = 1;
+    return 1;
 }
 
 /* ---- the logic, over any records array (no file I/O) ------------------ */
@@ -2065,12 +2141,14 @@ static int vv1_tick_over(const unsigned char *records) {
             memset(&g_entries[i], 0, sizeof(g_entries[i]));
             g_session_born[i] = 1;
             g_session_stash[i] = 0;
+            g_father_carried[i] = 0;
             if (matches == 1) {
                 const unsigned char *mrec = records + (unsigned int)mother * VV1_RECORD_STRIDE;
                 vv1_set_father(i, mother, mrec);
                 g_entries[i].mother_head = vv1_plus_one(*(const int *)(mrec + VV1_HEAD_OFFSET));
                 g_entries[i].mother_body = vv1_plus_one(*(const int *)(mrec + VV1_BODY_OFFSET));
                 vv1_copy_name(mrec, g_entries[i].mother_name);
+                (void)vv1_follow_sex(records, i, mrec);
             } else {
                 mother = -1;
             }
@@ -2225,6 +2303,7 @@ static int vv1_born(const unsigned char *records, const unsigned char *child,
     g_entries[c].mother_head = vv1_plus_one(*(const int *)(mother + VV1_HEAD_OFFSET));
     g_entries[c].mother_body = vv1_plus_one(*(const int *)(mother + VV1_BODY_OFFSET));
     vv1_copy_name(mother, g_entries[c].mother_name);
+    (void)vv1_follow_sex(records, (int)c, mother);
     if (g_have_prev) {
         g_prev_occupied[c] = child[VV1_OCCUPIED_OFFSET];
         g_prev_variant[c] = *(const int *)(child + VV1_VARIANT_OFFSET);

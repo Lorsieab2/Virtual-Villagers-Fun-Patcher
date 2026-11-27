@@ -584,6 +584,25 @@ def approve_repair(
         except LogToolError as exc:
             raise LogToolError(f"{exc} The logs were repaired; repair again to give the graves the epitaph. The "
                                f"backup is in {backup.backup_folder}.") from exc
+    # The parents by their sex (the owner, 2026-11-27; src/vv_parents_follow_sex.py): the save and the patcher's
+    # files LAST, after the logs' lines are traded -- a save that could not be written is planned again by the next
+    # Repair from the save, and only it is written then (its records already say it).
+    parents_swapped: list[WordFix] = []
+    import vv_parents_follow_sex
+    planned_parents = next((k for k in kinds if getattr(k, "id", None) == vv_parents_follow_sex.KIND_ID), None)
+    if planned_parents is not None and planned_parents.id in chosen:
+        if added.get(planned_parents.id):
+            # One per record traded (a Birth's six lines and note, a snapshot's six lines), not per line.
+            added[planned_parents.id] = [
+                WordFix(fix.name, vv_parents_follow_sex.records_swapped(planned_parents, str(folder / fix.name),
+                                                                         answers or {}), fix.backup)
+                for fix in added[planned_parents.id]]
+        try:
+            parents_swapped = vv_parents_follow_sex.write_save(folder, game, slot, planned_parents, answers or {},
+                                                               now)
+        except LogToolError as exc:
+            raise LogToolError(f"{exc} The logs were repaired; repair again to put the parents right in the save. "
+                               f"The backup is in {backup.backup_folder}.") from exc
     # "Retroactively edit records?" No: the log stays as it is and the verdict is remembered for the
     # readers (src/vv_log_decisions.py).
     kept = additions.resolve_decisions(kinds, chosen, answers or {})
@@ -645,8 +664,12 @@ def approve_repair(
             note_word_repair(folder, game, village, added[kind.id], now,
                              checked=additions.CHECKED[kind.id], corrected=additions.ADDED[kind.id],
                              unit="record(s)" if kind.id in ("contradictions", "false_unaccounted", "misfiled")
+                             else "record(s)" if kind.id == vv_parents_follow_sex.KIND_ID
                              else "villager(s)",
                              slot=slot)
+    if parents_swapped:
+        note_word_repair(folder, game, village, parents_swapped, now, checked=vv_parents_follow_sex.CHECKED,
+                         corrected="Parents put by their sex in", unit="villager(s)", slot=slot)
     # The original looks behind Change Appearance's "Reset to original" (src/vv_original_look.py, the owner,
     # 2026-10-28): what the logs prove of the villagers changed before "VVFP Original Look.dll" first saw
     # them, added to the save's Original Looks file -- after the names above are given back, so each is keyed
