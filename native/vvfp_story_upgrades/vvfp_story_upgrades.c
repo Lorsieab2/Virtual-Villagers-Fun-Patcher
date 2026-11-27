@@ -1574,6 +1574,7 @@ static void lv_on_finish(int game);
 static int lv_test_has_pack(void);
 #endif
 
+#include "../shared/heathen_mausoleum.h"   /* the Shrine to the Ancestors' graves the graph's "graves" counts */
 #include "story_graph.inc"      /* branching Custom Island Events from the library (v1.35.97) */
 #include "story_collection.inc" /* when the new island events come: in a natural one's place (v1.35.97) */
 #include "story_living.inc"     /* the Living Event Engine: living.pak, its history (v1.35.97) */

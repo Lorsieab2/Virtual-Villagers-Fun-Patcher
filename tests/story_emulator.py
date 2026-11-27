@@ -268,6 +268,9 @@ class Process:
     def _api_GetTickCount(self):
         return self.tick, 0
 
+    def _api_GetCurrentProcessId(self):
+        # a fixed id: Heathen Aging seeds its own xorshift with it at start (Heathen Tribe Expansion's flag)
+        return 0x1234, 0
     # A fixed clock (2022-06-20 UTC) for the Revive snapshots' departure and source times; local time is UTC.
     FILETIME_NOW = 133_000_000_000_000_000
 

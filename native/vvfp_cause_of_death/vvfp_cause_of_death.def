@@ -30,5 +30,7 @@ EXPORTS
     VvfpCauseFormerKind=_VvfpCauseFormerKind@4
     VvfpCauseDiedAmongHeathens=_VvfpCauseDiedAmongHeathens@12
     VvfpCauseHeathenArrived=_VvfpCauseHeathenArrived@12
+    VvfpCauseHeathenRole=_VvfpCauseHeathenRole@12
+    VvfpCauseHeathenRetired=_VvfpCauseHeathenRetired@12
     VvfpCauseWordsFor=_VvfpCauseWordsFor@12
     VvfpCauseReviveSnapshots=_VvfpCauseReviveSnapshots@16

@@ -92,7 +92,8 @@ CHANGE = re.compile(r"^\s*(.*?) -> (.*?)\s*$")
 # A record's own heading counted in a log or its copy, for file-level loss.
 RECORD_HEAD = re.compile(r"^(Birth(?: \d+)?|Conception \d+|Arrived \d+|Death \d+|Disappeared(?: \d+)?|"
                          r"Unaccounted \d+|Island event \d+|Repair \d+|Lost before birth|Left the tribe|"
-                         r"Appearance changed|Name changed|Epitaph changed|=== .* ===)\s*$")
+                         r"Appearance changed|Name changed|Epitaph changed|Couple formed|Took the role|Retired to the encampment|"
+                         r"=== .* ===)\s*$")
 
 
 def _checker():

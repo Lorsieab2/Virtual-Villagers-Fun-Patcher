@@ -277,6 +277,19 @@ static int cw_needed(unsigned int fingerprint) {
                 return 1;
             }
         }
+        /* New Believers: a Heathen's grave at the Shrine to the Ancestors keeps its words as a believer's does
+           ("VVFP Heathen Mausoleum.dll", heathen_mausoleum.h; the owner, 2026-11-26: the same grave behaviour). */
+        if (g_game == 5) {
+            int n = 0;
+            const unsigned char *shrine = hm_graves(&n);
+            for (i = 0; shrine != NULL && i < n && i < V345_ENTRIES; ++i) {
+                const unsigned char *entry = shrine + (size_t)i * V345[5].entry_stride;
+                if (*(const int *)(entry + V345[5].e_cause) == CAUSE_UNKNOWN && *entry != 0
+                    && v345_fingerprint(entry) == fingerprint) {
+                    return 1;
+                }
+            }
+        }
     } __except (EXCEPTION_EXECUTE_HANDLER) {
         return 0;
     }

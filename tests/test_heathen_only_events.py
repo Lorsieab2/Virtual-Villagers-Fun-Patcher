@@ -38,7 +38,7 @@ if HAVE_EMULATOR:
     from test_story_cie_graph_runtime_v6 import V6
 
 FACTION, ROLE, SICK, ACTION = 0x1CEC, 0x1CFC, 0x1C48, 0x1D10
-ROW = "vv5_heathens_in_island_events"
+ROW = "vv5_heathen_tribe_evolution"   # folds Heathens can be selected in Island Events (v1.35.101)
 SITTING = 0x28
 DO_ACTION5 = 0x465580
 HOVEL_HONOR, HOVEL_REFLECT = 0x494B83, 0x494DF1

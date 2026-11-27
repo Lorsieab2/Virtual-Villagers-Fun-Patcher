@@ -422,6 +422,34 @@ class WhenItCanHappen(unittest.TestCase):
                 v.graves(1)
                 self.assertEqual(v.possible(REMEMBRANCE), 1)
 
+    def test_new_believers_counts_the_shrine_to_the_ancestors_graves(self) -> None:
+        """The owner (2026-11-26): the Heathens' graves at the Shrine to the Ancestors ("VVFP Heathen
+        Mausoleum.dll", its VvfpHeathenMausoleumCount) count beside the Roster of the Dead's."""
+        v = remembrance_village(5)
+        v.graves(0)
+        p = v.p
+        fake = 0x0B600000
+        p.mu.mem_map(fake, 0x1000)
+        shrine = {"count": 0}
+        p.stub(fake, lambda pr: (shrine["count"], 0))
+        before_module = p.api_handlers.get("GetModuleHandleA")
+        before_proc = p.api_handlers.get("GetProcAddress")
+
+        def module(pr):
+            if pr.arg(0) and pr.cstring(pr.arg(0)) == "VVFP Heathen Mausoleum.dll":
+                return fake, 4
+            return before_module(pr) if before_module else ((0x400000 if pr.arg(0) == 0 else 0), 4)
+
+        def proc(pr):
+            if pr.arg(0) == fake:
+                return (fake if pr.cstring(pr.arg(1)) == "VvfpHeathenMausoleumCount" else 0), 8
+            return before_proc(pr) if before_proc else (0, 8)
+        p.api_handlers["GetModuleHandleA"] = module
+        p.api_handlers["GetProcAddress"] = proc
+        self.assertEqual(v.possible(REMEMBRANCE), 0)
+        shrine["count"] = 1
+        self.assertEqual(v.possible(REMEMBRANCE), 1)
+
     def test_new_believers_needs_the_last_heathen(self) -> None:
         v = remembrance_village(5)
         v.last_heathen(False)

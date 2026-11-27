@@ -18,6 +18,7 @@ EXPORTS
     VvfpStoryCallerReturn=_VvfpStoryCallerReturn@4
     VvfpStoryEventChosen=_VvfpStoryEventChosen@4
     VvfpStoryCustomTitle=_VvfpStoryCustomTitle@16
+    VvfpStorySetCustomTitle=_VvfpStorySetCustomTitle@12
     VvfpStoryAppearanceChanged=_VvfpStoryAppearanceChanged@16
     VvfpStoryTimeSkipNoticeShown=_VvfpStoryTimeSkipNoticeShown@4
     VvfpStoryCustomState=_VvfpStoryCustomState@4

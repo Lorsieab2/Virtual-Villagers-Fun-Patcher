@@ -31,7 +31,7 @@ BUILD = ROOT / "scripts" / "build_grave_backfill_harness.ps1"
 TEST_DLL = ROOT / "tests" / "test_dlls" / "VVFP Cause of Death.test.dll"
 COD = ROOT / "native" / "vvfp_cause_of_death"
 PARENTAGE = ROOT / "native" / "parentage_export"
-CHECKS_PER_GAME = 46   # 43, and 3 for the old and new Deaths folders (part 8)
+CHECKS_PER_GAME = 47   # 43, 3 for the old and new Deaths folders (part 8), 1 for the Shrine to the Ancestors (part 9)
 
 
 class GraveBackfillSource(unittest.TestCase):

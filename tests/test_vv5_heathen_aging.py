@@ -63,8 +63,12 @@ OLD = 1100
 
 
 class Village(Machine):
+    # The villager table (the 256 build's in tests/test_vv5_heathen_evolution.py).
+    manager, slots = MANAGER, 150
+
     def __init__(self, flags: tuple[str, ...], *, statistics_form: bool = False, cod: bool = True):
         exe = bytearray(stock_path(5).read_bytes())
+        self.edit_exe(exe)
         super().__init__(bytes(exe), DLL, present=flags)
         if statistics_form:
             # The Village Statistics rows' Oldest Villager guard (`jne` 0C -> 38 at 0x47007F), in this emulated
@@ -119,8 +123,15 @@ class Village(Machine):
         self.put32(MEDICINE, 1)
         for puzzle in range(32):                         # every puzzle unsolved unless a test solves it
             self.put32(PUZZLE_NEEDED + 4 * puzzle, 1)
+        self.before_start()
         self.installed = self.export("VvfpStartup", 5, 0)
         self.installed = self.export("VvfpHeathenAgingInstalled")
+
+    def edit_exe(self, exe: bytearray) -> None:
+        """The executable as this test runs it (a subclass may change it before it is mapped)."""
+
+    def before_start(self) -> None:
+        """Anything a subclass sets up before the companion starts."""
 
     def _documents(self, p):
         p.write(p.arg(1), b"C:\\Docs\0")
@@ -225,7 +236,7 @@ class Village(Machine):
 
     def _create(self, p):
         args = [struct.unpack("<i", p.read(p.reg("esp") + 4 + 4 * i, 4))[0] for i in range(9)]
-        for index in range(150):
+        for index in range(self.slots):
             if p.read(self.record(index) + PRESENT, 1) == b"\0":
                 break
         else:
@@ -266,7 +277,7 @@ class Village(Machine):
 
     # ---- records ------------------------------------------------------------------------------------------
     def record(self, index: int) -> int:
-        return RECORDS + index * STRIDE
+        return self.manager + 0x48 + index * STRIDE
 
     def villager(self, index: int, *, heathen: bool, age: int = 600, role: int = 0, sex: int = 0,
                  parents: bool = False, orange: int = 0, red: int = 0, name: str | None = None) -> int:
@@ -305,7 +316,7 @@ class Village(Machine):
         self.run(CREDIT_SITE, CREDIT_END)
 
     def life_tick(self) -> None:
-        self.call(LIFE_TICK, ecx=MANAGER)
+        self.call(LIFE_TICK, ecx=self.manager)
 
     def turn_heathen(self, record: int) -> None:
         self.call(TO_HEATHEN, ecx=record)
@@ -513,7 +524,7 @@ class Tribe(unittest.TestCase):
 
     def test_each_puzzle_heathen_is_replaced_in_the_same_role_while_the_puzzle_is_unsolved(self):
         stock = {12: (2, 70, -1, 400, -14), 14: (3, 90, -1, 540, -74), 15: (4, 90, -1, 540, -74),
-                 16: (0, 90, 0, 540, -74), 13: (2, 90, 0, 1000, -94), 17: (1, 70, -1, 400, -25)}
+                 16: (0, 90, -1, 540, -74), 13: (2, 90, -1, 1000, -94), 17: (1, 70, -1, 400, -25)}
         puzzles = {12: 1, 16: 5, 15: 9, 14: 13, 13: 16, 17: 17}
         for role, (skill, value, sex, age, faith) in stock.items():
             with self.subTest(role=role):
@@ -1167,13 +1178,17 @@ class AFullFile(unittest.TestCase):
         self.assertIn((_identity(v, born), 0), kept)
         self.assertLess(count, 2048, "the gone villagers' entries pruned")
 
+# The rows written by scripts/build_heathen_aging_features.py since v1.35.101: (name, flag, the companion DLL it ships).
+# "Heathen Tribe Ages, Dies and Has Children" and "All Heathens Leave Skeletons" are folded into "Heathen Tribe Expansion
+# and Evolution" (tests/test_vv5_heathen_tribe_evolution.py); this companion still honours their flags (TRIBE,
+# BONES_ALL), which the tests below use.
 ROWS = {
-    "vv5_former_villagers_keep_aging": ("Former Villagers Keep Aging Among the Heathens", FORMER, True),
-    "vv5_heathen_tribe_ages": ("Heathen Tribe Ages, Dies and Has Children", TRIBE, True),
+    "vv5_former_villagers_keep_aging": ("Former Villagers Keep Aging Among the Heathens", FORMER,
+                                        "VVFP Heathen Aging.dll"),
     "vv5_former_villager_heathens_leave_skeletons": ("Former Villagers Among the Heathens Leave Skeletons",
-                                                     BONES_FORMER, False),
-    "vv5_all_heathens_leave_skeletons": ("All Heathens Leave Skeletons", BONES_ALL, False),
+                                                     BONES_FORMER, "VVFP Heathen Mausoleum.dll"),
 }
+EVOLUTION_ID = "vv5_heathen_tribe_evolution"
 
 
 class TheRows(unittest.TestCase):
@@ -1190,13 +1205,14 @@ class TheRows(unittest.TestCase):
         self.assertIn('"VVFP Heathen Aging.dll"',
                       (ROOT / "native" / "shared" / "startup_companions_3.h").read_text(encoding="utf-8"))
         self.assertIn('"assets/heathen_aging/VVFP Heathen Aging.dll"', release)
-        for row_id, (name, flag, ships_dll) in ROWS.items():
+        for row_id, (name, flag, dll) in ROWS.items():
             with self.subTest(row_id):
                 row = json.loads((ROOT / "data" / f"{row_id}_feature.json").read_text(encoding="utf-8"))
                 self.assertEqual((row["id"], row["name"], row["game_id"]), (row_id, name, "vv5"))
                 self.assertIn(row_id, ids)
                 dests = [c["destination"] for c in row["companion_files"]]
-                self.assertEqual(dests, (["VVFP Heathen Aging.dll"] if ships_dll else []) + [flag])
+                self.assertEqual(dests, [dll, flag])
+                self.assertEqual(row["conflicts"], [], "the skeleton rows' pair is dropped (v1.35.101)")
                 self.assertIn(flag, patcher_files.PATCHER_READS)
                 self.assertIn(f'"assets/heathen_aging/{flag}"', release)
                 self.assertIn(f'"data/{row_id}_feature.json"', release)
@@ -1206,14 +1222,12 @@ class TheRows(unittest.TestCase):
                 self.assertIn(f"#### {name} (`{row_id}`)", log)
                 entry = [e for e in guide["patches"] if row_id in e.get("ids", [])]
                 self.assertEqual(len(entry), 1)
-                if not ships_dll:
+                if row_id == "vv5_former_villager_heathens_leave_skeletons":
                     self.assertIn("**Only matters with", row["description"], "the dependency, in bold")
-        bones_former = json.loads((ROOT / "data" / "vv5_former_villager_heathens_leave_skeletons_feature.json")
-                                  .read_text(encoding="utf-8"))
-        bones_all = json.loads((ROOT / "data" / "vv5_all_heathens_leave_skeletons_feature.json")
-                               .read_text(encoding="utf-8"))
-        self.assertEqual(bones_former["conflicts"], ["vv5_all_heathens_leave_skeletons"])
-        self.assertEqual(bones_all["conflicts"], ["vv5_former_villager_heathens_leave_skeletons"])
+        for gone in ("vv5_heathen_tribe_ages", "vv5_all_heathens_leave_skeletons"):
+            self.assertNotIn(gone, ids)
+            self.assertFalse((ROOT / "data" / f"{gone}_feature.json").exists())
+            self.assertNotIn(f'"data/{gone}_feature.json"', release)
 
     def test_no_other_new_believers_row_writes_a_byte_this_companion_writes(self):
         """Two companions splicing one site with all-or-none stock-byte checks: the second installs nothing (the
@@ -1222,17 +1236,24 @@ class TheRows(unittest.TestCase):
         are checked against this companion's two."""
         import subprocess
 
-        def ranges(row):
-            return [(int(d["va"], 16), int(d["va"], 16) + len(d["stock_bytes"]) // 2) for d in row.get("runtime_detours", [])]
+        def ranges(row, aging_only=False):
+            return [(int(d["va"], 16), int(d["va"], 16) + len(d["stock_bytes"]) // 2)
+                    for d in row.get("runtime_detours", [])
+                    if not aging_only or d["installed_by"].startswith("VVFP Heathen Aging.dll")]
 
-        mine = ranges(json.loads((ROOT / "data" / "vv5_heathen_tribe_ages_feature.json").read_text(encoding="utf-8")))
-        self.assertEqual(sorted(a for a, _ in mine), [0x470077, 0x472CB7])
+        evolution = json.loads((ROOT / "data" / f"{EVOLUTION_ID}_feature.json").read_text(encoding="utf-8"))
+        mine = ranges(evolution, aging_only=True)
+        # the age credit and the life tick, and (with the expansion's row) the elder walk-pace site 0x4659C5
+        self.assertEqual(sorted(a for a, _ in mine), [0x4659C5, 0x470077, 0x472CB7])
         others = {}
         for path in (ROOT / "data").glob("vv5_*_feature.json"):
-            # (Heathens can be selected in Island Events ships this very companion: its sites are these two)
-            if path.name in {f"{r}_feature.json" for r in ROWS} | {"vv5_heathens_in_island_events_feature.json"}:
+            # (the rows that ship this very companion: its sites are these two)
+            if path.name in {f"{r}_feature.json" for r in ROWS} | {f"{EVOLUTION_ID}_feature.json"}:
                 continue
             others[path.name] = ranges(json.loads(path.read_text(encoding="utf-8")))
+        # The Heathen Tribe Expansion row's other companions' sites never overlap this one's either.
+        others["Heathen Life, Heathen Mausoleum, Story"] = [
+            (a, b) for a, b in ranges(evolution) if (a, b) not in mine]
         shown = subprocess.run(["git", "show", "origin/feat/98-reverted-heathens-keep-mask-look:"
                                 "data/vv5_heathens_keep_masks_feature.json"], cwd=ROOT, capture_output=True)
         if shown.returncode == 0:
@@ -1242,6 +1263,7 @@ class TheRows(unittest.TestCase):
                 for c, d in mine:
                     with self.subTest(row=name, va=hex(a)):
                         self.assertTrue(b <= c or d <= a, f"{name} writes 0x{a:X}..0x{b:X}")
+
     def test_the_dll_exports_and_the_flag_files(self):
         try:
             import pefile
@@ -1249,7 +1271,8 @@ class TheRows(unittest.TestCase):
             self.skipTest("pefile is not installed")
         pe = pefile.PE(str(DLL))
         names = sorted(e.name.decode() for e in pe.DIRECTORY_ENTRY_EXPORT.symbols if e.name)
-        self.assertEqual(names, ["VvfpHeathenAgingAges", "VvfpHeathenAgingEventGone", "VvfpHeathenAgingEventPregnancy",
+        self.assertEqual(names, ["VvfpHeathenAgingAges", "VvfpHeathenAgingCoupleOf", "VvfpHeathenAgingEventGone",
+                                 "VvfpHeathenAgingEventPregnancy", "VvfpHeathenAgingEvolution",
                                  "VvfpHeathenAgingGrave", "VvfpHeathenAgingInstalled", "VvfpHeathenAgingVillageReset",
                                  "VvfpStartup"])
         for _, (name, flag, _) in ROWS.items():

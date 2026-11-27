@@ -365,8 +365,10 @@ static int cr_hovel_patch(void) {
         && vvfp_site_holds(0x494DA0u, CR_HOVEL_CAVE_B, (int)sizeof CR_HOVEL_CAVE_B);
 }
 
+/* The Roster of the Dead's graves and the Heathens' at the Shrine to the Ancestors ("VVFP Heathen Mausoleum.dll";
+   the owner, 2026-11-26). */
 static int cr_v5_graves(void) {
-    return CR_TC0R(0x464E90u, 0x5481A8u);
+    return CR_TC0R(0x464E90u, 0x5481A8u) + hm_shrine_count();
 }
 
 static int cr_v5_heathens_done(void) {

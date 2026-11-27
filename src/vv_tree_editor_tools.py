@@ -149,25 +149,49 @@ class ScrollingTab(ttk.Frame):
         # The wheel scrolls this page while the pointer is over it; leaving gives back whatever the
         # wheel did before (the patcher's window scrolls with it -- Codex, #555). Shift + wheel
         # scrolls it sideways.
+        # The wheel is given back on leaving AND when the page is destroyed: a window closed with
+        # the pointer still over its page never sees <Leave>, and the wheel everywhere else (the
+        # patcher's Game Mechanics page too) then called this dead canvas ("invalid command name
+        # ...canvas"). It is only given back while it is still this page's own, and this page's own
+        # is never saved as the one to give back.
         before: dict[str, str] = {}
+        state: dict[str, str] = {}
+
+        def everywhere() -> str:
+            return str(canvas.tk.call("bind", "all", "<MouseWheel>"))
+
+        def give_back() -> None:
+            try:
+                if state.get("mine") and everywhere() == state["mine"]:
+                    canvas.tk.call("bind", "all", "<MouseWheel>", before.get("wheel", ""))
+            except tk.TclError:
+                pass
 
         def wheel(event) -> None:
-            if shifted(event):
-                scroll_sideways(canvas, event)
-            else:
-                canvas.yview_scroll(-1 * (event.delta // 120), "units")
+            try:
+                if not canvas.winfo_exists():
+                    give_back()
+                elif shifted(event):
+                    scroll_sideways(canvas, event)
+                else:
+                    canvas.yview_scroll(-1 * (event.delta // 120), "units")
+            except tk.TclError:
+                give_back()
 
         def enter(_event) -> None:
-            before["wheel"] = canvas.bind_all("<MouseWheel>")
-            canvas.bind_all("<MouseWheel>", wheel)
-
-        def leave(_event) -> None:
-            canvas.unbind_all("<MouseWheel>")
-            if before.get("wheel"):
-                canvas.tk.call("bind", "all", "<MouseWheel>", before["wheel"])
+            current = everywhere()
+            if state.get("mine") and current == state["mine"]:
+                return                                  # already this page's
+            before["wheel"] = current
+            if state.get("mine"):
+                canvas.tk.call("bind", "all", "<MouseWheel>", state["mine"])
+            else:
+                canvas.bind_all("<MouseWheel>", wheel)
+                state["mine"] = everywhere()
 
         canvas.bind("<Enter>", enter)
-        canvas.bind("<Leave>", leave)
+        canvas.bind("<Leave>", lambda _event: give_back())
+        canvas.bind("<Destroy>", lambda _event: give_back(), add="+")
 
 
 def scrollable_frame(window: tk.Toplevel, padding: int = 0) -> ttk.Frame:

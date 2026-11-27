@@ -194,9 +194,9 @@ class DefaultPatchSelectionTests(unittest.TestCase):
                   or p.endswith("_island_event_content_notes")
                   or "_island_event_filter_f" in p
                   or p.endswith("_island_events_any_time")
-                  # Heathens can be selected in Island Events/Heathen-Exclusive Events (New Believers, new 2026-11-23:
-                  # off by default, on in Owner's Defaults only).
-                  or p == "vv5_heathens_in_island_events"
+                  # Heathen Tribe Expansion and Evolution (New Believers, v1.35.101, the owner 2026-11-25: off by
+                  # default, on in Owner's Defaults only; it folds Heathens can be selected in Island Events).
+                  or p == "vv5_heathen_tribe_evolution"
                   # Village Solidarity (the owner, 2026-11-17: on in Owner's Defaults only).
                   or p.endswith("_village_solidarity")
                   # Fog of Doom Lets Red and Orange Heathens Listen and No Restrictions on Fog of Doom Conversions (New
@@ -208,10 +208,9 @@ class DefaultPatchSelectionTests(unittest.TestCase):
                   # Esteemed Elders in Every Game (A New Home, The Lost Children, The Tree of Life; new 2026-11-22: on
                   # in Owner's Defaults only).
                   or p.endswith("_esteemed_elders")
-                  # The four Heathen aging rows (New Believers, new 2026-11-22: off by default; three on in
-                  # Owner's Defaults, the alternative skeleton row off there too).
-                  or p in ("vv5_former_villagers_keep_aging", "vv5_heathen_tribe_ages",
-                           "vv5_all_heathens_leave_skeletons", "vv5_former_villager_heathens_leave_skeletons")
+                  # The two Former Villagers Heathen rows (New Believers, new 2026-11-22: off by default, on in
+                  # Owner's Defaults).
+                  or p in ("vv5_former_villagers_keep_aging", "vv5_former_villager_heathens_leave_skeletons")
                   # Revive Buried/Disappeared Villagers (all five games, the owner 2026-11-22: off by default, on in
                   # Owner's Defaults; 100,000 tech points while the story upgrades cost tech points).
                   or p.endswith("_revive_from_graves")
@@ -251,10 +250,11 @@ class DefaultPatchSelectionTests(unittest.TestCase):
                 self.assertTrue(owners_default_fun_patch_selection(patch_id))
                 self.assertFalse(select_all_fun_patch_selection(patch_id))
 
-    def test_heathens_in_island_events_is_on_in_owners_defaults_only(self) -> None:
-        """The owner (2026-11-23): "Heathens can be selected in Island Events/Heathen-Exclusive Events" is ON in
-        Owner's Defaults; off by default and in Select All, as every new option of this round."""
-        patch_id = "vv5_heathens_in_island_events"
+    def test_heathen_tribe_evolution_is_on_in_owners_defaults_only(self) -> None:
+        """The owner (2026-11-25): "the heathen expansion = default on in owners defaults" -- off by default and in
+        Select All (it folds "Heathens can be selected in Island Events/Heathen-Exclusive Events", which was the
+        same)."""
+        patch_id = "vv5_heathen_tribe_evolution"
         self.assertIn(patch_id, fun_patch_ids())
         self.assertFalse(default_fun_patch_selection(patch_id))
         self.assertTrue(owners_default_fun_patch_selection(patch_id))
@@ -292,28 +292,25 @@ class DefaultPatchSelectionTests(unittest.TestCase):
         self.assertNotIn(patch_id, UNTICKING_CONFLICT_IDS)
         self.assertNotIn("vv4_no_fishing_at_science_2", fun_patch_ids())
 
-    def test_the_heathen_aging_rows_defaults_and_the_exclusive_skeleton_pair(self) -> None:
+    def test_the_heathen_aging_rows_defaults_and_no_skeleton_pair(self) -> None:
         """The owner (2026-11-23): Former Villagers Keep Aging Among the Heathens and Former Villagers Among the
-        Heathens Leave Skeletons are off by default and in Select All, on in Owner's Defaults only; Heathen Tribe
-        Ages, Dies and Has Children and All Heathens Leave Skeletons are off everywhere.  The two skeleton rows
-        untick each other and no preset ticks both."""
+        Heathens Leave Skeletons are off by default and in Select All, on in Owner's Defaults only.  Since v1.35.101
+        Heathen Tribe Ages, Dies and Has Children and All Heathens Leave Skeletons are folded into Heathen Tribe
+        Expansion and Evolution: they are gone from the catalog, and the skeleton rows' unticking pair with them."""
         from vv_fun_patcher_gui import UNTICKING_CONFLICT_IDS, owners_default_fun_patch_selection
 
         on = ("vv5_former_villagers_keep_aging", "vv5_former_villager_heathens_leave_skeletons")
-        off = ("vv5_heathen_tribe_ages", "vv5_all_heathens_leave_skeletons")
-        former_bones = "vv5_former_villager_heathens_leave_skeletons"
-        self.assertTrue(set(on) | set(off) <= fun_patch_ids())
+        gone = ("vv5_heathen_tribe_ages", "vv5_all_heathens_leave_skeletons", "vv5_heathens_in_island_events")
+        self.assertTrue(set(on) <= fun_patch_ids())
+        self.assertFalse(set(gone) & fun_patch_ids())
         for patch_id in on:
             with self.subTest(patch_id):
                 self.assertFalse(default_fun_patch_selection(patch_id))
                 self.assertTrue(owners_default_fun_patch_selection(patch_id))
                 self.assertFalse(select_all_fun_patch_selection(patch_id))
-        for pick in (default_fun_patch_selection, owners_default_fun_patch_selection, select_all_fun_patch_selection):
-            for patch_id in off:
-                with self.subTest(selection=pick.__name__, patch_id=patch_id):
-                    self.assertFalse(pick(patch_id))
-        self.assertEqual(UNTICKING_CONFLICT_IDS["vv5_all_heathens_leave_skeletons"], former_bones)
-        self.assertEqual(UNTICKING_CONFLICT_IDS[former_bones], "vv5_all_heathens_leave_skeletons")
+                self.assertNotIn(patch_id, UNTICKING_CONFLICT_IDS)
+        for patch_id in gone:
+            self.assertNotIn(patch_id, UNTICKING_CONFLICT_IDS)
 
     def test_the_dirt_spot_is_off_everywhere_and_puddle_play_on_everywhere(self) -> None:
         """The owner (2026-11-08): Move the "Playing in the dirt" Spot is default OFF in the normal defaults,
@@ -507,12 +504,10 @@ class DefaultPatchSelectionTests(unittest.TestCase):
         held_back |= {"vv5_fog_of_doom_every_heathen_listens", "vv5_fog_of_doom_no_restrictions"}
         # ...and Esteemed Elders in Every Game (the owner, 2026-11-22: on in Owner's Defaults, off otherwise).
         held_back |= {f"vv{n}_esteemed_elders" for n in (1, 2, 4, 5)}
-        # ...and Heathens can be selected in Island Events/Heathen-Exclusive Events (new 2026-11-23: on in Owner's
-        # Defaults only).
-        held_back |= {"vv5_heathens_in_island_events"}
-        # ...and the four Heathen aging rows (the owner, 2026-11-23: Select All ticks none of them).
-        held_back |= {"vv5_former_villagers_keep_aging", "vv5_heathen_tribe_ages", "vv5_all_heathens_leave_skeletons",
-                      "vv5_former_villager_heathens_leave_skeletons"}
+        # ...and Heathen Tribe Expansion and Evolution (v1.35.101: on in Owner's Defaults only).
+        held_back |= {"vv5_heathen_tribe_evolution"}
+        # ...and the two Former Villagers Heathen rows (the owner, 2026-11-23: Select All ticks neither).
+        held_back |= {"vv5_former_villagers_keep_aging", "vv5_former_villager_heathens_leave_skeletons"}
         # ...and Max Divine Energy Continues to Increase (the owner, 2026-11-25: on in Owner's Defaults only).
         held_back |= {"vv5_max_divine_energy_increases"}
         self.assertEqual(set(SELECT_ALL_OFF_FUN_PATCH_IDS), held_back)

@@ -408,15 +408,6 @@
   },
   {
    "file": "data/builds.json",
-   "where": "/fun_patches[72]/patches[10]",
-   "game": "vv5",
-   "offset": "0x946dd",
-   "va": "0x4946dd",
-   "english": "{name} sees a heartfelt memorial.",
-   "covered_by": "patch/0x4946dd"
-  },
-  {
-   "file": "data/builds.json",
    "where": "/fun_patches[72]/patches[9]",
    "game": "vv5",
    "offset": "0x94818",
@@ -441,6 +432,15 @@
    "va": "0x494c60",
    "english": "There's no room in your village to revive this person.",
    "covered_by": "patch/0x494c60"
+  },
+  {
+   "file": "data/builds.json",
+   "where": "/fun_patches[72]/patches[10]",
+   "game": "vv5",
+   "offset": "0xc5f80",
+   "va": "0x4c5f80",
+   "english": "{name} sees a heartfelt memorial shrine.",
+   "covered_by": "patch/0x4c5f80"
   },
   {
    "file": "data/vv5_expanded_time_warp.json",

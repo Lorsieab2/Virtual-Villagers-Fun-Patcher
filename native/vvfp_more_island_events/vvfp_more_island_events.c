@@ -25,6 +25,7 @@
 #include "../shared/vv3_villager_table.h"
 #include "../shared/vv4_villager_table.h"
 #include "../shared/vv5_villager_table.h"
+#include "../shared/heathen_mausoleum.h"   /* the Shrine to the Ancestors' graves the Remembrance Ceremony counts */
 #include "../shared/vvfp_multi_answer.h"
 #include "../shared/vvfp_multi_answer_12.h"
 
