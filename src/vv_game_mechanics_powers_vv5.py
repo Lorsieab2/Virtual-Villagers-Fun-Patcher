@@ -113,7 +113,10 @@ EFFECTS = (
       "Anywhere else (not the food bin's area, where it is refused): 17 to 22 plants grow within 104 pixels, as the "
       "ground allows. While 10 to 12 mushroom places are left, each plant is a mushroom half the time (a brown or a "
       "red one, equally likely), otherwise a flower. A grown mushroom is a normal one (brown 6 food, red 35, counted "
-      "in Mushrooms Found when it reaches the food bin). Believers within 104 pixels dance; Heathens within 402 "
+      "in Mushrooms Found when it reaches the food bin). Its mushrooms grow close together: with the VV1 "
+      "Mushroom/Collectible Duplication Cheat, children dropped on one of them used to take the island's other "
+      "mushrooms of that colour (one for each child after the first); with Fix Vanilla Bugs each child takes only "
+      "the mushroom it was dropped on, and the others stay, however close. Believers within 104 pixels dance; Heathens within 402 "
       "pixels go to the plants.",
       # The owner, 2026-11-27: "which is better: hand of bloom + 8 children collecting 1-3 red and or normal
       # mushrooms all once, or the crop field?" and "hand of bloom + all 8 children duplicate 1-3 oranges + reds?
@@ -139,10 +142,10 @@ EFFECTS = (
       "long before the field's harvest is in. With 3 mushrooms that is about as much as the field, sooner; with 1 it is less. The Food "
       "Point Doubler doubles both the mushrooms and the field's harvests. Seen in play (2026-11-27, Food Mastery "
       "2): one cast grew 1 red and 1 brown mushroom, 8 children picked up both, and food went from 2,792 to 3,280: "
-      "+488, exactly 8 x 52 + 8 x 9. Also seen in play: every child dropped on one mushroom gets a "
-      "copy of it, but each extra copy takes away another mushroom of the same colour from the island (another "
-      "red for a red, another brown for a brown), with no food for it; the other colour stays. The same goes for "
-      "collectibles. At Food Mastery 2 one cast on "
+      "+488, exactly 8 x 52 + 8 x 9. Also seen in play before Fix Vanilla Bugs fixed it: every child "
+      "dropped on one mushroom got a copy of it, but each extra copy took away another mushroom of the same colour "
+      "from the island (another red for a red, another brown for a brown), with no food for it, and the same went "
+      "for collectibles. At Food Mastery 2 one cast on "
       "an empty field is worth 1,200 food on Fast or Slow (about 1,143 on Normal); to beat it at every speed with "
       "one mushroom cast takes 8 children on 3 red mushrooms, 12 on 2 red, 20 on a red and a brown, 24 on 1 red, "
       "45 on 3 brown (on Normal speed 8, 11, 19, 22 and 43 are enough).")),
