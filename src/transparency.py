@@ -39,7 +39,7 @@ RUNTIME_SLIDER_LINES = {
 }
 # Both reports are in the patcher's folder beside the executable.
 TRANSPARENCY_RELATIVE_PATH = patcher_files.TRANSPARENCY_RELATIVE_PATH.as_posix()
-PATCHER_VERSION = "v1.35.100"
+PATCHER_VERSION = "v1.35.101"
 
 # The newest version already published as a GitHub release. PATCHER_VERSION
 # must be strictly greater than this before a build is cut, or the artifact
@@ -52,7 +52,7 @@ PATCHER_VERSION = "v1.35.100"
 # would find nothing and pass vacuously. A committed constant is the only
 # source of truth available offline, and updating it is part of cutting a
 # release.
-LAST_PUBLISHED_VERSION = "v1.35.99"
+LAST_PUBLISHED_VERSION = "v1.35.100"
 
 
 def validate_feature_transparency_metadata(features: Iterable[Any]) -> None:
