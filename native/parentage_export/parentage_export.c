@@ -3658,6 +3658,8 @@ static int record_names(const char *text, const char *field, const char *name) {
    Parents' companion, so there, without it, nothing is judged.  Such a record
    is still written, numbered as ever, with NOT_KEPT_NOTE -- the owner:
    "nothing should be dropped". */
+static int birth_carried_by(const char *text, const char *name);
+
 static int conception_not_kept(int game_id, int index, int at_save) {
     const struct pending_record *entry = &pending[index];
     const struct game_layout *g = layout_of(game_id);
@@ -3681,8 +3683,10 @@ static int conception_not_kept(int game_id, int index, int at_save) {
             return 0;                   /* an event may have changed her pregnancy */
         }
         if ((later->kind == KIND_BIRTH || later->kind == KIND_LOST_BIRTH)
-            && record_names(later->text, "  Mother: ", name)) {
-            return 0;                   /* her pregnancy ended in a birth (or with her) */
+            && (record_names(later->text, "  Mother: ", name)
+                || (later->kind == KIND_BIRTH && birth_carried_by(later->text, name)))) {
+            return 0;                   /* her pregnancy ended in a birth (or with her): a man who carried is
+                                           that Birth's Father (parents_follow_sex) */
         }
         if ((later->kind == KIND_DEATH || later->kind == KIND_DISAPPEARED)
             && record_names(later->text, "  Name: ", name)) {
@@ -4723,6 +4727,110 @@ static int delivery_litter(int game_id, const struct game_layout *g, const char 
     return index < 1 ? 1 : index > 3 ? -1 : index;
 }
 
+/* PARENTS FOLLOW THEIR SEX (the owner, 2026-11-27: "make sure the parents appearances and names are fixed").
+   The Lost Children to New Believers copy the villager who CARRIED into the newborn's Mother fields and the
+   carrier's expected other parent into its Father fields, whatever their sex.  Villagers of any sex may carry (the
+   owner, 2026-11-25), so a man who carried a woman's baby was recorded as the child's Mother and the woman as its
+   Father -- and the Details screen drew each with the other sex's head and body sheets.  The rule:
+
+     the two parents' sexes differ  -> the woman is the Mother and the man the Father, whoever carried; each
+                                       keeps their own name, head and body (the two field groups trade places);
+     the same sex                   -> the carrier stays the Mother, as the game recorded it.
+
+   Decided at the birth splice, before anything names the child (its last name, its number, its Birth record): the
+   carrier is the one living villager still carrying (the pregnancy field, as delivery_litter) whose name, head and
+   body are the child's Mother fields; the other parent the one living villager whose name, head and body are its
+   Father fields.  Only a male carrier and a female other parent, each found exactly once, swap; anything not
+   certain (the other parent dead or gone, two villagers who answer to the fields) keeps the game's record. */
+#define FOLLOW_NAME_BYTES 0x18u   /* the games' own parent-name copies are bounded at 0x18 */
+
+static int follow_name_is(const unsigned char *field, const unsigned char *name) {
+    return field[0] != 0 && strncmp((const char *)field, (const char *)name, FOLLOW_NAME_BYTES) == 0;
+}
+
+/* The one live record of `records` (not `not_this`) with this name, head and body, carrying when `carrying`; NULL
+   when none, or two. */
+static const unsigned char *follow_one(const struct game_layout *g, const unsigned char *records,
+                                       const unsigned char *name, int head, int body, int carrying,
+                                       const unsigned char *not_this) {
+    const unsigned char *found = NULL;
+    int index;
+    for (index = 0; index < g->slots; ++index) {
+        const unsigned char *r = records + g->record_base + (size_t)index * g->stride;
+        if (r == not_this || *(const unsigned char *)(r + g->active) != 1 || vv_lookalike(g->stride, r)
+            || (carrying && *(const int *)(r + g->litter - 4u) == 0)
+            || *(const int *)(r + g->head) != head || *(const int *)(r + g->body) != body
+            || !follow_name_is(name, r + g->name)) {
+            continue;
+        }
+        if (found != NULL) {
+            return NULL;
+        }
+        found = r;
+    }
+    return found;
+}
+
+/* The newborn `child` of `records` (game layout `g`) given the parents by sex; 1 when the two traded places, the
+   carrier's name (now the Father) into `carrier` (`size` bytes). */
+static int parents_follow_sex(const struct game_layout *g, const unsigned char *records, unsigned char *child,
+                              char *carrier, size_t size) {
+    const unsigned char *bearer, *other;
+    unsigned char name[0x40];
+    unsigned int span;
+    int head, body;
+    if (g == NULL || records == NULL || child == NULL || g->parent_father_name == 0u || g->litter < 4u
+        || g->parent_mother_name <= g->parent_father_name) {
+        return 0;
+    }
+    span = g->parent_mother_name - g->parent_father_name;   /* the two name fields, side by side */
+    if (span > sizeof name) {
+        return 0;
+    }
+    bearer = follow_one(g, records, child + g->parent_mother_name, *(const int *)(child + g->parent_mother_head),
+                        *(const int *)(child + g->parent_mother_body), 1, child);
+    if (bearer == NULL || *(const int *)(bearer + g->sex) != g->sex_male) {
+        return 0;                       /* a woman carried, or the carrier is not certain: as the game wrote it */
+    }
+    other = follow_one(g, records, child + g->parent_father_name, *(const int *)(child + g->parent_father_head),
+                       *(const int *)(child + g->parent_father_body), 0, child);
+    if (other == NULL || other == bearer || *(const int *)(other + g->sex) != g->sex_female) {
+        return 0;                       /* two men (the carrier stays the Mother), or the other is not certain */
+    }
+    memcpy(name, child + g->parent_father_name, span);
+    memcpy(child + g->parent_father_name, child + g->parent_mother_name, span);
+    memcpy(child + g->parent_mother_name, name, span);
+    head = *(const int *)(child + g->parent_father_head);
+    body = *(const int *)(child + g->parent_father_body);
+    *(int *)(child + g->parent_father_head) = *(const int *)(child + g->parent_mother_head);
+    *(int *)(child + g->parent_father_body) = *(const int *)(child + g->parent_mother_body);
+    *(int *)(child + g->parent_mother_head) = head;
+    *(int *)(child + g->parent_mother_body) = body;
+    if (carrier != NULL && size > 0) {
+        copy_name_field(child + g->parent_father_name, carrier, size, g->parent_name_capacity);
+    }
+    return 1;
+}
+
+/* The Birth record's note when the Father carried (parents_follow_sex, or a companion that gave the parents by sex
+   itself: WriteParentageBirthCarried): the carrier and the Mother named, so a reader that pairs a pregnancy with its
+   Birth -- the carrier's Conception names the carrier as its Mother -- still finds it.  Every reader matches the
+   words up to "(named as the Father;" (CARRIED_BY_FATHER). */
+#define CARRIED_BY_FATHER_FORMAT "  Note: Carried by %s, who is male (named as the Father; %s is named as the Mother)\n"
+
+static void carried_by_father_note(const char *carrier, const char *mother, char *out, size_t size) {
+    _snprintf(out, size, CARRIED_BY_FATHER_FORMAT, carrier, mother != NULL && mother[0] != '\0' ? mother : "(unknown)");
+    out[size - 1] = '\0';
+}
+
+/* Whether the Birth record `text` says `name` carried it as its Father. */
+static int birth_carried_by(const char *text, const char *name) {
+    char line[MAX_NAME_BYTES + 64];
+    _snprintf(line, sizeof line, "  Note: Carried by %s, who is male (named as the Father;", name);
+    line[sizeof line - 1] = '\0';
+    return strstr(text, line) != NULL;
+}
+
 /* The Birth record's "  Born as:" line for a delivery of `litter` babies
    (the owner, 2026-10-06: twins and triplets in the logs); empty when not
    known. */
@@ -5235,6 +5343,10 @@ __declspec(dllexport) int __stdcall AppearanceChangedAtSave(int game_id, const v
     return written;
 }
 
+/* The note WriteParentageBirthCarried gives the Birth record being written (a whole "  Note: ...\n" line), or
+   NULL. */
+static const char *g_birth_note;
+
 /* WriteParentageBirth with the delivery's babies given: 1-3, or -1 when not
    known (no "Born as" line). */
 __declspec(dllexport) int __stdcall WriteParentageBirthLitter(
@@ -5245,13 +5357,37 @@ __declspec(dllexport) int __stdcall WriteParentageBirthLitter(
     const void *child_record,
     int litter
 ) {
+    const char *note = g_birth_note;
     char text[RECORD_TEXT_MAX];
+    char carried[MAX_NAME_BYTES * 2 + 96];
     if (child_name == NULL || child_name[0] == '\0') {   /* the record is the name: the exe's splices */
+        const struct game_layout *g = layout_of(game_id);
+        const unsigned char *records = villager_table(game_id);
+        char carrier[MAX_NAME_BYTES];
+        unsigned char *rec = (unsigned char *)child_record;
+        if (rec != NULL && game_id >= GAME_VV2 && game_id <= GAME_VV5 && layout_is_usable(g)
+            && records != NULL && memory_is_readable(records, g->record_base + (size_t)g->slots * g->stride)
+            && is_record_slot(g, records, rec)) {
+            /* The delivery's babies first, from the carrier the game recorded as the Mother (delivery_litter),
+               then the parents by sex (parents_follow_sex) -- before the last name and the number, which read
+               the parents. */
+            if (litter == 0) {
+                litter = delivery_litter(game_id, g, (const char *)(rec + g->parent_mother_name),
+                                         *(const int *)(rec + g->parent_mother_head),
+                                         *(const int *)(rec + g->parent_mother_body));
+            }
+            if (note == NULL && parents_follow_sex(g, records, rec, carrier, sizeof carrier)) {
+                char mother[MAX_NAME_BYTES];
+                copy_name_field(rec + g->parent_mother_name, mother, sizeof mother, g->parent_name_capacity);
+                carried_by_father_note(carrier, mother, carried, sizeof carried);
+                note = carried;
+            }
+        }
         rule_last_name(game_id, (unsigned char *)child_record);
         number_new_name(game_id, (unsigned char *)child_record);
     }
     if (!compose_birth(game_id, child_name, child_head, child_body, mother_name, mother_head,
-                       mother_body, father_name, father_head, father_body, child_record, NULL,
+                       mother_body, father_name, father_head, father_body, child_record, note,
                        litter, text, sizeof text)) {
         return 0;
     }
@@ -5266,6 +5402,44 @@ __declspec(dllexport) int __stdcall WriteParentageBirthLitter(
         g_birth_child = NULL;
         return result;
     }
+}
+
+/* WriteParentageBirthLitter for a companion that gave the newborn's parents by sex itself (the owner,
+   2026-11-27; parents_follow_sex): `carried_by`, when not empty, is the carrier -- a man, now the child's Father --
+   and the record says so (CARRIED_BY_FATHER_FORMAT).  A New Home's Show Parents companion and New Believers'
+   Heathen births ("VVFP Heathen Aging.dll") call it; NULL or "" is WriteParentageBirthLitter exactly. */
+__declspec(dllexport) int __stdcall WriteParentageBirthCarried(
+    int game_id,
+    const char *child_name, int child_head, int child_body,
+    const char *mother_name, int mother_head, int mother_body,
+    const char *father_name, int father_head, int father_body,
+    const void *child_record,
+    int litter,
+    const char *carried_by
+) {
+    char carried[MAX_NAME_BYTES * 2 + 96];
+    char carrier[MAX_NAME_BYTES];
+    char mother[MAX_NAME_BYTES];
+    const struct game_layout *g = game_id >= GAME_VV1 && game_id <= GAME_VV5 ? layout_of(game_id) : NULL;
+    const char *note = NULL;
+    int result;
+    if (carried_by != NULL && carried_by[0] != '\0' && g != NULL && layout_is_usable(g)) {
+        copy_name_field((const unsigned char *)carried_by, carrier, sizeof carrier, g->name_capacity);
+        mother[0] = '\0';
+        if (mother_name != NULL && mother_name[0] != '\0') {
+            copy_name_field((const unsigned char *)mother_name, mother, sizeof mother, g->name_capacity);
+        } else if (child_record != NULL && g->parent_mother_name != 0u) {
+            copy_name_field((const unsigned char *)child_record + g->parent_mother_name, mother, sizeof mother,
+                            g->parent_name_capacity);
+        }
+        carried_by_father_note(carrier, mother, carried, sizeof carried);
+        note = carried;
+    }
+    g_birth_note = note;
+    result = WriteParentageBirthLitter(game_id, child_name, child_head, child_body, mother_name, mother_head,
+                                       mother_body, father_name, father_head, father_body, child_record, litter);
+    g_birth_note = NULL;
+    return result;
 }
 
 /* A New Home: the Birth record of a villager the Births log has none for,

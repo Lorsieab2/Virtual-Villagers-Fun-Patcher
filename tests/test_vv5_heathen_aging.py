@@ -1428,5 +1428,64 @@ class IslandEvents(unittest.TestCase):
         self.assertEqual(v.conceived, [])
 
 
+@unittest.skipIf(_skip(), _skip() or "")
+class ParentsFollowTheirSex(unittest.TestCase):
+    """The owner, 2026-11-27: a man who carried a woman's baby is its Father and she its Mother, each with their own
+    name, head and body; two of one sex keep the carrier as the Mother (tests/test_parents_follow_sex.py)."""
+
+    def _born(self, carrier_sex: int, other_sex: int, *, carried_export: bool = False):
+        v = Village((EVENTS,))
+        if carried_export:
+            stub = v.alloc(0x10)
+            carried: list[list[int]] = []
+
+            def _carried(p):
+                carried.append([p.arg(i) for i in range(13)])
+                return 1, 52
+            v.stub(stub, _carried)
+            v.parentage_exports["WriteParentageBirthCarried"] = stub
+            v.carried = carried
+        carrier = v.villager(1, heathen=True, sex=carrier_sex, name="Ahi Mashudu")
+        other = v.villager(2, heathen=True, sex=other_sex, name="Vaihi Salongo")
+        v.put32(carrier + HEAD, 5)
+        v.put32(carrier + BODY, 6)
+        v.put32(other + HEAD, 8)
+        v.put32(other + BODY, 3)
+        v.rand_answers.extend([0, 0, 1])
+        self.assertEqual(v.export("VvfpHeathenAgingEventPregnancy", 5, 1, 2, 1, 1), 1, "born at once (nursing)")
+        self.assertEqual(len(v.created), 1)
+        return v, v.record(v.created[0][0])
+
+    def test_a_man_who_carried_a_womans_baby_is_its_father(self):
+        v, baby = self._born(0, 1)
+        self.assertEqual((v.cstring(baby + MOTHER_NAME), v.i32(baby, MOTHER_HEAD), v.i32(baby, MOTHER_BODY)),
+                         ("Vaihi Salongo", 8, 3), "the woman is the Mother, with her own looks")
+        self.assertEqual((v.cstring(baby + FATHER_NAME), v.i32(baby, FATHER_HEAD), v.i32(baby, FATHER_BODY)),
+                         ("Ahi Mashudu", 5, 6), "the man who carried is the Father, with his own looks")
+        self.assertEqual(len(v.births), 1, "an earlier Parentage Export (no WriteParentageBirthCarried): its record")
+
+    def test_the_birth_record_says_who_carried(self):
+        v, baby = self._born(0, 1, carried_export=True)
+        self.assertEqual(v.births, [], "the newer export is asked first")
+        self.assertEqual(len(v.carried), 1)
+        args = v.carried[0]
+        self.assertEqual((args[0], args[10], args[11]), (5, baby, 1))
+        self.assertEqual(v.cstring(args[12]), "Ahi Mashudu", "the carrier, now the Father")
+
+    def test_two_of_one_sex_keep_the_carrier_as_the_mother(self):
+        for sex in (0, 1):
+            with self.subTest(sex=sex):
+                v, baby = self._born(sex, sex, carried_export=True)
+                self.assertEqual((v.cstring(baby + MOTHER_NAME), v.i32(baby, MOTHER_HEAD), v.i32(baby, MOTHER_BODY)),
+                                 ("Ahi Mashudu", 5, 6))
+                self.assertEqual((v.cstring(baby + FATHER_NAME), v.i32(baby, FATHER_HEAD)), ("Vaihi Salongo", 8))
+                self.assertEqual(v.carried[0][12], 0, "nobody named as carrying for the Father")
+
+    def test_a_woman_who_carried_is_the_mother_as_ever(self):
+        v, baby = self._born(1, 0)
+        self.assertEqual((v.cstring(baby + MOTHER_NAME), v.cstring(baby + FATHER_NAME)),
+                         ("Ahi Mashudu", "Vaihi Salongo"))
+
+
 if __name__ == "__main__":
     unittest.main()

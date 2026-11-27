@@ -169,6 +169,8 @@ class ReleasesLinkTests(unittest.TestCase):
                "vv_revive_backfill",
                # The mask a Former Heathen rejoined with, given back by Repair (v1.35.98).
                "vv5_rejoined_masks",
+               # The parents by their sex, put right by Repair (the owner, 2026-11-27; v1.35.101).
+               "vv_parents_follow_sex",
                # New Believers' log words in both wordings, and the rewrite's role titles (Guardians of Isola, 2026-11-23).
                "vv_isolan_words", "vv_guardians_role_titles",
                # The Conception and Birth records the saved village never held (v1.35.97).
@@ -310,8 +312,17 @@ class ReleasesLinkTests(unittest.TestCase):
                               "vv5_rejoined_masks",
                               # ...and a Heathen's own mask, the checklist's next row (v1.35.98).
                               "vv5_heathen_masks_restore",
+                              # the parents by their sex in the save, after the logs (v1.35.101)
+                              "vv_parents_follow_sex",
                               # PATCHER_VERSION: the repair copies are named for the running build.
                               "transparency"}),
+            # The parents by their sex (the owner, 2026-11-27): the logs and the Repairs log it reads and plans, and
+            # (function-level) the save's villagers and per-villager files as Last Names reads them, the save layout
+            # and A New Home's departed list.
+            ("vv_parents_follow_sex", {"vv_log_additions", "vv_log_tools", "vv_last_names", "vv_save_layout",
+                                       "vv1_parents_restore",
+                                       # the Original Looks file re-keyed with the child (Codex, #887)
+                                       "vv_original_look"}),
             # The original looks behind Change Appearance's Reset to original (v1.35.85): the per-save
             # files' places, and the logs and villagers its backfill reads (function-level).
             ("vv_original_look", {"vv_save_layout", "vv_last_names", "vv_reconcile", "vv_log_additions",
@@ -338,7 +349,9 @@ class ReleasesLinkTests(unittest.TestCase):
                                   # the rejoined villagers' masks, listed in Repair's checklist (v1.35.98)
                                   "vv5_rejoined_masks",
                                   # ...and the Heathens' own masks, the row after it (v1.35.98)
-                                  "vv5_heathen_masks_restore"}),
+                                  "vv5_heathen_masks_restore",
+                                  # the parents by their sex, a row of Repair's checklist (v1.35.101)
+                                  "vv_parents_follow_sex"}),
             # Records written into another save's log (2026-10-31): the logs and every slot's village as Repair
             # reads them (function-level imports).
             ("vv_misfiled_records", {"vv_log_additions", "vv_save_layout", "vv_reconcile",

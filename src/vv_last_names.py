@@ -2160,6 +2160,9 @@ def _plan_statistics(result: Plan, game: int, slot: int, data_dir: Path, by_name
 # "First:" / "Second:" are the two Heathens of a "Couple formed" record (Codex, #883): each their own record,
 # with their looks nested under them like a Child's.
 PERSON_LINE = re.compile(r"^(\s+)(Name|Child|Mother|Father|First|Second): (.*)$")
+# The carrier's note of a Birth ("named as the Father") or a Conception ("named as the Mother") record.
+CARRIED_NOTE = re.compile(r"^(  Note: Carried by )(.+), who is male \(named as the (Father|Mother); (.+) is named as "
+                          r"the (Mother|Father)\)(.*)$")
 
 
 def _plan_logs(result: Plan, folder: Path, game: int, slot: int, renames: dict[tuple, str],
@@ -2223,6 +2226,26 @@ def _plan_logs(result: Plan, folder: Path, game: int, slot: int, renames: dict[t
                     ("Death", "Disappeared", "Epitaph")):
                 continue
             for k, line in enumerate(b.lines):
+                # A Birth's or Conception's "Note: Carried by <carrier>, who is male (named as the Father; <other>
+                # is named as the Mother)" (the parents follow their sex, 2026-11-27): each name follows the
+                # parent line it names, by that line's name and looks, as the person lines below do (Codex, #887).
+                c = CARRIED_NOTE.match(line)
+                if c:
+                    texts = []
+                    for name, label in ((c.group(2), c.group(3)), (c.group(4), c.group(5))):
+                        parent = additions._sub_identity(b, label)
+                        new = None
+                        if parent is not None and parent[0] == name.strip():
+                            new = renames.get(parent)
+                            if new is None and parent[1] is None and len(by_name.get(name.strip(), set())) == 1:
+                                new = next(iter(by_name[name.strip()]))
+                        texts.append(new or name)
+                    rebuilt = (f"{c.group(1)}{texts[0]}, who is male (named as the {c.group(3)}; {texts[1]} is named "
+                               f"as the {c.group(5)}){c.group(6)}")
+                    if rebuilt != line:
+                        lines[b.start + k] = rebuilt
+                        n += 1
+                    continue
                 m = PERSON_LINE.match(line)
                 if not m:
                     continue

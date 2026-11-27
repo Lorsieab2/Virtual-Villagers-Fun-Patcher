@@ -85,7 +85,8 @@ class EveryListUsesIt(unittest.TestCase):
 
     USES = {
         "native/population_export/population_export.c": 2,   # former Heathens, living_villager (History, Population)
-        "native/parentage_export/parentage_export.c": 6,     # by id, by name, the tribe, the mother, titles
+        # by id, by name, the tribe, the mother, titles; the parents by their sex (follow_one, 2026-11-27)
+        "native/parentage_export/parentage_export.c": 7,
         # A live record's custom title, for both exporters (the present test the rule counts by).
         "native/shared/custom_title_shown.h": 1,
         "native/statistics_export/statistics_export.c": 1,   # the Village Roster

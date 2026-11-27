@@ -24,3 +24,4 @@ EXPORTS
     AppearanceNotesSpent=_AppearanceNotesSpent@4
     VvfpVillagerSexChanged=_VvfpVillagerSexChanged@16
     WriteParentageRecordCarried=_WriteParentageRecordCarried@20
+    WriteParentageBirthCarried=_WriteParentageBirthCarried@52

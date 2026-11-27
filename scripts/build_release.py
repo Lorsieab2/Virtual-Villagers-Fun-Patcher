@@ -834,6 +834,9 @@ FILES = [
     "src/vv_revive_backfill.py",
     # New Believers: the mask a villager wore when they rejoined the tribe, which Repair Saves & Logs gives back.
     "src/vv5_rejoined_masks.py",
+    # The parents by their sex (the owner, 2026-11-27): Repair Saves & Logs puts a child recorded with a man as its
+    # Mother and a woman as its Father right.
+    "src/vv_parents_follow_sex.py",
     # The games' fonts and the letters the patcher makes for them (shared with the Picture Studio Text tool),
     # and the games' own text bytes read as Windows-1252 with every byte kept.
     "src/vv_font_glyphs.py",

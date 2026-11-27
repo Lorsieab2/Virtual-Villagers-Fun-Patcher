@@ -6260,10 +6260,14 @@ class App(tk.Tk):
         for kind in kinds:
             fixes = result.added.get(kind.id)
             if fixes:
-                done = (f"{sum(f.count for f in fixes)} record(s) put right" if kind.id == "contradictions"
+                done = (f"{sum(f.count for f in fixes)} record(s) put right"
+                        if kind.id in ("contradictions", "parents_sex")
                         else f"{sum(f.count for f in fixes)} record(s) removed" if getattr(kind, "removes", None)
                         else f"{sum(f.count for f in fixes)} line(s) added")
                 lines.append(f"{kind.label}: {done} in {len(fixes)} log file(s).")
+        if getattr(result, "parents", None):
+            lines.append(f"Parents put by their sex: {result.parents[0].count} villager(s), in "
+                         + ", ".join(f.name for f in result.parents) + ".")
         if getattr(result, "answered", None):
             lines.append(f"The reconciliation's questions you answered: {len(result.answered)} (remembered, and "
                          "listed in the Repairs log).")
@@ -6541,8 +6545,10 @@ class App(tk.Tk):
                 rejoined = kind.context.get("lines")
             # The Esteemed Elder title, retroactively (src/vv_log_additions.py plan_esteemed): its graves in the save.
             elders = kind.context.get("graves") if kind.id == "esteemed" else None
+            # The parents by their sex (src/vv_parents_follow_sex.py): the save's children too, not only log lines.
+            parents = kind.context.get("found") if kind.id == "parents_sex" else None
             if not kind.inserts and not getattr(kind, "removes", None) and not getattr(kind, "replaces", None) \
-                    and not unnumber and not preferred and not elders and not rejoined:
+                    and not unnumber and not preferred and not elders and not rejoined and not parents:
                 for note in kind.notes:
                     ttk.Label(frame, text=f"{kind.label}: {note}", wraplength=600,
                               justify="left", foreground="#555555").pack(anchor="w", pady=(2, 0))
@@ -6566,6 +6572,8 @@ class App(tk.Tk):
             if kind.id == "esteemed":
                 text = (f"{kind.label}: {kind.decided} record line(s)"
                         + (f", {len(elders.in_save)} grave epitaph(s)" if elders else "") + " found")
+            if parents:
+                text = f"{kind.label}: {parents} record(s) and villager(s) found"
             if kind.asked:
                 text += f", {kind.asked} question(s) for you"
             ttk.Checkbutton(frame, variable=ticks[kind.id], text=text).pack(anchor="w")
