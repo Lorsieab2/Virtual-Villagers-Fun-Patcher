@@ -13547,10 +13547,13 @@ STARTUP_LOADER_COMPANIONS_2 = (
 # nothing at startup and ships only with the rows that ship those two.  "VVFP
 # VV1 Golden Child Safe.dll" (A New Home's Fix Vanilla Bugs) is loaded and
 # started by VVFP Speed Change Timers.dll, which that row ships with it: the
-# companion list above is full (bits 1-29).
+# companion list above is full (bits 1-29).  "VVFP Fullscreen Mouse.dll" (Fix
+# Vanilla Bugs, all five games) is loaded and started by VVFP Window Restore.dll,
+# which the same rows ship with it.
 STARTUP_LOADER_ON_DEMAND = (
     "VVFP Number Names.dll",
     "VVFP VV1 Golden Child Safe.dll",
+    "VVFP Fullscreen Mouse.dll",
 )
 # Bit 31 of the same word is not a companion: the "Check logs automatically"
 # setting (the patcher window, beside Check Saves & Logs / Repair Saves & Logs; ON by

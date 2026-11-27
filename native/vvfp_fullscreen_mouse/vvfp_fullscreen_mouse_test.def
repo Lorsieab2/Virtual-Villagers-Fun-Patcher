@@ -1,0 +1,6 @@
+LIBRARY "VVFP Fullscreen Mouse.test.dll"
+EXPORTS
+    VvfpStartup=_VvfpStartup@8
+    VvfpFullscreenMouseInstalled=_VvfpFullscreenMouseInstalled@0
+    VvfpFullscreenMouseTestUseModule=_VvfpFullscreenMouseTestUseModule@4
+    VvfpFullscreenMouseTestConvert=_VvfpFullscreenMouseTestConvert@12
