@@ -683,24 +683,35 @@ class AgeBands(_Base):
             self.assertTrue(_inside(self.areas[CAMP], walks[-1][1], walks[-1][2]))
         self.assertEqual(camp.u32(child + SKILLS + 4 * PARENTING), 0)
 
-    def test_adults_and_elders_never_go_to_the_nursery_and_elders_do_adult_work(self):
+    def test_adults_never_go_to_the_nursery_and_do_adult_work(self):
         camp = self._camp()
         camp.teacher = 1
-        for age in (280, 2000):
+        r = camp.villager(3, age=280)
+        texts, _ = self._seen(camp, r, 150)
+        self.assertNotIn(TEXT_NURSERY, texts)
+        self.assertTrue({TEXT_NONI, TEXT_CROPS, TEXT_FISH, TEXT_POOLS, TEXT_STATUE, TEXT_LAB, TEXT_EATING,
+                         TEXT_PRAISING} <= texts, texts)
+
+    def test_elders_retired_to_the_encampment_do_only_what_is_done_there(self):
+        """The owner (2026-11-26): elders "retire and go to the encampment" -- from the game's elder age (1,000 at
+        Medicine 1, 0x46F790) a show action is a meal or devotion at the mud hut, never a walk away."""
+        camp = self._camp()
+        camp.teacher = 1
+        for age in (1000, 2000):
             with self.subTest(age=age):
                 r = camp.villager(3, age=age)
-                texts, _ = self._seen(camp, r, 150)
-                self.assertNotIn(TEXT_NURSERY, texts)
-                self.assertTrue({TEXT_NONI, TEXT_CROPS, TEXT_FISH, TEXT_POOLS, TEXT_STATUE, TEXT_LAB, TEXT_EATING,
-                                 TEXT_PRAISING} <= texts, texts)
+                texts, rows = self._seen(camp, r, 150)
+                shown = texts - {""}
+                self.assertTrue(shown and shown <= {TEXT_EATING, TEXT_PRAISING}, texts)
+                self.assertEqual(rows, set(), "no building door")
 
     def test_the_love_shack_door_only_at_the_couples_ages(self):
         camp = self._camp()
-        for age, love in ((280, False), (359, False), (360, True), (999, True), (1000, False), (1500, False)):
+        for age, love in ((280, False), (359, False), (360, True), (999, True)):
             with self.subTest(age=age):
                 r = camp.villager(3, age=age)
                 _, rows = self._seen(camp, r, 150)
-                self.assertIn(3, rows, "the Clothing Hut door is any adult's")
+                self.assertIn(3, rows, "the Clothing Hut door is any adult's below the elder age")
                 self.assertEqual(4 in rows, love)
 
 

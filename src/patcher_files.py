@@ -228,6 +228,9 @@ PATCHER_SETTINGS: frozenset[str] = frozenset({
     "VVFP Tech Gain.txt",
     "VVFP Skill Success.txt",
     "VVFP Age Speed.txt",
+    # The two 0.1x-10x sliders of v1.35.101 (RUNTIME_SLIDERS), like the five above.
+    "VVFP Weather Frequency.txt",
+    "VVFP Divine Energy Gain.txt",
     # Heathen Tribe Expansion and Evolution's Settings window (src/vv_fun_patcher.py _write_heathen_evolution_choices):
     # the two sliders and the options, beside "VVFP Heathen Aging.dll" (native/shared/heathen_evo.h).
     "VVFP Heathen Tribe Births.txt",
