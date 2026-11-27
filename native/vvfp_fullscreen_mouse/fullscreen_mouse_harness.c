@@ -341,7 +341,7 @@ static void scenario(const char *label, int fixed, int expect_exact_stock) {
     }
 }
 
-int main(int argc, char **argv) {
+static int run(int argc, char **argv) {
     char path[MAX_PATH * 2], desktop_name[64];
     HDESK desktop;
     init_fn s_init;
@@ -400,7 +400,6 @@ int main(int argc, char **argv) {
             return (int)code;
         }
     }
-    if (!harness_redirect_documents_process()) return 2;
     if (argc < 5) {
         printf("usage: fullscreen_mouse_harness <SDL2.dll folder> <game exe> <game 1-5> stock|fixed|refused "
                "[companion]\n");
@@ -545,4 +544,11 @@ int main(int argc, char **argv) {
     s_quit();
     printf("== %d check(s), %d failure(s) ==\n", g_checks, g_failures);
     return g_failures ? 1 : 0;
+}
+
+int main(int argc, char **argv) {
+    /* Never the real Documents (the owner, 2026-10-10): the companion and SDL load into a process whose Documents is
+       a throwaway %TEMP% folder -- here and in the copy run() starts, before either loads anything. */
+    if (!harness_redirect_documents_process()) return 2;
+    return run(argc, argv);
 }
