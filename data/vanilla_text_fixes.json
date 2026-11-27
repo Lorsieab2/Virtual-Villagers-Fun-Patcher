@@ -88,6 +88,46 @@
    "shown": "Trick Or Trade (event slot 41): its result step gives eEventTrickOrTradeResultA + 1 (add eax, 0x3F5 at 0x416619), which is this text",
    "old": "{name} arranges a barter session with an envoy from the heathen camp. Finally, they agree to trade the scrolls for 100 food. The trade goes smoothly, and {name} gains some respect from the heathens for his honest business practices. Also, one of the heathens produces a piece that was missing from the scrolls that was apparently stuck to his foot! Good thing they mentioned it! \nYour tribe gains 3000 tech points.",
    "new": "{name} arranges a barter session with an envoy from the heathen camp. Finally, they agree to trade the scrolls for 100 food. The trade goes smoothly, and {name} gains some respect from the heathens for {his/her} honest business practices. Also, one of the heathens produces a piece that was missing from the scrolls that was apparently stuck to his foot! Good thing they mentioned it! \nYour tribe gains 3000 tech points."
+  },
+  {
+   "game": 5,
+   "stem": "sm/eSayAlreadyPregnant",
+   "reason": "the owner, 2026-11-26 (neutral words): later Heathen Mommies and Chiefs may be of either sex (Heathen Tribe Expansion), so the game's fixed \"she\" reads neutrally",
+   "shown": "\"She's nursing a baby!\": the villager's speech line when a pregnancy is refused because they are already nursing (string eSayAlreadyPregnant)",
+   "old": "She's nursing a baby!",
+   "new": "They're nursing a baby!"
+  },
+  {
+   "game": 5,
+   "stem": "sm/eSayTakingCareOfBaby",
+   "reason": "the owner, 2026-11-26 (neutral words): later Heathen Mommies and Chiefs may be of either sex (Heathen Tribe Expansion), so the game's fixed \"her\" reads neutrally",
+   "shown": "the action caption of a villager caring for a baby, the Heathen Mommy's among them (string eSayTakingCareOfBaby)",
+   "old": "Taking care of her baby",
+   "new": "Taking care of their baby"
+  },
+  {
+   "game": 5,
+   "stem": "sm/eSayHidingChild",
+   "reason": "the owner, 2026-11-26 (neutral words): later Heathen Mommies and Chiefs may be of either sex (Heathen Tribe Expansion), so the game's fixed \"her\" reads neutrally",
+   "shown": "the Heathen Mommy's action caption (string eSayHidingChild)",
+   "old": "Hiding her child from invaders",
+   "new": "Hiding their child from invaders"
+  },
+  {
+   "game": 5,
+   "stem": "sm/eTTipStandAloneFirstPreg",
+   "reason": "the owner, 2026-11-26 (neutral words): later Heathen Mommies and Chiefs may be of either sex (Heathen Tribe Expansion), so the game's fixed \"her\" reads neutrally",
+   "shown": "the first-pregnancy tip (string eTTipStandAloneFirstPreg)",
+   "old": "Congratulations! The stork brought \na baby. Be careful! A mother \ncares for her child until age two and \nwon't do much else.\n",
+   "new": "Congratulations! The stork brought \na baby. Be careful! A parent \ncares for their child until age two and \nwon't do much else.\n"
+  },
+  {
+   "game": 5,
+   "stem": "sm/eSayChiefMumbles",
+   "reason": "the owner, 2026-11-26 (neutral words): later Heathen Mommies and Chiefs may be of either sex (Heathen Tribe Expansion), so the game's fixed \"his\" reads neutrally",
+   "shown": "the Heathen Chief's speech line, said by any later Chief too (string eSayChiefMumbles)",
+   "old": "The heathen mumbles something about his daughter",
+   "new": "The heathen mumbles something about their daughter"
   }
  ],
  "captions": [

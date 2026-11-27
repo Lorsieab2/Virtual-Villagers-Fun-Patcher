@@ -209,11 +209,11 @@ def heathens_row(game: int) -> dict:
     ]
     sys.path.insert(0, str(ROOT / "scripts"))
     import build_heathen_aging_features as aging  # noqa: E402  (its DLL, the flag file and the two sites)
+    # (Folded since v1.35.101: its flag file is retired, so the record lists the companion only; the new row ships
+    # its own files.)
     record["companion_files"] = [
         {"source": f"assets/heathen_aging/{aging.DLL_NAME}", "destination": aging.DLL_NAME,
          "sha256": aging.sha(aging.DLL)},
-        {"source": f"assets/heathen_aging/{aging.EVENTS_FLAG}", "destination": aging.EVENTS_FLAG,
-         "sha256": aging.sha(aging.FOLDER / aging.EVENTS_FLAG)},
     ]
     record["runtime_detours"] = [
         {"va": f"0x{va:X}", "stock_bytes": stock, "written_bytes": "E9XXXXXXXX" + "90" * (len(stock) // 2 - 5),
@@ -238,9 +238,10 @@ def heathens_row(game: int) -> dict:
 
 
 def rows(game: int) -> list[dict]:
+    # heathens_row is no longer a row of its own: "Heathen Tribe Expansion and Evolution" folds it (v1.35.101;
+    # scripts/build_heathen_tribe_evolution_feature.py takes its island-event parts from heathens_row(5)).
     return ([notes_row(game), any_time_row(game)]
-            + [filter_row(game, f) for f in content.FILTER_IDS]
-            + ([heathens_row(game)] if game == 5 else []))
+            + [filter_row(game, f) for f in content.FILTER_IDS])
 
 
 def feature_path(record: dict) -> Path:

@@ -1378,11 +1378,21 @@ enum { LOG_BIRTHS = 0, LOG_DEATHS = 1, LOG_UNACCOUNTED = 2, LOG_EVENTS = 3 };
                   Alosaka" and nobody renamed anyone); held until the next
                   save like APPEARANCE, since the game keeps the new name only
                   then.  The patcher's reconciliation asks the player about
-                  every one (src/vv_reconcile.py). */
+                  every one (src/vv_reconcile.py).
+     COUPLE       births family, "Couple formed", never rolls -- New
+                  Believers' Heathen Tribe Expansion and Evolution: two
+                  Heathens paired for life ("VVFP Heathen Aging.dll",
+                  WriteParentageHeathenCouple; decision 16)
+     ROLE         births family, "Took the role", never rolls -- a Heathen
+                  who became the camp's Chief or a Master ("VVFP Cause of
+                  Death.dll" VvfpCauseHeathenRole through WriteVillageRecord;
+                  decision 16).  Both are a Heathen's only: never counted in
+                  the village. */
 enum {
     KIND_CONCEPTION = 0, KIND_BIRTH = 1, KIND_DEATH = 2, KIND_DISAPPEARED = 3,
     KIND_EPITAPH = 4, KIND_UNACCOUNTED = 5, KIND_ARRIVED = 6, KIND_APPEARANCE = 7,
-    KIND_ISLAND_EVENT = 8, KIND_LOST_BIRTH = 9, KIND_NAME_CHANGE = 10
+    KIND_ISLAND_EVENT = 8, KIND_LOST_BIRTH = 9, KIND_NAME_CHANGE = 10,
+    KIND_COUPLE = 11, KIND_ROLE = 12, KIND_RETIRED = 13
 };
 
 /* NEW BELIEVERS' HEATHENS (the owner, 2026-11-22: "do the logs log heathens
@@ -1883,6 +1893,8 @@ static int read_log_header_read(const wchar_t *path, char *out, size_t size, int
         || strncmp(line, "Unaccounted ", 12) == 0 || strncmp(line, "Disappeared", 11) == 0
         || strncmp(line, "Epitaph changed", 15) == 0 || strncmp(line, "Arrived ", 8) == 0
         || strncmp(line, "Appearance changed", 18) == 0 || strncmp(line, "Name changed", 12) == 0
+        || strncmp(line, "Couple formed", 13) == 0 || strncmp(line, "Took the role", 13) == 0
+        || strncmp(line, "Retired to the encampment", 25) == 0
         || vv_is_birth_heading(line)) {
         *read = 1;
         fclose(file);
@@ -4516,6 +4528,86 @@ __declspec(dllexport) int __stdcall WriteParentageRecordWithFather(
     }
 }
 
+/* New Believers' Heathen Tribe Expansion and Evolution (decision 16; native/shared/heathen_evo.h section 4):
+   "VVFP Heathen Aging.dll" has just paired two Heathens for life.  A "Couple formed" record in the Births and
+   Conceptions log, unnumbered (it never rolls a file):
+
+       Couple formed
+         First: <name>
+           Age: <age units>
+           Sex: Female | Male
+           Head / Body / Likes / Dislikes
+         Second: <name>
+           (the same)
+         Faction: Heathen            ("Isolan" with the Guardians of Isola Rewrite)
+
+   A couple is two adults of either sex (the owner, 2026-11-26), so the record names "First" and "Second", never a
+   wife and a husband, and writes no sentence that needs he, she or they.  Both must be live Heathen records of the
+   table; 1 when written or held for the village's first save, else 0. */
+__declspec(dllexport) int __stdcall WriteParentageHeathenCouple(
+    int game_id,
+    const void *records_pointer,
+    const void *first_pointer,
+    const void *second_pointer
+) {
+    const struct game_layout *g;
+    const unsigned char *records = (const unsigned char *)records_pointer;
+    const unsigned char *who[2];
+    char names[2][MAX_NAME_BYTES];
+    char likes[2][PREFERENCE_TEXT_MAX];
+    char dislikes[2][PREFERENCE_TEXT_MAX];
+    char text[RECORD_TEXT_MAX];
+    int k, written;
+
+    who[0] = (const unsigned char *)first_pointer;
+    who[1] = (const unsigned char *)second_pointer;
+    if (game_id != GAME_VV5 || records == NULL || who[0] == NULL || who[1] == NULL || who[0] == who[1]) {
+        return 0;
+    }
+    g = layout_of(game_id);
+    if (!layout_is_usable(g)
+        || !memory_is_readable(records, g->record_base + (size_t)g->slots * g->stride)) {
+        return 0;
+    }
+    for (k = 0; k < 2; ++k) {
+        if (!is_record_slot(g, records, who[k]) || who[k][VV5_FACTION] == 0
+            || *(const unsigned char *)(who[k] + g->active) != 1) {
+            return 0;
+        }
+        copy_villager_name(g, who[k], names[k], sizeof names[k]);
+        preference_text(g, who[k], g->likes, likes[k], sizeof likes[k]);
+        preference_text(g, who[k], g->dislikes, dislikes[k], sizeof dislikes[k]);
+    }
+    written = _snprintf(
+        text, sizeof(text),
+        "Couple formed\n"
+        "  First: %s\n"
+        "    Age: %d\n"
+        "    Sex: %s\n"
+        "    Head: %d\n"
+        "    Body: %d\n"
+        "    Likes: %s\n"
+        "    Dislikes: %s\n"
+        "  Second: %s\n"
+        "    Age: %d\n"
+        "    Sex: %s\n"
+        "    Head: %d\n"
+        "    Body: %d\n"
+        "    Likes: %s\n"
+        "    Dislikes: %s\n"
+        "%s"
+        "\n",
+        names[0], *(const int *)(who[0] + g->age), sex_text(g, who[0]),
+        *(const int *)(who[0] + g->head), *(const int *)(who[0] + g->body), likes[0], dislikes[0],
+        names[1], *(const int *)(who[1] + g->age), sex_text(g, who[1]),
+        *(const int *)(who[1] + g->head), *(const int *)(who[1] + g->body), likes[1], dislikes[1],
+        faction_line_of(game_id, who[0]));
+    if (written < 0 || (size_t)written >= sizeof(text)) {
+        return 0;
+    }
+    return emit_record(game_id, KIND_COUPLE, records, text);
+}
+
 /* A New Home: the Conception record of a pregnancy whose father the Custom
    Island Event's "unborn baby's father" just changed.
 
@@ -5694,7 +5786,8 @@ __declspec(dllexport) int __stdcall WriteVillageRecord(
     int written;
 
     if (game_id < GAME_VV1 || game_id > GAME_VV5 || record == NULL
-        || kind < KIND_DEATH || kind > KIND_NAME_CHANGE) {
+        || kind < KIND_DEATH || (kind > KIND_NAME_CHANGE && kind != KIND_ROLE && kind != KIND_RETIRED)
+        || ((kind == KIND_ROLE || kind == KIND_RETIRED) && game_id != GAME_VV5)) {
         return 0;
     }
     g = layout_of(game_id);
@@ -5710,6 +5803,9 @@ __declspec(dllexport) int __stdcall WriteVillageRecord(
     }
     if (!check && !memory_is_readable(record, g->stride)) {
         return 0;
+    }
+    if ((kind == KIND_ROLE || kind == KIND_RETIRED) && record[VV5_FACTION] == 0) {
+        return 0;                       /* a Took the role record is a Heathen's only */
     }
     if (kind == KIND_LOST_BIRTH) {
         /* Every line is the caller's (`before`): the mother, the father and
@@ -5734,6 +5830,10 @@ __declspec(dllexport) int __stdcall WriteVillageRecord(
         note_appearance_logged(g, record, before);
     } else if (kind == KIND_NAME_CHANGE) {
         heading = "Name changed\n";
+    } else if (kind == KIND_ROLE) {
+        heading = "Took the role\n";
+    } else if (kind == KIND_RETIRED) {
+        heading = "Retired to the encampment\n";
     }
     copy_villager_name(g, record, name, sizeof name);
     preference_text(g, record, g->likes, likes, sizeof likes);

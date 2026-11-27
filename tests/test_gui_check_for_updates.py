@@ -165,6 +165,8 @@ class ReleasesLinkTests(unittest.TestCase):
                "vv5_heathen_masks_restore",
                "vv_corrupt_skills", "vv_golden_child_revive", "vv5_heathen_ages", "vv_reconcile", "vv_reconcile_view", "vv_titles_file", "vv_history_revision",
                "vv_original_look", "vv_misfiled_records", "vv_sex_changes",
+               # Revive's snapshots made afterwards by Repair Saves & Logs (v1.35.101).
+               "vv_revive_backfill",
                # The mask a Former Heathen rejoined with, given back by Repair (v1.35.98).
                "vv5_rejoined_masks",
                # New Believers' log words in both wordings, and the rewrite's role titles (Guardians of Isola, 2026-11-23).
@@ -302,6 +304,8 @@ class ReleasesLinkTests(unittest.TestCase):
                               "vv_number_names",       # numbers a looks change gave, taken off (v1.35.80 update)
                               # Repair's original looks proved by the logs (function-level, v1.35.85).
                               "vv_original_look",
+                              # Repair's revival snapshots for those who left before them (function-level, v1.35.101).
+                              "vv_revive_backfill",
                               # Repair gives back the mask a Former Heathen rejoined with (v1.35.98).
                               "vv5_rejoined_masks",
                               # ...and a Heathen's own mask, the checklist's next row (v1.35.98).
@@ -312,6 +316,10 @@ class ReleasesLinkTests(unittest.TestCase):
             # files' places, and the logs and villagers its backfill reads (function-level).
             ("vv_original_look", {"vv_save_layout", "vv_last_names", "vv_reconcile", "vv_log_additions",
                                   "vv_log_decisions"}),
+            # Revive's snapshots made afterwards (v1.35.101): the per-save files' places, the games' text bytes, and
+            # (function-level) the saves and backups, the logs' Death records and the like words it reads.
+            ("vv_revive_backfill", {"vv_save_layout", "vv_game_text", "vv_log_tools", "vv_save_backup", "vv_last_names",
+                                    "vv_log_additions", "vv_lost_titles"}),
             # The player's "Retroactively edit records?" No answers (vv_log_decisions).
             # ...and the save slot's own log folders (vv_save_layout).
             # New Believers' log words in both wordings (Guardians of Isola, 2026-11-23): the generated role titles only.
@@ -582,8 +590,9 @@ class ReleasesLinkTests(unittest.TestCase):
             # The Time away (catch-up) group: the speed as Back Up Saves finds it, the villagers as Last Names
             # reads them (function-level).
             ("vv_game_mechanics_catchup", {"vv_game_mechanics", "vv_save_backup", "vv_last_names"}),
-            # New Believers' Faith and Heathens group: the villagers (function-level).
-            ("vv_game_mechanics_faith_vv5", {"vv_game_mechanics", "vv_game_mechanics_life"}),
+            # New Believers' Faith and Heathens group: the villagers, and Heathen Tribe Expansion and Evolution's
+            # slider and options files in the patcher's folder (function-level).
+            ("vv_game_mechanics_faith_vv5", {"vv_game_mechanics", "vv_game_mechanics_life", "patcher_files"}),
             # Village counts: the statistics log's place, the villagers, the Esteemed Elders' totems, The Tree of
             # Life's puzzles (all function-level).
             ("vv_game_mechanics_counts", {"vv_isolan_words", "vv_game_mechanics", "vv_game_mechanics_life", "vv_last_names",

@@ -1800,9 +1800,12 @@ def check_unaccounted(game_dir: Path, slot: int, game: int, rep: Report) -> int:
     rep.add(label, "OK", f"{len(deaths)} Death records, {len(unacc)} Unaccounted records for Save {slot}")
     global LAST_GRAVES
     # A New Believers Heathen's Death record ("  Faction: Heathen" / "Isolan": the Heathen Aging skeleton rows) is
-    # never a burial of the village (Heathens never count), as statistics_reconcile.inc reads it.
+    # never a burial of the village (Heathens never count), as statistics_reconcile.inc reads it.  Nor is a grave at
+    # the Shrine to the Ancestors (the Heathen Tribe Expansion's mud-hut graves, "VVFP Heathen Mausoleum.dll"), even
+    # in a record with no Faction line: "Grave: the Shrine to the Ancestors (...)" is only ever a Heathen's.
     LAST_GRAVES = sum(1 for d in deaths if (m := re.search(r"^  Grave: (.*)$", d, re.M)) and m.group(1).strip()
                       and not m.group(1).startswith("no grave")
+                      and not m.group(1).strip().startswith(SHRINE_GRAVE)
                       and not re.search(r"^  Faction: (?!Believer\s*$)\S", d, re.M))
     dead = {re.search(r"Name: (.*)", d).group(1).strip() for d in deaths if re.search(r"Name: (.*)", d)}
     for u in unacc:
@@ -1815,6 +1818,9 @@ def check_unaccounted(game_dir: Path, slot: int, game: int, rep: Report) -> int:
 
 
 LAST_GRAVES = 0
+# A Death record's grave at the Shrine to the Ancestors (New Believers, "VVFP Heathen Mausoleum.dll"; cod_vv345.inc):
+# "the Shrine to the Ancestors (<skill line>)", the same in either wording (Guardians of Isola too).
+SHRINE_GRAVE = "the Shrine to the Ancestors"
 
 
 def village_id(header: str) -> int:
@@ -2407,10 +2413,17 @@ def log_files(game_dir: Path) -> list[Path]:
     shared, slots = [], []
     for root in log_roots(game_dir):
         if root.is_dir():
-            for p in sorted(root.rglob("*.txt")):
+            for p in sorted(root.rglob("*.txt"), key=_natural):
                 if not not_a_log(game_dir, p):
                     (slots if layout.is_slot_folder(p) else shared).append(p)
-    return shared + sorted(slots, key=lambda p: (layout.is_slot_folder(p), str(p)))
+    return shared + sorted(slots, key=lambda p: (layout.is_slot_folder(p), _natural(p)))
+
+
+def _natural(p: Path) -> tuple:
+    """A path's sort key with its numbers as numbers: "... Log 9.txt" before "... Log 10.txt", the order the logs
+    were written in (Codex, PR #880: a lexical sort put Log 10 first, so a reader keeping the newest record kept an
+    older one).  The companions read them the same way (story_revive.inc rv_each_file, statistics_reconcile.inc)."""
+    return tuple(int(part) if part.isdigit() else part for part in re.split(r"(\d+)", str(p)))
 
 
 SEX_CHANGED = "Changed"     # a known_sexes "sex": the logs say this villager's sex changed (src/vv_sex_changes.py)

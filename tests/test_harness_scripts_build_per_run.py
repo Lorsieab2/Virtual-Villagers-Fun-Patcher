@@ -73,8 +73,9 @@ class HarnessScriptsBuildPerRun(unittest.TestCase):
         # "Change sex..." button in the real windows of all five games, native/shared/sex_change_ui.h),
         # and build_story_traits_harness.ps1 (the story traits' per-save file, story_traits.inc), and
         # build_village_solidarity_harness.ps1 (Village Solidarity's score file and counter, native/vvfp_village_solidarity),
-        # and build_founder_x_harness.ps1 (X Buttons to Remove Chosen Founders, native/vvfp_founder_x_buttons).
-        self.assertEqual(len(SCRIPTS), 45, [path.name for path in SCRIPTS])
+        # and build_founder_x_harness.ps1 (X Buttons to Remove Chosen Founders, native/vvfp_founder_x_buttons),
+        # and build_revive_snapshot_harness.ps1 (Revive's complete records, native/vvfp_cause_of_death/cod_revive.inc).
+        self.assertEqual(len(SCRIPTS), 46, [path.name for path in SCRIPTS])
 
     def test_each_run_builds_in_its_own_folder_and_removes_it(self) -> None:
         for path in SCRIPTS:

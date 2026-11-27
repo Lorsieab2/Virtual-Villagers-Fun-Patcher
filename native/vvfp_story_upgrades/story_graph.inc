@@ -267,6 +267,7 @@ static const char *cg_pref_word;      /* a preference effect's word given here i
                              | CG_ROLE_HEATHEN_KIN)
 #define CG_ROLE_HEATHEN_ROW (CG_ROLE_HEATHEN_MAY | CG_ROLE_HEATHEN_ONLY)
 #define CG_HEATHENS_ROW "heathens_in_island_events"   /* the row's id after "vv5_" (also More Island Events') */
+#define CG_HEATHEN_EVOLUTION_ROW "heathen_tribe_evolution"   /* the v1.35.101 row that folds it in (same meaning) */
 
 /* A role's byte 13 holds at most one of the three Heathen bits (bit 3 only beside bit 5). */
 static int cg_heathen_bits_ok(unsigned int b) {
@@ -3686,7 +3687,9 @@ static int cg_graves(int game) {
     if (game != 5) {
         return 0;
     }
-    return TC0(0x464E90u, 0x5481A8u);
+    /* ...and the Heathens' graves at the Shrine to the Ancestors ("VVFP Heathen Mausoleum.dll"; the owner,
+       2026-11-26). */
+    return TC0(0x464E90u, 0x5481A8u) + hm_shrine_count();
 }
 
 /* Living, listed villagers now (New Believers: believers), `children` 1: only those under 14. */
@@ -10436,13 +10439,16 @@ static int cg_no_safeguards(int game) {
 }
 
 /* cie-v6-binary.md 45: New Believers' row "Heathens can be selected in Island Events/Heathen-Exclusive Events"
-   (vv5_heathens_in_island_events) is installed. */
+   (vv5_heathens_in_island_events) is installed -- or "Heathen Tribe Expansion and Evolution"
+   (vv5_heathen_tribe_evolution, v1.35.101), which folds that row in (a build made by an older patcher still lists
+   the old id). */
 static int cg_heathens_row(int game) {
     if (game != 5) {
         return 0;
     }
     cg_installed_load();
-    return cg_installed_state == 1 && cg_installed_has(game, CG_HEATHENS_ROW);
+    return cg_installed_state == 1
+        && (cg_installed_has(game, CG_HEATHENS_ROW) || cg_installed_has(game, CG_HEATHEN_EVOLUTION_ROW));
 }
 
 /* For "VVFP More Island Events.dll" (adv_core.inc adv_heathen_ok): the row installed in `game`, 1 / 0. */

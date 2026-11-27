@@ -209,6 +209,25 @@
    "reason": "Revive Buried/Disappeared Villagers (story_revive.inc): the words it reads in the Deaths and Disappearances log and the Village History (their own English field names, \"no grave\", \"became a Heathen\", a \"Heathen ...\" special title), the log folders it opens, its flag file's name and the Arrived record's \"How: Returned from the dead\" (a log word, written to the log file only). The words it shows are in the template and looked up by key.",
    "files": ["native/vvfp_story_upgrades/story_revive.inc"],
    "functions": ["rv_parse_deaths", "rv_parse_history", "rv_load", "rv_buy", "rv_settle", "rv_mask_value", "rv_prefs", "rv_each_slot_log", "rv_each_file", "rv_offered", "rv_left_for_the_heathens", "rv_each_log", "rv_village_header"]
+  },
+  {
+   "reason": "The Heathens' graves at the mud hut (VVFP Heathen Mausoleum.dll, New Believers; native/shared/heathen_mausoleum.h): the Death record's \"Grave:\" words for a grave there (\"the Shrine to the Ancestors ...\", written to the log file only and read back by the Village Statistics; logs are never translated), its data folder and file names and its export and DLL names. Not the screen's title, drawn in the game: its own row is vvfp.heathen_mausoleum/vvfp_heathen_mausoleum.HM_TITLE.s0.",
+   "files": ["native/shared/heathen_mausoleum.h", "native/vvfp_heathen_mausoleum/*"],
+   "match": "^(?!Shrine to the Ancestors$)"
+  },
+  {
+   "reason": "The Heathen Tribe Expansion's shared names (native/shared/heathen_evo.h): flag, settings and data file and folder names, export and DLL names, option keys, and the Arrived records' \"How:\" words (written to the log file only; logs are never translated).",
+   "files": ["native/shared/heathen_evo.h"]
+  },
+  {
+   "reason": "Revive's snapshot folder (native/shared/revive_snapshot.h VV_RS_FOLDER, \"Revive Snapshots\"): a folder name on disk, never shown.",
+   "files": ["native/shared/revive_snapshot.h"],
+   "match": "^Revive Snapshots$"
+  },
+  {
+   "reason": "The Heathen Mausoleum's grave words (native/shared/heathen_mausoleum.h HM_GRAVE_*, copied verbatim from feat/heathen-evo-mausoleum for Revive): the Deaths log's \"Grave:\" words, written to the log file only and read back by the log readers, never shown in the game.",
+   "files": ["native/shared/heathen_mausoleum.h"],
+   "functions": ["HM_GRAVE_*"]
   }
  ]
 }

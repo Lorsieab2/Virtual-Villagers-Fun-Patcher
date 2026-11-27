@@ -1,0 +1,5 @@
+LIBRARY "VVFP Heathen Life"
+EXPORTS
+    VvfpStartup=_VvfpStartup@8
+    VvfpHeathenLifeInstalled=_VvfpHeathenLifeInstalled@0
+    VvfpHeathenLifeUnit=_VvfpHeathenLifeUnit@8

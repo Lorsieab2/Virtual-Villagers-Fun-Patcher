@@ -283,6 +283,27 @@ class GiveLastNames(unittest.TestCase):
         self.assertIn("  Child: Aipi\r\n    Head: 2", births, "her own Birth record had other looks: asked, not guessed")
         self.assertIn("  Name: Ago\r\n", self.deaths.read_bytes().decode(), "a Death record is never a living villager's")
 
+    def test_a_couple_formed_records_first_and_second_follow_too(self):
+        """Codex, #883: the "Couple formed" record names its two villagers as First: and Second:, each with
+        their looks nested under them like a Child's; a rename reaches them as it reaches every other line."""
+        couples = self._log("Births and Conceptions/Virtual Villagers 3 Births and Conceptions Log 2.txt",
+                            "Village: Tribe (Save 1)\n"
+                            "Couple formed\n  First: Ago\n    Age: 900\n    Sex: Male\n    Head: 5\n    Body: 6\n"
+                            "    Likes: Farming\n    Dislikes: Building\n"
+                            "  Second: Aipi\n    Age: 800\n    Sex: Female\n    Head: 7\n    Body: 8\n"
+                            "    Likes: Fishing\n    Dislikes: Science\n\n"
+                            "Couple formed\n  First: Aipi\n    Age: 800\n    Sex: Female\n    Head: 2\n    Body: 2\n"
+                            "    Likes: Fishing\n    Dislikes: Science\n"
+                            "  Second: Ago\n    Age: 900\n    Sex: Male\n    Head: 1\n    Body: 1\n"
+                            "    Likes: Farming\n    Dislikes: Building\n\n")
+        ln.give_last_names(self.folder, 3, 1, self.chosen(), NoGame(), NOW)
+        text = couples.read_bytes().decode()
+        self.assertIn("  First: Ago Akikai\r\n    Age: 900\r\n    Sex: Male\r\n    Head: 5", text)
+        self.assertIn("  Second: Aipi Wikimak\r\n    Age: 800\r\n    Sex: Female\r\n    Head: 7", text)
+        self.assertIn("  First: Aipi\r\n    Age: 800\r\n    Sex: Female\r\n    Head: 2", text,
+                      "other looks: not theirs")
+        self.assertIn("  Second: Ago\r\n    Age: 900\r\n    Sex: Male\r\n    Head: 1", text)
+
     def test_records_with_other_looks_are_asked_about(self):
         work = ln.plan(self.folder, 3, 1, self.chosen())
         [question] = [q for q in work.questions if q.who == ("Aipi", 2, 2)]
@@ -701,6 +722,100 @@ class RenameGraves(unittest.TestCase):
         from unittest import mock
         with mock.patch.object(ln, "_fnv", return_value=0):
             self.assertEqual(ln.grave_fingerprint(b"Bob", 0x1C, 300), 1, "a fingerprint is never 0")
+
+
+class ShrineGraves(unittest.TestCase):
+    """New Believers' Shrine to the Ancestors (Heathen Tribe Expansion and Evolution, v1.35.101): the Heathens' graves
+    live outside the save, in Data\\Heathen Mausoleum\\Heathen Mausoleum - Save <S>.dat ('VHM1', the Roster of the
+    Dead's own entries).  A rename follows the villager there too (the owner: data follows the villager), by the save
+    graves' own matching rules, and Graves Logged's place 500 + the Shrine's place moves to the new print."""
+
+    SLOT = 2
+
+    def setUp(self):
+        self.tmp = tempfile.TemporaryDirectory()
+        self.folder = Path(self.tmp.name)
+        self.data = self.folder / tools.DATA
+        (self.data / "Heathen Mausoleum").mkdir(parents=True)
+        (self.data / "Deaths").mkdir()
+        self.path = self.data / "Heathen Mausoleum" / f"Heathen Mausoleum - Save {self.SLOT}.dat"
+
+    def tearDown(self):
+        self.tmp.cleanup()
+
+    def shrine(self, graves: dict[int, tuple], slot: int | None = None) -> bytes:
+        _base, _slots, stride, cap, age_at, looks = ln.GRAVES[5]
+        count = max(graves) + 1 if graves else 0
+        body = bytearray(stride * count)
+        for place, (name, age, head, look) in graves.items():
+            at = place * stride
+            body[at:at + stride] = b"\xaa" * stride
+            body[at:at + cap] = name.encode() + bytes(cap - len(name))
+            struct.pack_into("<i", body, at + age_at, age)
+            struct.pack_into("<ii", body, at + looks[0], head, look)
+        return struct.pack("<4sIIII", b"VHM1", 1, 5, count, self.SLOT if slot is None else slot) + bytes(body)
+
+    def test_a_shrine_grave_is_renamed_and_graves_logged_follows(self):
+        self.path.write_bytes(self.shrine({0: ("Kai", 500, 1, 1), 1: ("Bob", 300, 7, 8)}))
+        before = self.path.read_bytes()
+        cap = ln.GRAVE_PRINT_CAP[5]
+        old, new = ln.grave_fingerprint(b"Bob", cap, 300), ln.grave_fingerprint(b"Bob Stone", cap, 300)
+        logged = self.data / "Deaths" / f"Virtual Villagers 5 Graves Logged - Save {self.SLOT}.dat"
+        logged.write_bytes(GraveFiles.vcg1(5, [(1, old), (501, old)]))     # place 1 is a believer's grave
+        result = ln.Plan({})
+        done = ln._plan_shrine_graves(result, self.folder, 5, self.SLOT, {("Bob", 7, 8): "Bob Stone"},
+                                      {("Bob", 7, 8): 300}, [])
+        self.assertEqual([(place, new_name, age) for place, _o, new_name, age in done], [(501, b"Bob Stone", 300)])
+        self.assertEqual(result.notes, [])
+        (change,) = result.changes
+        self.assertEqual((change.path, change.original), (self.path, before))
+        _base, _slots, stride, gcap, _age_at, _looks = ln.GRAVES[5]
+        at = ln.SHRINE_HEADER + stride
+        self.assertEqual(change.updated[at:at + gcap], b"Bob Stone" + bytes(gcap - 9))
+        self.assertEqual(change.updated[:at] + change.updated[at + gcap:], before[:at] + before[at + gcap:],
+                         "only the name's field changes")
+        self.assertEqual(self.path.read_bytes(), before, "planning writes nothing")
+        ln._plan_grave_files(result, self.folder, 5, self.SLOT, done)
+        self.assertEqual(result.changes[-1].updated, GraveFiles.vcg1(5, [(1, old), (501, new)]))
+
+    def test_other_games_and_no_file_change_nothing(self):
+        for game in (1, 2, 3, 4):
+            self.assertEqual(ln._plan_shrine_graves(ln.Plan({}), self.folder, game, self.SLOT,
+                                                    {("Bob", 7, 8): "Bob Stone"}, {("Bob", 7, 8): 300}, []), [])
+        result = ln.Plan({})
+        self.assertEqual(ln._plan_shrine_graves(result, self.folder, 5, self.SLOT, {("Bob", 7, 8): "Bob Stone"},
+                                                {("Bob", 7, 8): 300}, []), [])
+        self.assertEqual((result.changes, result.notes), ([], []))
+
+    def test_an_unreadable_or_foreign_file_is_never_replaced(self):
+        good = self.shrine({0: ("Bob", 300, 7, 8)})
+        for name, data in (("another slot's", self.shrine({0: ("Bob", 300, 7, 8)}, slot=3)),
+                           ("cut short", good[:-1]), ("another magic", b"VHX1" + good[4:])):
+            with self.subTest(name):
+                self.path.write_bytes(data)
+                result = ln.Plan({})
+                self.assertEqual(ln._plan_shrine_graves(result, self.folder, 5, self.SLOT,
+                                                        {("Bob", 7, 8): "Bob Stone"}, {("Bob", 7, 8): 300}, []), [])
+                self.assertEqual(result.changes, [])
+                self.assertEqual(len(result.notes), 1)
+        # a file the game holds locked cannot be read: reported, left alone
+        from unittest import mock
+        self.path.write_bytes(good)
+        result = ln.Plan({})
+        with mock.patch.object(Path, "read_bytes", side_effect=PermissionError("locked")):
+            self.assertEqual(ln._plan_shrine_graves(result, self.folder, 5, self.SLOT,
+                                                    {("Bob", 7, 8): "Bob Stone"}, {("Bob", 7, 8): 300}, []), [])
+        self.assertEqual(result.changes, [])
+        self.assertIn("could not be read", result.notes[0])
+
+    def test_a_grave_a_save_grave_also_matched_keeps_its_name(self):
+        self.path.write_bytes(self.shrine({0: ("Bob", 300, 7, 8)}))
+        result = ln.Plan({})
+        save_renamed = [(4, b"Bob" + bytes(0x16), b"Bob Stone", 300)]
+        self.assertEqual(ln._plan_shrine_graves(result, self.folder, 5, self.SLOT, {("Bob", 7, 8): "Bob Stone"},
+                                                {("Bob", 7, 8): 300}, save_renamed), [])
+        self.assertEqual(result.changes, [])
+        self.assertEqual(len(result.notes), 1)
 
 
 class GraveFiles(unittest.TestCase):

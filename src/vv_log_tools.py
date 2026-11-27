@@ -432,6 +432,7 @@ class ApprovalResult:
     originals: object | None = None             # src/vv_original_look.py Result: the logs' original looks added
     rejoined: object | None = None              # src/vv5_rejoined_masks.py Result: rejoined villagers' masks given back
     heathen_masks: object | None = None         # src/vv5_heathen_masks_restore.py Result (or why not): Heathens' masks
+    revive: object | None = None                # src/vv_revive_backfill.py Result: revival snapshots made afterwards
 
 
 def _refuse_if_running(folder: Path, processes: vv_save_backup.ProcessController) -> None:
@@ -688,6 +689,15 @@ def approve_repair(
         except (vv5_heathen_masks_restore.HeathenMasksError, vv_last_names.LastNamesError, OSError, ValueError,
                 KeyError, IndexError, struct.error) as exc:
             heathen_masks = str(exc)
+    # Revival snapshots for every villager who died or disappeared before "VVFP Cause of Death.dll" kept them (the
+    # owner, 2026-11-26; src/vv_revive_backfill.py): from the stale copies the save still holds and the same
+    # village's older saves, byte for byte, never written into a save.  Never stops a Repair.
+    import vv_revive_backfill
+    try:
+        revive = vv_revive_backfill.backfill(folder, game, slot)
+    except (vv_last_names.LastNamesError, OSError, ValueError, KeyError, IndexError, struct.error) as exc:
+        revive = vv_revive_backfill.Result(vv_revive_backfill.path(folder, game, slot), False,
+                                           note=f"the revival snapshots were not made ({exc})")
     # Nothing is moved or renamed: an older build's folders and files keep their names, and every
     # repair above wrote where its file already was (the owner, 2026-10-09; src/vv_save_layout.py).
     approval = approval_path(folder, game, slot)
@@ -703,7 +713,7 @@ def approve_repair(
             kept_backup = backup                # kept: an unneeded backup is never a fault
     return ApprovalResult(folder, slot, game, cleared, approval if rearm else None, kept_backup, words,
                           added.get("sex", []), added, answered, renamed, answer_lines, originals, rejoined,
-                          heathen_masks)
+                          heathen_masks, revive)
 
 
 # ---------------------------------------------------------------------------

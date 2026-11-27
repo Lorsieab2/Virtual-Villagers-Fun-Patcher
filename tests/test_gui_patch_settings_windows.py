@@ -122,6 +122,16 @@ if step == "set":
         if key == "vv2_unicode_font":
             box = next(w for w in widgets if isinstance(w, ttk.Combobox))
             box.set("Arial")
+        if key == "vv5_heathen_tribe_evolution":
+            # Heathen Tribe Expansion and Evolution: arrivals on at 2.5, births 0.5, show 40 typed, all blue
+            ticks = [w for w in widgets if isinstance(w, ttk.Checkbutton)]
+            found[key]["ticks"] = sorted(str(w.cget("text")) for w in ticks)
+            app.heathen_births_var.set(0.5)
+            app.heathen_arrivals_var.set(2.5)
+            next(w for w in ticks if str(w.cget("text")) == gui.HEATHEN_ARRIVALS_TICK).invoke()
+            next(w for w in ticks if str(w.cget("text")) == gui.HEATHEN_KEEP_BLUE_LABEL).invoke()
+            spin = next(w for w in widgets if isinstance(w, ttk.Spinbox))
+            spin.set("40")                      # typed, then the window closed straight away
         window.close()
         app.update()
         found[key]["closed"] = not window.winfo_exists()
@@ -135,6 +145,8 @@ else:
     out["font"] = app.unicode_font_var.get()
     out["solidarity"] = app.solidarity_var.get()
     out["ticked"] = sorted(pid for pid, v in app.fun_patch_vars.items() if v.get() and "_filter_f" in pid)
+    import vv_fun_patcher
+    out["heathen"] = vv_fun_patcher.heathen_evolution()
 app.destroy()
 print(json.dumps(out))
 """
@@ -164,12 +176,15 @@ class PatchSettingsWindows(unittest.TestCase):
     def test_every_game_has_its_windows_and_their_buttons(self):
         games = range(1, 6)
         self.assertEqual(self.set["windows"], sorted([f"vv{g}_mie" for g in games]
-                                                     + [f"vv{g}_unicode_font" for g in games]))
+                                                     + [f"vv{g}_unicode_font" for g in games]
+                                                     + ["vv5_heathen_tribe_evolution"]))
+        self.assertEqual(self.set["settings_beside"]["vv5_heathen_tribe_evolution"], ["Settings..."])
         self.assertEqual(self.set["mie_buttons"], [f"vv{g}_mie" for g in games])
         for g in games:
             with self.subTest(game=g):
                 self.assertEqual(self.set["settings_beside"][f"vv{g}_unicode_font"], ["Settings..."])
-        others = {pid: b for pid, b in self.set["settings_beside"].items() if not pid.endswith("_unicode_font")}
+        others = {pid: b for pid, b in self.set["settings_beside"].items()
+                  if not pid.endswith("_unicode_font") and pid != "vv5_heathen_tribe_evolution"}
         self.assertEqual({pid: b for pid, b in others.items() if b}, {}, "Settings... only beside a patch with some")
 
     def test_each_window_holds_its_settings(self):
@@ -184,6 +199,10 @@ class PatchSettingsWindows(unittest.TestCase):
                     self.assertEqual(window["filters"], [f"{game}_island_event_filter_f{n:02d}" for n in range(1, 29)])
                     self.assertIn("Custom Island Event Library...", window["buttons"])
                     self.assertIn("Show Player Events...", window["buttons"])
+                elif key == "vv5_heathen_tribe_evolution":
+                    # births, arrivals and show actions: three sliders; the show percent's box; two ticks
+                    self.assertEqual((window["scales"], window["spinboxes"], window["fonts"]), (3, 1, 0))
+                    self.assertEqual(len(window["ticks"]), 2)
                 else:
                     self.assertEqual((window["scales"], window["spinboxes"], window["fonts"]), (0, 0, 1))
         self.assertTrue(self.set["main_enabled"], "the main window is let go when the windows close")
@@ -199,6 +218,13 @@ class PatchSettingsWindows(unittest.TestCase):
         self.assertEqual(self.read["font"], "Arial")
         self.assertEqual(self.read["solidarity"], 2.5)
         self.assertEqual(self.read["ticked"], [ticked])
+
+    def test_the_heathen_settings_save_and_come_back(self):
+        saved = self.set["saved"]
+        self.assertEqual((saved["heathen_tribe_births_multiplier"], saved["heathen_arrivals_multiplier"],
+                          saved["heathen_show_percent"], saved["heathen_keep_blue"]), (0.5, 2.5, 40, True))
+        self.assertEqual(self.read["heathen"], {"births": 0.5, "arrivals": 2.5, "show_percent": 40,
+                                                "keep_blue": True}, "read back and handed to the next patch")
 
 
 if __name__ == "__main__":
