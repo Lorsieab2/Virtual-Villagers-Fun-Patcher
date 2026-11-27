@@ -226,9 +226,10 @@ class _Emulated:
         if not DLLS[self.KEY].is_file():
             self.skipTest("companion not built")
 
-    def machine(self, game: int, setting: bytes | None, rows: list[str] | None = None) -> "Machine":
+    def machine(self, game: int, setting: bytes | None, rows: list[str] | None = None,
+                mode: str = "stock") -> "Machine":
         choice = gen.SLIDERS[self.KEY][2][:-4] + ".txt"
-        m = Machine(render(game, with_requirements(game, rows or [row_id(self.KEY, game)]), "stock"), DLLS[self.KEY])
+        m = Machine(render(game, with_requirements(game, rows or [row_id(self.KEY, game)]), mode), DLLS[self.KEY])
         opened: list[str] = []
 
         def open_(p):
@@ -477,7 +478,126 @@ class FoodGain(GainCompanions, _Emulated, unittest.TestCase):
         m.write(0x4633CD, bytes.fromhex("E8330A0100"))     # Super-Secret Golden Mushroom's call
         self.assertEqual(self.start(m, 2), 1)
         self.assertEqual(m.read(0x4633CD, 5), bytes.fromhex("E8330A0100"))
-        self.assertEqual([m.export("VvfpFoodGainSite", i) for i in range(5)], [1, 1, 1, 1, 0])
+        self.assertEqual([m.export("VvfpFoodGainSite", i) for i in range(6)], [1, 1, 1, 1, 0, 0])
+
+
+GOLDEN_ROW = "vv2_super_secret_golden_mushroom"
+ORIGINS_ROW = "vv2_enable_origins_exclusive_features"
+V2_OBJECT = 0x22000000              # the game object the mushroom job runs on (esi), in the emulator's heap
+V2_WORLD = 0x23000000               # the world its +0xE574D4 points at: food +0x2EAA4, the doublers' word +0x2EAE8
+V2_RECORD_THUNK = 0x23F00000        # stands in for "VVFP Golden Mushroom.dll"'s finds-record stub at 0x4633CD
+V2_CARRY = {"brown": 0x4E, "red": 0x4F, "golden": 0x50}
+V2_FOOD = {"brown": 6, "red": 35, "golden": 100}
+
+
+@unittest.skipUnless(HAVE_EMULATOR, "pefile/unicorn not installed")
+class FoodGainWithTheGoldenMushroom(unittest.TestCase):
+    """The Lost Children (the owner, 2026-11-27): with Super-Secret Golden Mushroom the slider scales the mushrooms
+    too -- brown, red and golden -- exactly as without that row, and the Origins Food Doubler doubles the scaled
+    amount once, in all three modes.  That row's call at 0x4633CD goes to its own code at 0x473E05, which ends with
+    `jmp 0x4262B0` (0x473E1B); the companion takes that jump, the return the writer sees stays 0x4633D2."""
+    KEY = "food_gain"
+    setUp = _Emulated.setUp
+    machine = _Emulated.machine
+    start = _Emulated.start
+
+    def sites(self, game: int) -> list[tuple[int, int]]:
+        return [(va, 5) for va, _w, optional in gen.FOOD_SITES[game] if not optional]
+
+    def award(self, m: "Machine", kind: str, *, real_writer: bool = False, owned: bool = False) -> tuple:
+        """The mushroom job's award, from its own entry (brown 0x4633C5, the others 0x463422) to the return 0x4633D2.
+        (amount, ecx, return) as handed to the writer, or with the real writer (Origins in the game) the food added."""
+        seen = []
+        if not real_writer:
+            def writer(p):
+                seen.append((signed(p.arg(0)), p.reg("ecx"), p.u32(p.reg("esp"))))
+                return 0, 4
+            m.stubs[gen.FOOD_WRITER[2]] = writer
+        m.put32(V2_OBJECT + 0xE574D4, V2_WORLD)
+        m.put32(V2_OBJECT + 3 * 0xE48C + 0x44, V2_CARRY[kind])
+        m.put32(V2_WORLD + 0x2EAA4, 1000)
+        m.put32(V2_WORLD + 0x2EAE8, 2 if owned else 0)
+        m.set_reg("esi", V2_OBJECT)
+        esp = m.reg("esp") - 0x100
+        m.set_reg("esp", esp)
+        m.put32(esp + 0x18, 3)                       # the villager's index, as the job keeps it
+        m.run(0x4633C5 if kind == "brown" else 0x463422, 0x4633D2)
+        self.assertEqual(m.reg("esp"), esp, "the stack as the job left it")
+        if real_writer:
+            return signed(m.u32(V2_WORLD + 0x2EAA4)) - 1000
+        self.assertEqual(len(seen), 1, "the writer is reached exactly once")
+        return seen[0]
+
+    def test_the_slider_scales_every_mushroom_with_the_golden_row(self) -> None:
+        for mode in ("stock", "collection_progression", "immediate_fixed"):
+            with self.subTest(mode=mode):
+                m = self.machine(2, b"2", [row_id(self.KEY, 2), GOLDEN_ROW], mode)
+                self.assertEqual(self.start(m, 2), 1)
+                self.assertEqual([m.export("VvfpFoodGainSite", i) for i in range(6)], [1, 1, 1, 1, 0, 1])
+                self.assertEqual(m.read(0x4633CD, 5), bytes.fromhex("E8330A0100"), "the row's call is its own")
+                for kind, food in V2_FOOD.items():
+                    self.assertEqual(self.award(m, kind), (2 * food, V2_WORLD, 0x4633D2), kind)
+                # The finds record's stub (VVFP Golden Mushroom.dll) takes the row's call first and goes on into the
+                # row's code: the slider still scales the amount once.
+                m.write(V2_RECORD_THUNK, b"\xE9" + struct.pack("<i", 0x473E05 - (V2_RECORD_THUNK + 5)))
+                m.write(0x4633CD, b"\xE8" + struct.pack("<i", V2_RECORD_THUNK - 0x4633D2))
+                for kind, food in V2_FOOD.items():
+                    self.assertEqual(self.award(m, kind), (2 * food, V2_WORLD, 0x4633D2), kind)
+
+    def test_the_doubler_doubles_the_scaled_amount_once(self) -> None:
+        for mode in ("stock", "collection_progression", "immediate_fixed"):
+            with self.subTest(mode=mode):
+                m = self.machine(2, b"2", [row_id(self.KEY, 2), GOLDEN_ROW, ORIGINS_ROW], mode)
+                self.assertEqual(self.start(m, 2), 1)
+                for kind, food in V2_FOOD.items():
+                    self.assertEqual(self.award(m, kind, real_writer=True, owned=True), 4 * food, kind)
+                    self.assertEqual(self.award(m, kind, real_writer=True, owned=False), 2 * food, kind)
+
+    def test_the_row_alone_and_the_slider_alone_are_unchanged(self) -> None:
+        for mode in ("stock", "collection_progression", "immediate_fixed"):
+            with self.subTest(mode=mode, alone="the golden row"):
+                for setting in (None, b"1"):
+                    m = self.machine(2, setting, [row_id(self.KEY, 2), GOLDEN_ROW], mode)
+                    jump = m.read(0x473E1B, 5)
+                    self.assertEqual(jump, bytes.fromhex("E99024FBFF"))
+                    self.assertEqual(self.start(m, 2), 0)
+                    self.assertEqual(m.read(0x473E1B, 5), jump)
+                    for kind, food in V2_FOOD.items():
+                        self.assertEqual(self.award(m, kind), (food, V2_WORLD, 0x4633D2), kind)
+            with self.subTest(mode=mode, alone="the slider"):
+                m = self.machine(2, b"2", [row_id(self.KEY, 2)], mode)
+                untouched = m.read(0x473E05, 27)
+                self.assertEqual(self.start(m, 2), 1)
+                self.assertEqual([m.export("VvfpFoodGainSite", i) for i in range(6)], [1, 1, 1, 1, 1, 0])
+                self.assertEqual(m.read(0x473E05, 27), untouched, "no golden code, nothing written there")
+                for kind in ("brown", "red"):            # the normal game has no golden mushroom
+                    self.assertEqual(self.award(m, kind), (2 * V2_FOOD[kind], V2_WORLD, 0x4633D2), kind)
+
+    def test_the_golden_code_must_be_exact(self) -> None:
+        # One byte of the row's code not as the row writes it: the jump is left alone, the other sites still go in.
+        m = self.machine(2, b"2", [row_id(self.KEY, 2), GOLDEN_ROW])
+        m.write(0x473E16, b"\x90")
+        self.assertEqual(self.start(m, 2), 1)
+        self.assertEqual(m.read(0x473E1B, 5), bytes.fromhex("E99024FBFF"))
+        self.assertEqual([m.export("VvfpFoodGainSite", i) for i in range(6)], [1, 1, 1, 1, 0, 0])
+        # A required site not stock: nothing at all, the jump included.
+        m = self.machine(2, b"2", [row_id(self.KEY, 2), GOLDEN_ROW])
+        m.write(0x463198, b"\x90")
+        self.assertEqual(self.start(m, 2), 0)
+        self.assertEqual(m.read(0x473E1B, 5), bytes.fromhex("E99024FBFF"))
+
+    def test_the_rows_name_the_jump(self) -> None:
+        row = json.loads((ROOT / "data" / "vv2_food_gain_feature.json").read_text(encoding="utf-8"))
+        jump = [d for d in row["runtime_detours"] if d["va"] == "0x473E1B"]
+        self.assertEqual(len(jump), 1)
+        self.assertEqual(jump[0]["stock_bytes"], "E99024FBFF")
+        golden = next(p for p in patcher.load_fun_patches() if p.id == GOLDEN_ROW)
+        code = next(p for p in golden.raw["patches"] if int(p["offset"], 16) + 0x400000 == 0x473E05)
+        self.assertEqual(code["after"][-10:].upper(), "E99024FBFF", "the row's own code ends with that jump")
+        source = (ROOT / "native" / "vvfp_food_gain" / "vvfp_food_gain.c").read_text("utf-8")
+        listed = bytes(int(b, 16) for b in re.findall(r"0x([0-9A-F]{2}),", source.split("FG_V2_GOLDEN_ROW[27] = {")[1]
+                                                                   .split("};")[0]))
+        self.assertEqual(listed.hex().upper(), code["after"].upper(), "the companion checks the row's exact code")
 
 
 @unittest.skipUnless(HAVE_EMULATOR, "pefile/unicorn not installed")

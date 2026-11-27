@@ -61,7 +61,8 @@ FOOD_SITES = {
         (0x43B09B, "the Golden Child's +150 food", False)],
     2: [(0x463198, "coconuts", False), (0x463259, "crops", False), (0x463312, "fish", False),
         (0x463364, "the big catch", False),
-        (0x4633CD, "mushroom (left alone while Super-Secret Golden Mushroom owns the call)", True)],
+        (0x4633CD, "mushroom (left alone while Super-Secret Golden Mushroom owns the call; then that row's jump, below)",
+         True)],
     3: [(0x434AEC, "fruit", False), (0x434B15, "the chief's fruit bonus", False), (0x431C2A, "honey", False),
         (0x431C4C, "the chief's honey bonus", False), (0x458EE5, "fish", False), (0x458FE1, "crab", False),
         (0x42E079, "mushroom", False),
@@ -80,6 +81,15 @@ FOOD_SITES = {
         (0x41496B, "mushroom", False), (0x46CF9C, "an inherited food event", False),
         (0x46D074, "an inherited food event", False), (0x46D75F, "an inherited food event", False),
         (0x46D7D9, "an inherited food event", False), (0x46DB20, "an inherited food event", False)],
+}
+# Jumps into the food writer at the end of another row's own code, written like a call site (the return the writer
+# sees stays the game's own): (va, what, the row's bytes there).  The Lost Children's Super-Secret Golden Mushroom
+# sends the mushroom's call (0x4633CD) to its code at 0x473E05, which ends `jmp 0x4262B0` (the owner, 2026-11-27: the
+# slider scales its mushrooms too).
+FOOD_JUMP_SITES = {
+    2: [(0x473E1B, "the mushroom (brown, red or golden) with Super-Secret Golden Mushroom: that row's jump into the food "
+                   "writer at the end of its code at 0x473E05, written only while that code is there byte for byte",
+         "E99024FBFF")],
 }
 TECH_SITES = {
     1: [(0x43B313, "research at Science 1"), (0x43B32E, "research at Science 2"), (0x43B34B, "research at Science 3")],
@@ -210,7 +220,8 @@ def describe(key: str, game: int) -> str:
     elif key == "food_gain":
         sources = ", ".join(sorted({w.split(" (")[0] for _va, w, _o in FOOD_SITES[game]
                                     if "inherited" not in w}, key=str.casefold))
-        extra = {4: " Food Mastery still works on top.", 5: " Food Mastery still works on top."}.get(game, "")
+        extra = {2: " With Super-Secret Golden Mushroom the mushrooms, golden ones too, are multiplied the same way.",
+                 4: " Food Mastery still works on top.", 5: " Food Mastery still works on top."}.get(game, "")
         body = (f"Each food source gives more or less food each time: 0.1 to 10 times its normal food, as you choose "
                 f"with {words}; the rest of a whole food is a chance, so on average it is exact. The sources: {sources}"
                 ". What the source itself loses is the game's own, and so is every other food gain: island events, "
@@ -293,7 +304,11 @@ def detours(key: str, game: int) -> list[dict]:
                  "routine": f"{what}: the call of the {kind} writer 0x{writer:X} goes through the companion, which "
                             "multiplies a positive amount by N (the rest a chance) and goes on into the writer"
                             + ("; optional" if optional else ""), "installed_by": by}
-                for va, what, optional in table[game]]
+                for va, what, optional in table[game]] + (
+            [{"va": f"0x{va:X}", "stock_bytes": row_bytes, "written_bytes": "E9XXXXXXXX",
+              "routine": f"{what}: the jump goes through the companion instead, which multiplies a positive amount by N "
+                         "(the rest a chance) and goes on into the writer; optional", "installed_by": by}
+             for va, what, row_bytes in FOOD_JUMP_SITES.get(game, [])] if key == "food_gain" else [])
     if key == "weather_frequency":
         setter = WEATHER_SETTER[game]
         out = [{"va": f"0x{va:X}", "stock_bytes": f"{op:02X}" + seconds.to_bytes(4, "little").hex().upper(),
