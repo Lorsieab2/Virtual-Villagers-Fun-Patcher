@@ -1,0 +1,5 @@
+LIBRARY "VVFP Exact Pickups.test.dll"
+EXPORTS
+    VvfpStartup=_VvfpStartup@8
+    VvfpExactPickupsInstalled=_VvfpExactPickupsInstalled@0
+    VvfpExactPickupsTestProbe=_VvfpExactPickupsTestProbe@12

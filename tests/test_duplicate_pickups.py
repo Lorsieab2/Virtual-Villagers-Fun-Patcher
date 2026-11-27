@@ -586,5 +586,261 @@ class TheLostChildren(unittest.TestCase):
             self.assertEqual(got["active"], 1)
 
 
+# ---- "VVFP Exact Pickups.dll" (The Secret City, The Tree of Life, New Believers) ----------------------------------
+# Its TEST build (tests/test_dlls) mapped beside the rendered exe; VvfpExactPickupsTestProbe makes the companion's
+# own checks on the mapped image and hands back the two routines VvfpStartup puts in the vtable, which the test then
+# writes there itself.  A drop is the vtable's vf2 (as the drop dispatcher calls it), a pickup its vf0 (as the item
+# listeners call it): every byte that runs is the game's or the companion's machine code, except the clock the
+# game's reservation reads (a constant).
+EXACT_DLL = ROOT / "tests" / "test_dlls" / "VVFP Exact Pickups.test.dll"
+EXACT_SHIPPED = ROOT / "assets" / "exact_pickups" / "VVFP Exact Pickups.dll"
+EXACT_BASE = 0x10000000
+EXACT = {   # game: (vtable, the reservation's timer getter and clock, the held flag, the record's id)
+    "vv3": (0x482938, (0x428B60, 0x403330), None, 0xEDC),
+    "vv4": (0x48C4D8, (0x41FE70, 0x403750), 0x1CC7, 0x1C90),
+    "vv5": (0x4974F8, (0x425950, 0x4036E0), 0x1CE1, 0x1C94),
+}
+CHILDREN = 0x30000000
+
+
+@functools.lru_cache(maxsize=None)
+def _exact_image():
+    pe = pefile.PE(str(EXACT_DLL))
+    if pe.OPTIONAL_HEADER.ImageBase != EXACT_BASE:
+        pe.relocate_image(EXACT_BASE)
+    exports = {e.name.decode(): EXACT_BASE + e.address for e in pe.DIRECTORY_ENTRY_EXPORT.symbols if e.name}
+    return pe.get_memory_mapped_image(ImageBase=EXACT_BASE), exports
+
+
+class _Island:
+    """One manager (`items`: [(id, x, y)], each active) and children; drops and pickups through the vtable."""
+
+    def __init__(self, exe: bytes, game: str, items, *, companion: bool = True):
+        self.game = game
+        self.mu = mu = _emulator(exe)
+        vtable, clocks, _held, _id = EXACT[game]
+        slots = VF0[game][2]
+        for region, size in ((MGR, 0x10000), (CHILDREN, 0x40000), (STACK - 0x10000, 0x20000), (HALT, 0x1000)):
+            mu.mem_map(region, size)
+        manager = bytearray(4 + 0x1C * slots)
+        struct.pack_into("<I", manager, 0, vtable)
+        for i, (item, x, y) in enumerate(items):
+            struct.pack_into("<B3xiiiiii", manager, 4 + 0x1C * i, 1, item, 5000, x, y, -1, 0)
+        mu.mem_write(MGR, bytes(manager))
+
+        self.where: dict[int, tuple] = {}            # each child's place: where it was dropped
+        position = VF0[game][1]
+
+        def clock(uc, address, size, _):
+            if address == position and uc.reg_read(UC_X86_REG_ECX) in self.where:
+                esp = uc.reg_read(UC_X86_REG_ESP)    # thiscall(child), the point out; ret 4
+                ret, out = struct.unpack("<II", uc.mem_read(esp, 8))
+                uc.mem_write(out, struct.pack("<ii", *self.where[uc.reg_read(UC_X86_REG_ECX)]))
+                uc.reg_write(UC_X86_REG_EAX, out)
+                uc.reg_write(UC_X86_REG_ESP, esp + 8)
+                uc.reg_write(UC_X86_REG_EIP, ret)
+            elif address in clocks:                  # the timer getter and its clock: no arguments, plain ret
+                esp = uc.reg_read(UC_X86_REG_ESP)
+                uc.reg_write(UC_X86_REG_EAX, 0x0C000000 if address == clocks[0] else 1234)
+                uc.reg_write(UC_X86_REG_EIP, struct.unpack("<I", uc.mem_read(esp, 4))[0])
+                uc.reg_write(UC_X86_REG_ESP, esp + 4)
+            elif address == HALT:
+                uc.emu_stop()
+
+        mu.hook_add(UC_HOOK_CODE, clock)
+        self.installed = False
+        if companion:
+            image, self.exports = _exact_image()
+            mu.mem_map(EXACT_BASE, (len(image) + 0xFFFF) & ~0xFFFF)
+            mu.mem_write(EXACT_BASE, image)
+            out = HALT + 0x100
+            ok = self.call(self.exports["VvfpExactPickupsTestProbe"], 0, int(game[2]), out, out + 4)
+            if ok:
+                hit, pick = struct.unpack("<II", bytes(mu.mem_read(out, 8)))
+                mu.mem_write(vtable + 8, struct.pack("<I", hit))
+                mu.mem_write(vtable, struct.pack("<I", pick))
+                self.installed = True
+        self.vtable = vtable
+
+    def call(self, address: int, ecx: int, *args: int) -> int:
+        mu = self.mu
+        esp = STACK - 0x100
+        mu.mem_write(esp, struct.pack("<I", HALT) + b"".join(struct.pack("<I", a & 0xFFFFFFFF) for a in args))
+        mu.reg_write(UC_X86_REG_ESP, esp)
+        mu.reg_write(UC_X86_REG_ECX, ecx)
+        saved = ((UC_X86_REG_EBX, 0xB0B0B0B0), (UC_X86_REG_ESI, 0x51515151), (UC_X86_REG_EDI, 0xD1D1D1D1),
+                 (UC_X86_REG_EBP, 0xB9B9B9B9))
+        for reg, value in saved:
+            mu.reg_write(reg, value)
+        mu.emu_start(address, 0, count=200000)
+        assert mu.reg_read(UC_X86_REG_EIP) == HALT
+        assert mu.reg_read(UC_X86_REG_ESP) == esp + 4 + 4 * len(args), "the callee pops its arguments"
+        assert [mu.reg_read(r) for r, _ in saved] == [v for _, v in saved]
+        return mu.reg_read(UC_X86_REG_EAX)
+
+    def child(self, k: int) -> int:
+        record = CHILDREN + 0x2000 * k
+        _vt, _clocks, held, rid = EXACT[self.game]
+        self.mu.mem_write(record + rid, struct.pack("<i", 100 + k))
+        if held is not None:
+            self.mu.mem_write(record + held, b"\0")
+        return record
+
+    def entry(self, offset: int) -> int:
+        return struct.unpack("<I", bytes(self.mu.mem_read(self.vtable + offset, 4)))[0]
+
+    def drop(self, k: int, at) -> int:
+        self.where[self.child(k)] = tuple(at)
+        result = self.call(self.entry(8), MGR, self.child(k), at[0], at[1])
+        return result - (1 << 32) if result & 0x80000000 else result
+
+    def pick(self, k: int, item: int) -> int:
+        return self.call(self.entry(0), MGR, self.child(k), item) & 0xFF
+
+    def active(self) -> list[int]:
+        slots = VF0[self.game][2]
+        data = bytes(self.mu.mem_read(MGR, 4 + 0x1C * slots))
+        return [data[4 + 0x1C * i] for i in range(slots)]
+
+
+@unittest.skipUnless(all(_have(g) for g in EXACT) and EXACT_DLL.is_file(), NO_STOCK)
+class ExactPickups(unittest.TestCase):
+    TWO_REDS = [(RED, 1000, 800), (RED, 1010, 800)]          # 10 pixels apart: both within a drop's reach
+    AT = (1004, 803)                                         # on the first one, 6 pixels from the second
+
+    def test_without_the_cheat_it_installs_nothing(self) -> None:
+        for game in EXACT:
+            with self.subTest(game=game):
+                self.assertFalse(_Island(_fixed(game), game, self.TWO_REDS).installed)
+                self.assertFalse(_Island(_stock(game), game, self.TWO_REDS).installed)
+                self.assertTrue(_Island(_fixed(game, True), game, self.TWO_REDS).installed)
+                cheat_only = _render(game, "immediate_fixed", (CHEAT.format(game),))
+                self.assertTrue(_Island(cheat_only, game, self.TWO_REDS).installed, "stock reach 0xF4240 too")
+
+    def test_a_changed_byte_installs_nothing(self) -> None:
+        for game in EXACT:
+            exe = bytearray(_fixed(game, True))
+            off = VF0[game][0] - BASE + 0x30                  # inside vf0, outside its reach immediate
+            exe[off] ^= 0xFF
+            with self.subTest(game=game):
+                self.assertFalse(_Island(bytes(exe), game, self.TWO_REDS).installed)
+
+    def _cluster(self, exe: bytes, game: str, n: int, companion: bool = True):
+        island = _Island(exe, game, self.TWO_REDS, companion=companion)
+        drops = [island.drop(k, self.AT) for k in range(n)]
+        picks = [island.pick(k, RED) for k in range(n)]
+        return island, drops, picks
+
+    def test_eight_children_on_one_of_two_reds_10_pixels_apart_take_only_that_one(self) -> None:
+        for game in EXACT:
+            for mode in MODES:
+                exe = _render(game, mode, (f"{game}_fix_vanilla_bugs", CHEAT.format(game)))
+                with self.subTest(game=game, mode=mode):
+                    island, drops, picks = self._cluster(exe, game, 8)
+                    self.assertTrue(island.installed)
+                    self.assertEqual(drops, [RED] * 8, "every child is dropped on it")
+                    self.assertEqual(picks, [1] * 8, "every child carries its copy")
+                    self.assertEqual(island.active()[:2], [0, 1], "only the one they were dropped on is gone")
+
+    def test_without_the_companion_the_neighbour_goes(self) -> None:
+        for game in EXACT:
+            with self.subTest(game=game):
+                island, _drops, picks = self._cluster(_fixed(game, True), game, 8, companion=False)
+                self.assertEqual(picks, [1] * 8)
+                self.assertEqual(island.active()[:2], [0, 0], "the byte fix alone: the red 10 pixels away goes")
+
+    def test_a_single_pickup_is_the_stock_one(self) -> None:
+        # One child, one drop, one pickup: the item it was dropped on, the same one stock takes.
+        cases = ((self.TWO_REDS, (1001, 801)), ([(RED, 1000, 800), (RED, 1200, 900)], (1003, 804)),
+                 ([(BROWN, 1000, 800), (RED, 1008, 800)], (1001, 800)), ([(RED, 1000, 800)], (1000, 829)))
+        for game in EXACT:
+            for items, at in cases:
+                with self.subTest(game=game, items=items, at=at):
+                    got = []
+                    for exe, companion in ((_render(game, "immediate_fixed", (CHEAT.format(game),)), False),
+                                           (_fixed(game, True), True)):
+                        island = _Island(exe, game, items, companion=companion)
+                        item = island.drop(0, at)
+                        got.append((item, island.pick(0, item), island.active()[:len(items)]))
+                    self.assertEqual(got[1], got[0])
+
+    def test_a_child_not_dropped_goes_to_the_games_own_pickup(self) -> None:
+        for game in EXACT:
+            with self.subTest(game=game):
+                island = _Island(_fixed(game, True), game, self.TWO_REDS)
+                mu = island.mu
+                # the game's vf0 asks where the child stands: put it on the second red
+                position = VF0[game][1]
+
+                def place(uc, address, size, _):
+                    if address == position:
+                        esp = uc.reg_read(UC_X86_REG_ESP)
+                        ret, out = struct.unpack("<II", uc.mem_read(esp, 8))
+                        uc.mem_write(out, struct.pack("<ii", 1010, 801))
+                        uc.reg_write(UC_X86_REG_EAX, out)
+                        uc.reg_write(UC_X86_REG_ESP, esp + 8)
+                        uc.reg_write(UC_X86_REG_EIP, ret)
+
+                mu.hook_add(UC_HOOK_CODE, place)
+                self.assertEqual(island.pick(5, RED), 1)
+                self.assertEqual(island.active()[:2], [1, 0], "the nearest red, as the game's own vf0")
+
+    def test_an_item_gone_before_its_pickup_removes_nothing(self) -> None:
+        for game in EXACT:
+            with self.subTest(game=game):
+                island = _Island(_fixed(game, True), game, self.TWO_REDS)
+                self.assertEqual(island.drop(0, self.AT), RED)
+                island.mu.mem_write(MGR + 4, b"\0")           # it went (picked, or its time ran out)
+                self.assertEqual(island.pick(0, RED), 1)
+                self.assertEqual(island.active()[:2], [0, 1])
+
+    def test_the_shipped_build_has_no_probe(self) -> None:
+        pe = pefile.PE(str(EXACT_SHIPPED))
+        names = {s.name.decode() for s in pe.DIRECTORY_ENTRY_EXPORT.symbols if s.name}
+        self.assertEqual(names, {"VvfpStartup", "VvfpExactPickupsInstalled"})
+        imports = {e.dll.decode().upper() for e in pe.DIRECTORY_ENTRY_IMPORT}
+        self.assertLessEqual(imports, {"KERNEL32.DLL"})
+
+
+class ExactPickupsShipping(unittest.TestCase):
+    def test_rows_release_and_start(self) -> None:
+        import hashlib
+        import vv_fun_patcher as vfp
+        digest = hashlib.sha256(EXACT_SHIPPED.read_bytes()).hexdigest().upper()
+        for p in vfp.load_fun_patches():
+            if not p.id.endswith("_fix_vanilla_bugs"):
+                continue
+            ours = [c for c in p.raw.get("companion_files", []) if c["destination"] == "VVFP Exact Pickups.dll"]
+            with self.subTest(row=p.id):
+                if p.game_id in EXACT:
+                    self.assertEqual(ours, [{"source": "assets/exact_pickups/VVFP Exact Pickups.dll",
+                                             "destination": "VVFP Exact Pickups.dll", "sha256": digest}])
+                    self.assertIn('("VVFP Exact Pickups.dll")', p.raw["description"])
+                else:
+                    self.assertEqual(ours, [])
+        release = (ROOT / "scripts" / "build_release.py").read_text(encoding="utf-8")
+        self.assertIn('"assets/exact_pickups/VVFP Exact Pickups.dll",', release)
+        self.assertIn("VVFP Exact Pickups.dll", vfp.STARTUP_LOADER_ON_DEMAND)
+        restore = (ROOT / "native" / "vvfp_window_restore" / "vvfp_window_restore.c").read_text(encoding="utf-8")
+        self.assertIn('vvfp_load_patcher_dll("VVFP Exact Pickups.dll")', restore)
+        for header in (ROOT / "native" / "shared").glob("startup_companions*.h"):
+            self.assertNotIn("VVFP Exact Pickups.dll", header.read_text(encoding="utf-8"))
+
+    def test_the_companions_pins_are_the_games_bytes(self) -> None:
+        import re
+        text = (ROOT / "native" / "vvfp_exact_pickups" / "vvfp_exact_pickups.c").read_text(encoding="utf-8")
+        for game, (hit, pick, remove) in {"vv3": (0x42DDB0, 0x42D5E0, 0x42D520), "vv4": (0x413A20, 0x4139A0, 0x4138C0),
+                                          "vv5": (0x413E40, 0x413DC0, 0x413CE0)}.items():
+            if not _have(game):
+                self.skipTest(NO_STOCK)
+            image = _image(_stock(game))
+            for name, va in (("HIT", hit), ("PICK", pick), ("REMOVE", remove)):
+                body = text[text.index(f"static const unsigned char EP_V{game[2]}_{name}[] = {{"):]
+                pinned = bytes(int(v, 16) for v in re.findall(r"0x([0-9A-F]{2})", body[body.index("{") + 1:
+                                                                                        body.index("};")]))
+                with self.subTest(game=game, routine=name):
+                    self.assertEqual(image[va - BASE:va - BASE + len(pinned)], pinned)
+
+
 if __name__ == "__main__":
     unittest.main()

@@ -40,7 +40,9 @@
    game's own thread.  No file, no text, no save data, no debug output.
 
    It also starts "VVFP Fullscreen Mouse.dll" (the full screen mouse fix, a companion of its own shipped by the same
-   Fix Vanilla Bugs rows), whatever SDL2.dll is: that companion makes its own checks. */
+   Fix Vanilla Bugs rows), whatever SDL2.dll is: that companion makes its own checks; and, in The Secret City, The
+   Tree of Life and New Believers, "VVFP Exact Pickups.dll" (each child takes the item it was dropped on), which
+   makes its own checks too. */
 #include <windows.h>
 
 #include "../shared/patcher_files.h"
@@ -197,12 +199,28 @@ static void wr_start_fullscreen_mouse(int game, unsigned int shipped) {
     }
 }
 
+/* The exact pickups fix ("VVFP Exact Pickups.dll", its own companion in The Secret City's, The Tree of Life's and
+   New Believers' Fix Vanilla Bugs rows): started the same way; the other two games do not ship it. */
+static void wr_start_exact_pickups(int game, unsigned int shipped) {
+    HMODULE pickups = vvfp_load_patcher_dll("VVFP Exact Pickups.dll");
+    wr_startup_fn startup = pickups != NULL ? (wr_startup_fn)GetProcAddress(pickups, "VvfpStartup") : NULL;
+    if (startup != NULL) {
+        __try {
+            startup(game, shipped);
+        } __except (EXCEPTION_EXECUTE_HANDLER) {
+        }
+    }
+}
+
 /* Called once by VVFP More Companions.dll before WinMain, on the game's own thread. */
 void __stdcall VvfpStartup(int game, unsigned int shipped) {
     if (g_installed || game < 1 || game > 5) {
         return;
     }
     wr_start_fullscreen_mouse(game, shipped);
+    if (game >= 3) {
+        wr_start_exact_pickups(game, shipped);
+    }
     if (!wr_sdl_is_stock()) {
         return;
     }

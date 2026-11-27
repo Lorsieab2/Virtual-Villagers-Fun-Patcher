@@ -454,7 +454,8 @@ In A New Home you can drop as many children as you like on the mushroom, and
 with VV1 Mushroom/Collectible Duplication Cheat ticked you can in the other
 four games: each child picks up a copy and is paid and counted for it. With
 Fix Vanilla Bugs (on by default, all five games), each child takes only the
-item it is standing on. Without it, each child after the first took another
+item it was dropped on, and every other item stays, however close it lies.
+Without it, each child after the first took another
 item off the island with no food or count for it: in The Secret City, The
 Tree of Life and New Believers the nearest other item of the same kind (drop
 eight children on a red mushroom and the island's other red mushrooms

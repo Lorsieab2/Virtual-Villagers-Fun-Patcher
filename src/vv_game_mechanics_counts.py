@@ -604,12 +604,12 @@ def collectible_lines(village: gm.Village, group: str) -> list[gm.Fact]:
     elif village.has(feature):
         words += (f" With \"{name}\" (in this game): several children can be dropped onto one mushroom or "
                   "collectible and it is multiplied, one for each, so the counts above can grow faster.")
-        # tests/test_duplicate_pickups.py: the pickup takes only the item the child stands on (vf0's limit is the
-        # drop's own 30-pixel reach; A New Home and The Lost Children test the map's area under the child).
+        # tests/test_duplicate_pickups.py: the pickup takes only the item the child was dropped on ("VVFP Exact
+        # Pickups.dll" in VV3-VV5; The Lost Children tests the map's area under the child, its only item).
         fix = FIX_VANILLA.format(game=village.game)
         if village.has(fix):
-            words += (f" With \"{gm.feature_name(fix)}\" (in this game): each child takes only the item it stands "
-                      "on, so no other mushroom or collectible vanishes.")
+            words += (f" With \"{gm.feature_name(fix)}\" (in this game): each child takes only the item it was "
+                      "dropped on, so no other mushroom or collectible vanishes, however close it lies.")
         else:
             words += (" Without Fix Vanilla Bugs each child after the first takes another item off the island with "
                       "no food or count for it: " + _DUPLICATE_LOSS[village.game] + ".")

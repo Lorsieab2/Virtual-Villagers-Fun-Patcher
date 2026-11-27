@@ -533,6 +533,7 @@
         "Healers keep learning Healing while the game is closed (and during Time Warp), as they do while you play.",
         "The game's own island events never pick the Golden Child for an outcome that could kill him or make him vanish; Pick Island Event and Custom Island Event still can.",
         "A maximized or full screen game no longer comes back from the taskbar with a still picture, and in full screen or a bigger window the mouse clicks exactly where the pointer is.",
+        "Several children dropped on one mushroom or collectible each take only the one they were dropped on; no other item on the island vanishes.",
         "Nothing to click. On by default."
       ]
     },
@@ -547,6 +548,7 @@
         "Healers keep learning Healing while the game is closed (and during Time Warp), as they do while you play.",
         "The Overview Map's fire flickers like the village's fire instead of showing a still yellow blob.",
         "A maximized or full screen game no longer comes back from the taskbar with a still picture, and in full screen or a bigger window the mouse clicks exactly where the pointer is.",
+        "Several children dropped on one mushroom or collectible each take only the one they were dropped on; no other item on the island vanishes.",
         "The fish and the field's protection from birds never go below 0. Nothing to click. On by default."
       ]
     },
@@ -561,6 +563,7 @@
         "After a Time Warp or time away, builders now really build started population huts. A raindrop of no length can no longer crash the game.",
         "The hospital tables' broken legs are fixed (art by Lorsieab2). Unpausing at another speed gives the fire that speed's length.",
         "A maximized or full screen game no longer comes back from the taskbar with a still picture, and in full screen or a bigger window the mouse clicks exactly where the pointer is.",
+        "Several children dropped on one mushroom or collectible each take only the one they were dropped on; no other item on the island vanishes.",
         "The Overview Map's water fits its riverbeds. Keep it on with 256 Villagers (Experimental). On by default."
       ]
     },
@@ -575,6 +578,7 @@
         "Rain can no longer crash the game, and the Overview Map's water (rivers, waterfalls and their animations) lines up with its riverbeds.",
         "After The Frog Rescue, frogs leap all along the river's blue water around the island, never on grass or the ladder, as often as in the original game. On by default.",
         "A maximized or full screen game no longer comes back from the taskbar with a still picture, and in full screen or a bigger window the mouse clicks exactly where the pointer is.",
+        "Several children dropped on one mushroom or collectible each take only the one they were dropped on; no other item on the island vanishes.",
         "No cutting tool is used up on an empty bush (with Cloth Sacks, no sack on an empty fruit tree). Cutting-tool berries count for The Grand Feast."
       ]
     },
@@ -1387,15 +1391,15 @@
     {
       "ids": ["vv5_fix_vanilla_bugs"],
       "guide": [
-        "Fixes a bug in the original game: every name in the male and female lists can now be given to a new villager (Ago, Yapili, Aipi and Zucca never could be).",
-        "Villagers already named keep their names. A \"%\" in a name can no longer crash the game, and the game's text boxes no longer accept a typed \"%\".",
-        "On the Villager Details screen, a villager's name is only ever saved back to that villager; a name you type is still kept.",
+        "Fixes original-game bugs: every name in the male and female lists can now be given to a new villager (Ago, Yapili, Aipi and Zucca never could be).",
+        "Villagers already named keep their names. A \"%\" in a name can no longer crash the game, and text boxes refuse a typed \"%\".",
+        "On the Details screen, a villager's name is only ever saved back to that villager; a name you type is still kept.",
         "Rain can no longer crash the game: a raindrop of no length is drawn as a dot. An unfinished Nursery School says \"foundation\" until building starts.",
         "Clicking the finished Clothing Hut no longer says \"Construction 100% completed\" (the other finished buildings never did).",
         "A villager held over The Blind Totem now says a line, like the other totems, and so does the fixed-up mud hut once The Last Heathen is converted.",
         "Nursery School lessons no longer nearly always go to Devotion (a tie is broken at random). The Last Heathen's hovel fits the map (art by Lorsieab2).",
         "The Puzzles screen shows how many hours The Hungry Totem took (it always said 0); a village that already solved it shows its real time too.",
-        "The Defector is always a Heathen of 14 or more, like the envoy in Outreach? (the original game could pick a Heathen child).",
+        "The Defector is always a Heathen of 14 or more, like Outreach?'s envoy (the game could pick a child). Children dropped on one item take only that one; nothing else vanishes.",
         "A maximized or full screen game no longer comes back from the taskbar with a still picture, and in full screen or a bigger window the mouse clicks exactly where the pointer is.",
         "Polishing the Tribute Statue now gives 1 Divine Energy each time, as the game's tip says (never above the cap); it still trains Building. Nothing to click. On by default."
       ]

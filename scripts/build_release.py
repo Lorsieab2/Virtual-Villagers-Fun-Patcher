@@ -176,6 +176,9 @@ FILES = [
     "assets/window_restore/VVFP Window Restore.dll",
     # Fix Vanilla Bugs (all five games): the mouse in full screen and bigger windows (started by Window Restore).
     "assets/fullscreen_mouse/VVFP Fullscreen Mouse.dll",
+    # Fix Vanilla Bugs (The Secret City, The Tree of Life, New Believers): with the Duplication Cheat each child takes
+    # exactly the item it was dropped on (started by Window Restore).
+    "assets/exact_pickups/VVFP Exact Pickups.dll",
     # Louder Wind Flutes (The Tree of Life): the wind flute sounds louder (the slider).
     "assets/vv4_louder_flutes/VVFP VV4 Louder Flutes.dll",
     # Children Play Tag and Build Sandcastles (all five games): tag and sandcastles as normal play choices.
