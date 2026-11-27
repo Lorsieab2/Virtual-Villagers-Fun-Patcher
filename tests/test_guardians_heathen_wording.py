@@ -309,7 +309,10 @@ class TheLogWords(unittest.TestCase):
             "statistics_export/statistics_export.c": 'fprintf(file, "%s: %d\\n", vv5_word_converted_row(),',
             "shared/special_title.h": "return vv5_role_title(role);",
             "vvfp_island_events/vvfp_island_events.c": '"  %s: %s -> %s\\n", log_label(f), a, b);',
-            "vvfp_story_upgrades/story_revive.inc": "game == 5 && vv5_puzzle_role_title(p->special)",
+            # Revive reads a puzzle Heathen's role from their title in either wording (the owner, 2026-11-26:
+            # puzzle Heathens come back in their role, so the old refusal is gone).
+            "vvfp_story_upgrades/story_revive.inc":
+                "lstrcmpA(title, VV5_ROLE_TITLES_HEATHEN[k]) == 0 || lstrcmpA(title, VV5_ROLE_TITLES_ISOLAN[k]) == 0",
         }
         for rel, site in checks.items():
             with self.subTest(writer=rel):

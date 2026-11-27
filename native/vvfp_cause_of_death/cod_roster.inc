@@ -196,6 +196,7 @@ static void roster_departed(int index, const unsigned char *record) {
         arrived[index] = REPORT_NONE;
         report_who[index].known = 0;
         roster_gone_note(record);
+        revive_note(index, record);   /* the whole record as the game frees it (cod_revive.inc) */
         COD_COUNT(departed);
     }
 }
@@ -1171,6 +1172,7 @@ static void cod_save_done(int slot, const void *save_buffer) {
             cie_saved(slot);
         }
         cw_saved(slot);   /* ...and their own cause words (cod_cie_words.inc), to match */
+        revive_saved(slot);   /* ...and the complete records of those who left since (cod_revive.inc) */
         saved_slot = slot;
         /* The Tree of Life and New Believers: a save while "Select 5 villagers" is still open (the
            game's autosave runs on every screen) holds the founders chosen so far AND the candidate

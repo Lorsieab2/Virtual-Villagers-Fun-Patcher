@@ -1332,7 +1332,7 @@
       "guide": [
         "Adds Revive Buried/Disappeared Villagers to the Tech upgrades: 100,000 tech points, free when upgrades are free.",
         "It lists the village's buried and vanished villagers with what the logs and graves say about them.",
-        "The one you pick comes back as the same person, aged 5, and their grave is removed.",
+        "The one you pick comes back as the same person, aged 5, and their grave is removed.", "Every detail is kept when a villager dies: looks, family, skills, likes, titles and more.", "New Believers' puzzle Heathens come back in their role, or as ordinary Heathens if it is taken.",
         "Not possible while the village is full; nothing is spent then. You can buy it again and again.",
         "The list comes from the Deaths log: tick Write Births and Conceptions Log and Show Cause of Death.",
         "Off by default; on in Owner's Defaults. Needs Story / Cheat Upgrades; ticking this ticks it for you."

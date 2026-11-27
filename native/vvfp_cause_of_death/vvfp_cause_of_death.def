@@ -33,3 +33,4 @@ EXPORTS
     VvfpCauseHeathenRole=_VvfpCauseHeathenRole@12
     VvfpCauseHeathenRetired=_VvfpCauseHeathenRetired@12
     VvfpCauseWordsFor=_VvfpCauseWordsFor@12
+    VvfpCauseReviveSnapshots=_VvfpCauseReviveSnapshots@16

@@ -218,6 +218,16 @@
   {
    "reason": "The Heathen Tribe Expansion's shared names (native/shared/heathen_evo.h): flag, settings and data file and folder names, export and DLL names, option keys, and the Arrived records' \"How:\" words (written to the log file only; logs are never translated).",
    "files": ["native/shared/heathen_evo.h"]
+  },
+  {
+   "reason": "Revive's snapshot folder (native/shared/revive_snapshot.h VV_RS_FOLDER, \"Revive Snapshots\"): a folder name on disk, never shown.",
+   "files": ["native/shared/revive_snapshot.h"],
+   "match": "^Revive Snapshots$"
+  },
+  {
+   "reason": "The Heathen Mausoleum's grave words (native/shared/heathen_mausoleum.h HM_GRAVE_*, copied verbatim from feat/heathen-evo-mausoleum for Revive): the Deaths log's \"Grave:\" words, written to the log file only and read back by the log readers, never shown in the game.",
+   "files": ["native/shared/heathen_mausoleum.h"],
+   "functions": ["HM_GRAVE_*"]
   }
  ]
 }
