@@ -2157,7 +2157,9 @@ def _plan_statistics(result: Plan, game: int, slot: int, data_dir: Path, by_name
 # The logs
 # ---------------------------------------------------------------------------
 
-PERSON_LINE = re.compile(r"^(\s+)(Name|Child|Mother|Father): (.*)$")
+# "First:" / "Second:" are the two Heathens of a "Couple formed" record (Codex, #883): each their own record,
+# with their looks nested under them like a Child's.
+PERSON_LINE = re.compile(r"^(\s+)(Name|Child|Mother|Father|First|Second): (.*)$")
 
 
 def _plan_logs(result: Plan, folder: Path, game: int, slot: int, renames: dict[tuple, str],

@@ -660,7 +660,7 @@ def _who_at(lines: list[str], at: int) -> tuple:
     start = at
     label = "Name"
     for k in range(at, max(-1, at - 12), -1):
-        m = re.match(r"^\s*(Name|Child|Mother|Father): (.*)$", lines[k])
+        m = re.match(r"^\s*(Name|Child|Mother|Father|First|Second): (.*)$", lines[k])
         if m:
             label, name, start = m.group(1), m.group(2).strip(), k
             break

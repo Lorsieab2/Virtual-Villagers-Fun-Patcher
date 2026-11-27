@@ -1145,12 +1145,31 @@ static int parent_of(const unsigned char *parent, const unsigned char *child) {
             && i32(child, R_MOTHER_BODY) == i32(parent, R_BODY));
 }
 
+/* One recorded parent of a (name, head, body at the given fields) is the same person as one of b's.  A
+   same-sex couple's children can hold their parents in opposite fields (the carrier is the Mother: Codex,
+   #883), so every parent of one is compared with both of the other's. */
+static int same_parent(const unsigned char *a, unsigned int an, unsigned int ah, unsigned int ab,
+                       const unsigned char *b, unsigned int bn, unsigned int bh, unsigned int bb) {
+    return same_name(a, an, b, bn) && i32(a, ah) == i32(b, bh) && i32(a, ab) == i32(b, bb);
+}
+
 static int kin(const unsigned char *a, const unsigned char *b) {
-    return parent_of(a, b) || parent_of(b, a)
-        || (same_name(a, R_MOTHER_NAME, b, R_MOTHER_NAME) && i32(a, R_MOTHER_HEAD) == i32(b, R_MOTHER_HEAD)
-            && i32(a, R_MOTHER_BODY) == i32(b, R_MOTHER_BODY))
-        || (same_name(a, R_FATHER_NAME, b, R_FATHER_NAME) && i32(a, R_FATHER_HEAD) == i32(b, R_FATHER_HEAD)
-            && i32(a, R_FATHER_BODY) == i32(b, R_FATHER_BODY));
+    static const unsigned int FIELD[2][3] = {
+        { R_MOTHER_NAME, R_MOTHER_HEAD, R_MOTHER_BODY },
+        { R_FATHER_NAME, R_FATHER_HEAD, R_FATHER_BODY },
+    };
+    int x, y;
+    if (parent_of(a, b) || parent_of(b, a)) {
+        return 1;
+    }
+    for (x = 0; x < 2; ++x) {
+        for (y = 0; y < 2; ++y) {
+            if (same_parent(a, FIELD[x][0], FIELD[x][1], FIELD[x][2], b, FIELD[y][0], FIELD[y][1], FIELD[y][2])) {
+                return 1;
+            }
+        }
+    }
+    return 0;
 }
 
 static int ages(const unsigned char *record);

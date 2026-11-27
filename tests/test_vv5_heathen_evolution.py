@@ -464,6 +464,7 @@ class Couples(unittest.TestCase):
             for off, value in ((FATHER_HEAD, 3), (FATHER_BODY, 4), (MOTHER_HEAD, 5), (MOTHER_BODY, 6)):
                 v.put32(r + off, value)
         for case in ("full siblings", "half siblings by the father", "half siblings by the mother", "parent",
+                     "siblings with the parents in opposite fields", "half siblings across the fields",
                      "unrelated", "same names, other parents"):
             with self.subTest(case=case):
                 v = Evo()
@@ -482,6 +483,14 @@ class Couples(unittest.TestCase):
                     parents(woman, "Kalo", "Mum")
                     v.put32(woman + FATHER_HEAD, v.i32(man, HEAD))
                     v.put32(woman + FATHER_BODY, v.i32(man, BODY))
+                elif case in ("siblings with the parents in opposite fields", "half siblings across the fields"):
+                    # Codex, #883: a same-sex couple's children -- whichever partner carried is the Mother
+                    parents(man, "Dad", "Mum")
+                    parents(woman, "Mum", "Dad" if case.startswith("siblings") else "Other")
+                    v.put32(woman + FATHER_HEAD, 5)          # the man's Mother, in her Father field
+                    v.put32(woman + FATHER_BODY, 6)
+                    v.put32(woman + MOTHER_HEAD, 3)
+                    v.put32(woman + MOTHER_BODY, 4)
                 elif case == "same names, other parents":
                     parents(man, "Dad", "Mum")
                     parents(woman, "Dad", "Mum")

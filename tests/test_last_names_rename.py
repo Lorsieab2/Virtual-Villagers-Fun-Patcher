@@ -283,6 +283,27 @@ class GiveLastNames(unittest.TestCase):
         self.assertIn("  Child: Aipi\r\n    Head: 2", births, "her own Birth record had other looks: asked, not guessed")
         self.assertIn("  Name: Ago\r\n", self.deaths.read_bytes().decode(), "a Death record is never a living villager's")
 
+    def test_a_couple_formed_records_first_and_second_follow_too(self):
+        """Codex, #883: the "Couple formed" record names its two villagers as First: and Second:, each with
+        their looks nested under them like a Child's; a rename reaches them as it reaches every other line."""
+        couples = self._log("Births and Conceptions/Virtual Villagers 3 Births and Conceptions Log 2.txt",
+                            "Village: Tribe (Save 1)\n"
+                            "Couple formed\n  First: Ago\n    Age: 900\n    Sex: Male\n    Head: 5\n    Body: 6\n"
+                            "    Likes: Farming\n    Dislikes: Building\n"
+                            "  Second: Aipi\n    Age: 800\n    Sex: Female\n    Head: 7\n    Body: 8\n"
+                            "    Likes: Fishing\n    Dislikes: Science\n\n"
+                            "Couple formed\n  First: Aipi\n    Age: 800\n    Sex: Female\n    Head: 2\n    Body: 2\n"
+                            "    Likes: Fishing\n    Dislikes: Science\n"
+                            "  Second: Ago\n    Age: 900\n    Sex: Male\n    Head: 1\n    Body: 1\n"
+                            "    Likes: Farming\n    Dislikes: Building\n\n")
+        ln.give_last_names(self.folder, 3, 1, self.chosen(), NoGame(), NOW)
+        text = couples.read_bytes().decode()
+        self.assertIn("  First: Ago Akikai\r\n    Age: 900\r\n    Sex: Male\r\n    Head: 5", text)
+        self.assertIn("  Second: Aipi Wikimak\r\n    Age: 800\r\n    Sex: Female\r\n    Head: 7", text)
+        self.assertIn("  First: Aipi\r\n    Age: 800\r\n    Sex: Female\r\n    Head: 2", text,
+                      "other looks: not theirs")
+        self.assertIn("  Second: Ago\r\n    Age: 900\r\n    Sex: Male\r\n    Head: 1", text)
+
     def test_records_with_other_looks_are_asked_about(self):
         work = ln.plan(self.folder, 3, 1, self.chosen())
         [question] = [q for q in work.questions if q.who == ("Aipi", 2, 2)]
