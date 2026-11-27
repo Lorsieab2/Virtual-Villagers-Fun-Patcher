@@ -2549,7 +2549,7 @@ int __stdcall VvfpHeathenAgingInstalled(void) {
 
 /* Called once by the patcher's start-up chain before WinMain. */
 void __stdcall VvfpStartup(int game, unsigned int shipped) {
-    vvfp_site_write sites[HA_SITES];
+    vvfp_site_write sites[HA_SITES + 1];
     const unsigned char *credit_bytes;
     unsigned int manager_rva;
     (void)shipped;
@@ -2596,13 +2596,13 @@ void __stdcall VvfpStartup(int game, unsigned int shipped) {
     g_skip_target = SITE_CREDIT + 10u + (unsigned int)(signed char)credit_bytes[9];
     vvfp_site_branch(&sites[0], SITE_CREDIT, 10, credit_bytes, 0xE9, (const void *)credit_stub);
     vvfp_site_branch(&sites[1], SITE_TICK, 9, TICK_STOCK, 0xE9, (const void *)tick_stub);
-    if (vvfp_install_sites(sites, HA_SITES)) {
-        g_installed = 1;
+    if (g_evo) {
+        /* the expansion's elder pace site, in the same all-or-none set */
+        vvfp_site_branch(&sites[HA_SITES], SITE_WALK, 11, WALK_STOCK, 0xE9, (const void *)walk_stub);
     }
-    if (g_installed && g_evo) {
-        vvfp_site_write walk;
-        vvfp_site_branch(&walk, SITE_WALK, 11, WALK_STOCK, 0xE9, (const void *)walk_stub);
-        g_walk_installed = vvfp_install_sites(&walk, 1);
+    if (vvfp_install_sites(sites, HA_SITES + (g_evo ? 1 : 0))) {
+        g_installed = 1;
+        g_walk_installed = g_evo;
     }
 }
 
