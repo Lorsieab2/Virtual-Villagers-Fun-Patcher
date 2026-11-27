@@ -448,6 +448,20 @@ running the game's own code carries the label UNCONFIRMED. It only reads: nothin
 game may be running (it shows the save as it was last written). Refresh reads
 the save again.
 
+MANY CHILDREN ON ONE MUSHROOM OR COLLECTIBLE
+
+In A New Home you can drop as many children as you like on the mushroom, and
+with VV1 Mushroom/Collectible Duplication Cheat ticked you can in the other
+four games: each child picks up a copy and is paid and counted for it. With
+Fix Vanilla Bugs (on by default, all five games), each child takes only the
+item it is standing on. Without it, each child after the first took another
+item off the island with no food or count for it: in The Secret City, The
+Tree of Life and New Believers the nearest other item of the same kind (drop
+eight children on a red mushroom and the island's other red mushrooms
+vanished, while the brown ones stayed), in A New Home and The Lost Children a
+new item that had just appeared elsewhere. One child on one item picks it up
+exactly as before.
+
 ANY CHARACTER IN THE GAMES (UNICODE)
 
 With Render Unicode with In-Game Fonts (on by default, all five games) the

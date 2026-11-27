@@ -193,6 +193,10 @@ FIXES = FIXES + zero_length_line_fixes("vv3")
 from test_overview_map_water import overview_map_water_fixes  # noqa: E402
 
 FIXES = FIXES + overview_map_water_fixes("vv3")
+# A later child dropped on an item already taken removes no other item (tests/test_duplicate_pickups.py).
+from test_duplicate_pickups import dupe_pickup_fixes  # noqa: E402
+
+FIXES = FIXES + dupe_pickup_fixes("vv3")
 TECH_REWARD = 100
 
 # Game addresses.

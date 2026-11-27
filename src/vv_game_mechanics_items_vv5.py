@@ -555,6 +555,13 @@ def _item_entries() -> list[Entry]:
                # and the award depends only on the carried id (that test's reading).
                (f"{_feature('vv5_everyone_collects_like_vv1')}: several children dropped on one mushroom or collectible "
                 "each pick it up, so it is counted and paid once for each.", VERIFIED_C),
+               # vf0 0x413DC0 removes the nearest item of the carried id within distance squared 0xF4240 (1,000
+               # pixels); Fix Vanilla Bugs makes it 0x384, the hit-test 0x413E40's own reach
+               # (tests/test_duplicate_pickups.py).
+               (f"{_feature('vv5_fix_vanilla_bugs')}: with several children on one mushroom or collectible, each "
+                "takes only the item it stands on; in the normal game each child after the first takes the nearest "
+                "other item of the same kind off the island (up to 1,000 pixels away), with no food or count for it "
+                "-- the other red mushrooms after a Hand of Bloom, say.", VERIFIED_C),
                # The release listener 0x4146B0: 0x4146E6 ja becomes jmp 0x414713, past the three place tests
                # (vv5_collectibles_stay_collected).
                (f"{_feature('vv5_collectibles_stay_collected')}: a mushroom, relic or lab gear piece a child has "

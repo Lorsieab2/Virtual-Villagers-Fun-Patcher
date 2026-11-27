@@ -517,6 +517,11 @@ def _items() -> list[Entry]:
              (patch("vv4_everyone_collects_like_vv1") + ": a child can be dropped on a mushroom or collectible "
               "another villager is already going for (the game normally ignores that drop), and several children "
               "dropped on one each collect it and each is paid for it, so it is multiplied.", VERIFIED_C),
+             # vf0 0x4139A0 removes the nearest item of the carried id within distance squared 0xF4240 (1,000
+             # pixels); Fix Vanilla Bugs makes it 0x384, the hit-test's own reach (tests/test_duplicate_pickups.py).
+             (patch("vv4_fix_vanilla_bugs") + ": with several children on one item, each takes only the item it "
+              "stands on; in the normal game each child after the first takes the nearest other item of the same "
+              "kind off the island (up to 1,000 pixels away), with no food or count for it.", VERIFIED_C),
              # The release listener 0x414410: 0x414442 cmp eax,8 / jne becomes cmp eax,5 / je
              # (vv4_collectibles_stay_collected); the stew pot's listener 0x42EA30 runs first.
              (patch("vv4_collectibles_stay_collected") + ": a mushroom a child has picked up counts wherever the "
