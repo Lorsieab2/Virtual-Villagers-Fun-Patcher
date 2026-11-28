@@ -43,7 +43,7 @@
     {
       "source": "assets/cause_of_death/VVFP Cause of Death.dll",
       "destination": "VVFP Cause of Death.dll",
-      "sha256": "B1C0A72C17D9A178C9CDA33CB35D5D8245154674085583448567A5876C04BC45"
+      "sha256": "1231F969497A5D23F231856284AEF3AFD9A3D3FA3A440DE7E6B96D2EEF102052"
     }
   ],
   "patches": [],
