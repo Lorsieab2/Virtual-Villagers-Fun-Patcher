@@ -189,7 +189,8 @@ class Catalog(unittest.TestCase):
         self.assertEqual(gui.saved_sickness_multiplier({"sickness_multiplier": 4}), 4)
         self.assertEqual(gui.saved_sickness_multiplier({"sickness_multiplier": 1}), 1)
         self.assertEqual(gui.saved_sickness_multiplier({"sickness_multiplier": 0}), 0.1)
-        self.assertEqual(gui.saved_sickness_multiplier({"sickness_multiplier": "4"}), 2)
+        # A bad saved value falls back to the players' default, 1 (the owner, 2026-11-27).
+        self.assertEqual(gui.saved_sickness_multiplier({"sickness_multiplier": "4"}), 1)
 
 
 if __name__ == "__main__":

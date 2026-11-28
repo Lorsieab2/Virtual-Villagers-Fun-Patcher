@@ -605,7 +605,8 @@ class PublishTests(unittest.TestCase):
                     patcher.validate_tech_cost_multiplier(bad)
         for good in [*range(1, 11), 0.1, 0.5, 2.5, 9.9]:
             self.assertEqual(patcher.validate_tech_cost_multiplier(good), good)
-        self.assertEqual(patcher.TECH_COST_MULTIPLIER_DEFAULT, 3)
+        # Players' default: the normal prices (the owner, 2026-11-27); Owner's Defaults sets its own 2.
+        self.assertEqual(patcher.TECH_COST_MULTIPLIER_DEFAULT, 1)
 
     def test_below_one_every_price_is_cheaper_whole_and_never_free(self):
         """The owner (2026-11-17): the slider goes less as well as more.  x 0.5 halves each price (halves up), x 0.1
@@ -645,7 +646,7 @@ class PublishTests(unittest.TestCase):
                          patcher._finalize_published_bytes):
             with self.subTest(function=function.__name__):
                 default = inspect.signature(function).parameters["tech_cost_multiplier"].default
-                self.assertEqual(default, 3)
+                self.assertEqual(default, 1)
         source = (ROOT / "src" / "vv_fun_patcher.py").read_text(encoding="utf-8")
         self.assertEqual(source.count("tech_cost_multiplier=tech_cost_multiplier"), 4)
         self.assertEqual(source.count("tech_cost_multiplier=args.tech_cost_multiplier"), 4)
@@ -662,7 +663,7 @@ class PublishTests(unittest.TestCase):
         import argparse
         parser = argparse.ArgumentParser()
         patcher._add_check_logs_arg(parser)
-        self.assertEqual(parser.parse_args([]).tech_cost_multiplier, 3)
+        self.assertEqual(parser.parse_args([]).tech_cost_multiplier, 1)
         self.assertEqual(parser.parse_args(["--tech-cost-multiplier", "10"]).tech_cost_multiplier, 10)
         self.assertEqual(parser.parse_args(["--tech-cost-multiplier", "0.5"]).tech_cost_multiplier, 0.5)
         self.assertEqual(parser.parse_args(["--tech-cost-multiplier", "1"]).tech_cost_multiplier, 1)
@@ -833,7 +834,7 @@ class RenderedPageTests(unittest.TestCase):
 
 
 class SliderTests(unittest.TestCase):
-    """The patcher window's 0.1-10x Tech Cost slider: 0.1 to 10 in tenths, 3 unless moved, saved and restored with
+    """The patcher window's 0.1-10x Tech Cost slider: 0.1 to 10 in tenths, 1 unless moved, saved and restored with
     the settings, and handed to every dry run and build (tests/test_multiplier_sliders_gui.py checks the track and the
     box)."""
 
@@ -854,10 +855,10 @@ class SliderTests(unittest.TestCase):
                       source)
         self.assertIn("            self.tech_cost_var.set(saved_tech_cost_multiplier(data))", source)
         for saved, restored in ((2, 2), (10, 10), (100, 10), (7, 7), (1, 1), (0.5, 0.5), (0, 0.1), (101, 10),
-                                ("5", 3), (5.0, 5), (True, 3), (None, 3)):
+                                ("5", 1), (5.0, 5), (True, 1), (None, 1)):
             with self.subTest(saved=saved):
                 self.assertEqual(gui.saved_tech_cost_multiplier({"tech_cost_multiplier": saved}), restored)
-        self.assertEqual(gui.saved_tech_cost_multiplier({}), 3)
+        self.assertEqual(gui.saved_tech_cost_multiplier({}), 1)
 
     def test_every_dry_run_and_build_gets_it(self):
         source = self.gui_source()
