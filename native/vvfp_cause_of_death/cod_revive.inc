@@ -66,7 +66,7 @@ static FARPROC rvs_export(const char *dll, const char *name) {
 
 /* EACH COMPANION'S EXPORT, FOUND ONCE (v1.35.102).  The per-frame tick asks RVS_PER_TICK records a frame, and looking
    every export up by name each time (GetModuleHandleA + GetProcAddress, five or six a record) cost New Believers
-   about 0.3 ms a frame at 256 villagers.  No VVFP DLL is ever unloaded (none calls FreeLibrary), so an address found
+   about 0.3 ms a frame at 256 villagers.  No VVFP DLL is ever unloaded once the game has it, so an address found
    stays good for the game's life.  One not found yet -- its companion not installed, or not loaded yet -- is looked
    for again every RVS_RETRY lookups on the tick, and always on a departure (rvs_fresh), so a departure asks exactly
    what it asked before. */
