@@ -103,6 +103,7 @@ static const char *const TR_KEY_STEMS[] = {
     "vvfp.heathen_life/vvfp_heathen_life.label.sick_at",
     "vvfp.heathen_life/vvfp_heathen_life.label.sick_go",
     "vvfp.heathen_life/vvfp_heathen_life.label.statue_at",
+    "vvfp.heathen_life/vvfp_heathen_life.label.statue_confused",
     "vvfp.heathen_life/vvfp_heathen_life.label.statue_go",
     "vvfp.heathen_life/vvfp_heathen_life.label.train_at_building",
     "vvfp.heathen_life/vvfp_heathen_life.label.train_at_farming",

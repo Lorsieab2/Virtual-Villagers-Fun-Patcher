@@ -996,7 +996,7 @@ class Labels(_Base):
         import re
         text = SOURCE.read_text(encoding="utf-8")
         labels = re.findall(r'vvfp_trf?\("vvfp\.heathen_life/[^"]+", "([^"]+)"', text)
-        self.assertEqual(len(labels), 82)
+        self.assertEqual(len(labels), 83)
         for english in labels:
             shown = english.replace("%s", "")
             self.assertLessEqual(len(shown), LONGEST_STOCK_DETAILS, english)
@@ -1283,6 +1283,49 @@ class Training(_Base):
         camp.unit(r)
         after = struct.unpack_from("<2I", camp.disk[name], 20)[1]
         self.assertNotEqual(after, chosen, "mastered: the next skill")
+
+
+@unittest.skipIf(_skip(), _skip() or "")
+class UnfinishedStatue(_Base):
+    """The owner (2026-11-27): "same skill practice rules apply to heathens with the heathen expansion patch too" --
+    as a believer dropped on the statue carved to stage 1 or 2 (PR #898), a Heathen's visit there is half the time
+    Devotion practised and half the time the believers' Confused look."""
+
+    def test_stage_one_or_two_honors_or_is_confused_half_and_half(self):
+        for stage in (1, 2):
+            with self.subTest(stage=stage):
+                camp = Camp(options=FREE)
+                camp.put32(0x51D950 + 8, stage)            # carved, the Idol puzzle not solved
+                r = camp.villager(3, role=1, skills=(0, 0, 0, 0, 0, 34.0), likes=(LEARNING, 2, 3))
+                kinds = {"Practising Devotion at the statue": 0, "Confused at the unfinished statue": 0}
+                for text, steps in self.picks(camp, r, 1500):
+                    if text == TEXT_STATUE:
+                        kinds[said(steps)[0]] += 1
+                        types = [s[0] for s in steps]
+                        self.assertNotIn(SKILL_CHECK_STEP, types)
+                        self.assertNotIn(PAYOFF_STEP, types)
+                self.assertGreater(kinds["Practising Devotion at the statue"], 3, kinds)
+                self.assertGreater(kinds["Confused at the unfinished statue"], 3, kinds)
+
+    def test_a_confused_visit_practises_nothing(self):
+        camp = Camp(options=FREE)
+        camp.put32(0x51D950 + 8, 1)
+        r = camp.villager(3, role=1, skills=(0, 0, 0, 0, 0, 34.0), likes=(LEARNING, 2, 3))
+        for text, steps in self.picks(camp, r, 2000):
+            if text == TEXT_STATUE and said(steps)[0] == "Confused at the unfinished statue":
+                break
+        else:
+            self.fail("no Confused visit")
+        before = camp.skill(r, DEVOTION)
+        camp.unit(r)
+        self.assertEqual(camp.skill(r, DEVOTION), before, "Confused: no Devotion practised")
+
+    def test_stage_zero_or_three_is_as_before(self):
+        camp = Camp(options=FREE)
+        r = camp.villager(3)
+        for stage in (0, 3):
+            camp.put32(0x51D950 + 8, stage)
+            self.assertNotIn(TEXT_STATUE, {t for t, _ in self.picks(camp, r, 300)}, "not carved / not unfinished")
 
 
 if __name__ == "__main__":

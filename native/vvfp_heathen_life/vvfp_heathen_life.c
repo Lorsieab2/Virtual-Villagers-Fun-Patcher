@@ -75,7 +75,8 @@
         facilities (decision 10), a walk, two gestures and a wait, then back to the encampment:
           the spa         the pools, area 0x7C (0x45C000's walk; its payoff step 0x16, the soak, left out);
           the statue      the Believer Idol, once carved (project 14), area 0x45 (where the believers show a baby
-                          "the statue", 0x462430); Devotion practised;
+                          "the statue", 0x462430); Devotion practised; while carved to stage 1 or 2 (+8 of the
+                          statue 0x51D950), one visit in two is the believers' Confused look (section 5);
           the science lab area 0x0E (0x45A890's walk); Research practised;
           the Love Shack  once built (project 23), its walk area (+0x14, 0x11), waiting at its door: no
                           embrace step (0x474CE0) and no conception; only at the couples' ages (18 to 49: the
@@ -248,6 +249,10 @@
 #define G_POSE_26 0x474AB0u            /* type 0x26 */
 #define G_SOUND_END 0x4751D0u          /* type 0x1C, (): stops the sound a 0x475160 step played (0x44C0A0) */
 #define G_EFFECT 0x474F50u             /* type 0x16, (a, b, c); ret 0xC: an effect at the villager (0x41D460) */
+#define G_GESTURE_AT 0x474370u         /* type 3, (count, 0, frame, frame); ret 0x10: Confused's head shakes (0x4594CA) */
+#define G_STATUE 0x51D950u             /* the statue object: its stage at +8 (0x4271C0); 1 or 2 carved, waiting for
+                                          technology (0x46CDC6, the believers' Honoring offer) */
+#define STATUE_STAGE 0x08u
 #define G_TEXT_STEP 0x474270u          /* (const char *text); ret 4: a step of type 6 holding the text (copied, 0x27
                                           bytes, into the step's +0x28); when the queue reaches it the queue's start
                                           0x473590 copies it into the Details text +0x1D14 (0x473743) -- the game's
@@ -522,7 +527,7 @@ enum {
     L_FIND_RARE, L_FIND_RARE_CARRY, L_FIND_RARE_DROP,
     L_FIND_GOLDEN, L_FIND_GOLDEN_CARRY, L_FIND_GOLDEN_DROP,
     L_FIND_LAB, L_FIND_LAB_CARRY, L_FIND_LAB_DROP,
-    L_FIND_RELIC, L_FIND_RELIC_CARRY, L_FIND_RELIC_DROP
+    L_FIND_RELIC, L_FIND_RELIC_CARRY, L_FIND_RELIC_DROP, L_STATUE_CONFUSED
 };
 
 /* Each label in the player's language (Translations: native/shared/vvfp_translate.h), at most the Details text's
@@ -606,7 +611,8 @@ static const char *label(int which) {
     case L_FIND_LAB_DROP: return vvfp_tr("vvfp.heathen_life/vvfp_heathen_life.label.find_lab_drop", "Dropping off lab equipment", R_DOING_CAP);
     case L_FIND_RELIC: return vvfp_tr("vvfp.heathen_life/vvfp_heathen_life.label.find_relic", "Picking up a relic", R_DOING_CAP);
     case L_FIND_RELIC_CARRY: return vvfp_tr("vvfp.heathen_life/vvfp_heathen_life.label.find_relic_carry", "Bringing a relic to camp", R_DOING_CAP);
-    default: return vvfp_tr("vvfp.heathen_life/vvfp_heathen_life.label.find_relic_drop", "Dropping off a relic", R_DOING_CAP);
+    case L_FIND_RELIC_DROP: return vvfp_tr("vvfp.heathen_life/vvfp_heathen_life.label.find_relic_drop", "Dropping off a relic", R_DOING_CAP);
+    default: return vvfp_tr("vvfp.heathen_life/vvfp_heathen_life.label.statue_confused", "Confused at the unfinished statue", R_DOING_CAP);
     }
 }
 
@@ -946,11 +952,37 @@ static void look_lab(unsigned char *record, int area) {
     start(record);
 }
 
+static int statue_stage(void) {
+    return *(const volatile int *)(UINT_PTR)(G_STATUE + STATUE_STAGE);
+}
+
+/* 1 while the statue is carved to its first or second stage, its next one waiting for technology. */
+static int statue_unfinished(void) {
+    int stage = statue_stage();
+    return !puzzle_done(P_IDOL) && (stage == 1 || stage == 2);
+}
+
 /* The Believer Idol: the believers' honoring (0x45CB70: pose 4 and gestures of animation 2, pose 0x2E, the talking
-   pose) without its skill check and payoff; Devotion practised. */
-static void look_statue(unsigned char *record, int area) {
+   pose) without its skill check and payoff; Devotion practised (the caller plans it).  While the statue is
+   unfinished (stage 1 or 2), as for a believer dropped there with "Villagers Dropped on an Unfinished Statue May
+   Honor" (the owner, 2026-11-27: "same skill practice rules apply to heathens with the heathen expansion patch
+   too"): one visit in two, of this companion's numbers, is the believers' Confused look instead (behaviour 0x1F,
+   0x459480: its head shakes 0x474370 and gestures; its tip, voice and message left out) -- 0 returned, nothing
+   practised. */
+static int look_statue(unsigned char *record, int area) {
     begin(record, L_STATUE_GO);
     walk_area(record, area, 0x64);
+    if (statue_unfinished() && rnd(2) == 0) {
+        then(record, L_STATUE_CONFUSED);
+        ((tc4_fn)(UINT_PTR)G_GESTURE_AT)(record, NULL, 1, 0, rnd(4), rnd(4));
+        ((tc4_fn)(UINT_PTR)G_GESTURE_AT)(record, NULL, 1, 0, rnd(4), rnd(4));
+        ((tc4_fn)(UINT_PTR)G_GESTURE_AT)(record, NULL, 1, 0, rnd(4), rnd(4));
+        gesture(record, 1, rnd(2));
+        then(record, L_BACK);
+        walk_area(record, A_CAMP, 0x64);
+        start(record);
+        return 0;
+    }
     then(record, L_STATUE_AT);
     pose(record, G_POSE_4, rnd(4) + 1);
     gesture(record, rnd(2) + 2, 2);
@@ -961,6 +993,7 @@ static void look_statue(unsigned char *record, int area) {
     then(record, L_BACK);
     walk_area(record, A_CAMP, 0x64);
     start(record);
+    return 1;
 }
 
 /* The believers' own leisure (the adult chooser 0x46A3C0's), each the script's walk and poses with this companion's
@@ -1609,7 +1642,9 @@ static int show(unsigned char *record, int may_go_out) {
         if (puzzle_done(P_FARM) && !in_use(A_CROPS)) OFFER(ACT_CROPS, A_CROPS);
         if (puzzle_done(P_LAKE) && !in_use(A_LAKE)) OFFER(ACT_FISH, A_LAKE);
         if (area_drawn(A_POOLS) && !in_use(A_POOLS)) OFFER(ACT_POOLS, A_POOLS);
-        if (puzzle_done(P_IDOL) && area_drawn(A_STATUE) && !in_use(A_STATUE)) OFFER(ACT_STATUE, A_STATUE);
+        if ((puzzle_done(P_IDOL) || statue_unfinished()) && area_drawn(A_STATUE) && !in_use(A_STATUE)) {
+            OFFER(ACT_STATUE, A_STATUE);
+        }
         if (area_drawn(A_LAB) && !in_use(A_LAB)) OFFER(ACT_LAB, A_LAB);
         if (age >= LOVE_FIRST && age < LOVE_LAST && (area = building_area(SITE_LOVE)) != 0 && !in_use(area)) {
             OFFER(ACT_LOVE, area);
@@ -1636,7 +1671,11 @@ static int show(unsigned char *record, int may_go_out) {
     case ACT_CROPS: look_harvest(record, L_CROPS_GO, area, 0, 0); plan_practice(record, SKILL_FARMING); break;
     case ACT_FISH: look_harvest(record, L_FISH_GO, area, 0x38, 1); plan_practice(record, SKILL_FARMING); break;
     case ACT_POOLS: look_visit(record, L_POOLS_GO, 0, area); break;
-    case ACT_STATUE: look_statue(record, area); plan_practice(record, SKILL_DEVOTION); break;
+    case ACT_STATUE:
+        if (look_statue(record, area)) {
+            plan_practice(record, SKILL_DEVOTION);
+        }
+        break;
     case ACT_LAB: look_lab(record, area); plan_practice(record, SKILL_RESEARCH); break;
     case ACT_LOVE: look_visit(record, L_LOVE_GO, 0, area); break;
     case ACT_CLOTHING: look_visit(record, L_CLOTHING_GO, 0, area); break;
