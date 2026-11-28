@@ -54,7 +54,8 @@ OTHERS = {
     5: (ROOT / "assets" / "devotion_faith" / "VVFP Devotion Faith.dll",
         ROOT / "assets" / "heathen_aging" / "VVFP Heathen Aging.dll",
         ROOT / "assets" / "founder_x_buttons" / "VVFP Founder X Buttons.dll",
-        ROOT / "assets" / "divine_energy_cap" / "VVFP Divine Energy Cap.dll"),
+        ROOT / "assets" / "divine_energy_cap" / "VVFP Divine Energy Cap.dll",
+        ROOT / "assets" / "statue_honoring" / "VVFP Statue Honoring.dll"),
 }
 LOADS = {0xB8, 0xB9, 0xBA, 0xBB, 0xBD, 0xBE, 0xBF, 0x68}   # mov r32, imm32 (not esp) / push imm32
 

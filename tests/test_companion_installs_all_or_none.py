@@ -477,6 +477,10 @@ CASES = [
     Case("Devotion Faith", "assets/devotion_faith/VVFP Devotion Faith.dll", (5,),
          lambda g: [f"vv{g}_devotion_builds_faith"],
          lambda m, g: (m.export("VvfpStartup", g, 0), m.export("VvfpDevotionFaithInstalled"))[1]),
+    # Villagers Dropped on an Unfinished Statue May Honor (New Believers): the statue handler's Confused dispatch.
+    Case("Statue Honoring", "assets/statue_honoring/VVFP Statue Honoring.dll", (5,),
+         lambda g: [f"vv{g}_unfinished_statue_drops_honor"],
+         lambda m, g: (m.export("VvfpStartup", g, 0), m.export("VvfpStatueHonoringInstalled"))[1]),
     # X Buttons to Remove Chosen Founders (The Tree of Life, New Believers): the candidate generator's entry and the
     # "Select 5 villagers" screen's command handler and draw slots.
     Case("Founder X Buttons", "assets/founder_x_buttons/VVFP Founder X Buttons.dll", (4, 5),

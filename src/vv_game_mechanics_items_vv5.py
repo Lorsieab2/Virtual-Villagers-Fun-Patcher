@@ -132,7 +132,9 @@ PATCHES = (ORIGINS, STORY, STORY_COST, "vv5_learning_never_fails", "vv5_heathen_
            "vv5_statue_polishing_or_honoring", "vv5_easier_devotee_training", "vv5_vv4_nursery_divisor_parity",
            "vv5_builders_fix_huts", "vv5_builders_and_healers_work_first", "vv5_super_secret_golden_mushroom",
            "vv5_everyone_collects_like_vv1", "vv5_collectibles_stay_collected", "vv5_adult_confused",
-           "vv5_science_collectibles_complete", "vv5_divine_energy_gain")
+           "vv5_science_collectibles_complete", "vv5_divine_energy_gain", "vv5_unfinished_statue_drops_honor")
+# Villagers Dropped on an Unfinished Statue May Honor (the owner, 2026-11-27; on by default).
+STATUE_HONORING = "vv5_unfinished_statue_drops_honor"
 
 
 # ---------------------------------------------------------------------------
@@ -431,7 +433,17 @@ def _puzzle_entries() -> list[Entry]:
                 "Divine Energy cap.", VERIFIED_C),
                (f"{_feature('vv5_statue_polishing_or_honoring')}: a villager dropped on the finished statue polishes it "
                 "or Honors, 50% each, whatever their skills; one who carries the job on alone keeps the 50/50 only when "
-                "checked on that skill, and anyone else 14% of the time.", VERIFIED_C))),
+                "checked on that skill, and anyone else 14% of the time.", VERIFIED_C),
+               # The statue's area 0x18, handler 0x479560 (permission 0: 0x4794F1 turns children and expecting
+               # mothers away); its drop case 0x47969C: 0x432350 -> 0x95, solved -> 0x9D, else 0x1F (0x47971D).
+               ("Dropping an adult on the statue (children and nursing mothers cannot be dropped on it): while a "
+                "stage can be worked on, \"Building a statue\"; once solved, \"Polishing the statue\"; in between -- "
+                "carved to its first or second stage, the next stage waiting for Construction and Spirituality -- the "
+                "villager is \"Confused\".", VERIFIED_C),
+               # native/vvfp_statue_honoring: 0x479726's push 0x1F, the stage +8 of 0x51D950 at 1 or 2 (0x46CDC6).
+               (f"{_feature(STATUE_HONORING)}: in that in-between case a believer Honors instead 1 time in 2 (the "
+                "patcher's own roll, never the game's), the game's own Honoring with its Devotion practice and Divine "
+                "Energy; otherwise Confused as before.", VERIFIED_C))),
         Entry(PUZZLE, "The Blind Totem", "villagers make and install a golden eye (panning, smelting, installing)", (
             "until it is solved no God power can be cast on the island's north-east corner (world x past 1,815 and y "
             "above 445): the game says \"Your vision and power are blocked here!\""), VERIFIED_E,  # 0x4234C8
