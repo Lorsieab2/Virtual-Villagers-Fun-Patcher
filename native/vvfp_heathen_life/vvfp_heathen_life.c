@@ -1749,12 +1749,15 @@ static int __cdecl pick(unsigned char *record) {
             /* A child: only what a believer child does that a Heathen child does not in stock -- play in the
                nursery while an adult teaches at the nursery school (0x46E433..0x46E472; 0x43A810), and bring a
                find home (the believer children's pick-up, flavour only). */
-            int tribe, away, same, nursery = ((teacher_fn)(UINT_PTR)G_TEACHER)() && area_drawn(A_NURSERY_PLAY);
+            int tribe, away, same, in_nursery, nursery = ((teacher_fn)(UINT_PTR)G_TEACHER)() && area_drawn(A_NURSERY_PLAY);
             int spot = rnd(2) == 0 ? 0x4C : 0x51;         /* where the believer children look (0x456C10) */
+            tally(&tribe, &away, &in_nursery, ACT_NURSERY);
             tally(&tribe, &away, &same, ACT_FIND);
             if (!may_go_out || away >= away_cap(tribe)) {
                 return 0;
             }
+            /* The same-action cap holds for nursery play too (Codex, PR #899): a full nursery falls back to a find. */
+            nursery = nursery && in_nursery < same_cap();
             if (nursery && (rnd(2) == 0 || in_use(spot))) {
                 look_visit(record, 0, T_NURSERY_PLAY, A_NURSERY_PLAY);
                 went_out(record, ACT_NURSERY, 1);
