@@ -14,7 +14,7 @@
     "SDL's event filter (SDL_SetEventFilter) drops a left/right/middle press on a black bar and its release. VVFP Fullscreen Mouse.dll (Fix Vanilla Bugs) asks VvfpSharpPictureRect for the picture's rectangle while the filter draws, so SDL_GetMouseState and the pointer warp map to the picture in bars and stretch."
   ],
   "explicit_non_changes": [
-    "No executable byte is patched and no byte of SDL2.dll: the companion changes six entries of the game's import table (SDL_CreateWindow and the four frame calls), only when SDL2.dll reports 2.0.3, the frame routine calls those imports in that order, they still hold SDL2.dll's own addresses and Direct3D 9Ex is there (d3d9.dll from the system folder).",
+    "No executable byte is patched and no byte of SDL2.dll: the companion changes six entries of the game's import table (SDL_CreateWindow and the four frame calls), only when SDL2.dll reports 2.0.3, the frame routine calls those imports in that order and they still hold SDL2.dll's own addresses; it draws only with Direct3D 9Ex (the d3d9.dll SDL's own Direct3D renderer loaded; the companion loads no DLL).",
     "Any Direct3D failure stops the filter for the session and SDL draws the picture as before.",
     "Game files, art and saves are untouched; nothing is written."
   ],
@@ -22,7 +22,7 @@
     {
       "source": "assets/sharp_picture/VVFP Sharp Picture.dll",
       "destination": "VVFP Sharp Picture.dll",
-      "sha256": "26007C5242EEF4E59488CE22DE0853717CE5928241E6424312D3C27EC3FC4D94"
+      "sha256": "7E08182CDE7C3F87E51226130BDA054BE5331E17DE0A340AE6903F6606B90645"
     }
   ],
   "patches": []

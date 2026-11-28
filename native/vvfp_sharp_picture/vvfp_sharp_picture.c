@@ -28,8 +28,8 @@
 
    ALL OR NONE.  Installed only when SDL2.dll is loaded and reports 2.0.3, the game's frame routine calls its
    SDL_UpdateTexture, SDL_RenderClear, SDL_RenderCopy and SDL_RenderPresent imports in that order, those imports and
-   SDL_CreateWindow still hold SDL2.dll's own addresses, and Direct3D 9Ex is there (d3d9.dll from the system
-   folder).  No byte of the game's code or of SDL2.dll is written; game files, art and saves are untouched.  No
+   SDL_CreateWindow still hold SDL2.dll's own addresses; and it draws only when Direct3D 9Ex is there (the
+   d3d9.dll SDL's own Direct3D renderer loaded -- this companion loads no DLL).  No byte of the game's code or of SDL2.dll is written; game files, art and saves are untouched.  No
    debug output. */
 #define COBJMACROS
 #include <windows.h>
@@ -302,6 +302,15 @@ static int sp_target(int w, int h, D3DFORMAT format, IDirect3DTexture9 **texture
 static int sp_make_device(int cw, int ch) {
     IDirect3DDevice9 *dev;
     int i;
+    if (g_create9ex == NULL) {
+        /* Direct3D 9Ex from the d3d9.dll SDL's own Direct3D renderer has already loaded (the system's; this
+           companion never loads a DLL itself).  Not loaded -- SDL chose another renderer -- or no 9Ex: SDL draws. */
+        HMODULE d3d9 = GetModuleHandleW(L"d3d9.dll");
+        g_create9ex = d3d9 != NULL ? (sp_create9ex_fn)GetProcAddress(d3d9, "Direct3DCreate9Ex") : NULL;
+        if (g_create9ex == NULL) {
+            return 0;
+        }
+    }
     if (FAILED(g_create9ex(D3D_SDK_VERSION, &g_d3d))) {
         return 0;
     }
@@ -695,9 +704,7 @@ int __stdcall VvfpSharpPictureInstalled(void) {
 
 /* Called by VVFP More Companions.dll before WinMain, on the game's own thread. */
 void __stdcall VvfpStartup(int game, unsigned int shipped) {
-    HMODULE sdl, module, d3d9;
-    wchar_t system[MAX_PATH + 16];
-    UINT n;
+    HMODULE sdl, module;
     void **window_slot, **frame_slots[4];
     static const char *const FRAME_NAMES[4] = {"SDL_UpdateTexture", "SDL_RenderClear", "SDL_RenderCopy",
                                                "SDL_RenderPresent"};
@@ -732,17 +739,6 @@ void __stdcall VvfpStartup(int game, unsigned int shipped) {
     g_wm_info = (sp_wm_info_fn)GetProcAddress(sdl, "SDL_GetWindowWMInfo");
     g_set_filter = (sp_set_filter_fn)GetProcAddress(sdl, "SDL_SetEventFilter");
     if (g_wm_info == NULL || g_set_filter == NULL) {
-        return;
-    }
-    /* Direct3D 9Ex from the system folder only. */
-    n = GetSystemDirectoryW(system, MAX_PATH);
-    if (n == 0 || n >= MAX_PATH) {
-        return;
-    }
-    lstrcpyW(system + n, L"\\d3d9.dll");
-    d3d9 = LoadLibraryW(system);
-    g_create9ex = d3d9 != NULL ? (sp_create9ex_fn)GetProcAddress(d3d9, "Direct3DCreate9Ex") : NULL;
-    if (g_create9ex == NULL) {
         return;
     }
     g_frame_w = SP_GAMES[game - 1].w;

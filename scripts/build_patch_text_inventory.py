@@ -239,6 +239,11 @@ def add_gui_rows(strings: list[dict]) -> None:
                         "mechanism": "b",
                         "context": "Heathen Tribe Expansion and Evolution's Settings window (New Believers)",
                         "notes": "a patcher window"})
+    # Sharp Full Screen Picture (4K Filter)'s Settings window (New Believers first): its intro and the two choices.
+    for name, english in zip(("intro", "bars", "stretch"), gui.SHARP_PICTURE_SETTINGS_TEXTS):
+        strings.append({"stem": f"vvfp.gui/sharp_picture.{name}", "english": english, "games": ["vv5"],
+                        "mechanism": "b", "context": "Sharp Full Screen Picture (4K Filter)'s Settings window",
+                        "notes": "a patcher window"})
     import vv_game_mechanics
     strings.append({"stem": "vvfp.gui/game_mechanics.minimum_detail", "english": vv_game_mechanics.MINIMUM_DETAIL,
                     "games": ["vv1", "vv2", "vv3", "vv4", "vv5"], "mechanism": "b",

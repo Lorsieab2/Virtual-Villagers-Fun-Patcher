@@ -77,8 +77,8 @@ def row(game: int, dll_sha: str) -> dict:
         "explicit_non_changes": [
             "No executable byte is patched and no byte of SDL2.dll: the companion changes six entries of the game's "
             "import table (SDL_CreateWindow and the four frame calls), only when SDL2.dll reports 2.0.3, the frame "
-            "routine calls those imports in that order, they still hold SDL2.dll's own addresses and Direct3D 9Ex is "
-            "there (d3d9.dll from the system folder).",
+            "routine calls those imports in that order and they still hold SDL2.dll's own addresses; it draws only "
+            "with Direct3D 9Ex (the d3d9.dll SDL's own Direct3D renderer loaded; the companion loads no DLL).",
             "Any Direct3D failure stops the filter for the session and SDL draws the picture as before.",
             "Game files, art and saves are untouched; nothing is written.",
         ],

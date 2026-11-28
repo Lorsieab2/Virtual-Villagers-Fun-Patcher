@@ -1,8 +1,9 @@
 """Sharp Full Screen Picture (4K Filter) (New Believers first; the owner, 2026-11-26/27): "VVFP Sharp Picture.dll".
 
-* The row: off by default, needs Fix Vanilla Bugs, ships the DLL pinned, started from the third word (bit 23).
-* The DLL: its exports, its imports (no Direct3D import: d3d9.dll is loaded from the system folder), nothing written
-  but six import entries, the shaders compiled in, no file but its settings file read.
+* The row: off by default (Owner's Defaults ticks it), says to use it with Fix Vanilla Bugs, ships the DLL pinned,
+  started from the third word (bit 23); its Settings window: black bars (default) or stretch.
+* The DLL: its exports, its imports (no Direct3D import and no DLL loaded: it uses the d3d9.dll SDL's renderer
+  loaded), nothing written but its import entries, the shaders compiled in, no file but its settings file read.
 * The harness native/vvfp_sharp_picture/sharp_picture_harness.c (with the games' SDL2.dll, when present): the game's
   own frame routine draws through the companion; the picture equals the CPU reference of the filter in a window and a
   screen-wide window, in bars and stretch; a click on a bar is dropped; a changed frame routine installs nothing.
@@ -70,8 +71,54 @@ class TheRow(unittest.TestCase):
         self.assertEqual(names.index(DLL_NAME), 23)
         import vv_fun_patcher_gui as gui
         self.assertIn("vv5_sharp_picture", gui.DEFAULT_OFF_FUN_PATCH_IDS)
+        # Owner's Defaults ticks it (the owner, 2026-11-28), as every default-off row it does not hold back;
+        # Select All follows the same rule.
+        self.assertNotIn("vv5_sharp_picture", gui.OWNERS_DEFAULT_OFF_FUN_PATCH_IDS)
+        self.assertNotIn("vv5_sharp_picture", gui.SELECT_ALL_OFF_FUN_PATCH_IDS)
         self.assertIn(f'"assets/sharp_picture/{DLL_NAME}",', (ROOT / "scripts" / "build_release.py").read_text(
             encoding="utf-8"))
+
+
+class TheSettings(unittest.TestCase):
+    """Black bars or stretch (the owner, 2026-11-27): the row's Settings window, the file beside the companion."""
+
+    def tearDown(self) -> None:
+        patcher.set_sharp_picture_fit("bars")
+
+    def test_the_settings_window(self) -> None:
+        import vv_fun_patcher_gui as gui
+        self.assertEqual(gui.PATCH_SETTINGS_ROWS["sharp_picture"], ("_fill_sharp_picture_settings",
+                                                                     ("sharp_picture_fit",)))
+        self.assertTrue(callable(getattr(gui.App, "_fill_sharp_picture_settings")))
+        rows = json.loads((ROOT / "data" / "translations" / "patcher_strings.json").read_text(encoding="utf-8"))
+        english = {r["stem"]: r["english"] for r in rows["strings"]}
+        for name, text in zip(("intro", "bars", "stretch"), gui.SHARP_PICTURE_SETTINGS_TEXTS):
+            self.assertEqual(english[f"vvfp.gui/sharp_picture.{name}"], text)
+        import vv_how_to_use
+        self.assertIn("Black bars (the default)", " ".join(vv_how_to_use.guide("sharp_picture_fit").lines))
+
+    def test_the_choice_and_the_file(self) -> None:
+        self.assertEqual(patcher.SHARP_PICTURE_FIT_DEFAULT, "bars")
+        self.assertEqual(patcher.sharp_picture_fit(), "bars")
+        with self.assertRaises(patcher.PatcherError):
+            patcher.set_sharp_picture_fit("zoom")
+        row = next(p for p in patcher.load_public_fun_patches() if p.id == "vv5_sharp_picture")
+        for fit in ("bars", "stretch"):
+            with self.subTest(fit=fit), tempfile.TemporaryDirectory() as folder:
+                patcher.set_sharp_picture_fit(fit)
+                patcher._write_sharp_picture_choice(Path(folder), [row])
+                written = list(Path(folder).rglob(patcher.SHARP_PICTURE_FILE))
+                self.assertEqual(len(written), 1)
+                self.assertEqual(written[0].read_text(encoding="ascii"), fit + "\n")
+                self.assertEqual(written[0].parent.name, "Virtual Villagers Fun Patcher Files")
+        with tempfile.TemporaryDirectory() as folder:   # a build without the row writes nothing
+            patcher._write_sharp_picture_choice(Path(folder), [])
+            self.assertEqual(list(Path(folder).rglob("*")), [])
+        self.assertIn(patcher.SHARP_PICTURE_FILE, (ROOT / "src" / "patcher_files.py").read_text(encoding="utf-8"))
+        args = patcher._parser().parse_args(["dry-run", "x.exe", "--sharp-picture-fit", "stretch"])
+        self.assertEqual(args.sharp_picture_fit, "stretch")
+        # the companion reads "stretch", anything else is bars
+        self.assertIn('g_stretch = strstr(text, "stretch") != NULL;', SOURCE.read_text(encoding="utf-8"))
 
 
 class TheDll(unittest.TestCase):
@@ -95,7 +142,9 @@ class TheDll(unittest.TestCase):
         self.assertEqual(text.count("VirtualProtect("), 2)
         self.assertEqual(text.count("sp_set("), 6)   # the definition and five entries
         self.assertIn('"SDL_CreateWindow"', text)
-        self.assertIn('lstrcpyW(system + n, L"\\\\d3d9.dll");', text)
+        self.assertIn('GetModuleHandleW(L"d3d9.dll")', text)
+        self.assertNotIn("LoadLibrary", text)
+        self.assertNotIn("LoadLibrary", text)
         self.assertIn("D3DCREATE_FPU_PRESERVE", text)
         self.assertIn("#define SP_LATE_MS 20.0", text)
         # the shaders: one source for the build (fxc) and the research prototype's algorithm
