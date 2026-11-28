@@ -370,6 +370,24 @@ int main(void) {
     check(VvfpSkinToneGive(GAME, rec(2), 0x10000 | a) == 0 && VvfpSkinToneGive(GAME, rec(2), (11 << 8) | 3) == 0,
           "a number that is not one of its own is refused");
 
+    printf("A sex change (native/shared/sex_change.h tells this DLL)\n");
+    {
+        static unsigned char before[0x3000];
+        const st_layout *l = &LAYOUT[GAME];
+        int was_tone, was_birth;
+        (void)VvfpSkinToneSet(GAME, rec(3), 7);
+        was_tone = tone(3);
+        was_birth = VvfpSkinToneBirth(GAME, rec(3));
+        memcpy(before, rec(3), l->stride);
+        *(int *)(rec(3) + l->sex) = !*(int *)(rec(3) + l->sex);
+        check(VvfpVillagerSexChanged(GAME, g_harness_slot, rec(3), before) == 1, "the change is carried");
+        check(tone(3) == was_tone && VvfpSkinToneBirth(GAME, rec(3)) == was_birth,
+              "a sex change keeps the tone and the birth tone");
+        new_session();
+        check(tone(3) == was_tone && VvfpSkinToneBirth(GAME, rec(3)) == was_birth, "and so does the file");
+        check(was_tone == 7 && was_birth >= 1 && was_birth <= N, "(a chosen tone and a birth tone were kept)");
+    }
+
     printf("Babies\n");
     /* rec 0 is the father (tone 2), rec 1 the mother (tone 8): the head rule gives 4, 5 or 6 on 95%. */
     births = near_parents = 0;

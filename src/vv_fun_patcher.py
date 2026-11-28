@@ -1349,10 +1349,10 @@ VV5_TASK9_PATHS = {
 # villager's own colour flags. The believer draw at 0x47279C is stock again,
 # and the flip is closed at both render-function epilogues.
 VV5_TASK9_SOURCE_TEXT_SHA256 = {
-    "manifest": "82E22D6E5B0F518D308C0E50411703184110FD1E1CB9A174732E6BE1415B14F9",
-    "map": "988C0578CC1A68B05A0C79C7F5F8931131682FB3B80FA87CD200E2CA399ADA9F",
+    "manifest": "16940EE986EEE37D84B0E0CD71458491B8CD38ABF672735195902A0ED70F4E49",
+    "map": "3D13A93174795C196A59C4BBA00B97359900384796DFCE6AA12DBEF8E5019131",
 }
-VV5_TASK9_DLL_SHA256 = "07BA0A2FCA426553D195FC66DC6342A6DBA4A55B0F99B661ACF694EA9480B18F"
+VV5_TASK9_DLL_SHA256 = "568FF22F2682700662A859C04CBE33D65EA024F9CFF0DC8DEC71C5E2442C4BAE"
 # Dedicated Details-portrait bighead mask atlas shipped to Images/bigheads_masks.png.
 VV5_TASK9_BIGHEAD_ATLAS_SHA256 = "8E10BE75CBED771DA9F63E8C7DF7A1CA91658A9A4069862D9E4EE53D04FDCB47"
 VV5_TASK9_BIGHEAD_ATLAS_SIZE = 44493
@@ -2428,7 +2428,7 @@ EXPANDED_TIME_WARP_SOURCE_TEXT_SHA256 = {
     # the deeper frozen artifacts; the removed experimental patch modes prevent
     # end-to-end regeneration in the current tree.
     "vv3_builder": "9A193B390E0DF9302F89285463310862A2CEA260D89E869267BE9D1FEB6DDE60",
-    "builder": "E7394A0C107A8A9811FCB61CB48FB3748841EB7262A6C09C0565CBD41BA32BF0",
+    "builder": "CD06F4BD099BB94B439CC7315E61A8781214E9BDCBA1C7AF0A7B1D50DA790124",
     "task9_builder": "4EB7468C4C6F28921F03C056DAF9AFD33A659F357AA198B0EBBABE0D3C4BE427",
 }
 EXPANDED_TIME_WARP_ARTIFACT_SHA256 = {
@@ -2441,8 +2441,8 @@ EXPANDED_TIME_WARP_ARTIFACT_SHA256 = {
     # mechanism restored: these artifacts embed the builder's source identity,
     # which changed with it.
     "vv5": {
-        "manifest": "C37537D6979B110BBA4F81F5B510E061906CA073727D04D6BC81D82FAB23CF43",
-        "map": "B6035034D7EF7AC39DFD2FBD9558648E9B58258F914A3E15BAEE0834FEA7AF5C",
+        "manifest": "C8461947F378701AF19DB424123809EEA569A5E8B122BC1B338B782E65B8EA7C",
+        "map": "19E4CF54FC34904D6474738922F61E204B36FAFCAD334BA4BA85E91B04087073",
     },
 }
 VV5_TASK9_EXPANDED_HOOK = {
@@ -11255,8 +11255,25 @@ def _copy_companion_files(
     return copied
 
 
-# What the last patch did about each game's skin tone sheets (the GUI may show it): game -> a line of plain words.
+# What the last patch did about each game's skin tone sheets: game -> a line of plain words.
 SKIN_TONE_REPORTS: dict[int, str] = {}
+# Warnings a patch finished with (Codex on #900: a failure must not be silent): each is put into that patch's log
+# ("warnings"), printed by the command line and shown by the window when the patch is done.  clear_patch_warnings()
+# before a patch (or a batch), patch_warnings() after it.
+PATCH_WARNINGS: list[str] = []
+
+
+def clear_patch_warnings() -> None:
+    PATCH_WARNINGS.clear()
+
+
+def patch_warnings() -> list[str]:
+    """The warnings of the patches since clear_patch_warnings(), in order."""
+    return list(PATCH_WARNINGS)
+
+
+def skin_tone_failure_warning(reason) -> str:
+    return (f"Skin Tones: the tone pictures could not be made ({reason}); the game will show its own skin.")
 
 
 # Skin Tones' "Preferred skin tone" (the row's Settings window; the owner, 2026-11-28): "No preference" (0) or a tone
@@ -11332,6 +11349,7 @@ def _write_skin_tone_sheets(output_folder: Path, fun_patches: list[FunPatch]) ->
             pass
         SKIN_TONE_REPORTS[wanted if "wanted" in locals() and wanted else game or 0] = (
             f"The skin tone pictures could not be made ({exc}); villagers are drawn with the game's own art.")
+        PATCH_WARNINGS.append(skin_tone_failure_warning(exc))
 
 
 def _write_player_events(output_folder: Path, fun_patches: list[FunPatch]) -> None:
@@ -14822,6 +14840,7 @@ def apply_patch(
         removed_companions = _remove_unselected_companions(
             staging_folder, build, fun_patches
         )
+        warnings_before = len(PATCH_WARNINGS)
         companions = _copy_companion_files(staging_folder, fun_patches)
         _write_meal_scale_choice(staging_folder, fun_patches, meal_multiplier)
         _write_more_companions_choice(staging_folder, fun_patches)
@@ -14848,6 +14867,8 @@ def apply_patch(
         log_data["companion_files"] = companions
         log_data["installed_patches_path"] = patcher_files.INSTALLED_PATCHES_RELATIVE_PATH.as_posix()
         log_data["removed_unselected_companions"] = removed_companions
+        if PATCH_WARNINGS[warnings_before:]:
+            log_data["warnings"] = PATCH_WARNINGS[warnings_before:]
         save_copy: dict[str, Any] | None = None
         if copy_saves:
             save_copy = copy_vanilla_saves(
@@ -15496,6 +15517,7 @@ def main() -> int:
                 )
             )
         elif args.command == "apply":
+            clear_patch_warnings()
             output, log = apply_patch(
                 args.exe,
                 args.patch_mode,
@@ -15512,6 +15534,8 @@ def main() -> int:
             )
             print(f"Created: {output}")
             print(f"Log: {log}")
+            for warning in patch_warnings():
+                print(f"Warning: {warning}")
         elif args.command == "dry-run-all":
             print(
                 json.dumps(
@@ -15530,6 +15554,7 @@ def main() -> int:
             )
         else:
             _validate_public_patch_mode(args.patch_mode)
+            clear_patch_warnings()
             results = apply_all(
                 _all_sources_from_args(args),
                 args.patch_mode,
@@ -15545,6 +15570,8 @@ def main() -> int:
             for output, log in results:
                 print(f"Created: {output}")
                 print(f"Log: {log}")
+            for warning in patch_warnings():
+                print(f"Warning: {warning}")
         return 0
     except PatcherError as exc:
         print(f"Error: {exc}")

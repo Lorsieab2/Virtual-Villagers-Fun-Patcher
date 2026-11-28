@@ -1,6 +1,7 @@
 {
  "about": "Strings in the patcher's companion DLLs and exe patches that scripts/scan_patch_text.py finds but that are deliberately NOT in the translation template, each rule with its reason. tests/test_translations_patch_coverage.py fails on any found string that is neither in data/translations/patcher_strings.json nor matched here. A rule: files (globs, repo-relative), optional functions (globs on the function or array a literal is in), optional match (a regular expression on the text); patch_files for exe-patch texts.",
  "rules": [
+  {"reason": "Skin Tones (VVFP Skin Tones.dll, all five games): its only words are the \"Appearance changed\" log lines' \"skin tone\" and tone names (\"Old skin tone\" / \"New skin tone\", the ten tones' names, \"Game's own\"), and its own per-save file's name; logs are never translated and the companion draws no text in the game. (Change Appearance's Skin tone choice, when it comes, is the Origins companions' own text and has its own rows.)", "files": ["native/vvfp_skin_tones/*"]},
   {
    "reason": "Pick Island Event, New Believers with Guardians of Isola Rewrite (VV5_GUARDIANS_TITLES): the game's own island-event titles as the rewrite itself renames them (data/guardians_of_isola/new/Assets/sm.xml), shown only while no translation of the title is chosen, so the list names each event as the game shows it. They are the rewrite's words, not the patcher's own.",
    "files": ["native/vvfp_story_upgrades/vvfp_story_upgrades.c"],

@@ -13,6 +13,11 @@ The method is scripts/skin_tone_preview.py's (the skin mask, then REPLACE in OKL
 the mask byte-identical).  This file knows each game's sheets, makes the same preview set per game, and
 builds and reads back the owner's workbench:
 
+PUBLISHING (a standing step, 2026-11-28): the patcher never reads the workbench.  Whenever the owner finishes a
+round of edits, run `import --game vvN`, then `publish --game vvN --images <the game's Images>`, and commit
+assets/skin_tones/owner_edits (white marks and their manifest only; tests/test_skin_tone_owner_edits.py checks
+them, and build_release ships every picture the manifest pins).
+
 THE WORKBENCH (never in the repository: it holds game art).  One .xcf per head and body sheet, written
 by GIMP itself, with layers bottom to top: "Game's own art" (locked), "Skin mask" (white = skin, hidden),
 one layer GROUP per tone "Tone 01 - S1 Porcelain" ... (all hidden but one), "Hair and non-skin (vanilla)"
@@ -2443,6 +2448,9 @@ TO PUT YOUR EDITS IN THE PATCHER ITSELF (so every player gets them)
       assets\\skin_tones\\owner_edits\\<game>\\<sheet>\\
   as plain white marks: no colour and nothing of the game's own art goes with them. The patcher
   makes each tone from every player's own game files, on the pixels you marked.
+  This is a standing step: whenever you finish a round of edits, "import" is run for the game
+  and then "publish", and assets\\skin_tones\\owner_edits is committed. Until that is done, a
+  patch (and a release) still draws the earlier marking: the patcher never reads this folder.
 
 TO MAKE THE FILES AGAIN (safe: nothing of yours is ever replaced)
       python scripts\\skin_tone_sheets.py workbench --game vv1 --images "<the game's Images folder>"

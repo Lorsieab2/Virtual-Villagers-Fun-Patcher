@@ -93,6 +93,8 @@ from vv_fun_patcher import (
     HEATHEN_SHOW_PERCENT_DEFAULT,
     HEATHEN_SHOW_PERCENT_RANGE,
     migrated_fun_patch_ids,
+    clear_patch_warnings,
+    patch_warnings,
     set_heathen_evolution,
     SKIN_TONE_PREFERRED_DEFAULT,
     set_skin_tone_preferred,
@@ -4264,6 +4266,7 @@ class App(tk.Tk):
                 )
                 if not overwrite:
                     return
+            clear_patch_warnings()
             output, log = self._run_with_wait(
                 f"Please wait\u2026\n\nCopying and patching {build.title}.\n\n"
                 "Copying the whole game folder can take a while.",
@@ -4293,10 +4296,20 @@ class App(tk.Tk):
                 "Modified game created",
                 [(build.title, source.parent, output.parent)],
             )
+            self._show_patch_warnings()
             vv_player_events_ui.show_patch_reports(self)
         except (PatcherError, OSError) as exc:
             self.status_var.set(str(exc))
             messagebox.showerror("Patch failed", str(exc))
+
+    def _show_patch_warnings(self) -> None:
+        """The patch's warnings (vv_fun_patcher.patch_warnings), after the patch is done: on the status line and in a
+        warning box.  Nothing when there are none."""
+        warnings = patch_warnings()
+        if not warnings:
+            return
+        self.status_var.set(self.status_var.get() + " " + " ".join(warnings))
+        messagebox.showwarning("Patched, with a warning", "\n\n".join(warnings), parent=self)
 
     def _save_player_events(self) -> None:
         """The Player Events boxes written to their files before a patch reads them (the worker never touches Tk)."""
@@ -4354,6 +4367,7 @@ class App(tk.Tk):
                 )
                 if not overwrite:
                     return
+            clear_patch_warnings()
             results = self._run_with_wait(
                 "Please wait\u2026\n\nCopying and patching all five games.\n\n"
                 "Copying five whole game folders can take several minutes.",
@@ -4387,6 +4401,7 @@ class App(tk.Tk):
                     for (build, source), (output, _) in zip(validated, results, strict=True)
                 ],
             )
+            self._show_patch_warnings()
             vv_player_events_ui.show_patch_reports(self)
         except (PatcherError, OSError, ValueError) as exc:
             self.status_var.set(str(exc))

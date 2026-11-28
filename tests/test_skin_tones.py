@@ -71,6 +71,21 @@ class Table(unittest.TestCase):
         self.assertIn(f'#define HL_KIND "{tones.FOLDER}"', store)
 
 
+class SexChange(unittest.TestCase):
+    """Codex on #900: the tone file's identity holds the sex, so a sex change must be told to this DLL, or the
+    villager would be given a new random tone.  The harness proves the DLL carries it (Harness, "A sex change")."""
+
+    def test_the_dll_is_told(self) -> None:
+        text = (ROOT / "native" / "shared" / "sex_change.h").read_text(encoding="utf-8")
+        owners = text[text.index("VV_SEX_OWNERS[] = {"):]
+        owners = owners[:owners.index("};")]
+        self.assertIn('"VVFP Skin Tones.dll"', owners)
+
+    def test_the_dll_exports_the_answer(self) -> None:
+        text = (ROOT / "native" / "vvfp_skin_tones" / "vvfp_skin_tones.def").read_text(encoding="utf-8")
+        self.assertIn("VvfpVillagerSexChanged=_VvfpVillagerSexChanged@16", text)
+
+
 class PreferredTone(unittest.TestCase):
     """The owner, 2026-11-28: "Preferred skin tone" -- no preference (random), or a tone most (4 in 5) randomly made
     villagers get; the rest random."""

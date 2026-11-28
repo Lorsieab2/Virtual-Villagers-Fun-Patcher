@@ -163,6 +163,8 @@ class ReleasesLinkTests(unittest.TestCase):
                "vv_startup_questions", "vv_graves", "vv_lost_titles", "vv1_parents_restore",
                # Restore Heathen Masks (New Believers, the owner, 2026-11-22).
                "vv5_heathen_masks_restore",
+               # Skin Tones: the tone table and rules, the patch-time tone pictures, the "?" preview (2026-11-28).
+               "vv_skin_tones", "vv_skin_tone_art", "vv_skin_tone_preview",
                "vv_corrupt_skills", "vv_golden_child_revive", "vv5_heathen_ages", "vv_reconcile", "vv_reconcile_view", "vv_titles_file", "vv_history_revision",
                "vv_original_look", "vv_misfiled_records", "vv_sex_changes",
                # Revive's snapshots made afterwards by Repair Saves & Logs (v1.35.101).

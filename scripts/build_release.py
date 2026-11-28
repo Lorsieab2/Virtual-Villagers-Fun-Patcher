@@ -1166,6 +1166,13 @@ FILES += TRANSLATION_FILES
 FILES += sorted(path.relative_to(ROOT).as_posix() for path in (ROOT / "assets" / "event_collection").rglob("*")
                 if path.is_file())
 
+# Skin Tones: the owner's marking of the skin, every picture its manifest pins (white marks only; published with
+# `scripts/skin_tone_sheets.py publish`; tests/test_skin_tone_owner_edits.py).  The patcher reads them when it makes
+# each player's tone pictures (src/vv_skin_tone_art.py OWNER_EDITS), so a release without them would draw the
+# automatic skin instead of the owner's.
+FILES += sorted(f"assets/skin_tones/owner_edits/{name}" for name in json.loads(
+    (ROOT / "assets" / "skin_tones" / "owner_edits" / "manifest.json").read_text(encoding="utf-8")))
+
 
 def _assert_translations_valid(files: list[str]) -> None:
     """Every shipped translation reads, is for the game its folder names, holds no email address and is not a

@@ -83,5 +83,42 @@ class OwnerEdits(unittest.TestCase):
         self.assertEqual(not_a_mark(mark), 2)
 
 
+
+class TheBuildCarriesTheMarks(unittest.TestCase):
+    """The live New Believers run (2026-11-28): the owner's edits never reached a build.  Now they are published
+    into assets/skin_tones/owner_edits and committed; a patch reads them and a release ships them."""
+
+    def test_new_believers_has_the_owners_marking(self) -> None:
+        for sheet in ("BigBodies", "female_actions02", "carrying"):
+            self.assertTrue(any((EDITS / "vv5" / sheet).glob("*.png")), sheet)
+
+    def test_the_release_ships_every_mark(self) -> None:
+        sys.path.insert(0, str(ROOT / "scripts"))
+        import build_release
+        pins = json.loads((EDITS / "manifest.json").read_text(encoding="utf-8"))
+        shipped = {f for f in build_release.FILES if f.startswith("assets/skin_tones/owner_edits/")}
+        self.assertEqual(shipped, {f"assets/skin_tones/owner_edits/{name}" for name in pins}
+                         | {"assets/skin_tones/owner_edits/manifest.json"})
+
+    def test_a_patch_makes_the_tone_on_the_marked_pixels(self) -> None:
+        """vv_skin_tone_art.install with its default marking (the committed one): the held baby's Ebony is made on
+        exactly the pixels the owner marked, and nowhere else."""
+        import tempfile
+        from PIL import Image
+        import vv_skin_tone_art as art
+        mark = Image.open(EDITS / "vv5" / "carrying" / "skin_10.png").convert("RGBA")
+        marked = {i for i, p in enumerate(mark.getdata()) if p[3]}
+        self.assertTrue(marked)
+        with tempfile.TemporaryDirectory() as folder:
+            images = Path(folder)
+            stock = Image.new("RGBA", mark.size, (230, 180, 140, 255))      # every pixel a sprite's, skin-like
+            stock.save(images / "carrying.png")
+            made = art.install(5, images)
+            self.assertIn("vvfp_skin_10_carrying.png", made)
+            ebony = Image.open(images / "vvfp_skin_10_carrying.png").convert("RGBA")
+            changed = {i for i, (a, b) in enumerate(zip(stock.getdata(), ebony.getdata())) if a != b}
+        self.assertEqual(changed, marked, "the owner's marking decides where the skin is")
+
+
 if __name__ == "__main__":
     unittest.main()
