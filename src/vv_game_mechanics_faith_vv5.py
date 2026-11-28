@@ -28,6 +28,7 @@ KEEP_MASKS = "vv5_heathens_keep_masks_when_converted"
 FOG_LISTENING = "vv5_fog_of_doom_every_heathen_listens"
 FOG_NO_LIMIT = "vv5_fog_of_doom_no_restrictions"
 DEVOTION_FAITH = "vv5_devotion_builds_faith"
+STATUE_HONORING = "vv5_unfinished_statue_drops_honor"
 FORMER_AGE = "vv5_former_villagers_keep_aging"
 FORMER_BONES = "vv5_former_villager_heathens_leave_skeletons"
 # Heathen Tribe Expansion and Evolution (v1.35.101; it folds Heathen Tribe Ages, Dies and Has Children, All Heathens
@@ -323,6 +324,15 @@ def lines(village: gm.Village) -> list[gm.Fact]:
         f"too. The check passes on a roll of 0 to 99 at or under Devotion + 33 (+66 for a villager who likes learning, "
         f"+16 for one who dislikes it; Learning 2 or 3 adds 15 or 30); a pass raises Devotion by (70 - Devotion) / 18 "
         f"plus the Spirituality level.")
+    statue_honoring = village.has(STATUE_HONORING)
+    if statue_honoring is not False:
+        # native/vvfp_statue_honoring: the statue handler 0x479560's Confused dispatch 0x479726 (the stage +8 of
+        # 0x51D950 at 1 or 2, the job dispatcher's own Honoring test 0x46CDC6), the companion's own 1-in-2 draw.
+        where = "in this game" if statue_honoring else UNTOLD
+        add(f"With \"{gm.feature_name(STATUE_HONORING)}\" ({where}): an adult believer dropped on the statue while "
+            f"it is carved but its next stage waits for technology, who is \"Confused\" in the normal game, Honors "
+            f"instead 1 time in 2 (50%, the patcher's own roll): the game's own Honoring, so its Devotion check comes as above (1 such "
+            f"Honoring in 8).", sub=True)
     devotion_faith = village.has(DEVOTION_FAITH)
     if devotion_faith is not False:
         where = "in this game" if devotion_faith else UNTOLD

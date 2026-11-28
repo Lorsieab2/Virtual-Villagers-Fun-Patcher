@@ -1169,6 +1169,16 @@
       ]
     },
     {
+      "ids": ["vv5_unfinished_statue_drops_honor"],
+      "guide": [
+        "On by default, in Owner's Defaults and Select All. Nothing to set: drop a villager as usual.",
+        "Drop an adult believer on the Tribute Statue while it is carved but its next stage needs more technology:",
+        "instead of always being Confused, they Honor 1 time in 2 (the game's own Honoring, with its Devotion practice",
+        "and Divine Energy). Building the statue and the finished statue's Polishing are unchanged.",
+        "Not yet seen in a running game."
+      ]
+    },
+    {
       "ids": ["vv5_max_divine_energy_increases"],
       "guide": [
         "Off by default and in Select All (Select All does not tick it); on in Owner's Defaults only. Nothing to click: it works on its own.",

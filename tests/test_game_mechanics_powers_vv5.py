@@ -98,6 +98,10 @@ class GodPowers(unittest.TestCase):
             # Sunshine's and Tempest's calls of the setter (0x41F32C, 0x4230C7) are never touched, so their weather
             # lasts as in the normal game (tests/test_new_sliders.py WeatherFrequency); its words name them
             "vv5_weather_frequency",
+            # a drop on the unfinished statue starts the game's own Honoring half the time (the owner, 2026-11-27);
+            # its words name the Divine Energy that Honoring earns, but no power's cost, range or effect changes
+            # (Tribute Statue entry: vv_game_mechanics_items_vv5)
+            "vv5_unfinished_statue_drops_honor",
         }
         data = ROOT / "data"
         catalog = [(row.get("id"), row) for row in json.loads((data / "builds.json").read_text(encoding="utf-8"))

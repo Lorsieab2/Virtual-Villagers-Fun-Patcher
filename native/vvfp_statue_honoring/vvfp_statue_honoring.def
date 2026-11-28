@@ -1,0 +1,5 @@
+LIBRARY "VVFP Statue Honoring"
+EXPORTS
+    VvfpStartup=_VvfpStartup@8
+    VvfpStatueHonoringInstalled=_VvfpStatueHonoringInstalled@0
+    VvfpStatueHonoringCount=_VvfpStatueHonoringCount@4

@@ -158,6 +158,8 @@ FILES = [
     "assets/fog_listening/VVFP Fog Listening No Restrictions.txt",
     # Practicing Devotion Builds Faith and Divine Energy (New Believers): the companion.
     "assets/devotion_faith/VVFP Devotion Faith.dll",
+    # Villagers Dropped on an Unfinished Statue May Honor (New Believers): the companion.
+    "assets/statue_honoring/VVFP Statue Honoring.dll",
     # Esteemed Elders in Every Game (A New Home, The Lost Children, The Tree of Life): the companion.
     "assets/esteemed_elders/VVFP Esteemed Elders.dll",
     # The Heathen aging rows and Heathen Tribe Expansion and Evolution (New Believers): the companions and each row's
@@ -384,6 +386,8 @@ FILES = [
     "data/vv5_fog_of_doom_no_restrictions_feature.json",
     # Practicing Devotion Builds Faith and Divine Energy (New Believers).
     "data/vv5_devotion_builds_faith_feature.json",
+    # Villagers Dropped on an Unfinished Statue May Honor (New Believers).
+    "data/vv5_unfinished_statue_drops_honor_feature.json",
     # Esteemed Elders in Every Game (A New Home, The Lost Children, The Tree of Life).
     "data/vv1_esteemed_elders_feature.json",
     "data/vv2_esteemed_elders_feature.json",
