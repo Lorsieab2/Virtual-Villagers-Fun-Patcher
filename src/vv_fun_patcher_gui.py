@@ -92,6 +92,13 @@ from vv_fun_patcher import (
     HEATHEN_EVOLUTION_ID,
     HEATHEN_SHOW_PERCENT_DEFAULT,
     HEATHEN_SHOW_PERCENT_RANGE,
+    HEATHEN_CHANGE_DEFAULT,
+    HEATHEN_CHANGE_RANGE,
+    HEATHEN_ROOM_DEFAULT,
+    HEATHEN_ROOM_RANGE,
+    HEATHEN_TRIBE_MAX_DEFAULT,
+    HEATHEN_TRIBE_MAX_OWNERS_DEFAULT,
+    HEATHEN_TRIBE_MAX_RANGE,
     migrated_fun_patch_ids,
     set_heathen_evolution,
     conflict_ids,
@@ -224,7 +231,8 @@ PATCH_SETTINGS_ROWS = {
     # Heathen Tribe Expansion and Evolution (New Believers): its two sliders and two options.
     "heathen_tribe_evolution": ("_fill_heathen_evolution_settings",
                                 ("heathen_tribe_births_multiplier", "heathen_arrivals_multiplier",
-                                 "heathen_show_percent", "heathen_keep_blue")),
+                                 "heathen_show_percent", "heathen_keep_blue", "heathen_tribe_max",
+                                 "heathen_room_kept", "heathen_change_multiplier")),
 }
 # Heathen Tribe Expansion and Evolution's Settings window (_fill_heathen_evolution_settings): its words, shown in the
 # player's language (the template rows vvfp.gui/heathen_evolution.*, scripts/build_patch_text_inventory.py).
@@ -236,8 +244,14 @@ HEATHEN_ARRIVALS_TICK = "New Heathens arrive"
 HEATHEN_ARRIVALS_LABEL = "0-10x New Heathen Arrivals:"
 HEATHEN_SHOW_LABEL = "Show actions (% of an idle Heathen's choices):"
 HEATHEN_KEEP_BLUE_LABEL = "Keep every new Heathen blue (no orange or red masks for arrivals and babies)"
+# The owner, 2026-11-28: the tribe's size, the room kept for believers and how often the tribe changes.
+HEATHEN_TRIBE_TICK = "Limit the Heathen tribe size"
+HEATHEN_TRIBE_LABEL = "Heathen tribe size (most living Heathens):"
+HEATHEN_ROOM_LABEL = "Room kept for believers (villager records always left free):"
+HEATHEN_CHANGE_LABEL = "0.1-10x How Often the Tribe Changes:"
 HEATHEN_SETTINGS_TEXTS = (HEATHEN_SETTINGS_INTRO, HEATHEN_BIRTHS_LABEL, HEATHEN_ARRIVALS_TICK, HEATHEN_ARRIVALS_LABEL,
-                          HEATHEN_SHOW_LABEL, HEATHEN_KEEP_BLUE_LABEL)
+                          HEATHEN_SHOW_LABEL, HEATHEN_KEEP_BLUE_LABEL, HEATHEN_TRIBE_TICK, HEATHEN_TRIBE_LABEL,
+                          HEATHEN_ROOM_LABEL, HEATHEN_CHANGE_LABEL)
 # No Safeguards for Island Events (and Additional Events too) sits under Classic VV Difficulty in the main list (the
 # owner, 2026-11-15), with its title colour -- never ticked by it (off everywhere).
 NO_SAFEGUARDS_TAIL = "island_events_any_time"
@@ -725,6 +739,20 @@ def saved_heathen_evolution(settings: dict) -> tuple:
     if isinstance(show, bool) or not isinstance(show, int) or show not in HEATHEN_SHOW_PERCENT_RANGE:
         show = HEATHEN_SHOW_PERCENT_DEFAULT
     return births, arrivals, show, settings.get("heathen_keep_blue") is True
+
+
+def saved_heathen_tribe(settings: dict) -> tuple:
+    """The tribe settings of Heathen Tribe Expansion and Evolution a settings file holds: (tribe size 0 = Off or
+    10-246, room kept 10-100, change 0.1-10), each its default when missing or not readable (Off, 20, 1)."""
+    settings = settings if isinstance(settings, dict) else {}
+    tribe = settings.get("heathen_tribe_max", HEATHEN_TRIBE_MAX_DEFAULT)
+    if isinstance(tribe, bool) or not isinstance(tribe, int) or (tribe != 0 and tribe not in HEATHEN_TRIBE_MAX_RANGE):
+        tribe = HEATHEN_TRIBE_MAX_DEFAULT
+    room = settings.get("heathen_room_kept", HEATHEN_ROOM_DEFAULT)
+    if isinstance(room, bool) or not isinstance(room, int) or room not in HEATHEN_ROOM_RANGE:
+        room = HEATHEN_ROOM_DEFAULT
+    change = saved_multiplier(settings, "heathen_change_multiplier", HEATHEN_CHANGE_RANGE, HEATHEN_CHANGE_DEFAULT)
+    return tribe, room, change
 
 
 def saved_runtime_slider_multiplier(settings: dict, key: str):
@@ -1816,6 +1844,13 @@ class App(tk.Tk):
             self.heathen_arrivals_var = tk.DoubleVar(value=HEATHEN_ARRIVALS_DEFAULT or HEATHEN_ARRIVALS_OWNERS_DEFAULT)
             self.heathen_show_var = tk.IntVar(value=HEATHEN_SHOW_PERCENT_DEFAULT)
             self.heathen_keep_blue_var = tk.BooleanVar(value=False)
+            # The tribe size: a tick "Limit the Heathen tribe size" (off unless chosen: the camp grows by the rates
+            # alone) and its number (50 when first ticked), the room kept for believers (20) and how often the
+            # tribe changes (1).
+            self.heathen_tribe_on_var = tk.BooleanVar(value=HEATHEN_TRIBE_MAX_DEFAULT > 0)
+            self.heathen_tribe_var = tk.IntVar(value=HEATHEN_TRIBE_MAX_DEFAULT or HEATHEN_TRIBE_MAX_OWNERS_DEFAULT)
+            self.heathen_room_var = tk.IntVar(value=HEATHEN_ROOM_DEFAULT)
+            self.heathen_change_var = tk.DoubleVar(value=HEATHEN_CHANGE_DEFAULT)
             self.pair_rules: dict = {}  # Village Matchmaker's ticks, remembered
             self.tree_window: dict = {}  # the Family Tree Maker window's size and panes
             self.tree_style: dict = {}   # the Family Tree Maker's look, for the next new tree
@@ -2133,7 +2168,8 @@ class App(tk.Tk):
         self.solidarity_var.trace_add("write", lambda *_args: self._solidarity_changed())
         # Heathen Tribe Expansion and Evolution's settings (its Settings window): what the patch writes follows them.
         for variable in (self.heathen_births_var, self.heathen_arrivals_on_var, self.heathen_arrivals_var,
-                         self.heathen_show_var, self.heathen_keep_blue_var):
+                         self.heathen_show_var, self.heathen_keep_blue_var, self.heathen_tribe_on_var,
+                         self.heathen_tribe_var, self.heathen_room_var, self.heathen_change_var):
             variable.trace_add("write", lambda *_args: self._heathen_evolution_changed())
         self._heathen_evolution_changed()   # the saved settings, loaded before the window was built
         # Each setting stays whole (its label, box or slider and "?" together) and goes to the next line
@@ -3519,6 +3555,11 @@ class App(tk.Tk):
             self.heathen_arrivals_var.set(arrivals if arrivals > 0 else HEATHEN_ARRIVALS_OWNERS_DEFAULT)
             self.heathen_show_var.set(show)
             self.heathen_keep_blue_var.set(blue)
+            tribe, room, change = saved_heathen_tribe(data)
+            self.heathen_tribe_on_var.set(tribe > 0)
+            self.heathen_tribe_var.set(tribe if tribe > 0 else HEATHEN_TRIBE_MAX_OWNERS_DEFAULT)
+            self.heathen_room_var.set(room)
+            self.heathen_change_var.set(change)
         if hasattr(self, "solidarity_var"):
             self.solidarity_var.set(float(set_village_solidarity_strength(saved_solidarity_strength(data))))
         saved_all = data.get("all_game_folders", data.get("all_game_exes", {}))
@@ -3581,6 +3622,9 @@ class App(tk.Tk):
             "heathen_arrivals_multiplier": App._heathen_arrivals(self),
             "heathen_show_percent": App._heathen_show_percent(self),
             "heathen_keep_blue": App._heathen_keep_blue(self),
+            "heathen_tribe_max": App._heathen_tribe_max(self),
+            "heathen_room_kept": App._heathen_room_kept(self),
+            "heathen_change_multiplier": App._heathen_change(self),
             "village_solidarity_strength": village_solidarity_strength(),
             "fun_patches": self._selected_fun_patch_ids(),
             "pair_rules": self.pair_rules,
@@ -3687,10 +3731,36 @@ class App(tk.Tk):
         except (tk.TclError, AttributeError):
             return False
 
+    def _heathen_tribe_max(self) -> int:
+        """"Heathen tribe size": 0 (Off) while "Limit the Heathen tribe size" is unticked, else 10 to 246 (50 unless
+        moved)."""
+        try:
+            if not bool(self.heathen_tribe_on_var.get()):
+                return 0
+            value = int(self.heathen_tribe_var.get())
+        except (tk.TclError, ValueError, AttributeError):
+            return HEATHEN_TRIBE_MAX_DEFAULT
+        return value if value in HEATHEN_TRIBE_MAX_RANGE else HEATHEN_TRIBE_MAX_OWNERS_DEFAULT
+
+    def _heathen_room_kept(self) -> int:
+        """"Room kept for believers": 10 to 100 (20 unless moved)."""
+        try:
+            value = int(self.heathen_room_var.get())
+        except (tk.TclError, ValueError, AttributeError):
+            value = HEATHEN_ROOM_DEFAULT
+        return value if value in HEATHEN_ROOM_RANGE else HEATHEN_ROOM_DEFAULT
+
+    def _heathen_change(self):
+        """"0.1-10x How Often the Tribe Changes": the slider's number, kept within 0.1 to 10."""
+        return App._slider_number(getattr(self, "heathen_change_var", None), HEATHEN_CHANGE_RANGE,
+                                  HEATHEN_CHANGE_DEFAULT)
+
     def _heathen_evolution_changed(self) -> None:
         """A Heathen Tribe Expansion and Evolution setting changed: the next patch writes it beside the companion."""
         set_heathen_evolution(births=App._heathen_births(self), arrivals=App._heathen_arrivals(self),
-                              show_percent=App._heathen_show_percent(self), keep_blue=App._heathen_keep_blue(self))
+                              show_percent=App._heathen_show_percent(self), keep_blue=App._heathen_keep_blue(self),
+                              tribe_max=App._heathen_tribe_max(self), room_kept=App._heathen_room_kept(self),
+                              change=App._heathen_change(self))
 
     def _set_heathen_evolution_defaults(self, owners: bool) -> None:
         """The row's settings as Default Patches (arrivals none) or Owner's Defaults (arrivals at 1) leave them:
@@ -3702,6 +3772,25 @@ class App(tk.Tk):
         self.heathen_arrivals_on_var.set(owners)
         self.heathen_show_var.set(HEATHEN_SHOW_PERCENT_DEFAULT)
         self.heathen_keep_blue_var.set(False)
+        # The tribe size (the owner, 2026-11-28): Off for players, on at 50 in Owner's Defaults; room 20; 1x.
+        self.heathen_tribe_var.set(HEATHEN_TRIBE_MAX_OWNERS_DEFAULT)
+        self.heathen_tribe_on_var.set(owners)
+        self.heathen_room_var.set(HEATHEN_ROOM_DEFAULT)
+        self.heathen_change_var.set(HEATHEN_CHANGE_DEFAULT)
+
+    def _whole_number_box(self, parent, label: str, variable, allowed: range, getter):
+        """A label, a slider and a box for a whole number within `allowed`, saved at once (the show-percent row's
+        shape; the caller adds the "?").  The slider and the box (to grey them)."""
+        ttk.Label(parent, text=label).pack(side="left", padx=(0, 4))
+        scale = tk.Scale(parent, variable=variable, orient="horizontal", from_=allowed[0], to=allowed[-1],
+                         resolution=1, length=160, showvalue=False, command=lambda _value: self._save_settings())
+        scale.pack(side="left")
+        box = ttk.Spinbox(parent, from_=allowed[0], to=allowed[-1], increment=1, width=5, textvariable=variable,
+                          command=self._save_settings)
+        box.pack(side="left", padx=(6, 0))
+        for sequence in ("<FocusOut>", "<Return>"):
+            box.bind(sequence, lambda _e: (variable.set(getter(self)), self._save_settings()))
+        return scale, box
 
     def _fill_heathen_evolution_settings(self, frame) -> None:
         """Heathen Tribe Expansion and Evolution's settings (New Believers): the births and arrivals sliders, the
@@ -3752,6 +3841,49 @@ class App(tk.Tk):
         ttk.Checkbutton(blue, text=gui_text(HEATHEN_KEEP_BLUE_LABEL, 5), variable=self.heathen_keep_blue_var,
                         command=self._save_settings).pack(side="left")
         self._help_button(blue, "heathen_keep_blue").pack(side="left", padx=(4, 0))
+        # The tribe size (the owner, 2026-11-28): the tick, the most living Heathens, the room kept, the pace.
+        tribe = ttk.Frame(frame)
+        tribe.pack(fill="x", anchor="w", pady=(6, 2))
+        ttk.Checkbutton(tribe, text=gui_text(HEATHEN_TRIBE_TICK, 5), variable=self.heathen_tribe_on_var,
+                        command=self._save_settings).pack(side="left", padx=(0, 8))
+
+        def tribe_number(app) -> int:
+            try:
+                value = int(app.heathen_tribe_var.get())
+            except (tk.TclError, ValueError):
+                value = HEATHEN_TRIBE_MAX_OWNERS_DEFAULT
+            return min(max(value, HEATHEN_TRIBE_MAX_RANGE[0]), HEATHEN_TRIBE_MAX_RANGE[-1])
+        getattr(tribe.winfo_toplevel(), "_vvfp_closers", []).append(
+            lambda: (self.heathen_tribe_var.set(tribe_number(self)),
+                     self.heathen_room_var.set(self._heathen_room_kept()), self._save_settings()))
+        tribe_scale, tribe_box = self._whole_number_box(tribe, gui_text(HEATHEN_TRIBE_LABEL, 5), self.heathen_tribe_var,
+                                                        HEATHEN_TRIBE_MAX_RANGE, tribe_number)
+        self._help_button(tribe, "heathen_tribe_max").pack(side="left", padx=(4, 0))
+        change = ttk.Frame(frame)
+        change.pack(fill="x", anchor="w", pady=2)
+        change_scale, change_box = self._multiplier_slider(change, gui_text(HEATHEN_CHANGE_LABEL, 5),
+                                                           self.heathen_change_var, HEATHEN_CHANGE_RANGE,
+                                                           "heathen_change_multiplier")
+
+        def grey_tribe(*_args) -> None:
+            try:
+                on = bool(self.heathen_tribe_on_var.get())
+                for scale in (tribe_scale, change_scale):
+                    scale.configure(state="normal" if on else "disabled")
+                for box in (tribe_box, change_box):
+                    box.state(["!disabled"] if on else ["disabled"])
+            except tk.TclError:
+                pass
+
+        tribe_trace = self.heathen_tribe_on_var.trace_add("write", grey_tribe)
+        tribe.bind("<Destroy>", lambda event: (event.widget is tribe) and self._forget_trace(
+            self.heathen_tribe_on_var, tribe_trace), add="+")
+        grey_tribe()
+        room = ttk.Frame(frame)
+        room.pack(fill="x", anchor="w", pady=(6, 2))
+        self._whole_number_box(room, gui_text(HEATHEN_ROOM_LABEL, 5), self.heathen_room_var, HEATHEN_ROOM_RANGE,
+                               App._heathen_room_kept)
+        self._help_button(room, "heathen_room_kept").pack(side="left", padx=(4, 0))
 
     @staticmethod
     def _forget_trace(variable, trace) -> None:

@@ -38,6 +38,8 @@ SICK = 0x1C48
 LIFE, STORY = 0x0B400000, 0x0B500000
 M32 = 0xFFFFFFFF
 BELIEVERS, COLLECTION, DEMAND = 0x4713F0, 0x414690, 0x4944C0
+EMBRACE_TEXTS, EMBRACE_TEXT, EMBRACE_BEHAVIOUR, EMBRACE_POSITION = 0x450D40, 0x4506D0, 0x465580, 0x466350
+JOB_SKILL = 0x1C74
 CAP_BONUS, CAP_BASE, DETOUR = 0x472C04, 0x472C49, 0x494500
 
 
@@ -119,6 +121,11 @@ class Evo(Village):
         self.collections = set(collections)
         self.life_on, self.story_on = life, story
         self.life_answer = 0
+        # The embraces' game calls (heathen_tribe.inc): each record's spot, the behaviours given, the look steps.
+        self.spots: dict[int, tuple[int, int]] = {}
+        self.behaviours: list[tuple[int, int]] = []
+        self.steps: list[tuple[str, int, tuple]] = []
+        self.litter_answer = 1
         self.life_calls: list[tuple[int, int]] = []
         self.conceptions: list[tuple[int, int, int]] = []     # (mother, father, litter at the call)
         self.couples_logged: list[tuple[int, int]] = []
@@ -149,6 +156,31 @@ class Evo(Village):
         self.stub(stubs + 0x30, self._life)
         self.stub(stubs + 0x40, lambda p: (self.titles.append((p.arg(1), p.cstring(p.arg(2)) if p.arg(2) else "")),
                                            (1, 12))[1])
+        words = self.alloc(0x20)
+        self.write(words, b"Embracing\0")
+        self.stub(EMBRACE_TEXTS, lambda p: (0x0BA00000, 0))
+        self.stub(EMBRACE_TEXT, lambda p: (words, 4))
+        self.stub(EMBRACE_BEHAVIOUR, lambda p: (self.behaviours.append((p.reg("ecx"), p.arg(0))), (0, 8))[1])
+        self.stub(EMBRACE_POSITION, self._spot)
+        for name, va, pops in (("walk", 0x4745A0, 0x10), ("gesture", 0x474450, 8), ("wait", 0x4747E0, 4),
+                               ("start", 0x473590, 0)):
+            self.stub(va, lambda p, name=name, pops=pops: (
+                self.steps.append((name, p.reg("ecx"), tuple(p.arg(i) for i in range(pops // 4)))), (0, pops))[1])
+
+        conceive = self._conceive
+
+        def conceive_with_litter(p):              # the game's routine sets the litter by Medicine: as asked here
+            answer = conceive(p)
+            p.put32(p.reg("ecx") + LITTER, self.litter_answer)
+            return answer
+        self.stub(0x465E00, conceive_with_litter)
+
+    def _spot(self, p):
+        record = p.reg("ecx")
+        x, y = self.spots.get(record, (100, 100))
+        p.put32(p.arg(0), x & M32)
+        p.put32(p.arg(0) + 4, y & M32)
+        return p.arg(0), 4
 
     def _conception(self, p):
         mother = p.arg(2)
@@ -321,63 +353,104 @@ class Installs(unittest.TestCase):
 
 
 @unittest.skipIf(_skip(), _skip() or "")
-class BirthsSlider(unittest.TestCase):
-    """Decisions 1-4: each eligible woman rolls 1 in 2,400 x W / t a unit (t tenths, W the women in couples who
-    could conceive), from the companion's own numbers."""
+class Embraces(unittest.TestCase):
+    """The owner, 2026-11-27/28: Heathen couples (and a Heathen titled Parent with any eligible Heathen) walk together
+    and embrace as believers do, and conceive through the embrace -- about 1-2 conceptions for the whole tribe every
+    6-12 hours on Normal at 1x: one roll a unit of the village's clock, 1 in 600 / t (t the births slider's tenths),
+    after the unit's arrival roll (1 in 4,800)."""
 
-    def _conceives(self, births: str | None, roll: int, *, modulus: int = 2400) -> bool:
-        v = Evo(births=births)
+    def _start(self, births: str | None, roll, **kw) -> tuple[Evo, int, int]:
+        v = Evo(births=births, **kw)
         man, woman = _couple(v)
-        v.put32(woman + AGE, 601)
-        v.seed(first_output((modulus, roll), (10000, lambda r: r >= 700)))
+        if "tribe_max" in (kw.get("options") or ""):            # the tribe size's rolls (heathen_evo.h section 2)
+            rolls = ((1200000, lambda r: True), (6000000, lambda r: r < 10000), (2, 1))
+        else:
+            rolls = ((4800, lambda r: True), (600, roll), (2, 1))
+        v.seed(first_output(*rolls))                             # she seeks him
+        v.behaviours.clear()
+        v.steps.clear()
         v.rand_calls.clear()
-        v.life_tick()
-        self.assertEqual(v.rand_calls, [], "the game's rand is never drawn for the roll")
-        return bool(v.conceived)
+        v.credit(man, 1)                                  # one unit on the clock (the man: record 1, the first)
+        return v, man, woman
 
     def test_the_roll_boundaries_at_0_1x_1x_and_10x(self):
         for births, tenths in (("0.1", 1), ("1", 10), (None, 10), ("0.5", 5), ("10", 100), ("25", 100)):
             with self.subTest(births=births):
-                self.assertTrue(self._conceives(births, tenths - 1), "below t: a conception")
-                self.assertFalse(self._conceives(births, tenths), "t and above: none")
+                v, man, woman = self._start(births, tenths - 1)
+                self.assertEqual(v.behaviours, [(man, 6)], "below t: an embrace -- the partner waits (behaviour 6)")
+                self.assertEqual(v.rand_calls, [], "the game's rand is never drawn for the roll")
+                v, man, woman = self._start(births, tenths)
+                self.assertEqual(v.behaviours, [], "t and above: none")
 
-    def test_w_is_the_tribes_women_in_couples(self):
-        """Three couples: the roll is 1 in 7,200 -- 2,405 of 7,200 is no conception (it would be of 2,400)."""
-        for roll, conceives in ((2405, False), (9, True)):
-            with self.subTest(roll=roll):
-                v = Evo()
-                for k in range(3):
-                    v.villager(10 + k, heathen=True, sex=0, name=f"Man{k}")
-                    v.villager(20 + k, heathen=True, sex=1, name=f"Woman{k}")
-                _preset(v, [(20 + k, 10 + k) for k in range(3)])
-                v.look(10)
-                self.assertTrue(all(v.couple_of(20 + k) >= 0 for k in range(3)))
-                v.put32(v.record(20) + AGE, 601)            # only the first has a unit due
-                v.seed(first_output((7200, roll), (10000, lambda r: r >= 700)))
-                v.life_tick()
-                self.assertEqual(bool(v.conceived), conceives)
+    def test_the_seeker_walks_to_the_partner_with_the_believers_embrace_look(self):
+        v, man, woman = self._start(None, 0)
+        self.assertEqual(v.cstring(woman + 0x1D14), "Embracing")
+        walks = [s for s in v.steps if s[0] == "walk"]
+        self.assertEqual([(who,) + args for _n, who, args in walks], [(woman, 100, 110, 300, 0)],
+                         "0x46CCF9: to the partner's spot +10 down, distance 300")
+        self.assertIn(("gesture", woman, (1, 0)), v.steps, "0x45D03F: gesture 1 of animation 0")
+        self.assertIn(("start", woman, ()), v.steps)
+        self.assertEqual(v.conceived, [], "no conception before they meet")
 
-    def test_the_father_is_her_partner_and_the_conception_is_logged_with_its_litter(self):
-        v = Evo()
-        v.villager(3, heathen=True, sex=0, name="Other Man")
-        man, woman = _couple(v, 1, 2)
-        partner = v.record(v.couple_of(2))
-        v.put32(woman + AGE, 601)
-        v.seed(first_output((2400, 0), (10000, 300)))     # twins
-        v.life_tick()
+    def test_they_meet_conceive_and_embrace_where_they_stand_without_the_love_shack(self):
+        v, man, woman = self._start(None, 0)
+        v.spots[man] = v.spots[woman] = (400, 400)
+        v.steps.clear()
+        v.look(1)
         carrier, args = v.conceived[0]
-        self.assertEqual((carrier, v.cstring(args[3]), args[6]), (woman, v.cstring(partner + NAME), 1))
+        self.assertEqual((carrier, v.cstring(args[3]), args[6]), (woman, "Kalo", 1), "forced, the man the father")
         self.assertEqual(v.u32(TWINS), 0, "the statistics' twins put back")
-        self.assertEqual(v.conceptions, [(woman, partner, 2)],
-                         "the Conception record (the game's hook skips forced ones), the litter already set")
+        self.assertEqual(v.conceptions, [(woman, man, 1)], "the Conception record, the litter already set")
+        self.assertIn(("gesture", man, (1, 0)), v.steps)
+        self.assertIn(("gesture", woman, (1, 0)), v.steps)
+        self.assertEqual([b for _r, b in v.behaviours if b == 7], [], "no Love Shack yet")
+
+    def test_with_the_love_shack_both_go_inside(self):
+        v, man, woman = self._start(None, 0)
+        v.solve(23)
+        v.spots[man] = v.spots[woman] = (400, 400)
+        v.behaviours.clear()
+        v.look(1)
+        self.assertEqual(sorted(v.behaviours), sorted([(man, 7), (woman, 7)]), "0x468B50: behaviour 7 for both")
+        self.assertEqual(len(v.conceived), 1)
+
+    def test_an_embrace_that_never_meets_is_given_up(self):
+        v, man, woman = self._start(None, 0)
+        v.spots[man], v.spots[woman] = (100, 100), (900, 900)
+        v.seed(first_output(*([(4800, lambda r: True), (600, lambda r: r >= 10)] * 5)))
+        for _ in range(5):
+            v.credit(man, 1)
+        self.assertEqual(v.conceived, [])
+        v.spots[woman] = (100, 100)
+        v.look(1)
+        self.assertEqual(v.conceived, [], "given up after 3 units: no conception when they meet later")
+
+    def test_the_load_time_catch_up_conceives_at_once(self):
+        v = Evo()
+        man, woman = _couple(v)
+        v.seed(first_output((4800, lambda r: True), (600, 0), (2, 1)))
+        v.behaviours.clear()
+        v.credit(man, 30)                                 # one look of 30 units: the catch-up
+        self.assertEqual(len(v.conceived), 1)
+        self.assertEqual(v.behaviours, [], "no walk in the catch-up")
+
+    def test_the_baby_skill_is_0x467d20s(self):
+        v, man, woman = self._start(None, 0)
+        for k, value in enumerate((10.0, 60.0, 5.0, 0.0, 0.0, 0.0)):     # her best: Parenting
+            v.write(woman + SKILLS + 4 * k, struct.pack("<f", value))
+        for k, value in enumerate((0.0, 0.0, 0.0, 70.0, 0.0, 0.0)):      # his: Research
+            v.write(man + SKILLS + 4 * k, struct.pack("<f", value))
+        v.spots[man] = v.spots[woman] = (1, 1)
+        v.seed(first_output((50, 7), (3, 2)))
+        v.look(1)
+        _carrier, args = v.conceived[0]
+        self.assertEqual((args[1], args[2]), (1, 7), "her best skill (1 in 50 his), value rand(3) + 5")
 
     def test_births_go_on_after_the_last_heathen(self):
-        v = Evo()
+        v, man, woman = self._start(None, 0)
         v.solve(25)
-        man, woman = _couple(v)
-        v.put32(woman + AGE, 601)
-        v.seed(first_output((2400, 0), (10000, 9000)))
-        v.life_tick()
+        v.spots[man] = v.spots[woman] = (1, 1)
+        v.look(1)
         self.assertEqual(len(v.conceived), 1, "decision 2: births continue after The Last Heathen")
         at = v.i32(woman, PREGNANT)
         v.put32(woman + AGE, at + 42)
@@ -386,36 +459,113 @@ class BirthsSlider(unittest.TestCase):
         v.life_tick()
         self.assertEqual(len(v.created), 1, "and the baby is born")
 
-    def test_no_partner_no_conception(self):
+    def test_no_partner_no_conception_and_never_the_old_roll(self):
         v = Evo()
         woman = v.villager(2, heathen=True, sex=1, name="Mele")
         v.look(2)
-        v.put32(woman + AGE, 601)
-        v.seed(first_output((2400, 0)))
+        v.seed(first_output((4800, lambda r: True), (600, 0)))
+        v.credit(woman, 1)
+        v.put32(woman + AGE, v.i32(woman, AGE) + 1)
         v.life_tick()
-        self.assertEqual(v.conceived, [])
+        self.assertEqual((v.conceived, v.behaviours), ([], []))
+
+    def test_a_heathen_titled_parent_embraces_an_eligible_heathen_who_is_not_their_partner(self):
+        v = Evo()
+        parent = v.villager(1, heathen=True, sex=0, name="Tama")
+        v.put32(parent + JOB_SKILL, M32)                                  # no job ticked
+        for k, value in enumerate((10.0, 40.0, 0.0, 0.0, 0.0, 0.0)):     # the title says Parent
+            v.write(parent + SKILLS + 4 * k, struct.pack("<f", value))
+        other = v.villager(2, heathen=True, sex=1, name="Lani")
+        kin = v.villager(3, heathen=True, sex=1, name="Sina")
+        v.write(kin + FATHER_NAME, b"Tama\0")                            # his daughter: kin
+        v.put32(kin + FATHER_HEAD, v.i32(parent, HEAD))
+        v.put32(kin + FATHER_BODY, v.i32(parent, BODY))
+        v.villager(4, heathen=True, sex=0, name="Ioane")
+        v.villager(5, heathen=True, sex=0, name="Rua")
+        _preset(v, [(2, 4), (3, 5)])                      # both women in couples: "any eligible" candidate
+        v.look(1)
+        # the rolls: arrival, conception, each couple's seeker (two), then the pick -- the first pair, his
+        v.seed(first_output((4800, lambda r: True), (600, 0), (2, 1), (2, 1), (3, 0)))
+        v.credit(parent, 1)
+        self.assertEqual(v.behaviours[0], (other, 6), "the one eligible candidate waits; never his kin")
+        self.assertEqual(v.cstring(parent + 0x1D14), "Embracing")
+
+    def test_a_parent_title_needs_parenting_highest_and_20(self):
+        # 0x4755C0: a skill wins when above the best so far cut to a whole number (25.5 after 25.9: the best is 25)
+        for skills, job, embraces in (((10.0, 19.0, 0, 0, 0, 0), -1, False), ((30.0, 25.0, 0, 0, 0, 0), -1, False),
+                                      ((25.9, 25.0, 0, 0, 0, 0), -1, False), ((25.9, 25.5, 0, 0, 0, 0), -1, True),
+                                      ((10.0, 40.0, 0, 0, 0, 0), 0, False), ((40.0, 30.0, 0, 0, 0, 0), 1, True)):
+            with self.subTest(skills=skills, job=job):
+                v = Evo(flags=(EVO,))
+                parent = v.villager(1, heathen=True, sex=0, name="Tama")
+                v.put32(parent + JOB_SKILL, job & M32)                    # the ticked job's skill wins
+                for k, value in enumerate(skills):
+                    v.write(parent + SKILLS + 4 * k, struct.pack("<f", float(value)))
+                v.villager(2, heathen=True, sex=1, name="Lani")
+                v.villager(4, heathen=True, sex=0, name="Ioane")
+                _preset(v, [(2, 4)])
+                v.look(1)
+                v.seed(first_output((4800, lambda r: True), (600, 0), (2, 1), (2, 0)))
+                v.credit(parent, 1)
+                self.assertEqual(v.cstring(parent + 0x1D14) == "Embracing", embraces)
+
+    def test_a_puzzle_heathen_embraces_only_once_the_puzzle_is_solved(self):
+        for solved in (False, True):
+            with self.subTest(solved=solved):
+                v = Evo()
+                if solved:
+                    v.solve(16)
+                man = v.villager(1, heathen=True, sex=0, name="Chief", role=13)
+                woman = v.villager(2, heathen=True, sex=1, name="Mele")
+                _preset(v, [(2, 1)])
+                v.look(1)
+                v.seed(first_output((4800, lambda r: True), (600, 0), (2, 1)))
+                v.credit(man, 1)
+                self.assertEqual(bool(v.behaviours), solved)
+
+    def test_a_sick_or_held_heathen_is_never_asked(self):
+        for offset in (SICK, 0x1CD6):
+            with self.subTest(offset=hex(offset)):
+                v = Evo()
+                man, woman = _couple(v)
+                v.write(man + offset, b"\x01")
+                v.seed(first_output((4800, lambda r: True), (600, 0), (2, 1)))
+                v.credit(man, 1)
+                self.assertEqual(v.behaviours, [])
 
 
 @unittest.skipIf(_skip(), _skip() or "")
 class Litters(unittest.TestCase):
-    def test_single_twins_and_triplets_by_the_stock_odds_without_the_medicine_gate(self):
-        for roll, litter in ((0, 3), (174, 3), (175, 2), (699, 2), (700, 1), (9999, 1)):
-            with self.subTest(roll=roll):
-                v = Evo()
-                man, woman = _couple(v)
-                v.put32(woman + AGE, 601)
-                v.seed(first_output((2400, 0), (10000, roll)))
-                v.life_tick()
+    """The believers' own litter (the owner: "medicine tech applies"): the game's conception 0x465E00 sets it by
+    Medicine (single below Medicine 3; 5.25% twins, 1.75% triplets at 3); the companion keeps it, as many as fit."""
+
+    def _litter(self, game_litter: int, **kw) -> tuple[Evo, int, int]:
+        v, man, woman = Embraces._start(self, None, 0, **kw)
+        v.litter_answer = game_litter
+        v.spots[man] = v.spots[woman] = (1, 1)
+        v.look(1)
+        return v, man, woman
+
+    def test_the_games_litter_is_kept(self):
+        for litter in (1, 2, 3):
+            with self.subTest(litter=litter):
+                v, _man, woman = self._litter(litter)
                 self.assertEqual(v.i32(woman, LITTER), litter)
+                self.assertEqual(v.conceptions[0][2], litter)
+
+    def test_the_tribe_size_trims_a_litter_to_what_fits(self):
+        v2, man, woman = Embraces._start(self, None, 0, options="tribe_max=10\n")
+        for i in range(10, 17):
+            v2.villager(i, heathen=True, age=100, name=f"Kid{i}")
+        v2.litter_answer = 3
+        v2.spots[man] = v2.spots[woman] = (1, 1)
+        v2.look(1)
+        self.assertEqual(v2.i32(woman, LITTER), 1, "9 in the camp, a limit of 10: one baby")
 
     def test_triplets_are_born_with_their_own_masks(self):
-        """Decision 7: each newborn 90% blue, 7% orange, 3% red -- its own, not a parent's."""
-        v = Evo()
-        man, woman = _couple(v)
+        """Decision 7: each newborn 90% blue, 7% orange, 3% red -- its own, not a parent's, within the Rascal caps."""
+        v, man, woman = self._litter(3)
         v.write(woman + RED, b"\x01")                     # a red mother: no matter
-        v.put32(woman + AGE, 601)
-        v.seed(first_output((2400, 0), (10000, 0)))
-        v.life_tick()
         at = v.i32(woman, PREGNANT)
         v.put32(woman + AGE, at + 42)
         v.seed(first_output((100, 5), (100, 8), (100, 50)))
@@ -559,10 +709,10 @@ class Couples(unittest.TestCase):
         a = v.villager(1, heathen=True, sex=0, name="Aa")
         b = v.villager(2, heathen=True, sex=0, name="Bb")
         _clock(v)
-        v.put32(a + AGE, 601)
-        v.seed(first_output((2400, 0)))
-        v.life_tick()
-        self.assertEqual(v.conceived, [], "no natural conception")
+        v.seed(first_output((4800, lambda r: True), (600, 0)))
+        v.credit(a, 1)                                    # an embrace roll that comes up
+        v.look(1)
+        self.assertEqual((v.conceived, v.behaviours), ([], []), "no natural conception, no embrace")
         self.assertEqual(v.export("VvfpHeathenAgingEventPregnancy", 5, 1, 0xFFFFFFFF, 1, 0), 1,
                          "an event: any two, the partner the other parent")
         carrier, args = v.conceived[0]
@@ -672,8 +822,9 @@ class Arrivals(unittest.TestCase):
         v = Evo(arrivals="10")
         v.villager(0, heathen=True)
         v.look(0)
-        v.seed(first_output((4800, lambda r: r >= 100), (4800, lambda r: r >= 100), (4800, lambda r: r < 100),
-                            *SINGLE))
+        any_roll = (600, lambda r: True)                  # each unit's conception roll comes after its arrival roll
+        v.seed(first_output((4800, lambda r: r >= 100), any_roll, (4800, lambda r: r >= 100), any_roll,
+                            (4800, lambda r: r < 100), *SINGLE))
         v.credit(v.record(0), 3)
         self.assertEqual(len(v.created), 1, "three units: three rolls, the third arrives")
 
@@ -688,27 +839,36 @@ def _fill(v: Evo, believers: int, heathens: int) -> None:
 @unittest.skipIf(_skip(), _skip() or "")
 class RecordCap(unittest.TestCase):
     """Decision 18 as the owner changed it (2026-11-26: "they should grow normally"): Heathens grow in every
-    population mode; the only limit is the technical one, 10 records kept free so the game never runs out."""
+    population mode; the limit is the technical one -- "Room kept for believers" (the owner, 2026-11-28: 20 unless
+    moved, at least 10) records kept free, so the believers' own are never blocked and the game never runs out."""
 
     def _arrive_four(self, v: Evo) -> int:
         return len(_force_arrival(v, (100, 95), (2, 1)))
 
-    def test_every_mode_only_keeps_ten_records_free_150(self):
-        # spare = 150 - B - H - 10, whatever the believers' cap
-        for mode in ("stock", "stock+collections", "progression", "fixed"):
-            for believers, heathens, made in ((80, 40, 4), (80, 58, 2), (80, 60, 0), (20, 20, 4)):
-                with self.subTest(mode=mode, b=believers, h=heathens):
-                    v = Evo(arrivals="10", collections=(0x68, 0x50) if mode.endswith("collections") else ())
-                    if mode == "progression":
-                        _detour(v, 135)
-                    elif mode == "fixed":
-                        _detour(v, 90, fixed_bonus=60)
-                    _fill(v, believers, heathens)
-                    self.assertEqual(self._arrive_four(v), made)
+    def test_every_mode_keeps_the_room_free_150(self):
+        # spare = 150 - B - H - room, whatever the believers' cap
+        for room, cases in (("room_kept=10\n", ((80, 40, 4), (80, 58, 2), (80, 60, 0), (20, 20, 4))),
+                            (None, ((80, 40, 4), (80, 48, 2), (80, 50, 0), (20, 20, 4)))):
+            for mode in ("stock", "stock+collections", "progression", "fixed"):
+                for believers, heathens, made in cases:
+                    with self.subTest(room=room, mode=mode, b=believers, h=heathens):
+                        v = Evo(arrivals="10", options=room,
+                                collections=(0x68, 0x50) if mode.endswith("collections") else ())
+                        if mode == "progression":
+                            _detour(v, 135)
+                        elif mode == "fixed":
+                            _detour(v, 90, fixed_bonus=60)
+                        _fill(v, believers, heathens)
+                        self.assertEqual(self._arrive_four(v), made)
+
+    def test_the_room_is_never_under_ten(self):
+        v = Evo(arrivals="10", options="room_kept=3\n")
+        _fill(v, 80, 58)
+        self.assertEqual(self._arrive_four(v), 2, "room_kept below 10 reads as 10")
 
     def test_the_256_build_in_all_three_modes(self):
         for mode in ("stock", "progression", "fixed"):
-            for believers, heathens, made in ((100, 100, 4), (120, 124, 2), (120, 126, 0)):
+            for believers, heathens, made in ((100, 100, 4), (120, 114, 2), (120, 116, 0)):
                 with self.subTest(mode=mode, b=believers, h=heathens):
                     v = Evo256(arrivals="10")
                     if mode == "progression":
@@ -719,16 +879,69 @@ class RecordCap(unittest.TestCase):
                     self.assertEqual(self._arrive_four(v), made)
                     self.assertTrue(all(i >= 150 for i, _ in v.created), "records past 150")
 
-    def test_a_birth_waits_for_the_ten_records(self):
+    def test_a_conception_waits_for_the_room(self):
         v = Evo()
-        _fill(v, 80, 60)                                  # 142 with the couple: 8 free
+        _fill(v, 80, 50)                                  # 132 with the couple: 18 free, under the 20 kept
         man, woman = _couple(v, 140, 141)
         self.assertEqual(v.couple_of(141), 140)
-        v.put32(v.record(0) + PROCESSED, v.i32(v.record(0), AGE))   # the clock's believer: no unit of its own
-        v.put32(woman + AGE, 601)
-        v.seed(first_output((2400, 0)))
-        v.life_tick()
-        self.assertEqual(v.conceived, [], "no conception into the last 10 records")
+        v.seed(first_output((4800, lambda r: True), (600, 0), (2, 1)))
+        v.credit(v.record(0), 1)
+        v.spots[man] = v.spots[woman] = (1, 1)
+        v.look(0)
+        self.assertEqual(v.conceived, [], "no conception into the room kept for believers")
+
+
+@unittest.skipIf(_skip(), _skip() or "")
+class TribeSize(unittest.TestCase):
+    """The owner, 2026-11-28: "Heathen tribe size" (tribe_max), "How often the tribe changes" (change_tenths);
+    growth slows over the last fifth of the limit and pauses at it; nobody is removed; children kept around."""
+
+    def _arrivals(self, options: str, heathens: int, roll, *, arrivals: str = "10") -> list[int]:
+        v = Evo(arrivals=arrivals, options=options)
+        for i in range(heathens):
+            v.villager(i, heathen=True, name=f"H{i}", age=600 if i < 2 else 100, sex=i % 2)
+        _preset(v, [(1, 0)])                              # the two adults a couple already: no pairing roll
+        v.look(0)
+        v.seed(first_output((1200000, roll), *SINGLE))
+        v.credit(v.record(0), 1)
+        return v.created
+
+    def test_an_arrival_rolls_a_x_c_x_f_in_1_200_000(self):
+        # a = 100 (10x), c = 10, F = 100 below the slowing band: 100,000 of 1,200,000
+        self.assertEqual(len(self._arrivals("tribe_max=50\n", 7, 99999)), 1)
+        self.assertEqual(self._arrivals("tribe_max=50\n", 7, 100000), [])
+        self.assertEqual(len(self._arrivals("tribe_max=50\nchange_tenths=20\n", 7, 199999)), 1,
+                         "twice as often at 2x")
+
+    def test_growth_slows_near_the_limit_and_pauses_at_it(self):
+        # tribe_max 50: band 10; 45 in the camp, 5 left: F = 50
+        self.assertEqual(len(self._arrivals("tribe_max=50\n", 45, 49999)), 1)
+        self.assertEqual(self._arrivals("tribe_max=50\n", 45, 50000), [])
+        self.assertEqual(self._arrivals("tribe_max=50\n", 50, 0), [], "at the limit: nothing")
+        v = Evo(arrivals="10", options="tribe_max=10\n")
+        for i in range(14):
+            v.villager(i, heathen=True, name=f"H{i}")
+        v.look(0)
+        v.credit(v.record(0), 50)
+        self.assertEqual([v.read(v.record(i) + PRESENT, 1) for i in range(14)], [b"\x01"] * 14,
+                         "over the limit: nobody leaves")
+
+    def test_a_group_never_passes_the_limit(self):
+        v = Evo(arrivals="10", options="tribe_max=10\n")
+        for i in range(8):
+            v.villager(i, heathen=True, name=f"H{i}", age=600 if i < 2 else 100, sex=i % 2)
+        _preset(v, [(1, 0)])
+        v.look(0)
+        v.seed(first_output((1200000, 0), (100, 95), (2, 1)))
+        v.credit(v.record(0), 1)
+        self.assertEqual(len(v.created), 2, "a group of four trimmed to the two places left")
+
+    def test_short_of_children_an_arrival_is_a_family(self):
+        made = self._arrivals("tribe_max=50\n", 3, 0)
+        self.assertGreaterEqual(len(made), 3, "a couple with their children (fewer than 5 children of 50)")
+
+    def test_the_limit_is_kept_within_the_table_and_at_least_ten(self):
+        self.assertEqual(len(self._arrivals("tribe_max=4\n", 9, 0)), 1, "4 reads as 10")
 
 
 @unittest.skipIf(_skip(), _skip() or "")
@@ -1071,10 +1284,10 @@ class ChangeTribe(unittest.TestCase):
         v.look(1)
         self.assertEqual(v.couple_of(2), -1, "A's pairing is gone from the cache")
         self.assertEqual(v.couple_of(1), -1)
-        v.put32(woman + AGE, v.i32(woman, AGE) + 1)
-        v.seed(first_output((2400, 0), (10000, 9000)))
-        v.life_tick()
-        self.assertEqual(v.conceived, [], "no birth while B's couples are unknown")
+        v.seed(first_output((4800, lambda r: True), (600, 0), (2, 1)))
+        v.credit(man, 1)
+        v.look(1)
+        self.assertEqual((v.conceived, v.behaviours), ([], []), "no embrace while B's couples are unknown")
         made = _force_arrival(v, *SINGLE, clock=1)
         self.assertEqual(made, [], "no arrival either")
         _clock(v, 3)
@@ -1087,9 +1300,9 @@ class ChangeTribe(unittest.TestCase):
             if v.couple_of(2) >= 0:
                 break
         self.assertEqual(v.couple_of(2), 3, "B's own pairing: Mele and Ioane")
-        v.put32(woman + AGE, v.i32(woman, AGE) + 1)
-        v.seed(first_output((2400, 0), (10000, 9000)))
-        v.life_tick()
+        v.seed(first_output((4800, lambda r: True), (600, 0), (2, 1)))
+        v.credit(man, 1)
+        v.look(1)
         self.assertEqual([v.cstring(args[3]) for _c, args in v.conceived], ["Ioane"], "the father is B's partner")
 
 
@@ -1150,7 +1363,7 @@ class GrowingUp(unittest.TestCase):
         self.assertEqual(v.created, [])
 
     def test_no_room_owes_the_child_until_there_is(self):
-        v = Evo()
+        v = Evo(options="room_kept=10\n")
         v.villager(0, heathen=True)
         _grow(v, 5, orange=1)
         _fill_records(v, 10)                          # only the 10 kept free: none fits
@@ -1195,7 +1408,6 @@ class PartnerReuse(unittest.TestCase):
         v.stub(0x46FD20, male_newcomer)
         self.assertEqual(v.export("VvfpHeathenAgingEventGone", 5, 1, 1, 5), 1, "taken: the replacement is owed")
         v.put32(woman + AGE, v.i32(woman, AGE) + 1)
-        v.seed(first_output((2400, 0), (10000, 9000)))
         v.life_tick()                                 # pays the owed replacement first, then her unit
         self.assertEqual([i for i, _ in v.created], [1], "the newcomer took the partner's record")
         self.assertEqual(v.conceived, [], "no conception with someone she never paired with")

@@ -130,6 +130,11 @@ if step == "set":
             app.heathen_arrivals_var.set(2.5)
             next(w for w in ticks if str(w.cget("text")) == gui.HEATHEN_ARRIVALS_TICK).invoke()
             next(w for w in ticks if str(w.cget("text")) == gui.HEATHEN_KEEP_BLUE_LABEL).invoke()
+            # the tribe size (the owner, 2026-11-28): ticked at 60, room 25, the pace 2x
+            next(w for w in ticks if str(w.cget("text")) == gui.HEATHEN_TRIBE_TICK).invoke()
+            app.heathen_tribe_var.set(60)
+            app.heathen_room_var.set(25)
+            app.heathen_change_var.set(2)
             spin = next(w for w in widgets if isinstance(w, ttk.Spinbox))
             spin.set("40")                      # typed, then the window closed straight away
         window.close()
@@ -200,9 +205,10 @@ class PatchSettingsWindows(unittest.TestCase):
                     self.assertIn("Custom Island Event Library...", window["buttons"])
                     self.assertIn("Show Player Events...", window["buttons"])
                 elif key == "vv5_heathen_tribe_evolution":
-                    # births, arrivals and show actions: three sliders; the show percent's box; two ticks
-                    self.assertEqual((window["scales"], window["spinboxes"], window["fonts"]), (3, 1, 0))
-                    self.assertEqual(len(window["ticks"]), 2)
+                    # births, arrivals, show actions, tribe size, the pace and the room: six sliders; the show
+                    # percent's, the tribe size's and the room's boxes; three ticks
+                    self.assertEqual((window["scales"], window["spinboxes"], window["fonts"]), (6, 3, 0))
+                    self.assertEqual(len(window["ticks"]), 3)
                 else:
                     self.assertEqual((window["scales"], window["spinboxes"], window["fonts"]), (0, 0, 1))
         self.assertTrue(self.set["main_enabled"], "the main window is let go when the windows close")
@@ -223,8 +229,11 @@ class PatchSettingsWindows(unittest.TestCase):
         saved = self.set["saved"]
         self.assertEqual((saved["heathen_tribe_births_multiplier"], saved["heathen_arrivals_multiplier"],
                           saved["heathen_show_percent"], saved["heathen_keep_blue"]), (0.5, 2.5, 40, True))
+        self.assertEqual((saved["heathen_tribe_max"], saved["heathen_room_kept"], saved["heathen_change_multiplier"]),
+                         (60, 25, 2))
         self.assertEqual(self.read["heathen"], {"births": 0.5, "arrivals": 2.5, "show_percent": 40,
-                                                "keep_blue": True}, "read back and handed to the next patch")
+                                                "keep_blue": True, "tribe_max": 60, "room_kept": 25, "change": 2},
+                         "read back and handed to the next patch")
 
 
 if __name__ == "__main__":

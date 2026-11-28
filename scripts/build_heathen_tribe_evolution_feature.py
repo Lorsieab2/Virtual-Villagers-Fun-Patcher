@@ -18,8 +18,9 @@ It ships three companions, each pinned by SHA-256, and one flag file:
   * "VVFP Heathen Mausoleum.dll" (W-C, native/vvfp_heathen_mausoleum) the Shrine to the Ancestors;
   * "VVFP Heathen Tribe Evolution.txt" (native/shared/heathen_evo.h HE_FLAG_ROW), the flag every one of them reads.
 
-The row's Settings window (src/vv_fun_patcher_gui.py) holds the two sliders, the show-action percent and "keep every
-new Heathen blue"; the patcher writes them beside the companions at each patch ("VVFP Heathen Tribe Births.txt",
+The row's Settings window (src/vv_fun_patcher_gui.py) holds the two sliders, the show-action percent, "keep every
+new Heathen blue", and (the owner, 2026-11-28) the tribe size, the room kept for believers and how often the tribe
+changes; the patcher writes them beside the companions at each patch ("VVFP Heathen Tribe Births.txt",
 "VVFP Heathen Arrivals.txt", "VVFP Heathen Options.txt": src/vv_fun_patcher.py _write_heathen_evolution_choices).
 
 "Former Villagers Among the Heathens Leave Skeletons" stays its own row and ships the Mausoleum too (decision 14):
@@ -82,6 +83,20 @@ WALK_SITES = (
      "the walk set-up 0x465980's elder test (`lea ecx, [esi+0x1B8C]; call 0x46F790`, the slow pace 0x28 for an "
      "elder at 0x465A06): a Heathen skips it and walks at the pace of anyone who is not an elder; a believer elder "
      "still slows"),
+)
+
+
+# "VVFP Heathen Aging.dll" with this row's flag, their own all-or-none set (vvfp_heathen_aging.c nurse_stub and
+# rascal_stub; the owner, 2026-11-27/28).
+LOOK_SITES = (
+    (0x46EAB8, "8B8E881B000039994C1C00007407", "E9",
+     "the Heathen AI 0x46E9E0's carrier test (`mov ecx, [esi+0x1B88]; cmp [ecx+0x1C4C], ebx; je`): a Heathen carrying "
+     "a baby this companion conceived (never a puzzle Heathen) holds the baby and is given the believers' mothers' "
+     "routine 0x46A1D0 (\"Taking care of her baby\", washing, changing, showing baby the island) until the birth; "
+     "any other carrier the stock carry"),
+    (0x4430C6, "3898ED1C00007415", "E9",
+     "the Details panel's Heathen child title (`cmp byte [eax+0x1CED], bl; je`): an orange OR red Heathen child is "
+     "titled \"Rascal\" (string 0xD2), every other one \"Child\""),
 )
 
 
@@ -158,15 +173,34 @@ def description() -> str:
         "Heathens, villagers who left your tribe and the puzzle Heathens. A puzzle Heathen whose puzzle is not "
         "solved yet is replaced at once in the same role, so every puzzle can still be solved. "
         "COUPLES AND BABIES: two adult Heathens who are not kin (never parent and child, full or half siblings) pair "
-        "for life, until one dies or joins your tribe; a couple can be of either sex. A woman in a couple with a man "
-        "has babies: at 1x about one baby for the whole tribe every 24 real-life hours on Normal speed (12 on Fast, "
-        "40 on Slow), with twins 5.25% and triplets 1.75% of the time (\"0.1-10x Heathen Tribe Births\"). Births go "
-        "on after The Last Heathen while a Heathen woman and a Heathen man are alive. Island events may give any "
-        "couple a baby. "
+        "for life, until one dies or joins your tribe; a couple can be of either sex. A Heathen couple of a woman "
+        "and a man EMBRACE as believers do -- one walks to the other, who waits for them, and they go into the Love "
+        "Shack once it is built (before that they embrace where they stand) -- and the baby is conceived then. A "
+        "Heathen whose title says Parent may also embrace any Heathen of the other sex who is not their kin. At 1x "
+        "about one conception for the whole tribe every 6 real-life hours on Normal speed (\"0.1-10x Heathen Tribe "
+        "Births\"). Twins and triplets come as for believers: only with Medicine at level 3 (5.25% twins, 1.75% "
+        "triplets). The mother carries and nurses the baby as believers do (taking care of it, washing, changing, "
+        "showing it the island) until it is two and joins the camp as a child; Heathen children grow up and can "
+        "have children of their own. Births go on after The Last Heathen while a Heathen woman and a Heathen man are "
+        "alive. A couple of one sex has babies only through island events. "
         "NEW ARRIVALS (\"0-10x New Heathen Arrivals\", 0 = none): at 1x one arrival about every 48 real-life hours "
         "on Normal -- one to four Heathens, sometimes a couple with up to two children -- before and after The Last "
-        "Heathen. Newcomers and Heathen babies are mostly blue-masked: 90% blue, 7% orange, 3% red (all blue with "
-        "the option). "
+        "Heathen. "
+        "TRIBE SIZE (Settings): \"Heathen tribe size\" Off (the default: the camp grows by the rates above) or a "
+        "most of 10 up to what the game can hold (50 in Owner's Defaults): babies on the way count, growth slows "
+        "near the limit and waits at it, and nobody is ever removed. While it is on, \"How often the tribe changes\" "
+        "(0.1-10x) paces the growth: at 1x something new comes to the camp about every 2-6 real-life hours on Normal "
+        "(a conception about every 6 hours, an arrival about every 12 with arrivals at 1x), and while the camp has "
+        "fewer children than a tenth of its size (at least 2) babies come twice as often and arrivals are families "
+        "with children. \"Room kept for believers\" (20 unless changed, at least 10) is always left free for your "
+        "own villagers' babies and arrivals. "
+        "MASKS: newcomers and Heathen babies are mostly blue-masked: 90% blue, 7% orange, 3% red (all blue with the "
+        "option), never more than 10 orange or 10 red Heathens (the camp's own may be more), and among the children "
+        "at most 1 or 2 orange and 1 or 2 red, each of them a \"Rascal\"; a village that already has more keeps them, "
+        "new children are blue until it is under. A Heathen of the camp (not a puzzle Heathen) who masters a skill "
+        "(100) wears the purple mask -- the first master of each of the six skills, one each, the next one when they "
+        "die or leave (needs \"Heathens Keep Their Masks When Converted\" and the Origins icons); they show the "
+        "game's \"Master\" titles, and only the puzzle Heathens keep their own titles. "
         "A NEW CHIEF AND MASTERS: when the Heathen Chief or a Heathen Master dies after their puzzle is solved, the "
         "eldest adult Heathen takes the role -- for show (the role's skills, mask and title) until The Last Heathen "
         "is solved, the real role after it; a regrown camp of six adults gets a Chief and Masters again. Every later "
@@ -209,8 +243,8 @@ def description() -> str:
         "event (\"(no effect)\"). "
         "LOGS: each Heathen's conception, birth, couple, arrival, new role, retirement, death and grave goes in the "
         "logs, marked "
-        "as a Heathen. **Heathens never count in the Village Statistics.** Heathens always leave 10 villager records "
-        "free. "
+        "as a Heathen. **Heathens never count in the Village Statistics.** Heathens always leave the room kept for "
+        "believers free. "
         "This row replaces \"Heathen Tribe Ages, Dies and Has Children\", \"All Heathens Leave Skeletons\" and "
         "\"Heathens can be selected in Island Events/Heathen-Exclusive Events\": a saved selection with any of them "
         "ticks this row. \"Former Villagers Keep Aging Among the Heathens\" and \"Former Villagers Among the Heathens "
@@ -228,11 +262,39 @@ EVOLUTION_CHANGES = [
     "flags; the old flags are still read): every Heathen ages and can die of old age by the believers' rule, a "
     "puzzle Heathen whose puzzle is unsolved is replaced at once by the stock camp's own set-up of that role, and "
     "every Heathen leaves a body for the burial.",
-    "Births: each aging Heathen woman 14-45, not expecting, not the Heathen Mommy, in a couple with a living adult "
-    "Heathen man, rolls 1 in 2,400 x W / t a unit (W such women, t the births slider in tenths, 1..100; \"VVFP "
-    "Heathen Tribe Births.txt\", 1x when missing): about one conception for the tribe every 240 units at 1x. "
-    "Through 0x465E00 forced, her partner the father; the twins and triplets counters put back; the litter rolled "
-    "by the companion: twins 5.25%, triplets 1.75%, capped by room. Births go on after The Last Heathen.",
+    "Embraces and births (the owner, 2026-11-27/28; native/vvfp_heathen_aging/heathen_tribe.inc): once a unit of the "
+    "village's clock, after its arrival roll, 1 in 600 / t (t the births slider in tenths, 1..100; \"VVFP Heathen "
+    "Tribe Births.txt\", 1x when missing; with \"Heathen tribe size\" on b x c x F in 6,000,000, doubled while short "
+    "of children): about one conception for the tribe every 60 units (6 h on Normal) at 1x.  The roll picks a pair "
+    "at random: a couple of a woman 14-45 (not expecting, not the Heathen Mommy) and a man, or a Heathen titled "
+    "Parent (0x4755C0's highest skill, or the job +0x1C74, Parenting at 20+) with a Heathen of the other sex who is "
+    "not kin; both free (living, aging, adult, not sick, held or carrying; a puzzle Heathen only once its puzzle is "
+    "solved).  The believers' embrace (0x46CC93): the partner behaviour 6, the seeker stopped, \"Embracing\" "
+    "(0x193), the walk to the partner's spot +10 (distance 300), gesture 1 -- without the embrace step 0x10 "
+    "(0x4689A0's believer checks, messages and births counter).  Met within 40 px at a later look: 0x465E00 forced "
+    "with 0x467D20's baby skill and value, the woman the carrier, the Medicine litter rule of the routine (single "
+    "below Medicine 3), as many as fit; the twins and triplets counters put back; then both behaviour 7 (the Love "
+    "Shack) once project 23 is done, else an embrace look where they stand.  Not met in 3 units: given up.  The "
+    "load-time catch-up (more than 20 units in a look) conceives at once.  The believers' Parenting gate (rand(300) "
+    "+ 50 - 50 x Medicine <= Parenting, 0x468B8E) is not applied: the owner's rate is the rate.  Births go on after "
+    "The Last Heathen.",
+    "Nursing: at 0x46EAB8 (the Heathen AI's carrier test) a carrier of a baby this companion conceived (never roles "
+    "12-17) holds the baby (carry 3) and is given the believers' mothers' routine 0x46A1D0 (behaviours 0x2B / 0x4A "
+    "in the rain, else 0x43, 0x42, 0x7E, 0x76, 0x77, 0xD4, 0xD5 on 80% of the picks -- look steps only); the birth "
+    "40 units after the conception as before.",
+    "Tribe size (\"VVFP Heathen Options.txt\": tribe_max, 0 off; room_kept, 20, 10-100; change_tenths, 10): "
+    "conceptions, event pregnancies and arrivals add only while living Heathens plus babies on the way stay under "
+    "tribe_max (10 or more, kept within the table less room_kept) and room_kept records stay free; F falls from 100 "
+    "to 0 over the last fifth of the limit (at least 3); arrivals then roll a x c x F in 1,200,000 (one every 120 "
+    "units at 1x) and are a family with 1-2 children while short of children (fewer than a tenth of the size, at "
+    "least 2, under 14 or on the way).  Nobody is removed.",
+    "Masks (the owner, 2026-11-28): a new orange or red mask only while fewer than 10 living Heathens wear it, and "
+    "for a child (a newborn, an arrival's child, a grown-up camp child's replacement) fewer than the village's "
+    "Rascal cap of that colour (1 or 2 each, drawn once, kept in \"...\\Data\\Heathen Tribe\\Heathen Tribe - Save "
+    "<S>.dat\", 'VHT1'); no existing mask changes.  At 0x4430C6 an orange or red Heathen child is titled \"Rascal\".  "
+    "Purple masters: the first Heathen of roles 0-11 (no role for show) with a skill at 100 wears that skill's "
+    "purple mask through the Origins mask store (one a skill; the next when they die, convert or leave; their "
+    "identities in the tribe file, following renames).",
     "Couples (decision 15): two living adult Heathens of either sex, not kin (parent and child; full and half "
     "siblings, by the records' parent name, head and body), pair for life, at most one new couple a look; kept per "
     "slot in \"Virtual Villagers Fun Patcher\\Save <S>\\Data\\Heathen Couples\\Heathen Couples - Save <S>.dat\" "
@@ -255,7 +317,8 @@ EVOLUTION_CHANGES = [
     "creator 0x46FD20 in the same role and mask, Healing 0, the stock camp's Faith: the Rascal (the Details title "
     "0x4430AE..0x4430D6, string 0xD2: a Heathen younger than 280 in the orange mask; the stock camp's 0x424D23, "
     "age 140) by a Rascal of 140, a blue child at 120 or 240 (0x424CF9, 0x424D4D); its Arrived record \"Replaced a "
-    "Heathen child who grew up\" (\"... an Isolan child ...\").  No room (10 records kept free): owed in the slot's "
+    "Heathen child who grew up\" (\"... an Isolan child ...\"), within the Rascal caps.  No room (the room "
+    "kept): owed in the slot's "
     "file.  After The Last Heathen only while New Heathen Arrivals is above 0.",
     "Elders retire (the owner, 2026-11-26; \"the chief shouldn't retire\"): an elder by the game's test 0x46F790 "
     "(age >= 160 x Medicine + 840) who holds a camp role 1-11, a puzzle role 12, 14-17 while its puzzle is "
@@ -270,7 +333,8 @@ EVOLUTION_CHANGES = [
     "Partners: the life tick's partner cache is checked against the couple's saved identities before every use, "
     "and a Heathen who leaves (a death, an island event) is dropped from it at once, so a reused record is never "
     "taken for a partner.",
-    "Room (decision 18 as changed): Heathens are made only while 10 villager records stay free, in every population "
+    "Room (decision 18 as changed; the owner, 2026-11-28): Heathens are born or arrive only while \"Room kept for "
+    "believers\" (room_kept, 20 unless changed, never under 10) villager records stay free, in every population "
     "mode and in the 256 build.",
     "\"VVFP Heathen Life.dll\" (VvfpHeathenLifeUnit, called by Heathen Aging's life-tick splice): the believers' "
     "sickness onset 0x465F50 for ordinary Heathens, their damage never below the floor (21; options sick_floor) "
@@ -351,14 +415,16 @@ def row() -> dict:
                              + events["behavior_changes"]),
         "explicit_non_changes": NON_CHANGES + events["explicit_non_changes"][1:],
         "evidence_status": ("emulated on the stock executable: tests/test_vv5_heathen_aging.py, "
-                            "tests/test_vv5_heathen_evolution.py, tests/test_vv5_heathen_life.py, "
+                            "tests/test_vv5_heathen_evolution.py, tests/test_vv5_heathen_tribe_looks.py, "
+                            "tests/test_vv5_heathen_life.py, "
                             "tests/test_vv5_heathen_mausoleum.py, tests/test_vv5_heathen_evo_logs.py, "
                             "tests/test_heathens_in_island_events.py, tests/test_heathens_in_existing_events.py, "
                             "tests/test_heathen_only_events.py; the row in tests/test_vv5_heathen_tribe_evolution.py; "
                             "runtime/player confirmation pending"),
         "companion_files": files,
         "patches": [],
-        "runtime_detours": (aging_detours + detours(WALK_SITES, AGING_DLL) + detours(LIFE_SITES, LIFE_DLL) + detours(MAUSOLEUM_SITES, MAUSOLEUM_DLL)
+        "runtime_detours": (aging_detours + detours(WALK_SITES, AGING_DLL) + detours(LOOK_SITES, AGING_DLL)
+                            + detours(LIFE_SITES, LIFE_DLL) + detours(MAUSOLEUM_SITES, MAUSOLEUM_DLL)
                             + story_detours),
     }
 

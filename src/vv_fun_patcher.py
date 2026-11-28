@@ -11551,13 +11551,41 @@ HEATHEN_ARRIVALS_DEFAULT = 0                             # Default Patches; Owne
 HEATHEN_ARRIVALS_OWNERS_DEFAULT = 1
 HEATHEN_SHOW_PERCENT_RANGE = range(1, 101)
 HEATHEN_SHOW_PERCENT_DEFAULT = 25
+# The owner, 2026-11-28 (native/shared/heathen_evo.h tribe_max, room_kept, change_tenths): "Heathen tribe size" Off (0)
+# or the most living Heathens, 10 up to the game's table less the room kept (the companion keeps it there; the 256
+# build's table is the largest); "Room kept for believers", 20 unless moved, 10 to 100; "How often the tribe
+# changes", 0.1x-10x, used while the tribe size is on.  Default Patches: Off, 20, 1x; Owner's Defaults: 50, 20, 1x.
+HEATHEN_TRIBE_MAX_RANGE = range(10, 247)
+HEATHEN_TRIBE_MAX_OWNERS_DEFAULT = 50
+HEATHEN_TRIBE_MAX_DEFAULT = 0                            # Off
+HEATHEN_ROOM_RANGE = range(10, 101)
+HEATHEN_ROOM_DEFAULT = 20
+HEATHEN_CHANGE_NAME = "0.1-10x How Often the Tribe Changes"
+HEATHEN_CHANGE_RANGE = MultiplierRange(10)
+HEATHEN_CHANGE_DEFAULT = 1
 _heathen_evolution = {"births": HEATHEN_BIRTHS_DEFAULT, "arrivals": HEATHEN_ARRIVALS_DEFAULT,
-                      "show_percent": HEATHEN_SHOW_PERCENT_DEFAULT, "keep_blue": False}
+                      "show_percent": HEATHEN_SHOW_PERCENT_DEFAULT, "keep_blue": False,
+                      "tribe_max": HEATHEN_TRIBE_MAX_DEFAULT, "room_kept": HEATHEN_ROOM_DEFAULT,
+                      "change": HEATHEN_CHANGE_DEFAULT}
 HEATHEN_EVOLUTION_NAME_FOR_ERRORS = "Heathen Tribe Expansion and Evolution"
 
 
-def set_heathen_evolution(births=None, arrivals=None, show_percent=None, keep_blue=None) -> dict:
+def _whole_number_in(value, allowed: range, what: str, zero_ok: bool = False) -> int:
+    if isinstance(value, bool) or not isinstance(value, int) or not (value in allowed or (zero_ok and value == 0)):
+        raise PatcherError(f"{HEATHEN_EVOLUTION_NAME_FOR_ERRORS}: {what} must be a whole number from {allowed[0]} to "
+                           f"{allowed[-1]}{' (0 is Off)' if zero_ok else ''}, not {value!r}. Nothing was written.")
+    return value
+
+
+def set_heathen_evolution(births=None, arrivals=None, show_percent=None, keep_blue=None, tribe_max=None,
+                          room_kept=None, change=None) -> dict:
     """Choose the Heathen Tribe Expansion and Evolution row's settings for the next patch (each None: unchanged)."""
+    if tribe_max is not None:
+        _heathen_evolution["tribe_max"] = _whole_number_in(tribe_max, HEATHEN_TRIBE_MAX_RANGE, "the tribe size", True)
+    if room_kept is not None:
+        _heathen_evolution["room_kept"] = _whole_number_in(room_kept, HEATHEN_ROOM_RANGE, "the room kept for believers")
+    if change is not None:
+        _heathen_evolution["change"] = validate_multiplier(HEATHEN_CHANGE_NAME, change, HEATHEN_CHANGE_RANGE)
     if births is not None:
         _heathen_evolution["births"] = validate_multiplier(HEATHEN_BIRTHS_NAME, births, HEATHEN_BIRTHS_RANGE)
     if arrivals is not None:
@@ -11585,6 +11613,9 @@ def heathen_options_text(settings: dict | None = None) -> str:
              f"show_percent={chosen['show_percent']}"]
     if chosen["keep_blue"]:
         lines += ["mask_orange_percent=0", "mask_red_percent=0"]
+    lines += [f"tribe_max={chosen.get('tribe_max', HEATHEN_TRIBE_MAX_DEFAULT)}",
+              f"room_kept={chosen.get('room_kept', HEATHEN_ROOM_DEFAULT)}",
+              f"change_tenths={round(float(chosen.get('change', HEATHEN_CHANGE_DEFAULT)) * 10)}"]
     return "\n".join(lines) + "\n"
 
 
@@ -11595,7 +11626,10 @@ def _heathen_evolution_in(fun_patches: list[FunPatch]) -> dict | None:
     return {"heathen_tribe_births_multiplier": _heathen_evolution["births"],
             "heathen_arrivals_multiplier": _heathen_evolution["arrivals"],
             "heathen_show_percent": _heathen_evolution["show_percent"],
-            "heathen_keep_blue": _heathen_evolution["keep_blue"]}
+            "heathen_keep_blue": _heathen_evolution["keep_blue"],
+            "heathen_tribe_max": _heathen_evolution["tribe_max"],
+            "heathen_room_kept": _heathen_evolution["room_kept"],
+            "heathen_change_multiplier": _heathen_evolution["change"]}
 
 
 def _write_heathen_evolution_choices(output_folder: Path, fun_patches: list[FunPatch]) -> None:
@@ -15180,6 +15214,29 @@ def _add_fun_patch_args(parser: argparse.ArgumentParser) -> None:
         help="Heathen Tribe Expansion and Evolution: every new Heathen (arrivals, babies) wears the blue mask",
     )
     parser.add_argument(
+        "--heathen-tribe-max",
+        type=int,
+        default=None,
+        metavar="0|10-246",
+        help=("Heathen Tribe Expansion and Evolution: the Heathen tribe size, the most living Heathens births and "
+              "arrivals grow the camp to (0 = Off, the default)"),
+    )
+    parser.add_argument(
+        "--heathen-room-kept",
+        type=int,
+        default=None,
+        metavar="10-100",
+        help=("Heathen Tribe Expansion and Evolution: villager records always kept free for believers "
+              f"(default {HEATHEN_ROOM_DEFAULT})"),
+    )
+    parser.add_argument(
+        "--heathen-change",
+        type=multiplier_argument(HEATHEN_CHANGE_RANGE),
+        default=None,
+        help=(f"{HEATHEN_CHANGE_NAME}: with a tribe size, how often the camp grows, 0.1 to 10 "
+              f"(default {HEATHEN_CHANGE_DEFAULT})"),
+    )
+    parser.add_argument(
         "--village-solidarity-strength",
         default=None,
         help="Village Solidarity's strength, 0.1 to 10 in steps of 0.1 (default: 1, the normal strength)",
@@ -15363,7 +15420,10 @@ def main() -> int:
         set_heathen_evolution(births=getattr(args, "heathen_tribe_births_multiplier", None),
                               arrivals=getattr(args, "heathen_arrivals_multiplier", None),
                               show_percent=getattr(args, "heathen_show_percent", None),
-                              keep_blue=getattr(args, "heathen_keep_blue", None))
+                              keep_blue=getattr(args, "heathen_keep_blue", None),
+                              tribe_max=getattr(args, "heathen_tribe_max", None),
+                              room_kept=getattr(args, "heathen_room_kept", None),
+                              change=getattr(args, "heathen_change", None))
         if hasattr(args, "fun_patch"):
             args.fun_patch = migrated_fun_patch_ids(args.fun_patch)
         if args.command == "identify":

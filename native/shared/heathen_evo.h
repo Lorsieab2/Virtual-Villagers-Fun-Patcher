@@ -32,18 +32,33 @@
                            mask_red_percent     (default 3)     7% orange, 3% red;
                            group_max            (default 4)   decision 5: an arrival is a group of 1..group_max;
                            sick_floor           (default 21)  decision 8 (W-B): a sick Heathen's health floor;
-                           show_percent         (default 0 = W-B's own choice)  W-B's show-action mix.
+                           show_percent         (default 0 = W-B's own choice)  W-B's show-action mix;
+                           tribe_max            (default 0 = off)  the owner, 2026-11-28: "Heathen tribe size", the
+                                                 most living Heathens (babies on the way counted) that conceptions
+                                                 and arrivals grow the camp to, HE_TRIBE_MIN or more (the
+                                                 companion keeps it within the table less room_kept); 0 off: no
+                                                 limit but the records kept free;
+                           room_kept            (default 20)  "Room kept for believers": the villager records
+                                                 conceptions, births and arrivals of Heathens always leave free
+                                                 (HE_ROOM_MIN .. HE_ROOM_MAX);
+                           change_tenths        (default 10 = 1x)  "How often the tribe changes", 1..100 tenths:
+                                                 scales the growth rolls while tribe_max is on.
                          W-D need not write the file: every default is the owner's decision.
 
-   2. THE SLIDER RATES (W-A; decision 4).  Every roll is drawn from the companion's own xorshift (slider_scale.h's
-      rule), never the game's rand 0x403660.  t = the slider in tenths.
-        Births:   each eligible woman (an aging Heathen woman 14-45, not expecting, not the Heathen Mommy, in a
-                  couple with a living adult Heathen man) rolls 1 in HE_BIRTH_ROLL x W / t a unit, W the number
-                  of such women: about one conception for the whole tribe every 240 units (24 real hours on
-                  Normal) at 1x.
-        Arrivals: once a unit of the village's clock (the age credit of the first living record), 1 in
-                  HE_ARRIVAL_ROLL / t: about one arrival (a single Heathen or a group) every 480 units (48 real
-                  hours on Normal) at 1x; t = 0 none.
+   2. THE RATES (W-A; decision 4, the owner's of 2026-11-28).  Every roll is drawn from the companion's own xorshift
+      (slider_scale.h's rule), never the game's rand 0x403660.  b, a, c = the births, arrivals and change sliders in
+      tenths; one roll of each a unit of the village's clock (the age credit of the first living record).  A unit is
+      6 real minutes on Normal.
+        Conceptions (a visible embrace, then the conception): tribe_max off, 1 in HE_CONCEIVE_UNITS x 10 / b --
+                  about one for the whole tribe every 60 units (6 real hours on Normal: "1-2 conceptions every 6-12
+                  hours") at 1x.  tribe_max on, b x c x F in HE_CONCEIVE_UNITS x 10 x 10 x 100, F the growth
+                  factor below.
+        Arrivals: tribe_max off, 1 in HE_ARRIVAL_ROLL / a (one every 480 units, 48 hours, at 1x; a = 0 none).
+                  tribe_max on, a x c x F in HE_ARRIVE_UNITS_SIZED x 10 x 10 x 100 (one every 120 units at 1x), so
+                  with every slider at 1x something new comes to the camp about every 40 units (4 hours: "every 2-6
+                  hours"), every 60 units with arrivals off.
+        F (0..100): 100 while the camp is HE_SLOWING_SHARE of tribe_max or more (at least 3) below the limit, then
+                  falling in step to 0 at the limit, so the camp settles at it.
 
    3. THE BRIDGE EXPORTS.
 
@@ -135,12 +150,29 @@
 #define HE_SICK_FLOOR_DEFAULT 21
 
 /* ---- 2. rates ---------------------------------------------------------------------------------------------- */
-#define HE_BIRTH_ROLL 2400u              /* 240 units x 10 tenths */
-#define HE_ARRIVAL_ROLL 4800u            /* 480 units x 10 tenths */
-#define HE_ROOM_KEPT 10                  /* decision 18 (as the owner changed it): the records always left free */
-/* The litter (the stock odds without the Medicine 3 gate, 0x465ECD..0x465F2D): rolled out of 10,000. */
-#define HE_TRIPLETS_IN_10000 175         /* 1.75% */
-#define HE_TWINS_IN_10000 525            /* 5.25% */
+#define HE_CONCEIVE_UNITS 60u            /* one conception for the tribe in 60 units at 1x (6 h on Normal) */
+#define HE_ARRIVAL_ROLL 4800u            /* 480 units x 10 tenths (tribe_max off) */
+#define HE_ARRIVE_UNITS_SIZED 120u       /* one arrival in 120 units at 1x (tribe_max on) */
+#define HE_SLOWING_SHARE 5               /* growth slows over the last fifth of tribe_max */
+#define HE_ROOM_KEPT 10                  /* the fewest records ever left free (the game's own creator never runs out) */
+#define HE_ROOM_MIN 10
+#define HE_ROOM_MAX 100
+#define HE_ROOM_DEFAULT 20               /* the owner, 2026-11-28: "Room kept for believers", 20 */
+#define HE_TRIBE_MIN 10
+#define HE_TRIBE_OWNERS 50               /* Owner's Defaults: on at 50 */
+#define HE_CHANGE_DEFAULT 10             /* 1x */
+#define HE_OPT_TRIBE_MAX "tribe_max"
+#define HE_OPT_ROOM "room_kept"
+#define HE_OPT_CHANGE "change_tenths"
+/* The litter: the believers' own conception 0x465E00 sets it (0x465ECD..0x465F2D): one, unless Medicine is 3, then
+   rand(100) < 7 a multiple birth, of which rand(100) < 25 triplets (1.75%), else twins (5.25%). */
+/* Masks (the owner, 2026-11-28; fixed rules): at most HE_MASK_CAP orange and HE_MASK_CAP red Heathens (or the stock
+   camp's own count when it has more), of whom 1 or 2 children each (the village's own cap, kept in the tribe file),
+   every orange or red child labelled "Rascal"; at most one purple-masked master of each of the six skills besides
+   the puzzle Heathens. */
+#define HE_MASK_CAP 10
+#define HE_RASCAL_CAP_MIN 1
+#define HE_RASCAL_CAP_MAX 2
 
 /* ---- 3. bridge exports ------------------------------------------------------------------------------------- */
 #define HE_LIFE_DLL "VVFP Heathen Life.dll"
@@ -207,6 +239,17 @@ typedef struct {
     unsigned int formed;                 /* the first one's processed age when they paired */
     unsigned int state;                  /* HE_COUPLE_ACTIVE */
 } he_couple;
+
+/* The tribe (W-A; the owner, 2026-11-28): Data\Heathen Tribe\Heathen Tribe - Save <S>.dat
+       header  HE_TRIBE_MAGIC 'VHT1', HE_TRIBE_VERSION 1, game 5, count (HE_TRIBE_WORDS), slot   (20 bytes; slot at +16)
+       the words: the orange Rascals' cap (1 or 2), the red Rascals' cap (1 or 2), then the identity of the purple
+                  master of each skill (Farming, Parenting, Healing, Research, Building, Devotion; 0 none). */
+#define HE_TRIBE_MAGIC 0x31544856u       /* 'VHT1' */
+#define HE_TRIBE_VERSION 1u
+#define HE_TRIBE_HEADER 20u
+#define HE_TRIBE_WORDS 8u
+#define HE_TRIBE_FOLDER "Heathen Tribe"
+#define HE_TRIBE_FILE "Heathen Tribe - Save %d.dat"
 
 #define HE_MAUSOLEUM_MAGIC 0x314D4856u   /* 'VHM1' */
 #define HE_MAUSOLEUM_VERSION 1u

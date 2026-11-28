@@ -1243,8 +1243,9 @@ class TheRows(unittest.TestCase):
 
         evolution = json.loads((ROOT / "data" / f"{EVOLUTION_ID}_feature.json").read_text(encoding="utf-8"))
         mine = ranges(evolution, aging_only=True)
-        # the age credit and the life tick, and (with the expansion's row) the elder walk-pace site 0x4659C5
-        self.assertEqual(sorted(a for a, _ in mine), [0x4659C5, 0x470077, 0x472CB7])
+        # the age credit and the life tick, and (with the expansion's row) the elder walk-pace site 0x4659C5, the
+        # Heathen AI's carrier test 0x46EAB8 (nursing) and the Details panel's child title 0x4430C6 (Rascals)
+        self.assertEqual(sorted(a for a, _ in mine), [0x4430C6, 0x4659C5, 0x46EAB8, 0x470077, 0x472CB7])
         others = {}
         for path in (ROOT / "data").glob("vv5_*_feature.json"):
             # (the rows that ship this very companion: its sites are these two)
