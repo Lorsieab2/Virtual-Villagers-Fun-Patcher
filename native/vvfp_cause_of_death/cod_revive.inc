@@ -64,11 +64,47 @@ static FARPROC rvs_export(const char *dll, const char *name) {
     return module != NULL ? GetProcAddress(module, name) : NULL;
 }
 
+/* EACH COMPANION'S EXPORT, FOUND ONCE (v1.35.102).  The per-frame tick asks RVS_PER_TICK records a frame, and looking
+   every export up by name each time (GetModuleHandleA + GetProcAddress, five or six a record) cost New Believers
+   about 0.3 ms a frame at 256 villagers.  No VVFP DLL is ever unloaded (none calls FreeLibrary), so an address found
+   stays good for the game's life.  One not found yet -- its companion not installed, or not loaded yet -- is looked
+   for again every RVS_RETRY lookups on the tick, and always on a departure (rvs_fresh), so a departure asks exactly
+   what it asked before. */
+enum { RVS_HEAD_LOOK, RVS_PRESENTATION, RVS_ORIGINAL, RVS_TRAITS, RVS_VV1_PARENTS, RVS_MASKS, RVS_LOOKUPS };
+#define RVS_RETRY 64u
+static FARPROC rvs_found[RVS_LOOKUPS];
+static HMODULE rvs_mask_module;
+static unsigned int rvs_misses[RVS_LOOKUPS];
+static int rvs_fresh;
+
+static int rvs_look_again(int which) {
+    return rvs_fresh || rvs_misses[which]++ % RVS_RETRY == 0u;
+}
+
+static FARPROC rvs_export_at(int which, const char *dll, const char *name) {
+#ifdef VVFP_TEST
+    if (rvs_test_export != NULL) {
+        return rvs_test_export(dll, name);   /* the harness's stand-ins, never kept */
+    }
+#endif
+    if (rvs_found[which] == NULL && rvs_look_again(which)) {
+        rvs_found[which] = rvs_export(dll, name);
+    }
+    return rvs_found[which];
+}
+
+static int rvs_masks_loaded(void) {
+    if (rvs_mask_module == NULL && rvs_look_again(RVS_MASKS)) {
+        rvs_mask_module = GetModuleHandleA(VV_MASK_ORIGINS[g_game]);
+    }
+    return rvs_mask_module != NULL;
+}
+
 /* What the patcher's own files keep for the villager in `record` (index `index`), into `e`. */
 static void rvs_sidecars(vv_rs_entry *e, int index, const unsigned char *record) {
     rvs_record_fn get;
     int mask;
-    get = (rvs_record_fn)(void *)rvs_export("VVFP Head Look.dll", "VvfpHeadLookGet");
+    get = (rvs_record_fn)(void *)rvs_export_at(RVS_HEAD_LOOK, "VVFP Head Look.dll", "VvfpHeadLookGet");
     if (get != NULL) {
         int look = get(g_game, record);
         if (look >= 0 && look <= 2) {
@@ -76,7 +112,8 @@ static void rvs_sidecars(vv_rs_entry *e, int index, const unsigned char *record)
             e->flags |= VV_RS_HEAD_LOOK;
         }
     }
-    get = (rvs_record_fn)(void *)rvs_export("VVFP Gender Presentation.dll", "VvfpGenderPresentationGet");
+    get = (rvs_record_fn)(void *)rvs_export_at(RVS_PRESENTATION, "VVFP Gender Presentation.dll",
+                                                "VvfpGenderPresentationGet");
     if (get != NULL) {
         int on = get(g_game, record);
         if (on == 0 || on == 1) {
@@ -84,14 +121,15 @@ static void rvs_sidecars(vv_rs_entry *e, int index, const unsigned char *record)
             e->flags |= VV_RS_PRESENTATION;
         }
     }
-    if (GetModuleHandleA(VV_MASK_ORIGINS[g_game]) != NULL) {
+    if (rvs_masks_loaded()) {
         mask = vv_mask_value(g_game, record);
         e->mask = mask;
         e->flags |= VV_RS_MASK;
     }
     {
         typedef int (__stdcall *rvs_original_fn)(int game, const void *record, int *head, int *body, int *mask);
-        rvs_original_fn original = (rvs_original_fn)(void *)rvs_export("VVFP Original Look.dll", "VvfpOriginalLookGet");
+        rvs_original_fn original = (rvs_original_fn)(void *)rvs_export_at(RVS_ORIGINAL, "VVFP Original Look.dll",
+                                                                          "VvfpOriginalLookGet");
         int head = -1, body = -1, kept_mask = -1;
         if (original != NULL && original(g_game, record, &head, &body, &kept_mask) == 1) {
             e->original_head = head;
@@ -100,13 +138,14 @@ static void rvs_sidecars(vv_rs_entry *e, int index, const unsigned char *record)
             e->flags |= VV_RS_ORIGINAL;
         }
     }
-    get = (rvs_record_fn)(void *)rvs_export("VVFP Story Upgrades.dll", "VvfpStoryTraitsOf");
+    get = (rvs_record_fn)(void *)rvs_export_at(RVS_TRAITS, "VVFP Story Upgrades.dll", "VvfpStoryTraitsOf");
     if (get != NULL) {
         e->traits = (unsigned int)get(g_game, record);
         e->flags |= VV_RS_TRAITS;
     }
     if (g_game == 1 && index >= 0) {
-        rvs_vv1_query_fn query = (rvs_vv1_query_fn)(void *)rvs_export("VVFP VV1 Parentage.dll", "Vv1ParentageQuery");
+        rvs_vv1_query_fn query = (rvs_vv1_query_fn)(void *)rvs_export_at(RVS_VV1_PARENTS, "VVFP VV1 Parentage.dll",
+                                                                          "Vv1ParentageQuery");
         int looks[4] = { -1, -1, -1, -1 };
         char father[ROSTER_PARENT_NAME], mother[ROSTER_PARENT_NAME];
         int named = vv1_parent_names(index, father, mother, (int)ROSTER_PARENT_NAME);
@@ -235,7 +274,9 @@ static void revive_note(int index, const unsigned char *record) {
     if (index >= 0 && index < RECORDS_MAX && rvs_kept[index].who != 0u && rvs_kept[index].who == rvs_who(record)) {
         rvs_side_to(e, &rvs_kept[index]);
     } else if (rec_present(record)) {
+        rvs_fresh = 1;                /* a departure looks every companion up afresh (rvs_export_at) */
         rvs_sidecars(e, index, record);
+        rvs_fresh = 0;
     }
     if (index >= 0 && index < RECORDS_MAX) {
         rvs_kept[index].who = 0u;     /* the record is free: whoever takes it next is asked afresh */
