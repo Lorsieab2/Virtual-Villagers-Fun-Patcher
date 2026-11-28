@@ -106,6 +106,33 @@ def inherit(father: int, mother: int, r100: int, r3: int, rn: int) -> int:
     return min(max((father + mother) // 2 + r3 % 3 - 1, 1), TONE_COUNT)
 
 
+# THE PREFERRED SKIN TONE (the owner, 2026-11-28): the row's Settings window holds "No preference" or one of the
+# tones.  The patcher writes it beside the companions as CHOICE_FILE ("0" none, else "1".."10"); with a tone chosen,
+# PREFERRED_PERCENT of the villagers given a random tone (founders, arrivals, event and cheat villagers, villagers
+# already there with no tone and no known parents) get it and the rest one of the other tones.  Babies inherit.
+CHOICE_FILE = "VVFP Skin Tones.txt"
+PREFERRED_PERCENT = 80          # 4 in 5 (skin_tone_rules.h VVFP_SKIN_TONE_PREFERRED_PERCENT)
+NO_PREFERENCE = 0
+
+
+def random_tone(preferred: int, r100: int, rn: int) -> int:
+    """A randomly made villager's tone.  `preferred`: 0 none, else 1..TONE_COUNT.  r100, rn: the rolls rand(100)
+    and rand(TONE_COUNT), any whole numbers.  Always 1..TONE_COUNT."""
+    if not 1 <= preferred <= TONE_COUNT:
+        return rn % TONE_COUNT + 1
+    if r100 % 100 < PREFERRED_PERCENT:
+        return preferred
+    other = rn % (TONE_COUNT - 1) + 1          # one of the other nine
+    return other + 1 if other >= preferred else other
+
+
+def choice_text(preferred: int) -> str:
+    """CHOICE_FILE's text: "0\n" for no preference, else the tone's number."""
+    if isinstance(preferred, bool) or not isinstance(preferred, int) or not 0 <= preferred <= TONE_COUNT:
+        raise ValueError(f"a preferred skin tone is 0 (none) or 1 to {TONE_COUNT}, not {preferred!r}")
+    return f"{preferred}\n"
+
+
 def head_rule(father: int, mother: int, r100: int, r3: int, rn: int, count: int = 30) -> int:
     """The games' own head roll (heads 0..count-1), for comparing with the stock executables."""
     if r100 < 5 or (father == 0 and mother == 0):

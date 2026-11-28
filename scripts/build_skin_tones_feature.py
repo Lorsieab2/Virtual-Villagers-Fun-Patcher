@@ -85,7 +85,9 @@ def description() -> str:
         "owner, 2026-11-28: \"like head inheritance\"): about 19 babies in 20 get a tone between the two parents' "
         "tones (their average, give or take one step); twins and triplets copy the first baby; with only one parent "
         "known, that parent's tone counts for both. " + ANCESTOR_NOTE + " Founders and arrivals get any tone, and so "
-        "does everyone already in a village the first time it is loaded with this patch. The tone a baby will have "
+        "does everyone already in a village the first time it is loaded with this patch; its Settings window's "
+        "Preferred skin tone gives 4 in 5 of them one tone of your choice instead (no preference unless chosen). The "
+        "row's \"?\" shows a woman and a man in each tone, made from your own game's pictures. The tone a baby will have "
         "is decided from the parents named in its record. The tones are made when you patch, from your own game's pictures: ten copies "
         "of each head and body sheet are added to the patched game's Images folder (files named vvfp_skin_...), "
         "which takes a few minutes the first time. The game's own pictures are never changed, hair, eyes, clothes "
@@ -121,6 +123,10 @@ def row(game: int, dll_sha: str) -> dict:
             "a parent known: (father + mother) / 2 + rand(3) - 1, kept within 1..10; else any tone), a missing "
             "parent counting as the other; a second baby of the same pregnancy copies the first; anyone else any "
             "tone. Every roll is the companion's own generator: the game's rand() sequence is not disturbed.",
+            "The row's Settings window's Preferred skin tone is written beside the companion as \"VVFP Skin "
+            "Tones.txt\" (\"0\" no preference, else the tone 1..10), read at start: with a tone, 80 in 100 of the "
+            "villagers given a random tone get it and the rest one of the other nine, each as likely; a baby's tone "
+            "is always the head rule's. A missing or unreadable file is no preference.",
             "At each site below the sheet about to be drawn from is changed to the villager's tone's copy of it "
             "(\"vvfp_skin_<NN>_<the game's own file name>\" in Images), loaded the first time it is needed and only "
             "when every file of it is there; otherwise the game's own sheet is drawn.",

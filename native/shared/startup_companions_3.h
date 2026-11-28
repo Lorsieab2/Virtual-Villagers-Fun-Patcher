@@ -73,9 +73,15 @@ static const char *const VVFP_STARTUP_COMPANIONS_3[] = {
        v1.35.101): the Shrine to the Ancestors, the Heathens' own graves at the mud hut (the owner, 2026-11-26).
        Bit 22. */
     "VVFP Heathen Mausoleum.dll",
+    /* Villagers Dropped on an Unfinished Statue May Honor (New Believers): a believer dropped on the statue while its
+       next stage waits for technology Honors or is Confused, 1 in 2 each (the owner, 2026-11-27).  Bit 23. */
+    "VVFP Statue Honoring.dll",
+    /* Sharp Full Screen Picture (4K Filter) (New Believers first): the game's picture drawn sharp at the screen's
+       own size by a Direct3D 9Ex device of its own (the owner, 2026-11-26/27).  Bit 24. */
+    "VVFP Sharp Picture.dll",
     /* Skin Tones (The Secret City, The Tree of Life, New Believers so far): each villager's skin tone, kept, handed
        down by the head rule and drawn from that tone's copy of the head and body sheets (the owner, 2026-11-26).
-       Bit 23. */
+       Bit 25 (23 is Statue Honoring, PR #898; 24 the 4K filter's Sharp Picture). */
     "VVFP Skin Tones.dll",
     /* APPEND ONLY (see above). */
 };

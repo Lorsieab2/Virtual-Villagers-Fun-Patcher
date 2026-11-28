@@ -71,6 +71,36 @@ class Table(unittest.TestCase):
         self.assertIn(f'#define HL_KIND "{tones.FOLDER}"', store)
 
 
+class PreferredTone(unittest.TestCase):
+    """The owner, 2026-11-28: "Preferred skin tone" -- no preference (random), or a tone most (4 in 5) randomly made
+    villagers get; the rest random."""
+
+    def test_no_preference_is_every_tone_alike(self) -> None:
+        for preferred in (0, 11, 15, -1):
+            self.assertEqual([tones.random_tone(preferred, r100, rn) for r100 in (0, 99) for rn in range(10)],
+                             list(range(1, 11)) * 2)
+
+    def test_four_in_five_get_the_preferred_tone(self) -> None:
+        for preferred in range(1, tones.TONE_COUNT + 1):
+            got = [tones.random_tone(preferred, r100, rn) for r100 in range(100) for rn in range(90)]
+            self.assertEqual(got.count(preferred), 80 * 90)
+            rest = [t for t in got if t != preferred]
+            self.assertEqual({t: rest.count(t) for t in set(rest)},
+                             {t: 20 * 10 for t in range(1, 11) if t != preferred}, "the rest: the other nine alike")
+
+    def test_the_percent_is_the_dlls(self) -> None:
+        text = (ROOT / "native" / "vvfp_skin_tones" / "skin_tone_rules.h").read_text(encoding="utf-8")
+        self.assertIn(f"#define VVFP_SKIN_TONE_PREFERRED_PERCENT {tones.PREFERRED_PERCENT}u", text)
+        self.assertIn(f'#define VVFP_SKIN_TONE_CHOICE_FILE "{tones.CHOICE_FILE}"', text)
+
+    def test_the_file(self) -> None:
+        self.assertEqual(tones.choice_text(0), "0\n")
+        self.assertEqual(tones.choice_text(10), "10\n")
+        for bad in (11, -1, True, "3", 2.0):
+            with self.assertRaises(ValueError):
+                tones.choice_text(bad)
+
+
 class Inherit(unittest.TestCase):
     def test_it_is_the_head_rule_on_the_tone_numbers(self) -> None:
         """Wherever both parents have a tone and the head rule stays inside 1..COUNT, a tone is the head the
@@ -296,6 +326,13 @@ class Harness(unittest.TestCase):
                 self.assertEqual(got, tones.inherit(father, mother, r100, r3, rn), line)
                 seen += 1
         self.assertEqual(seen, 12 * 12 * 5 * 3 * 3)
+        randoms = 0
+        for line in text.splitlines():
+            if line.startswith("RANDOM "):
+                preferred, r100, rn, got = (int(v) for v in line.split()[1:])
+                self.assertEqual(got, tones.random_tone(preferred, r100, rn), line)
+                randoms += 1
+        self.assertEqual(randoms, 12 * 34 * 12)
 
 
 if __name__ == "__main__":

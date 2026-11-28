@@ -10810,6 +10810,8 @@ def _result(
         **_runtime_sliders_in(fun_patches),
         # Heathen Tribe Expansion and Evolution's sliders and options, when that row is in the build.
         **(_heathen_evolution_in(fun_patches) or {}),
+        # Skin Tones' preferred skin tone, when that row is in the build.
+        **(_skin_tone_preferred_in(fun_patches) or {}),
     }
 
 
@@ -11112,6 +11114,8 @@ def _log_data(
         **_runtime_sliders_in(fun_patches),
         # Heathen Tribe Expansion and Evolution's sliders and options, when that row is in the build.
         **(_heathen_evolution_in(fun_patches) or {}),
+        # Skin Tones' preferred skin tone, when that row is in the build.
+        **(_skin_tone_preferred_in(fun_patches) or {}),
     }
 
 
@@ -11244,6 +11248,7 @@ def _copy_companion_files(
     _write_island_frequency_choice(output_folder, fun_patches)
     _write_runtime_slider_choices(output_folder, fun_patches)
     _write_heathen_evolution_choices(output_folder, fun_patches)
+    _write_skin_tone_choice(output_folder, fun_patches)
     _write_player_events(output_folder, fun_patches)
     _write_village_solidarity_choice(output_folder, fun_patches)
     _write_skin_tone_sheets(output_folder, fun_patches)
@@ -11252,6 +11257,53 @@ def _copy_companion_files(
 
 # What the last patch did about each game's skin tone sheets (the GUI may show it): game -> a line of plain words.
 SKIN_TONE_REPORTS: dict[int, str] = {}
+
+
+# Skin Tones' "Preferred skin tone" (the row's Settings window; the owner, 2026-11-28): "No preference" (0) or a tone
+# 1..10 that 4 in 5 randomly made villagers get (src/vv_skin_tones.py random_tone; babies always inherit).  Written
+# beside "VVFP Skin Tones.dll" as "VVFP Skin Tones.txt" ("0".."10"), read by the companion at start (missing or
+# unreadable: no preference).  The window's choice and the command line's --skin-tone-preferred set it.
+SKIN_TONES_DLL = "VVFP Skin Tones.dll"
+SKIN_TONE_PREFERRED_DEFAULT = 0
+_skin_tone_preferred = SKIN_TONE_PREFERRED_DEFAULT
+
+
+def set_skin_tone_preferred(tone) -> int:
+    """Choose Skin Tones' preferred skin tone for the next patch: 0 for no preference, else a tone 1 to 10."""
+    global _skin_tone_preferred
+    import vv_skin_tones
+    if isinstance(tone, bool) or not isinstance(tone, int) or not 0 <= tone <= vv_skin_tones.TONE_COUNT:
+        raise PatcherError(f"Skin Tones: the preferred skin tone must be 0 (no preference) or a tone from 1 to "
+                           f"{vv_skin_tones.TONE_COUNT}, not {tone!r}. Nothing was written.")
+    _skin_tone_preferred = tone
+    return tone
+
+
+def skin_tone_preferred() -> int:
+    """The preferred skin tone the next patch writes (set_skin_tone_preferred): 0 none, else 1 to 10."""
+    return _skin_tone_preferred
+
+
+def _skin_tone_preferred_in(fun_patches: list[FunPatch]) -> dict | None:
+    """The preferred skin tone for the patch log, when a Skin Tones row is in the build."""
+    if not any(patch.id.endswith("_skin_tones") for patch in fun_patches):
+        return None
+    return {"skin_tone_preferred": _skin_tone_preferred}
+
+
+def _write_skin_tone_choice(output_folder: Path, fun_patches: list[FunPatch]) -> None:
+    """The preferred skin tone beside "VVFP Skin Tones.dll", when the build ships a Skin Tones row."""
+    import vv_skin_tones
+    for feature in fun_patches:
+        if not feature.id.endswith("_skin_tones"):
+            continue
+        for item in feature.raw.get("companion_files", []):
+            if item.get("destination") != SKIN_TONES_DLL:
+                continue
+            dll = patcher_files.long_path(output_folder / _safe_companion_destination(item["destination"]))
+            dll.parent.mkdir(parents=True, exist_ok=True)
+            (dll.parent / vv_skin_tones.CHOICE_FILE).write_text(vv_skin_tones.choice_text(_skin_tone_preferred),
+                                                                 encoding="ascii", newline="\n")
 
 
 def _write_skin_tone_sheets(output_folder: Path, fun_patches: list[FunPatch]) -> None:
@@ -13830,7 +13882,11 @@ STARTUP_LOADER_COMPANIONS_3 = (
     # Heathen Tribe Expansion and Evolution, and Former Villagers Among the Heathens Leave Skeletons (New Believers,
     # v1.35.101): bit 22, the Shrine to the Ancestors.
     "VVFP Heathen Mausoleum.dll",
-    # Skin Tones (The Secret City, The Tree of Life, New Believers so far; the owner 2026-11-26): bit 23.
+    # Villagers Dropped on an Unfinished Statue May Honor (New Believers; the owner 2026-11-27): bit 23 (PR #898).
+    "VVFP Statue Honoring.dll",
+    # Sharp Full Screen Picture (4K Filter) (the owner 2026-11-26/27): bit 24 (the 4K branch).
+    "VVFP Sharp Picture.dll",
+    # Skin Tones (The Secret City, The Tree of Life, New Believers so far; the owner 2026-11-26): bit 25.
     "VVFP Skin Tones.dll",
 )
 MORE_COMPANIONS_DLL = "VVFP More Companions.dll"
@@ -15221,6 +15277,16 @@ def _add_fun_patch_args(parser: argparse.ArgumentParser) -> None:
         help="Heathen Tribe Expansion and Evolution: every new Heathen (arrivals, babies) wears the blue mask",
     )
     parser.add_argument(
+        "--skin-tone-preferred",
+        type=int,
+        choices=list(range(0, 11)),
+        default=None,
+        metavar="0-10",
+        help=("Skin Tones: the preferred skin tone, 0 for no preference (every randomly made villager any tone) or a "
+              "tone 1 (Porcelain) to 10 (Ebony) that 4 in 5 randomly made villagers get; babies always inherit "
+              f"(default {SKIN_TONE_PREFERRED_DEFAULT})"),
+    )
+    parser.add_argument(
         "--village-solidarity-strength",
         default=None,
         help="Village Solidarity's strength, 0.1 to 10 in steps of 0.1 (default: 1, the normal strength)",
@@ -15405,6 +15471,8 @@ def main() -> int:
                               arrivals=getattr(args, "heathen_arrivals_multiplier", None),
                               show_percent=getattr(args, "heathen_show_percent", None),
                               keep_blue=getattr(args, "heathen_keep_blue", None))
+        if getattr(args, "skin_tone_preferred", None) is not None:
+            set_skin_tone_preferred(args.skin_tone_preferred)
         if hasattr(args, "fun_patch"):
             args.fun_patch = migrated_fun_patch_ids(args.fun_patch)
         if args.command == "identify":

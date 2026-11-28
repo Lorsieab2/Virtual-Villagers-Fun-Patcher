@@ -807,6 +807,7 @@ FILES = [
     # Skin Tones: the tone table and file, and the maker of the tones' sheets at patch time (Pillow only).
     "src/vv_skin_tones.py",
     "src/vv_skin_tone_art.py",
+    "src/vv_skin_tone_preview.py",
     "src/vv_fun_patcher_gui.py",
     # The "Virtual Villagers Fun Patcher Files" folder; vv_fun_patcher imports
     # it at the top, so the patcher cannot start without it.

@@ -254,6 +254,16 @@ int main(void) {
         }
     }
 
+    /* The preferred-tone rule, every case (RANDOM lines, compared with src/vv_skin_tones.py random_tone). */
+    for (f = 0; f <= 11; ++f) {
+        for (k = 0; k < 100; k += 3) {
+            for (rn = 0; rn < 12; ++rn) {
+                printf("RANDOM %u %u %u %d\n", f, k, rn * 7u, VvfpSkinToneRandom((int)f, k, rn * 7u));
+            }
+        }
+    }
+    check(VvfpSkinTonePreferred() == 0, "no choice file: no preferred tone");
+
     printf("Founders and arrivals\n");
     for (k = 0; k < 40; ++k) {
         wsprintfA(name, "F%d_", k);

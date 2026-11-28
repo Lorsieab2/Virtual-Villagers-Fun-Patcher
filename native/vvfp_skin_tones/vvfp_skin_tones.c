@@ -30,7 +30,8 @@
        and that of the villager with the father's name.  A second or third baby of the same pregnancy
        (same parents, same age, given in the same pass) copies the first, as its head does;
      * anyone else -- a founder, an arrival, a villager whose parents are nobody in the village: any tone,
-       each as likely.
+       each as likely; or, with a preferred skin tone chosen in the patcher ("VVFP Skin Tones.txt" beside the
+       companions, read at start), that tone for 4 in 5 of them and one of the others for the rest.
    A New Home's records name no parents, so there a newborn's tone is given by VvfpSkinToneBorn (called
    where the birth is logged) before this pass can see it; without that call a newborn there would be
    random like an arrival.
@@ -51,6 +52,7 @@
 #include "../shared/vv3_villager_table.h"
 #include "../shared/vv4_villager_table.h"
 #include "../shared/vv5_villager_table.h"
+#include "../shared/multiplier_choice.h"
 #include "skin_tone_rules.h"
 
 #define HL_MAX 256
@@ -237,8 +239,12 @@ static unsigned int st_roll(void) {
     return g_seed >> 8;
 }
 
+static int g_preferred;      /* the preferred skin tone: 0 none, 1..COUNT (VVFP_SKIN_TONE_CHOICE_FILE) */
+
+/* A randomly made villager's tone (never a baby's). */
 static int st_random_tone(void) {
-    return (int)(st_roll() % (unsigned int)VVFP_SKIN_TONE_COUNT) + 1;
+    unsigned int r100 = st_roll() % 100u;
+    return vvfp_skin_tone_random(g_preferred, r100, st_roll());
 }
 
 /* ---- who gets which tone -------------------------------------------------------------------------- */
@@ -722,6 +728,8 @@ void __stdcall VvfpStartup(int game, unsigned int shipped) {
     }
     g_game = game;
 #ifndef VVFP_SKIN_TONE_HARNESS
+    /* "0".."10" (read as tenths: 0..100); anything else is no preference. */
+    g_preferred = (int)(vvfp_read_tenths(VVFP_SKIN_TONE_CHOICE_FILE, 0u, 0u, VVFP_SKIN_TONE_COUNT * 10u) / 10u);
     if (game == 3) {
         st_install_draws(&VV3_DRAWS);
     } else if (game == 4) {
@@ -942,6 +950,16 @@ int __stdcall VvfpSkinToneBorn(int game, const void *child, const void *mother, 
         }
     }
     return tone;
+}
+
+/* A randomly made villager's tone by the preferred-tone rule (skin_tone_rules.h), for the tests. */
+int __stdcall VvfpSkinToneRandom(int preferred, unsigned int r100, unsigned int rn) {
+    return vvfp_skin_tone_random(preferred, r100, rn);
+}
+
+/* The preferred skin tone this DLL read at start: 0 none, 1..COUNT. */
+int __stdcall VvfpSkinTonePreferred(void) {
+    return g_preferred;
 }
 
 /* The head rule itself (skin_tone_rules.h), for the tests and for anyone who rolls for themselves. */

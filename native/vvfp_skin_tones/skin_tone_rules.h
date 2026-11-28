@@ -31,6 +31,28 @@
 #define VVFP_SKIN_TONE_WORD "skin tone"         /* "Old skin tone" / "New skin tone" in "Appearance changed" */
 #define VVFP_SKIN_TONE_GAMES_OWN_NAME "Game's own"
 
+/* THE PREFERRED SKIN TONE (the owner, 2026-11-28: "Preferred skin tone" in the row's Settings window).  The
+   patcher writes it beside the companions as VVFP_SKIN_TONE_CHOICE_FILE: "0" for no preference, else the tone
+   1..COUNT.  With a tone chosen, VVFP_SKIN_TONE_PREFERRED_PERCENT of the villagers given a RANDOM tone (founders,
+   arrivals, event and cheat villagers, villagers already there with no tone and no known parents) get it, and
+   the rest one of the other tones, each as likely.  Babies never: they inherit by the head rule below. */
+#define VVFP_SKIN_TONE_CHOICE_FILE "VVFP Skin Tones.txt"
+#define VVFP_SKIN_TONE_PREFERRED_PERCENT 80u    /* 4 in 5 */
+
+/* A randomly made villager's tone.  `preferred`: 0 none, else 1..COUNT.  r100 and rn: the rolls rand(100) and
+   rand(COUNT), any unsigned numbers.  Always 1..COUNT. */
+static __inline int vvfp_skin_tone_random(int preferred, unsigned int r100, unsigned int rn) {
+    int other;
+    if (preferred < 1 || preferred > VVFP_SKIN_TONE_COUNT) {
+        return (int)(rn % (unsigned int)VVFP_SKIN_TONE_COUNT) + 1;
+    }
+    if (r100 % 100u < VVFP_SKIN_TONE_PREFERRED_PERCENT) {
+        return preferred;
+    }
+    other = (int)(rn % (unsigned int)(VVFP_SKIN_TONE_COUNT - 1)) + 1;     /* one of the other nine */
+    return other >= preferred ? other + 1 : other;
+}
+
 /* Each tone's own name, light to dark (src/vv_skin_tones.py TONE_TABLE). */
 #define VVFP_SKIN_TONE_NAMES { \
     "Porcelain", "Fair", "Light golden", "Light olive", "Copper", "Warm brown", "Medium brown", "Deep brown", \

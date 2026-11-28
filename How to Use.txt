@@ -1630,9 +1630,15 @@ arrivals and everyone already in a village get any tone. Patching makes the
 tones from your own game's pictures: it adds files to the patched game's
 Images folder and takes a few minutes the first time; the game's own pictures
 are never changed. Each villager's tone is kept in the save's own Skin Tones
-file; Start Over clears it. Choosing a tone in Change Appearance is not there
-yet, and A New Home and The Lost Children do not have the patch yet. Not yet
-seen in a running game.
+file; Start Over clears it. The row's "?" shows a woman and a man in each of the
+ten tones, made from your own game's pictures. Its Settings... button (usable
+while the row is ticked) holds the Preferred skin tone: No preference (the
+default: founders, arrivals, villagers made by events or cheats, and villagers
+already there with no tone and no known parents get any tone), or one tone
+that 4 in 5 of those villagers get, the rest one of the other nine. Babies
+always inherit, whatever is chosen. Choosing a tone in Change Appearance is not
+there yet, and A New Home and The Lost Children do not have the patch yet. Not
+yet seen in a running game.
 
 FOG OF DOOM LETS RED AND ORANGE HEATHENS LISTEN (NEW BELIEVERS)
 
