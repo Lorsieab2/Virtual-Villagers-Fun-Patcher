@@ -236,6 +236,9 @@ PATCHER_SETTINGS: frozenset[str] = frozenset({
     "VVFP Heathen Tribe Births.txt",
     "VVFP Heathen Arrivals.txt",
     "VVFP Heathen Options.txt",
+    # Sharp Full Screen Picture (4K Filter)'s Settings window (src/vv_fun_patcher.py _write_sharp_picture_choice):
+    # "bars" or "stretch", beside "VVFP Sharp Picture.dll".
+    "VVFP Sharp Picture.txt",
 })
 
 _IN_PLACE = {key.casefold() for key in GAME_READS_IN_PLACE}

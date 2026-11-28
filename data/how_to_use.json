@@ -1169,6 +1169,15 @@
       ]
     },
     {
+      "ids": ["vv5_sharp_picture"],
+      "guide": [
+        "Makes the game's picture sharp at your screen's own size, up to 4K: smooth, crisp edges and text instead of blocky or blurred.",
+        "The window opens bigger (New Believers' size times your Windows scaling); full screen uses every pixel of the screen.",
+        "Black bars keep the picture's shape; clicking a bar does nothing. If the graphics card is too slow, a lighter version is used by itself.",
+        "Keep Fix Vanilla Bugs on with it: it puts the mouse in the right spot. Off by default."
+      ]
+    },
+    {
       "ids": ["vv5_max_divine_energy_increases"],
       "guide": [
         "Off by default and in Select All (Select All does not tick it); on in Owner's Defaults only. Nothing to click: it works on its own.",
@@ -1570,6 +1579,7 @@
     "heathen_arrivals_multiplier": {"title": "0-10x New Heathen Arrivals", "guide": ["Heathen Tribe Expansion and Evolution (New Believers): new Heathens join the camp from elsewhere. Untick New Heathens arrive for none (0).", "At 1 about one arrival every 48 real hours on Normal speed: one to four Heathens, sometimes a couple with up to two children.", "10 is ten times as often, -10 a tenth. Arrivals keep coming after The Last Heathen. Off in Default Patches; 1 in Owner's Defaults.", "A growing camp makes The Last Heathen harder to reach, or impossible. Patch again after a change."]},
     "heathen_show_percent": {"title": "Show actions", "guide": ["Heathen Tribe Expansion and Evolution (New Believers): of an idle adult Heathen's choices, the percent that are a show action:", "a harvest that takes nothing, a visit to a building, a show meal or praying at the mud hut. The rest are the game's own Heathen life.", "1 to 100, 25 unless moved (about 1 choice in 4). None of it changes anything of your believers'. Patch again after a change."]},
     "heathen_keep_blue": {"title": "Keep every new Heathen blue", "guide": ["Heathen Tribe Expansion and Evolution (New Believers): every new arrival and every Heathen baby wears the blue mask.", "Unticked (the default), they are 90% blue, 7% orange and 3% red; the mask colour changes how a Heathen acts (red ones chase and scare).", "The puzzles' Heathens keep their own masks. Patch again after a change."]},
+    "sharp_picture_fit": {"title": "Black bars or stretch", "guide": ["Sharp Full Screen Picture (4K Filter): how the picture fills a screen wider than the game.", "Black bars (the default) keep the picture's shape, with bars at the sides; a click on a bar does nothing.", "Stretch fills the whole screen; everything looks a little wider.", "Patch again after a change."]},
     "more_island_events_and_creator": {"title": "More Island Events and Creator", "guide": ["One tick for every island event the patcher adds: More Island Events and the Isola Grand Event Collection.", "Ticking it ticks both, with Story / Cheat Upgrades and Scrolling Popups; unticking it unticks both.", "Each can still be ticked on its own. Owner's Defaults, Select All and Classic VV Difficulty tick the whole row.", "Its Settings... button opens its own window: the partner-carry percent, the Custom Island Event Library, the content filters and Player Events."]},
     "island_event_content_filters": {
       "title": "Content Filters",
@@ -1606,7 +1616,7 @@
         "Scrolling Popups, More Island Events, Isola Grand Event Collection, Every Island Event Can Happen, both Island Events Scale patches, One-Time Collectibles Appear Again,",
         "the 0.1-10x sliders and the island event controls. Respecting the Legacy of Isola, Heathens Keep Their Masks When Converted, Memorial Actions Can Also Occur at the Heathen Hovel,",
         "Shrine to the Ancestors, both Fog of Doom patches, Practicing Devotion Builds Faith and Divine Energy, Esteemed Elders in Every Game,",
-        "the three Heathen aging patches, Revive Buried/Disappeared Villagers, Max Divine Energy Continues to Increase."
+        "the three Heathen aging patches, Revive Buried/Disappeared Villagers, Max Divine Energy Continues to Increase, the 4K Filter."
       ]
     },
     "owners_defaults": {

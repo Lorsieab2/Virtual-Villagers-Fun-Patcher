@@ -94,6 +94,7 @@ from vv_fun_patcher import (
     HEATHEN_SHOW_PERCENT_RANGE,
     migrated_fun_patch_ids,
     set_heathen_evolution,
+    set_sharp_picture_fit,
     conflict_ids,
     multiplier_text,
     parse_multiplier,
@@ -225,7 +226,14 @@ PATCH_SETTINGS_ROWS = {
     "heathen_tribe_evolution": ("_fill_heathen_evolution_settings",
                                 ("heathen_tribe_births_multiplier", "heathen_arrivals_multiplier",
                                  "heathen_show_percent", "heathen_keep_blue")),
+    # Sharp Full Screen Picture (4K Filter): black bars or stretch (the owner, 2026-11-27).
+    "sharp_picture": ("_fill_sharp_picture_settings", ("sharp_picture_fit",)),
 }
+# Sharp Full Screen Picture (4K Filter)'s Settings window (_fill_sharp_picture_settings): its words.
+SHARP_PICTURE_SETTINGS_INTRO = "How the sharp picture fills a screen wider than the game. Patch again after a change."
+SHARP_PICTURE_BARS_LABEL = "Keep the picture's shape: black bars at the sides (a click on a bar does nothing)"
+SHARP_PICTURE_STRETCH_LABEL = "Stretch the picture to fill the whole screen"
+SHARP_PICTURE_SETTINGS_TEXTS = (SHARP_PICTURE_SETTINGS_INTRO, SHARP_PICTURE_BARS_LABEL, SHARP_PICTURE_STRETCH_LABEL)
 # Heathen Tribe Expansion and Evolution's Settings window (_fill_heathen_evolution_settings): its words, shown in the
 # player's language (the template rows vvfp.gui/heathen_evolution.*, scripts/build_patch_text_inventory.py).
 HEATHEN_SETTINGS_INTRO = (
@@ -332,6 +340,8 @@ FORMER_VILLAGERS_AGE_ID = "vv5_former_villagers_keep_aging"
 FORMER_SKELETONS_ID = "vv5_former_villager_heathens_leave_skeletons"
 # Max Divine Energy Continues to Increase (New Believers; the owner, 2026-11-25).
 DIVINE_ENERGY_CAP_ID = "vv5_max_divine_energy_increases"
+# Sharp Full Screen Picture (4K Filter) (New Believers first; the owner, 2026-11-27: "off by default").
+SHARP_PICTURE_IDS = ["vv5_sharp_picture"]
 # What Owner's Defaults sets both sliders to (the owner, 2026-11-07: "set the sliders to 2x").
 OWNERS_DEFAULT_SLIDER = 2
 
@@ -495,6 +505,9 @@ DEFAULT_OFF_FUN_PATCH_IDS = frozenset(
     # Max Divine Energy Continues to Increase (New Believers; the owner, 2026-11-25: "owners defaults on only for the
     # divine energy cap"): off here and in Select All, on in Owner's Defaults.
     + [DIVINE_ENERGY_CAP_ID]
+    # Sharp Full Screen Picture (4K Filter): off by default (the owner, 2026-11-27); Owner's Defaults ticks it
+    # (the owner, 2026-11-28: "yes"), as every default-off row it does not name; Select All likewise.
+    + SHARP_PICTURE_IDS
     # Respecting the Legacy of Isola (New Believers): off by default, on in
     # Owner's Defaults and Select All (it ticks its five pieces there too).
     + [LEGACY_OF_ISOLA_FUN_PATCH_ID]
@@ -1816,6 +1829,7 @@ class App(tk.Tk):
             self.heathen_arrivals_var = tk.DoubleVar(value=HEATHEN_ARRIVALS_DEFAULT or HEATHEN_ARRIVALS_OWNERS_DEFAULT)
             self.heathen_show_var = tk.IntVar(value=HEATHEN_SHOW_PERCENT_DEFAULT)
             self.heathen_keep_blue_var = tk.BooleanVar(value=False)
+            self.sharp_picture_fit_var = tk.StringVar(value="bars")   # the 4K filter: bars or stretch
             self.pair_rules: dict = {}  # Village Matchmaker's ticks, remembered
             self.tree_window: dict = {}  # the Family Tree Maker window's size and panes
             self.tree_style: dict = {}   # the Family Tree Maker's look, for the next new tree
@@ -2136,6 +2150,9 @@ class App(tk.Tk):
                          self.heathen_show_var, self.heathen_keep_blue_var):
             variable.trace_add("write", lambda *_args: self._heathen_evolution_changed())
         self._heathen_evolution_changed()   # the saved settings, loaded before the window was built
+        # The 4K filter's fit (its Settings window): what the patch writes follows it.
+        self.sharp_picture_fit_var.trace_add("write", lambda *_args: self._sharp_picture_fit_changed())
+        self._sharp_picture_fit_changed()
         # Each setting stays whole (its label, box or slider and "?" together) and goes to the next line
         # when it no longer fits; the row asks only for its widest setting, so it never widens the page.
         vv_genealogy_window.flow_row(fun_settings, natural=False)
@@ -3252,6 +3269,8 @@ class App(tk.Tk):
             variable.set(default_fun_patch_selection(patch_id))
         # Heathen Tribe Expansion and Evolution's settings as the defaults leave them: no new arrivals (decision 3).
         App._set_heathen_evolution_defaults(self, owners=False)
+        if hasattr(self, "sharp_picture_fit_var"):
+            self.sharp_picture_fit_var.set("bars")
         self._last_fun_selection = set()
         self._fun_patch_changed()
 
@@ -3278,6 +3297,8 @@ class App(tk.Tk):
             variable.set(RUNTIME_SLIDER_DEFAULT)
         # Heathen Tribe Expansion and Evolution (ticked there): births 1x, new arrivals 1x (decision 3).
         App._set_heathen_evolution_defaults(self, owners=True)
+        if hasattr(self, "sharp_picture_fit_var"):
+            self.sharp_picture_fit_var.set("bars")
         # Prerequisites yes, co-ticks no: Story / Cheat Upgrades must not tick its cost row back on (the owner,
         # 2026-11-07: cost row off in Owner's Defaults).
         self._last_fun_selection = set()
@@ -3519,6 +3540,8 @@ class App(tk.Tk):
             self.heathen_arrivals_var.set(arrivals if arrivals > 0 else HEATHEN_ARRIVALS_OWNERS_DEFAULT)
             self.heathen_show_var.set(show)
             self.heathen_keep_blue_var.set(blue)
+        if hasattr(self, "sharp_picture_fit_var"):
+            self.sharp_picture_fit_var.set("stretch" if data.get("sharp_picture_fit") == "stretch" else "bars")
         if hasattr(self, "solidarity_var"):
             self.solidarity_var.set(float(set_village_solidarity_strength(saved_solidarity_strength(data))))
         saved_all = data.get("all_game_folders", data.get("all_game_exes", {}))
@@ -3581,6 +3604,8 @@ class App(tk.Tk):
             "heathen_arrivals_multiplier": App._heathen_arrivals(self),
             "heathen_show_percent": App._heathen_show_percent(self),
             "heathen_keep_blue": App._heathen_keep_blue(self),
+            # Sharp Full Screen Picture (4K Filter)'s Settings window.
+            "sharp_picture_fit": App._sharp_picture_fit(self),
             "village_solidarity_strength": village_solidarity_strength(),
             "fun_patches": self._selected_fun_patch_ids(),
             "pair_rules": self.pair_rules,
@@ -3691,6 +3716,27 @@ class App(tk.Tk):
         """A Heathen Tribe Expansion and Evolution setting changed: the next patch writes it beside the companion."""
         set_heathen_evolution(births=App._heathen_births(self), arrivals=App._heathen_arrivals(self),
                               show_percent=App._heathen_show_percent(self), keep_blue=App._heathen_keep_blue(self))
+
+    def _sharp_picture_fit(self) -> str:
+        """The 4K filter's fit: "bars" (the default) or "stretch"."""
+        try:
+            return "stretch" if self.sharp_picture_fit_var.get() == "stretch" else "bars"
+        except (tk.TclError, AttributeError):
+            return "bars"
+
+    def _sharp_picture_fit_changed(self) -> None:
+        """The 4K filter's fit changed: the next patch writes it beside the companion."""
+        set_sharp_picture_fit(App._sharp_picture_fit(self))
+
+    def _fill_sharp_picture_settings(self, frame) -> None:
+        """Sharp Full Screen Picture (4K Filter)'s settings: black bars (the default) or stretch, saved at once and
+        written beside the companion at the next patch."""
+        ttk.Label(frame, text=gui_text(SHARP_PICTURE_SETTINGS_INTRO, 5), wraplength=640, justify="left").pack(
+            anchor="w", pady=(4, 6))
+        for value, label in (("bars", SHARP_PICTURE_BARS_LABEL), ("stretch", SHARP_PICTURE_STRETCH_LABEL)):
+            ttk.Radiobutton(frame, text=gui_text(label, 5), value=value, variable=self.sharp_picture_fit_var,
+                            command=self._save_settings).pack(anchor="w", pady=1)
+        self._help_button(frame, "sharp_picture_fit").pack(anchor="w", pady=(4, 0))
 
     def _set_heathen_evolution_defaults(self, owners: bool) -> None:
         """The row's settings as Default Patches (arrivals none) or Owner's Defaults (arrivals at 1) leave them:

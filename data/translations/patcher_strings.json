@@ -76440,6 +76440,36 @@
    "notes": "a patcher window"
   },
   {
+   "stem": "vvfp.gui/sharp_picture.intro",
+   "english": "How the sharp picture fills a screen wider than the game. Patch again after a change.",
+   "games": [
+    "vv5"
+   ],
+   "mechanism": "b",
+   "context": "Sharp Full Screen Picture (4K Filter)'s Settings window",
+   "notes": "a patcher window"
+  },
+  {
+   "stem": "vvfp.gui/sharp_picture.bars",
+   "english": "Keep the picture's shape: black bars at the sides (a click on a bar does nothing)",
+   "games": [
+    "vv5"
+   ],
+   "mechanism": "b",
+   "context": "Sharp Full Screen Picture (4K Filter)'s Settings window",
+   "notes": "a patcher window"
+  },
+  {
+   "stem": "vvfp.gui/sharp_picture.stretch",
+   "english": "Stretch the picture to fill the whole screen",
+   "games": [
+    "vv5"
+   ],
+   "mechanism": "b",
+   "context": "Sharp Full Screen Picture (4K Filter)'s Settings window",
+   "notes": "a patcher window"
+  },
+  {
    "stem": "vvfp.gui/game_mechanics.minimum_detail",
    "english": "Minimal Detail",
    "games": [

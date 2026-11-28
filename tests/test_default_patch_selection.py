@@ -216,7 +216,9 @@ class DefaultPatchSelectionTests(unittest.TestCase):
                   or p.endswith("_revive_from_graves")
                   # Max Divine Energy Continues to Increase (New Believers, new 2026-11-25: on in Owner's Defaults
                   # only).
-                  or p == "vv5_max_divine_energy_increases"})
+                  or p == "vv5_max_divine_energy_increases"
+                  # Sharp Full Screen Picture (4K Filter) (the owner, 2026-11-27: off by default).
+                  or p == "vv5_sharp_picture"})
 
     def test_birth_control_is_on_by_default_in_all_five_games(self) -> None:
         """The owner (2026-11-19): the new The Tree of Life and New Believers Birth Control rows are ON BY DEFAULT,

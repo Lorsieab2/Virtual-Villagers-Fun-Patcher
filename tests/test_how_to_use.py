@@ -36,6 +36,8 @@ DATA = json.loads((ROOT / "data" / "how_to_use.json").read_text(encoding="utf-8"
 CONTROLS = {
     "select_all", "default_patches", "owners_defaults", "deselect_all",
     "heathen_tribe_births_multiplier", "heathen_arrivals_multiplier", "heathen_show_percent", "heathen_keep_blue",
+    # Sharp Full Screen Picture (4K Filter)'s Settings window: black bars or stretch.
+    "sharp_picture_fit",
     "patch_selection_settings", "patch_search",
     "output_location", "choose_exe", "validate", "dry_run", "create_modified_exe",
     "game_folders", "find_all_5", "validate_all_5", "dry_run_all_5", "patch_all_5",
@@ -147,7 +149,8 @@ class ContentTests(unittest.TestCase):
             name = names[patch_id]
             # The guide uses the short form of the two long names.
             short = {"Manual Drop-Breeding overrides Birth Control": "Manual Drop-Breeding",
-                     "256 Villagers (Experimental)": "256 Villagers"}.get(name, name)
+                     "256 Villagers (Experimental)": "256 Villagers",
+                     "Sharp Full Screen Picture (4K Filter)": "the 4K Filter"}.get(name, name)
             # Both Island Events Scale rows, named together within the guide's 1,250 characters.
             if "_island_events_scale_with_" in patch_id:
                 short = "both Island Events Scale patches"

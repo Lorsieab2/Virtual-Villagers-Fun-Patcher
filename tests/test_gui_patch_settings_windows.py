@@ -177,14 +177,17 @@ class PatchSettingsWindows(unittest.TestCase):
         games = range(1, 6)
         self.assertEqual(self.set["windows"], sorted([f"vv{g}_mie" for g in games]
                                                      + [f"vv{g}_unicode_font" for g in games]
-                                                     + ["vv5_heathen_tribe_evolution"]))
+                                                     + ["vv5_heathen_tribe_evolution", "vv5_sharp_picture"]))
         self.assertEqual(self.set["settings_beside"]["vv5_heathen_tribe_evolution"], ["Settings..."])
+        # Sharp Full Screen Picture (4K Filter): black bars or stretch (the owner, 2026-11-28).
+        self.assertEqual(self.set["settings_beside"]["vv5_sharp_picture"], ["Settings..."])
         self.assertEqual(self.set["mie_buttons"], [f"vv{g}_mie" for g in games])
         for g in games:
             with self.subTest(game=g):
                 self.assertEqual(self.set["settings_beside"][f"vv{g}_unicode_font"], ["Settings..."])
         others = {pid: b for pid, b in self.set["settings_beside"].items()
-                  if not pid.endswith("_unicode_font") and pid != "vv5_heathen_tribe_evolution"}
+                  if not pid.endswith("_unicode_font")
+                  and pid not in ("vv5_heathen_tribe_evolution", "vv5_sharp_picture")}
         self.assertEqual({pid: b for pid, b in others.items() if b}, {}, "Settings... only beside a patch with some")
 
     def test_each_window_holds_its_settings(self):
@@ -203,6 +206,9 @@ class PatchSettingsWindows(unittest.TestCase):
                     # births, arrivals and show actions: three sliders; the show percent's box; two ticks
                     self.assertEqual((window["scales"], window["spinboxes"], window["fonts"]), (3, 1, 0))
                     self.assertEqual(len(window["ticks"]), 2)
+                elif key == "vv5_sharp_picture":
+                    # the 4K filter: bars or stretch, a choice with no slider, number box or font box
+                    self.assertEqual((window["scales"], window["spinboxes"], window["fonts"]), (0, 0, 0))
                 else:
                     self.assertEqual((window["scales"], window["spinboxes"], window["fonts"]), (0, 0, 1))
         self.assertTrue(self.set["main_enabled"], "the main window is let go when the windows close")

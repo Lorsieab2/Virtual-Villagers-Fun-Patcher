@@ -37,7 +37,9 @@ EXCLUSIONS = DATA / "translations" / "patch_text_exclusions.json"
 
 # The companions that never ship (the same list scripts/build_translations_inventory.py uses).
 UNSHIPPED = ("vv1_full_mastery_candidate", "vv2_full_mastery_candidate", "vv3_full_mastery_candidate",
-             "vv4_full_mastery_candidate", "vv5_full_mastery_candidate", "vv4_full_heal_candidate")
+             "vv4_full_mastery_candidate", "vv5_full_mastery_candidate", "vv4_full_heal_candidate",
+             # the 4K filter's research tools (docs/4k-filter-design.md): built by hand, never shipped
+             "vvfp_4k_filter")
 UNSHIPPED_FILES = ("shared/origins-upgrades.rc",)
 SOURCE_SUFFIXES = (".c", ".h", ".inc", ".rc")
 FILE_RE = re.compile(r"\.(dll|txt|tsv|dat|png|jpg|ogg|wav|xml|json|log|exe|ini|bak|tmp|csv|sav|bin)\b", re.I)
