@@ -94,6 +94,7 @@
 #include "vv4_villager_table.h"
 #include "vv5_villager_table.h"
 #include "game_save_slot.h"       /* the slot the game itself saves to */
+#include "skin_tone.h"            /* a conception's and a birth's skin tone ("VVFP Skin Tones.dll") */
 
 enum {
     /* The log sits beside the executable, so the path is bounded by the
@@ -4328,6 +4329,11 @@ __declspec(dllexport) int __stdcall WriteParentageRecordWithFather(
         memcpy(father_name, "(unknown)", 10);
     }
 
+    /* Skin Tones (when its row is on): the baby's tone is rolled now from both parents' tones and kept on the
+       villager who carries (`mother` here: with the partner carrying, the partner), replacing anything kept
+       on them before.  The game's own default father is nobody: the carrier's tone alone. */
+    (void)vvfp_skin_conceived(game_id, mother, default_father ? NULL : father);
+
     /* The father's two numbers are rendered as text so an unavailable field
        can say so. They used to print 0 whenever no father record was found,
        and 0 is a value a real villager can hold -- so a reader could not tell
@@ -5346,6 +5352,45 @@ __declspec(dllexport) int __stdcall AppearanceChangedAtSave(int game_id, const v
 /* The note WriteParentageBirthCarried gives the Birth record being written (a whole "  Note: ...\n" line), or
    NULL. */
 static const char *g_birth_note;
+/* WriteParentageBirthCarried's carrier (a man), or NULL. */
+static const char *g_birth_carrier;
+
+/* Skin Tones (when its row is on): the newborn in `child` gets the tone kept on the villager who carried it
+   (`carrier_name`, found by name among the living: never a guess between two of one name) at the conception;
+   a second or third baby of the same delivery copies the first (`first_of`, kept here for a few seconds).
+   A carrier with no tone kept for the baby (a pregnancy from before the patch) is left to the DLL's own
+   pass, which reads both parents' names -- except in A New Home, whose records name no parents: there the
+   DLL's rule on the carrier's tone is the only inheritance there is. */
+static void skin_tone_birth(int game_id, const char *carrier_name, const void *child) {
+    static const void *last_carrier, *last_child;
+    static DWORD last_tick;
+    const struct game_layout *g = game_id >= GAME_VV1 && game_id <= GAME_VV5 ? layout_of(game_id) : NULL;
+    const unsigned char *records = g != NULL ? villager_table(game_id) : NULL;
+    const unsigned char *carrier = NULL;
+    const void *first = NULL;
+    DWORD now = GetTickCount();
+    if (child == NULL || vvfp_skin_dll() == NULL || g == NULL || !layout_is_usable(g) || records == NULL
+        || !memory_is_readable(records, g->record_base + (size_t)g->slots * g->stride)) {
+        return;
+    }
+    if (carrier_name != NULL && carrier_name[0] != '\0') {
+        char key[MAX_NAME_BYTES];
+        copy_name_field((const unsigned char *)carrier_name, key, sizeof key, father_key_width(g));
+        carrier = find_record_by_name(g, records, key);
+    }
+    if (carrier != NULL && carrier == last_carrier && last_child != NULL && last_child != child
+        && (DWORD)(now - last_tick) < 5000u) {
+        first = last_child;                     /* a twin or triplet: the same delivery */
+    }
+    if (first == NULL && game_id != GAME_VV1 && (carrier == NULL || vvfp_skin_pending(game_id, carrier) == 0)) {
+        return;
+    }
+    if (vvfp_skin_born(game_id, child, carrier, first, 1) != 0 && first == NULL) {
+        last_carrier = carrier;
+        last_child = child;
+        last_tick = now;
+    }
+}
 
 /* WriteParentageBirth with the delivery's babies given: 1-3, or -1 when not
    known (no "Born as" line). */
@@ -5360,6 +5405,13 @@ __declspec(dllexport) int __stdcall WriteParentageBirthLitter(
     const char *note = g_birth_note;
     char text[RECORD_TEXT_MAX];
     char carried[MAX_NAME_BYTES * 2 + 96];
+    char tone_carrier[MAX_NAME_BYTES];     /* who carried, for the skin tone (skin_tone_birth) */
+    tone_carrier[0] = '\0';
+    if (g_birth_carrier != NULL) {
+        lstrcpynA(tone_carrier, g_birth_carrier, sizeof tone_carrier);
+    } else if (mother_name != NULL) {
+        lstrcpynA(tone_carrier, mother_name, sizeof tone_carrier);
+    }
     if (child_name == NULL || child_name[0] == '\0') {   /* the record is the name: the exe's splices */
         const struct game_layout *g = layout_of(game_id);
         const unsigned char *records = villager_table(game_id);
@@ -5368,6 +5420,9 @@ __declspec(dllexport) int __stdcall WriteParentageBirthLitter(
         if (rec != NULL && game_id >= GAME_VV2 && game_id <= GAME_VV5 && layout_is_usable(g)
             && records != NULL && memory_is_readable(records, g->record_base + (size_t)g->slots * g->stride)
             && is_record_slot(g, records, rec)) {
+            /* The game recorded the carrier as the Mother, before the parents follow their sexes. */
+            copy_name_field(rec + g->parent_mother_name, tone_carrier, sizeof tone_carrier,
+                            g->parent_name_capacity);
             /* The delivery's babies first, from the carrier the game recorded as the Mother (delivery_litter),
                then the parents by sex (parents_follow_sex) -- before the last name and the number, which read
                the parents. */
@@ -5386,6 +5441,7 @@ __declspec(dllexport) int __stdcall WriteParentageBirthLitter(
         rule_last_name(game_id, (unsigned char *)child_record);
         number_new_name(game_id, (unsigned char *)child_record);
     }
+    skin_tone_birth(game_id, tone_carrier, child_record);    /* after any new name: the tone follows it */
     if (!compose_birth(game_id, child_name, child_head, child_body, mother_name, mother_head,
                        mother_body, father_name, father_head, father_body, child_record, note,
                        litter, text, sizeof text)) {
@@ -5436,9 +5492,11 @@ __declspec(dllexport) int __stdcall WriteParentageBirthCarried(
         note = carried;
     }
     g_birth_note = note;
+    g_birth_carrier = note != NULL ? carrier : NULL;
     result = WriteParentageBirthLitter(game_id, child_name, child_head, child_body, mother_name, mother_head,
                                        mother_body, father_name, father_head, father_body, child_record, litter);
     g_birth_note = NULL;
+    g_birth_carrier = NULL;
     return result;
 }
 

@@ -1116,6 +1116,20 @@
       ]
     },
     {
+      "ids": ["vv3_skin_tones", "vv4_skin_tones", "vv5_skin_tones"],
+      "guide": [
+        "Off by default; on in Owner's Defaults; Select All does not tick it.",
+        "Every villager gets one of ten skin tones and is drawn with it. Babies inherit it as they inherit heads:",
+        "about 19 in 20 get a tone between their parents' (the average, give or take one step); twins copy the first baby.",
+        "Now and then (about 1 baby in 20) a baby's skin tone is quite different from both parents', just as in real life,",
+        "where a family may carry genes from an ancestor long ago. This is only for fun and variety;",
+        "no real-life offense or controversy is intended.",
+        "Patching makes the tones from your own game's pictures: it adds files to the patched game's Images folder and takes a few minutes the first time.",
+        "Its Settings... button (usable while it is ticked) holds the Preferred skin tone: no preference, or a tone 4 in 5 randomly made villagers get.",
+        "Choosing a tone in Change Appearance is not there yet. Not yet seen in a running game."
+      ]
+    },
+    {
       "ids": ["vv5_fog_of_doom_every_heathen_listens"],
       "guide": [
         "Off by default; on in Owner's Defaults; Select All does not tick it. Cast the Fog of Doom God Power first.",
@@ -1569,6 +1583,7 @@
     "heathen_tribe_births_multiplier": {"title": "0.1-10x Heathen Tribe Births", "guide": ["Heathen Tribe Expansion and Evolution (New Believers): how often the Heathen tribe has babies.", "At 1 about one baby for the whole tribe every 24 real hours on Normal speed (12 on Fast, 40 on Slow); 10 is ten times as often, -10 a tenth.", "Only women in a couple with a man have babies. 1 unless moved, Owner's Defaults too. Patch again after a change.", "A growing camp makes The Last Heathen harder to reach, or impossible."]},
     "heathen_arrivals_multiplier": {"title": "0-10x New Heathen Arrivals", "guide": ["Heathen Tribe Expansion and Evolution (New Believers): new Heathens join the camp from elsewhere. Untick New Heathens arrive for none (0).", "At 1 about one arrival every 48 real hours on Normal speed: one to four Heathens, sometimes a couple with up to two children.", "10 is ten times as often, -10 a tenth. Arrivals keep coming after The Last Heathen. Off in Default Patches; 1 in Owner's Defaults.", "A growing camp makes The Last Heathen harder to reach, or impossible. Patch again after a change."]},
     "heathen_show_percent": {"title": "Show actions", "guide": ["Heathen Tribe Expansion and Evolution (New Believers): of an idle adult Heathen's choices, the percent that are a show action:", "a harvest that takes nothing, a visit to a building, a show meal or praying at the mud hut. The rest are the game's own Heathen life.", "1 to 100, 25 unless moved (about 1 choice in 4). None of it changes anything of your believers'. Patch again after a change."]},
+    "skin_tone_preferred": {"title": "Preferred skin tone", "guide": ["Skin Tones (The Secret City, The Tree of Life, New Believers): which skin tone randomly made villagers get.", "No preference (the default): founders, arrivals, villagers made by events or cheats, and villagers already there with no tone and no known parents each get any of the ten tones.", "A tone chosen: 4 in 5 of those villagers get that tone, the rest one of the other nine.", "Babies always inherit from their parents, whatever is chosen here. Usable only while Skin Tones is ticked. Patch again after a change."]},
     "heathen_keep_blue": {"title": "Keep every new Heathen blue", "guide": ["Heathen Tribe Expansion and Evolution (New Believers): every new arrival and every Heathen baby wears the blue mask.", "Unticked (the default), they are 90% blue, 7% orange and 3% red; the mask colour changes how a Heathen acts (red ones chase and scare).", "The puzzles' Heathens keep their own masks. Patch again after a change."]},
     "more_island_events_and_creator": {"title": "More Island Events and Creator", "guide": ["One tick for every island event the patcher adds: More Island Events and the Isola Grand Event Collection.", "Ticking it ticks both, with Story / Cheat Upgrades and Scrolling Popups; unticking it unticks both.", "Each can still be ticked on its own. Owner's Defaults, Select All and Classic VV Difficulty tick the whole row.", "Its Settings... button opens its own window: the partner-carry percent, the Custom Island Event Library, the content filters and Player Events."]},
     "island_event_content_filters": {
@@ -1590,7 +1605,7 @@
         "0.1-10x Tech Cost (all five games), Classic VV Difficulty, Change Sex and Gender Presentation, More Frequent Island Events,",
         "The Golden Child May Be Born Female (50:50), One-Time Collectibles Appear Again, Village Solidarity, Esteemed Elders in Every Game,",
         "Fog of Doom Lets Red and Orange Heathens Listen, No Restrictions on Fog of Doom Conversions, Former Villagers Keep Aging Among the Heathens,",
-        "Heathen Tribe Expansion and Evolution, Former Villagers Among the Heathens Leave Skeletons, Max Divine Energy Continues to Increase,",
+        "Heathen Tribe Expansion and Evolution, Former Villagers Among the Heathens Leave Skeletons, Max Divine Energy Continues to Increase, Skin Tones,",
         "the 0.1-10x sliders and the island event controls (Content Notes, every Content Filter, No Safeguards) are not ticked either."
       ]
     },
@@ -1606,7 +1621,7 @@
         "Scrolling Popups, More Island Events, Isola Grand Event Collection, Every Island Event Can Happen, both Island Events Scale patches, One-Time Collectibles Appear Again,",
         "the 0.1-10x sliders and the island event controls. Respecting the Legacy of Isola, Heathens Keep Their Masks When Converted, Memorial Actions Can Also Occur at the Heathen Hovel,",
         "Shrine to the Ancestors, both Fog of Doom patches, Practicing Devotion Builds Faith and Divine Energy, Esteemed Elders in Every Game,",
-        "the three Heathen aging patches, Revive Buried/Disappeared Villagers, Max Divine Energy Continues to Increase."
+        "the three Heathen aging patches, Revive Buried/Disappeared Villagers, Max Divine Energy Continues to Increase, Skin Tones."
       ]
     },
     "owners_defaults": {

@@ -132,7 +132,9 @@ FOUNDATION_OUTPUT = (
 # Recertified for island events keeping masks (the owner, 2026-11-25): a Likes or Dislikes change in place -- the
 # game's own island events, a Custom Island Event's -- moves the mask to the villager's new fingerprint; and the
     # Change sex warning no longer says a born-male villager won't conceive (merged with main, 2026-11-26).
-SOURCE_SHA256 = "3247EBB1959C7B9A5E68036D70F251D48BADC5C322C765000FF6F561B7EB885E"
+# Recertified for Skin Tones (native/shared/sex_change.h, 2026-11-28): "VVFP Skin Tones.dll" is told of a sex change
+# too, so a villager keeps their tone and birth tone; nothing else changed.
+SOURCE_SHA256 = "324B1E7A1F22E552CDB360B4DC556B29CFC6E960BA240DF1D6D9B5B7E167CCCB"
 SOURCE_SIZE = 2022400
 TARGET_COUNTS = {201: 26, 202: 2, 203: 31}
 PUBLIC_TARGET_COUNTS = {201: 46, 202: 26, 203: 31}

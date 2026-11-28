@@ -105,12 +105,16 @@ class OfflineRenamesCarryHeadLooksAndGenderPresentation(unittest.TestCase):
         ids = [ln._store_identity(game, data, p, ln.FIELDS[game]) for p in at]
         return folder, save, at, ids
 
-    def carried(self, game: int, kind: str, name: str, magic: bytes, first_layout: bool = False) -> None:
+    def carried(self, game: int, kind: str, name: str, magic: bytes, first_layout: bool = False,
+                second: bool = False) -> None:
         folder, save, at, ids = self.village(game)
         count = 256 if game in (1, 2) else 150
         path = ln._data_file(folder, kind, f"{name} - Save 1.dat")
         path.parent.mkdir(parents=True, exist_ok=True)
-        path.write_bytes(store_file(magic, game, count, ids, None if first_layout else [ids[0], 0], [2, 0]))
+        stored = store_file(magic, game, count, ids, None if first_layout else [ids[0], 0], [2, 0])
+        if second:                              # the skin tones' second byte a villager (the birth tone)
+            stored += bytes([7, 0] + [0] * (count - 2))
+        path.write_bytes(stored)
         plan = ln.plan_renames(folder, game, 1, {("Nobu", 5, 5): "Nobu Akana"})
         changed = [c for c in plan.changes if c.path == path]
         self.assertEqual(len(changed), 1, f"{name} is in the plan")
@@ -121,7 +125,9 @@ class OfflineRenamesCarryHeadLooksAndGenderPresentation(unittest.TestCase):
         self.assertEqual((roster[0], roster[1]), (new, ids[1]), "Nobu's carried, Kai's as it was")
         if not first_layout:
             self.assertEqual(struct.unpack_from("<I", changed[0].updated, 12 + 4 * count)[0], new)
-        self.assertEqual(changed[0].updated[-count:], path.read_bytes()[-count:], "every value as it was")
+        values = count * (2 if second else 1)
+        self.assertEqual(len(changed[0].updated), len(stored))
+        self.assertEqual(changed[0].updated[-values:], path.read_bytes()[-values:], "every value as it was")
 
     def test_head_looks_in_every_game(self):
         for game in (1, 2, 3, 4, 5):
@@ -130,6 +136,15 @@ class OfflineRenamesCarryHeadLooksAndGenderPresentation(unittest.TestCase):
 
     def test_head_looks_first_layout(self):
         self.carried(4, "Head Looks", "Head Looks", b"VHL1", first_layout=True)
+
+    def test_skin_tones_in_every_game(self):
+        """native/vvfp_skin_tones: the same store with a second byte a villager ('VST2')."""
+        for game in (1, 2, 3, 4, 5):
+            with self.subTest(game=game):
+                self.carried(game, "Skin Tones", "Skin Tones", b"VST2", second=True)
+
+    def test_skin_tones_first_layout(self):
+        self.carried(3, "Skin Tones", "Skin Tones", b"VST1")
 
     def test_gender_presentation_in_every_game(self):
         for game in (1, 2, 3, 4, 5):

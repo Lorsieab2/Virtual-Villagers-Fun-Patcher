@@ -93,7 +93,11 @@ from vv_fun_patcher import (
     HEATHEN_SHOW_PERCENT_DEFAULT,
     HEATHEN_SHOW_PERCENT_RANGE,
     migrated_fun_patch_ids,
+    clear_patch_warnings,
+    patch_warnings,
     set_heathen_evolution,
+    SKIN_TONE_PREFERRED_DEFAULT,
+    set_skin_tone_preferred,
     conflict_ids,
     multiplier_text,
     parse_multiplier,
@@ -225,7 +229,50 @@ PATCH_SETTINGS_ROWS = {
     "heathen_tribe_evolution": ("_fill_heathen_evolution_settings",
                                 ("heathen_tribe_births_multiplier", "heathen_arrivals_multiplier",
                                  "heathen_show_percent", "heathen_keep_blue")),
+    # Skin Tones (The Secret City, The Tree of Life, New Believers): the preferred skin tone.
+    "skin_tones": ("_fill_skin_tones_settings", ("skin_tone_preferred",)),
 }
+# Rows whose Settings... button works only while the row is ticked (the owner, 2026-11-28, Skin Tones: "settings only
+# while on"), by the id after "vvN_".
+PATCH_SETTINGS_ONLY_WHEN_TICKED = frozenset({"skin_tones"})
+# Skin Tones' Settings window (_fill_skin_tones_settings).
+SKIN_TONE_SETTINGS_INTRO = (
+    "Which skin tone randomly made villagers get: founders, arrivals, villagers made by events or cheats, and "
+    "villagers already in a village with no tone and no known parents. Babies always inherit from their parents. "
+    "Patch again after a change.")
+SKIN_TONE_PREFERRED_LABEL = "Preferred skin tone:"
+SKIN_TONE_NO_PREFERENCE = "No preference"
+
+
+SKIN_TONE_PREVIEW_MAKING = "Making the picture of the ten tones from your own game's pictures..."
+SKIN_TONE_PREVIEW_CAPTION = "A woman and a man in each of the ten tones, made from your own game's pictures:"
+SKIN_TONE_PREVIEW_NO_GAME = ("The picture of the ten tones is made from your own game's pictures: choose this game's "
+                             "folder on the main page to see it here.")
+SKIN_TONE_PREVIEW_FAILED = "The picture of the ten tones could not be made from this game's pictures."
+
+
+def skin_tones_preview_game(key: str) -> int | None:
+    """The game whose Skin Tones row a "?" key is ("patch:vv4_skin_tones" -> 4), else None."""
+    if key.startswith("patch:vv") and key.endswith("_skin_tones") and key[8:9].isdigit():
+        return int(key[8])
+    return None
+
+
+def skin_tone_choices() -> list[str]:
+    """The Preferred skin tone box's choices, in order: "No preference", then each tone light to dark (index = the
+    number kept: 0 none, 1..10)."""
+    import vv_skin_tones
+    return [SKIN_TONE_NO_PREFERENCE] + [f"{n} - {vv_skin_tones.tone_name(n)} (4 in 5)"
+                                       for n in range(1, vv_skin_tones.TONE_COUNT + 1)]
+
+
+def saved_skin_tone_preferred(settings: dict) -> int:
+    """The preferred skin tone a settings file holds: 0 (no preference) to 10; anything else is 0."""
+    import vv_skin_tones
+    value = settings.get("skin_tone_preferred", SKIN_TONE_PREFERRED_DEFAULT) if isinstance(settings, dict) else 0
+    if isinstance(value, bool) or not isinstance(value, int) or not 0 <= value <= vv_skin_tones.TONE_COUNT:
+        return SKIN_TONE_PREFERRED_DEFAULT
+    return value
 # Heathen Tribe Expansion and Evolution's Settings window (_fill_heathen_evolution_settings): its words, shown in the
 # player's language (the template rows vvfp.gui/heathen_evolution.*, scripts/build_patch_text_inventory.py).
 HEATHEN_SETTINGS_INTRO = (
@@ -322,6 +369,11 @@ def island_event_advisory(patch_id: str) -> tuple[str, bool] | None:
 # Fog of Doom Lets Red and Orange Heathens Listen and its modifier No Restrictions on Fog of Doom Conversions (New Believers).
 FOG_LISTENING_ID = "vv5_fog_of_doom_every_heathen_listens"
 FOG_NO_RESTRICTIONS_ID = "vv5_fog_of_doom_no_restrictions"
+# Skin Tones (The Secret City, The Tree of Life, New Believers so far).  The owner, 2026-11-28: OFF in the normal
+# defaults (Default Patches), ON in Owner's Defaults; Select All leaves it off, as it leaves every Owner's-Defaults-
+# only row.  SKIN_TONES_DEFAULT_ON is the one switch for the normal default.
+SKIN_TONES_IDS = ["vv%d_skin_tones" % game for game in (3, 4, 5)]
+SKIN_TONES_DEFAULT_ON = False
 # Practicing Devotion Builds Faith and Divine Energy (New Believers).
 DEVOTION_FAITH_ID = "vv5_devotion_builds_faith"
 # Esteemed Elders in Every Game (A New Home, The Lost Children, The Tree of Life; the owner, 2026-11-22).
@@ -478,6 +530,8 @@ DEFAULT_OFF_FUN_PATCH_IDS = frozenset(
     # Defaults and OFF everywhere else" -- off here and in Select All.  Its modifier No Restrictions on Fog of Doom
     # Conversions is off by default and in Select All, on in Owner's Defaults (the owner, 2026-11-20).
     + [FOG_LISTENING_ID, FOG_NO_RESTRICTIONS_ID]
+    # Skin Tones: off in the normal defaults (the owner, 2026-11-28); SKIN_TONES_DEFAULT_ON flips it.
+    + ([] if SKIN_TONES_DEFAULT_ON else SKIN_TONES_IDS)
     # Practicing Devotion Builds Faith and Divine Energy (New Believers; the owner, 2026-11-21): a new option that hands
     # the player Faith and Divine Energy, so off here; on in Owner's Defaults and, as a normal row, in Select All.
     + [DEVOTION_FAITH_ID]
@@ -545,6 +599,7 @@ OWNERS_DEFAULT_OFF_FUN_PATCH_IDS = frozenset(
     # rows it folds, Heathen Tribe Ages, Dies and Has Children and All Heathens Leave Skeletons, were here.)
     # (No Restrictions on Fog of Doom Conversions is NOT here: the owner, 2026-11-20, turned it on in Owner's
     # Defaults; it stays off by default and in Select All.)
+    # (Skin Tones is NOT here: the owner, 2026-11-28, turned it on in Owner's Defaults.)
 )
 
 # Patches even Select All Patches leaves OFF, by exact id.  The owner: Select
@@ -579,6 +634,8 @@ SELECT_ALL_OFF_FUN_PATCH_IDS = frozenset(
     + [FOG_LISTENING_ID, FOG_NO_RESTRICTIONS_ID]
     # Esteemed Elders in Every Game: on in Owner's Defaults only (the owner, 2026-11-22).
     + ESTEEMED_ELDERS_IDS
+    # Skin Tones: on in Owner's Defaults only (the owner, 2026-11-28).
+    + SKIN_TONES_IDS
     # The Heathen aging rows (New Believers): on in Owner's Defaults only (the owner, 2026-11-22).
     + [FORMER_VILLAGERS_AGE_ID, FORMER_SKELETONS_ID]
     # Max Divine Energy Continues to Increase: on in Owner's Defaults only (the owner, 2026-11-25).
@@ -1816,6 +1873,8 @@ class App(tk.Tk):
             self.heathen_arrivals_var = tk.DoubleVar(value=HEATHEN_ARRIVALS_DEFAULT or HEATHEN_ARRIVALS_OWNERS_DEFAULT)
             self.heathen_show_var = tk.IntVar(value=HEATHEN_SHOW_PERCENT_DEFAULT)
             self.heathen_keep_blue_var = tk.BooleanVar(value=False)
+            # Skin Tones' preferred skin tone (its Settings window): 0 no preference, 1..10 a tone.
+            self.skin_tone_preferred_var = tk.IntVar(value=SKIN_TONE_PREFERRED_DEFAULT)
             self.pair_rules: dict = {}  # Village Matchmaker's ticks, remembered
             self.tree_window: dict = {}  # the Family Tree Maker window's size and panes
             self.tree_style: dict = {}   # the Family Tree Maker's look, for the next new tree
@@ -2136,6 +2195,8 @@ class App(tk.Tk):
                          self.heathen_show_var, self.heathen_keep_blue_var):
             variable.trace_add("write", lambda *_args: self._heathen_evolution_changed())
         self._heathen_evolution_changed()   # the saved settings, loaded before the window was built
+        self.skin_tone_preferred_var.trace_add("write", lambda *_args: self._skin_tone_preferred_changed())
+        self._skin_tone_preferred_changed()
         # Each setting stays whole (its label, box or slider and "?" together) and goes to the next line
         # when it no longer fits; the row asks only for its widest setting, so it never widens the page.
         vv_genealogy_window.flow_row(fun_settings, natural=False)
@@ -2521,8 +2582,12 @@ class App(tk.Tk):
         button.pack(side="left")
         self._help_button(patch_row, key, label).pack(side="left", padx=(4, 0))
         if patch.id in getattr(self, "_patch_settings", {}):
-            # its settings in a window of their own, enabled whether or not the row is ticked (as they were)
-            self._settings_button(patch_row, patch.id).pack(side="left", padx=(4, 0))
+            # its settings in a window of their own, enabled whether or not the row is ticked (as they were), except
+            # the rows whose settings mean something only while they are on
+            settings_button = self._settings_button(patch_row, patch.id)
+            settings_button.pack(side="left", padx=(4, 0))
+            if patch.id.split("_", 1)[-1] in PATCH_SETTINGS_ONLY_WHEN_TICKED:
+                self._settings_follow_tick(settings_button, patch.id)
         line = 1
         big = island_event_big_warning(patch.id)
         if big is not None:
@@ -3252,6 +3317,8 @@ class App(tk.Tk):
             variable.set(default_fun_patch_selection(patch_id))
         # Heathen Tribe Expansion and Evolution's settings as the defaults leave them: no new arrivals (decision 3).
         App._set_heathen_evolution_defaults(self, owners=False)
+        if hasattr(self, "skin_tone_preferred_var"):
+            self.skin_tone_preferred_var.set(SKIN_TONE_PREFERRED_DEFAULT)       # no preference
         self._last_fun_selection = set()
         self._fun_patch_changed()
 
@@ -3278,6 +3345,8 @@ class App(tk.Tk):
             variable.set(RUNTIME_SLIDER_DEFAULT)
         # Heathen Tribe Expansion and Evolution (ticked there): births 1x, new arrivals 1x (decision 3).
         App._set_heathen_evolution_defaults(self, owners=True)
+        if hasattr(self, "skin_tone_preferred_var"):
+            self.skin_tone_preferred_var.set(SKIN_TONE_PREFERRED_DEFAULT)       # Skin Tones on, no preference
         # Prerequisites yes, co-ticks no: Story / Cheat Upgrades must not tick its cost row back on (the owner,
         # 2026-11-07: cost row off in Owner's Defaults).
         self._last_fun_selection = set()
@@ -3519,6 +3588,8 @@ class App(tk.Tk):
             self.heathen_arrivals_var.set(arrivals if arrivals > 0 else HEATHEN_ARRIVALS_OWNERS_DEFAULT)
             self.heathen_show_var.set(show)
             self.heathen_keep_blue_var.set(blue)
+        if hasattr(self, "skin_tone_preferred_var"):
+            self.skin_tone_preferred_var.set(saved_skin_tone_preferred(data))
         if hasattr(self, "solidarity_var"):
             self.solidarity_var.set(float(set_village_solidarity_strength(saved_solidarity_strength(data))))
         saved_all = data.get("all_game_folders", data.get("all_game_exes", {}))
@@ -3581,6 +3652,7 @@ class App(tk.Tk):
             "heathen_arrivals_multiplier": App._heathen_arrivals(self),
             "heathen_show_percent": App._heathen_show_percent(self),
             "heathen_keep_blue": App._heathen_keep_blue(self),
+            "skin_tone_preferred": App._skin_tone_preferred(self),
             "village_solidarity_strength": village_solidarity_strength(),
             "fun_patches": self._selected_fun_patch_ids(),
             "pair_rules": self.pair_rules,
@@ -3752,6 +3824,54 @@ class App(tk.Tk):
         ttk.Checkbutton(blue, text=gui_text(HEATHEN_KEEP_BLUE_LABEL, 5), variable=self.heathen_keep_blue_var,
                         command=self._save_settings).pack(side="left")
         self._help_button(blue, "heathen_keep_blue").pack(side="left", padx=(4, 0))
+
+    def _skin_tone_preferred(self) -> int:
+        """Skin Tones' preferred skin tone: 0 (no preference) to 10."""
+        try:
+            value = int(self.skin_tone_preferred_var.get())
+        except (tk.TclError, ValueError, AttributeError):
+            return SKIN_TONE_PREFERRED_DEFAULT
+        return value if 0 <= value < len(skin_tone_choices()) else SKIN_TONE_PREFERRED_DEFAULT
+
+    def _skin_tone_preferred_changed(self) -> None:
+        """The preferred skin tone changed: the next patch writes it beside the companion."""
+        set_skin_tone_preferred(App._skin_tone_preferred(self))
+
+    def _fill_skin_tones_settings(self, frame) -> None:
+        """Skin Tones' settings: the Preferred skin tone (no preference, or a tone 4 in 5 randomly made villagers
+        get), saved at once and written beside the companion at the next patch."""
+        ttk.Label(frame, text=SKIN_TONE_SETTINGS_INTRO, wraplength=640, justify="left").pack(anchor="w", pady=(4, 6))
+        line = ttk.Frame(frame)
+        line.pack(fill="x", anchor="w", pady=2)
+        ttk.Label(line, text=SKIN_TONE_PREFERRED_LABEL).pack(side="left", padx=(0, 4))
+        choices = skin_tone_choices()
+        shown = tk.StringVar(value=choices[App._skin_tone_preferred(self)])
+        box = ttk.Combobox(line, name="skin_tone_preferred", textvariable=shown, values=choices, state="readonly",
+                           width=max(len(c) for c in choices) + 2)
+        box.pack(side="left")
+
+        def chosen(_event=None) -> None:
+            if shown.get() in choices:
+                self.skin_tone_preferred_var.set(choices.index(shown.get()))
+                self._save_settings()
+
+        box.bind("<<ComboboxSelected>>", chosen)
+        self._help_button(line, "skin_tone_preferred").pack(side="left", padx=(4, 0))
+
+    def _settings_follow_tick(self, button, patch_id: str) -> None:
+        """A Settings... button usable only while its row is ticked (PATCH_SETTINGS_ONLY_WHEN_TICKED)."""
+        variable = self.fun_patch_vars[patch_id]
+
+        def follow(*_args) -> None:
+            try:
+                button.state(["!disabled"] if variable.get() else ["disabled"])
+            except tk.TclError:
+                pass
+
+        trace = variable.trace_add("write", follow)
+        button.bind("<Destroy>", lambda event: (event.widget is button) and self._forget_trace(variable, trace),
+                    add="+")
+        follow()
 
     @staticmethod
     def _forget_trace(variable, trace) -> None:
@@ -4146,6 +4266,7 @@ class App(tk.Tk):
                 )
                 if not overwrite:
                     return
+            clear_patch_warnings()
             output, log = self._run_with_wait(
                 f"Please wait\u2026\n\nCopying and patching {build.title}.\n\n"
                 "Copying the whole game folder can take a while.",
@@ -4175,10 +4296,20 @@ class App(tk.Tk):
                 "Modified game created",
                 [(build.title, source.parent, output.parent)],
             )
+            self._show_patch_warnings()
             vv_player_events_ui.show_patch_reports(self)
         except (PatcherError, OSError) as exc:
             self.status_var.set(str(exc))
             messagebox.showerror("Patch failed", str(exc))
+
+    def _show_patch_warnings(self) -> None:
+        """The patch's warnings (vv_fun_patcher.patch_warnings), after the patch is done: on the status line and in a
+        warning box.  Nothing when there are none."""
+        warnings = patch_warnings()
+        if not warnings:
+            return
+        self.status_var.set(self.status_var.get() + " " + " ".join(warnings))
+        messagebox.showwarning("Patched, with a warning", "\n\n".join(warnings), parent=self)
 
     def _save_player_events(self) -> None:
         """The Player Events boxes written to their files before a patch reads them (the worker never touches Tk)."""
@@ -4236,6 +4367,7 @@ class App(tk.Tk):
                 )
                 if not overwrite:
                     return
+            clear_patch_warnings()
             results = self._run_with_wait(
                 "Please wait\u2026\n\nCopying and patching all five games.\n\n"
                 "Copying five whole game folders can take several minutes.",
@@ -4269,6 +4401,7 @@ class App(tk.Tk):
                     for (build, source), (output, _) in zip(validated, results, strict=True)
                 ],
             )
+            self._show_patch_warnings()
             vv_player_events_ui.show_patch_reports(self)
         except (PatcherError, OSError, ValueError) as exc:
             self.status_var.set(str(exc))
@@ -4473,6 +4606,9 @@ class App(tk.Tk):
             ttk.Label(frame, text=gui_text(line), wraplength=480, justify="left").pack(
                 anchor="w", pady=(0, 6)
             )
+        skin_game = skin_tones_preview_game(key)
+        if skin_game is not None:
+            self._skin_tones_preview(frame, skin_game)
         close = ttk.Button(frame, text="Close", command=window.destroy)
         close.pack(anchor="e", pady=(8, 0))
         window.bind("<Escape>", lambda _event: window.destroy())
@@ -4490,6 +4626,79 @@ class App(tk.Tk):
         close.focus_set()
         self._help_windows[key] = window
         return window
+
+    def _game_folders(self, number: int) -> list[Path]:
+        """The folders the patcher knows for game `number` (1-5): the All 5 Games box and the One Game box."""
+        folders = []
+        for build in self.builds:
+            if not build.title.endswith(vv_picture_studio.GAMES.get(number, "\0")):
+                continue
+            variable = (getattr(self, "all_folder_vars", None) or {}).get(build.id)
+            if variable is not None and variable.get().strip():
+                folders.append(Path(variable.get().strip()))
+        exe = getattr(self, "exe_var", None)
+        if exe is not None and exe.get().strip():
+            path = Path(exe.get().strip())
+            folders.append(path.parent if path.suffix.lower() == ".exe" else path)
+        return folders
+
+    def _skin_tones_preview(self, frame, game: int) -> None:
+        """Under the Skin Tones "?" guide: a woman and a man in each of the ten tones, made now from the player's own
+        game pictures (vv_skin_tone_preview; the game's art is never shipped).  Made on a worker thread (a few
+        seconds), kept for the rest of the session."""
+        import base64
+        import io
+        import threading
+        import vv_skin_tone_preview
+        holder = ttk.Frame(frame)
+        holder.pack(anchor="w", pady=(4, 6))
+        note = ttk.Label(holder, text=SKIN_TONE_PREVIEW_MAKING, wraplength=480, justify="left")
+        note.pack(anchor="w")
+        cache = self.__dict__.setdefault("_skin_tone_previews", {})
+        images = vv_skin_tone_preview.images_folder(game, self._game_folders(game))
+        if images is None:
+            note.configure(text=SKIN_TONE_PREVIEW_NO_GAME)
+            return
+
+        def show(data) -> None:
+            try:
+                if not holder.winfo_exists():
+                    return
+                if data is None:
+                    note.configure(text=SKIN_TONE_PREVIEW_FAILED)
+                    return
+                picture = tk.PhotoImage(data=data)
+                note.configure(text=SKIN_TONE_PREVIEW_CAPTION)
+                label = ttk.Label(holder, image=picture)
+                label.image = picture
+                label.pack(anchor="w", pady=(4, 0))
+            except tk.TclError:
+                pass
+
+        if images in cache:
+            show(cache[images])
+            return
+
+        done: dict = {}
+
+        def make() -> None:                     # the worker: no Tk call here
+            try:
+                buffer = io.BytesIO()
+                vv_skin_tone_preview.preview(game, images, zoom=1).save(buffer, "PNG")
+                done["data"] = base64.b64encode(buffer.getvalue()).decode("ascii")
+            except Exception:                   # noqa: BLE001 -- no preview, never a failed window
+                done["data"] = None
+
+        def wait() -> None:                     # the window's own thread looks until it is made
+            if "data" not in done:
+                if holder.winfo_exists():
+                    holder.after(150, wait)
+                return
+            cache[images] = done["data"]
+            show(done["data"])
+
+        threading.Thread(target=make, daemon=True).start()
+        holder.after(150, wait)
 
     def _folder_link(self, parent, text: str, command):
         """A clickable, underlined link label.

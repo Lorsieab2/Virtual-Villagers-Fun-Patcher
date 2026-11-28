@@ -132,10 +132,38 @@ if step == "set":
             next(w for w in ticks if str(w.cget("text")) == gui.HEATHEN_KEEP_BLUE_LABEL).invoke()
             spin = next(w for w in widgets if isinstance(w, ttk.Spinbox))
             spin.set("40")                      # typed, then the window closed straight away
+        if key == "vv4_skin_tones":
+            # Skin Tones: the Preferred skin tone, set to Copper (5)
+            box = next(w for w in widgets if isinstance(w, ttk.Combobox))
+            found[key]["choices"] = list(box.cget("values"))
+            box.set(gui.skin_tone_choices()[5])
+            box.event_generate("<<ComboboxSelected>>")
+            app.update()
         window.close()
         app.update()
         found[key]["closed"] = not window.winfo_exists()
     out["found"] = found
+    # The Skin Tones Settings... button works only while its row is ticked.
+    states = {}
+    for vl in lists:
+        vl.yview("moveto", 0)
+        for _ in range(400):
+            app.update()
+            for w in walk(vl):
+                if isinstance(w, ttk.Checkbutton) and patch_vars.get(str(w.cget("variable"))) == "vv4_skin_tones":
+                    button = next(s for s in w.master.winfo_children()
+                                  if isinstance(s, ttk.Button) and s.cget("text") == gui.PATCH_SETTINGS_BUTTON)
+                    variable = app.fun_patch_vars["vv4_skin_tones"]
+                    for value in (False, True, False):
+                        variable.set(value)
+                        app.update()
+                        states.setdefault("seen", []).append([value, button.instate(["disabled"])])
+            if states or float(vl.scrollbar.get()[1]) >= 1.0:
+                break
+            vl.yview("scroll", 4, "units")
+        if states:
+            break
+    out["skin_button"] = states.get("seen")
     app.solidarity_var.set(2.5)                 # the Difficulty Sliders page's number
     app.update()
     out["saved"] = json.loads(gui.SETTINGS.read_text(encoding="utf-8"))
@@ -147,6 +175,7 @@ else:
     out["ticked"] = sorted(pid for pid, v in app.fun_patch_vars.items() if v.get() and "_filter_f" in pid)
     import vv_fun_patcher
     out["heathen"] = vv_fun_patcher.heathen_evolution()
+    out["skin"] = vv_fun_patcher.skin_tone_preferred()
 app.destroy()
 print(json.dumps(out))
 """
@@ -177,14 +206,15 @@ class PatchSettingsWindows(unittest.TestCase):
         games = range(1, 6)
         self.assertEqual(self.set["windows"], sorted([f"vv{g}_mie" for g in games]
                                                      + [f"vv{g}_unicode_font" for g in games]
-                                                     + ["vv5_heathen_tribe_evolution"]))
+                                                     + ["vv5_heathen_tribe_evolution"]
+                                                     + [f"vv{g}_skin_tones" for g in (3, 4, 5)]))
         self.assertEqual(self.set["settings_beside"]["vv5_heathen_tribe_evolution"], ["Settings..."])
         self.assertEqual(self.set["mie_buttons"], [f"vv{g}_mie" for g in games])
         for g in games:
             with self.subTest(game=g):
                 self.assertEqual(self.set["settings_beside"][f"vv{g}_unicode_font"], ["Settings..."])
         others = {pid: b for pid, b in self.set["settings_beside"].items()
-                  if not pid.endswith("_unicode_font") and pid != "vv5_heathen_tribe_evolution"}
+                  if not pid.endswith(("_unicode_font", "_skin_tones")) and pid != "vv5_heathen_tribe_evolution"}
         self.assertEqual({pid: b for pid, b in others.items() if b}, {}, "Settings... only beside a patch with some")
 
     def test_each_window_holds_its_settings(self):
@@ -203,6 +233,8 @@ class PatchSettingsWindows(unittest.TestCase):
                     # births, arrivals and show actions: three sliders; the show percent's box; two ticks
                     self.assertEqual((window["scales"], window["spinboxes"], window["fonts"]), (3, 1, 0))
                     self.assertEqual(len(window["ticks"]), 2)
+                elif key.endswith("_skin_tones"):
+                    self.assertEqual((window["scales"], window["spinboxes"], window["fonts"]), (0, 0, 1))
                 else:
                     self.assertEqual((window["scales"], window["spinboxes"], window["fonts"]), (0, 0, 1))
         self.assertTrue(self.set["main_enabled"], "the main window is let go when the windows close")
@@ -225,6 +257,17 @@ class PatchSettingsWindows(unittest.TestCase):
                           saved["heathen_show_percent"], saved["heathen_keep_blue"]), (0.5, 2.5, 40, True))
         self.assertEqual(self.read["heathen"], {"births": 0.5, "arrivals": 2.5, "show_percent": 40,
                                                 "keep_blue": True}, "read back and handed to the next patch")
+
+    def test_the_preferred_skin_tone_saves_and_comes_back(self):
+        """The owner, 2026-11-28: "Preferred skin tone" -- no preference, or one of the ten tones."""
+        self.assertEqual(self.set["found"]["vv4_skin_tones"]["choices"][0], "No preference")
+        self.assertEqual(len(self.set["found"]["vv4_skin_tones"]["choices"]), 11)
+        self.assertEqual(self.set["saved"]["skin_tone_preferred"], 5)
+        self.assertEqual(self.read["skin"], 5, "read back and handed to the next patch")
+
+    def test_the_skin_tones_settings_need_the_row_ticked(self):
+        self.assertEqual(self.set["skin_button"], [[False, True], [True, False], [False, True]],
+                         "disabled while unticked, usable while ticked")
 
 
 if __name__ == "__main__":

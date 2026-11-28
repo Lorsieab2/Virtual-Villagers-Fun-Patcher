@@ -1,0 +1,136 @@
+How to mark skin in GIMP (VVFP Skin Tones Workbench)
+=====================================================
+
+Every skin tone is its own folder of two layers (GIMP calls it a layer group):
+
+    a colour layer   - flat paint, in the tone's colour, on every pixel that is skin in that tone.
+                       THIS IS THE ONE YOU EDIT. Paint = skin. Erased = not skin.
+    a shading layer  - sits on top and gives your paint the game art's own light and dark.
+                       Locked. Never paint it. It shows only where the colour layer has paint.
+
+So: paint on a tone's colour layer and the skin appears there, already shaded.
+Erase and the game's own art comes back. Each tone is separate: what you do in Ebony
+changes Ebony only.
+
+This guide is for GIMP 3. Keys in [brackets].
+
+
+1. OPEN A FILE
+   - File > Open [Ctrl+O], go to this folder, open the game's folder (vv1 ... vv5) and pick a .xcf,
+     e.g. vv1\vv1_male_heads.xcf.
+   - If GIMP asks about a colour profile, choose "Keep".
+
+2. SHOW THE LAYERS PANEL
+   - Windows > Dockable Dialogs > Layers [Ctrl+L] if it is not already showing.
+   - You will see, top to bottom:
+       Hair and non-skin (vanilla)   (locked, hidden)
+       Tone 10 - S10 Ebony ... Tone 01 - S1 Porcelain   (ten folders, one a tone)
+       Skin mask                     (hidden)
+       Game's own art                (locked)
+   - Inside a tone's folder, top to bottom:
+       Ebony shading (locked)        never paint this one (named after its tone)
+       Ebony colour (paint here)     the layer you edit (named after its tone)
+     (In files made before 2026-11-28 the shading layers are called "Shading (locked)",
+     "Shading (locked) #1" ... "#9". Same thing.)
+
+3. THE FILE OPENS READY TO PAINT EBONY
+   Every file opens like this, so you can start painting at once:
+   - Tone 10 - S10 Ebony is the one tone shown, and its folder is open. The other tones' folders
+     are hidden and closed.
+   - "Hair and non-skin (vanilla)" is hidden, so it cannot cover skin you add over hair or
+     clothes. What you see is exactly what the game will show in Ebony.
+   - "Ebony colour (paint here)" is already the highlighted layer. Painting always goes on the
+     highlighted layer, so if you click another layer, click the NAME of the colour layer again
+     before you paint. If GIMP says the layer's pixels are locked, you have the shading layer:
+     click the colour layer under it instead.
+   - To look at another tone: click the EYE beside its folder to show it and turn Ebony's eye off,
+     then open the folder (the small arrow) and click its "... colour (paint here)" layer.
+   - To see the hair and clothes again, click the eye beside "Hair and non-skin (vanilla)".
+   - If your painting does nothing, check you didn't add a layer mask: right-click the layer >
+     Delete Layer Mask.
+   - Zoom in: press [4] for 800% or [5] for 1600%. [1] goes back to 100%.
+     Hold [Space] and move the mouse to pan around.
+
+4. ADD SKIN (Pencil)
+   - Pick the Pencil tool [N]. In Tool Options set Size to 1 (one pixel), or bigger for big areas.
+     Use the Pencil, not the Paintbrush: the Pencil gives hard, exact pixels.
+   - Click or drag over every pixel that should be skin: necks, ears, arms, hands, legs, feet,
+     the strip of skin between hair and clothes.
+   - Any paint colour works. The shading layer on top turns it into the tone's own shaded colour
+     at once, so you see the real result as you paint.
+   - Paint outside the villager (on the empty background) shows as a flat blob and is ignored by
+     the mod. Erase it to keep the picture tidy.
+
+5. REMOVE SKIN (Eraser)
+   - Pick the Eraser [Shift+E]. In Tool Options tick "Hard edge" and set Size to 1.
+     ("Hard edge" matters: a pixel that is only half erased still counts as skin.)
+   - Erase pixels that are NOT skin but got coloured: pale blond hair, eye whites, teeth,
+     cream/tan/yellow clothes, belts, jewellery. The game's own art shows again there.
+   - If the eraser paints a colour instead of making pixels see-through, the layer has no
+     transparency: Layer > Transparency > Add Alpha Channel, then erase again.
+
+   Big areas faster (optional):
+   - Free Select tool [F]: click around an area to outline it, double-click to close.
+   - With the colour layer highlighted: Edit > Fill with FG Color [Ctrl+,] to make it all skin,
+     or Edit > Clear [Delete] to make none of it skin. Select > None [Ctrl+Shift+A] when done.
+
+6. DO THE OTHER TONES
+   - Each tone has its own colour layer, so a change in one tone is not in the others.
+   - To save time, do ONE tone properly and copy its skin to the other nine: see
+     "COPY ONE TONE'S SKIN TO ALL THE OTHERS" below.
+
+7. SAVE
+   - Leave layer names, order, the folders and the picture size exactly as they are (don't rename,
+     merge, delete, crop or scale). Which eyes are on or off does not matter.
+   - File > Save [Ctrl+S]. Keep it as .xcf in the same place with the same name.
+     (Don't use File > Export.)
+
+8. BRING YOUR EDITS INTO THE MOD
+   In the patcher's folder, run:
+       python scripts\skin_tone_sheets.py import --game vv1        (vv1 ... vv5)
+   For every tone whose colour layer you changed, where you painted is kept in
+       <this folder>\<game>\edits\<sheet>\skin_NN.png        (NN = the tone's number)
+   and wins over the automatic version from then on. Only WHERE the skin is gets kept: the mod
+   always makes the colours and the shading again from the game's own art, on each player's
+   own files. Rebuilding the workbench never replaces a file you have changed.
+
+COPY ONE TONE'S SKIN TO ALL THE OTHERS
+   The quick, exact way is the tool. Save the file in GIMP and close it there (File > Close View
+   [Ctrl+W]), then in the patcher's folder run:
+       python scripts\skin_tone_sheets.py spread --game vv1 --sheet vv1_carrying
+   It takes Tone 10 (Ebony) if you changed it, else the one tone you changed, and makes the other
+   nine tones' colour layers the same painted pixels, each in its own colour. Then open the file
+   again in GIMP.
+     - To copy another tone, say which: add  --from 7  (the tone's number).
+     - For every file of a game at once:  --all-sheets  instead of  --sheet ...
+     - It keeps the file as it was in the game's "_before spread <date>" folder first.
+     - It leaves a file alone if GIMP has it open. While GIMP is running it cannot always see that,
+       and then it changes nothing and asks you to run it again with  --yes  added.
+     - Afterwards run "import" as in step 8.
+
+   Or, without touching the .xcf at all, let "import" do it:
+       python scripts\skin_tone_sheets.py import --game vv1 --same-for-all-tones
+   This uses Tone 10 (Ebony) if you changed it, else the one tone you changed, as the skin for all
+   ten tones in the mod. (The other tones' layers in the .xcf stay as they are. Add  --from 7  to
+   use another tone.)
+
+   By hand, in GIMP:
+     1. Right-click the colour layer you edited > Alpha to Selection.
+     2. Click the next tone's colour layer, then Edit > Fill with FG Color [Ctrl+,].
+        (Any foreground colour works.)
+     3. Select > Invert [Ctrl+I], Edit > Clear [Delete], Select > Invert [Ctrl+I].
+     4. Repeat 2 and 3 for each other tone, then Select > None [Ctrl+Shift+A].
+   This copies what you added and erased. It can drop a few of the faintest, nearly see-through
+   pixels on a villager's outline (148 of 21,985 on one sheet tested); the tool copies exactly.
+
+ABOUT THE "Skin mask" LAYER
+   It is from the first version of these files and you can leave it alone. It still works: white
+   there = skin, for every tone whose colour layer you have NOT changed yourself. The tone folders
+   in the file do not follow it while you look at them in GIMP. "import" reads the mask
+   the same at any opacity, and whether or not a layer's eye is on.
+
+TIPS
+   - Do one sheet at a time and save often.
+   - A villager's skin is the same on every frame of a sheet, so work frame by frame across the row.
+   - Made a mistake? Edit > Undo [Ctrl+Z], as many times as you need.
+   - The files as they were before 2026-11-27 are in each game's "_before overlay 2026-11-27" folder.

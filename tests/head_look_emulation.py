@@ -176,10 +176,10 @@ GAMES = {
 class Game:
     """One game in the emulator with the DLL started and a village of `villagers` (name, sex, age, head)."""
 
-    def __init__(self, game: int, exe: bytes, *, start: bool = True, slot: int = 1):
+    def __init__(self, game: int, exe: bytes, *, start: bool = True, slot: int = 1, dll: Path = DLL):
         self.game = game
         self.g = GAMES[game]
-        self.p = Process(exe, DLL)
+        self.p = Process(exe, dll)      # another companion of the same store may be run in the same village
         self.disk = Disk(self.p)
         self.p.tick = 1_000_000
         self.g = dict(self.g)

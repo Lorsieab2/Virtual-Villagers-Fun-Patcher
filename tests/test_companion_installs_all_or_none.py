@@ -553,6 +553,10 @@ CASES = [
     Case("Fog Listening", "assets/fog_listening/VVFP Fog Listening.dll", (5,),
          lambda g: [f"vv{g}_fog_of_doom_every_heathen_listens"],
          lambda m, g: (m.export("VvfpStartup", g, 0), m.export("VvfpFogListeningInstalled"))[1]),
+    # Skin Tones (The Secret City, The Tree of Life, New Believers so far): the draws' sites.
+    Case("Skin Tones", "assets/skin_tones/VVFP Skin Tones.dll", (3, 4, 5),
+         lambda g: [f"vv{g}_skin_tones"],
+         lambda m, g: (m.export("VvfpStartup", g, 0), m.export("VvfpSkinToneDrawn", g))[1]),
     Case("Difficulty Settings", "assets/difficulty/VVFP Difficulty.dll", (4, 5),
          lambda g: [f"vv{g}_difficulty_settings"], _startup, reports=False),
     Case("VV1 Genetics", "assets/genetics/VVFP VV1 Genetics.dll", (1,),

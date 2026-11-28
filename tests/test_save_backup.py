@@ -772,6 +772,7 @@ class AttributionTests(RestoreBase):
             f"{DATA}/Village Masks - Save 4.dat": 4,
             f"{DATA}/Custom Titles/Custom Titles - Save 5.dat": 5,
             "Virtual Villagers Fun Patcher/Save 2/Data/Head Looks/Head Looks - Save 2.dat": 2,
+            "Virtual Villagers Fun Patcher/Save 4/Data/Skin Tones/Skin Tones - Save 4.dat": 4,
             "Virtual Villagers Fun Patcher/Save 3/Data/Original Looks/Original Looks - Save 3.dat": 3,
             f"{DATA}/Original Looks/Original Looks - Save 4.dat": 4,
             f"{DATA}/Virtual Villagers 1 Graves - Save 1.dat": 1,

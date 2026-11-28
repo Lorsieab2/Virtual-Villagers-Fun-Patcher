@@ -407,7 +407,7 @@ class DoublerAuditDocumentationTests(unittest.TestCase):
         # Re-pinned for the Tech menu's Revive Buried/Disappeared Villagers button (native/shared/story_bridge.h).
         self.assertEqual(
             manifest["companion_files"][0]["sha256"],
-            "4785C552DBE07E5C66D5A730BD16E37BC29216736AF93B1C2D6167482B85B2AC",
+            "18490F508865F7AF77E29D3E818D5C213C36431DAD273057C095C9A94E1C3787",
         )
         self.assertEqual(inventory["e9_tail_jumps_to_writers"], 0)
 

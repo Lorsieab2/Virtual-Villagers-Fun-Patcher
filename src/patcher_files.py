@@ -236,6 +236,8 @@ PATCHER_SETTINGS: frozenset[str] = frozenset({
     "VVFP Heathen Tribe Births.txt",
     "VVFP Heathen Arrivals.txt",
     "VVFP Heathen Options.txt",
+    # Skin Tones' preferred skin tone (src/vv_fun_patcher.py _write_skin_tone_choice), beside "VVFP Skin Tones.dll".
+    "VVFP Skin Tones.txt",
 })
 
 _IN_PLACE = {key.casefold() for key in GAME_READS_IN_PLACE}
