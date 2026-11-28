@@ -272,6 +272,32 @@ class HeadRule(unittest.TestCase):
         self.assertEqual(image[0x43C61F - base:0x43C61F - base + 2], b"\x6a\x13")
         self.assertEqual(image[0x43C62A - base:0x43C62A - base + 2], b"\x6a\x14")
 
+    def test_a_new_homes_genetics_is_the_same_rule(self) -> None:
+        """A New Home's own head rule is the patcher's Genetics (native/vv1_genetics): 5 in 100 any head, else
+        the parents' average rounded down (the mother's alone with no father) + rand(3) - 1, held to the range
+        -- the rule the tones use."""
+        source = (ROOT / "native" / "vv1_genetics" / "vv1_genetics.c").read_text(encoding="utf-8")
+        self.assertIn("base = father >= 0 ? (father + mother) / 2 : mother;", source)
+        self.assertIn("if (game_rand(100) < 5) {", source)
+        self.assertIn("head = base + game_rand(3) - 1;", source)
+        rules = (ROOT / "native" / "vvfp_skin_tones" / "skin_tone_rules.h").read_text(encoding="utf-8")
+        self.assertIn("if (r100 % 100u < 5u || (father == 0 && mother == 0)) {", rules)
+        self.assertIn("tone = (father + mother) / 2 + (int)(r3 % 3u) - 1;", rules)
+        for mother in range(1, 11):                 # the mother's alone: the missing father counts as her
+            for r3 in range(3):
+                self.assertEqual(tones.inherit(0, mother, 50, r3, 0),
+                                 max(1, min(10, mother + r3 - 1)))
+
+    def test_parentage_export_tells_the_tones(self) -> None:
+        """Parentage Export calls the conception and the birth (native/shared/skin_tone.h): the conception
+        with the carrier and the father it resolved (nobody for the game's own default father), the birth
+        after any new name, a second baby of the delivery copying the first."""
+        source = (ROOT / "native" / "parentage_export" / "parentage_export.c").read_text(encoding="utf-8")
+        self.assertIn("(void)vvfp_skin_conceived(game_id, mother, default_father ? NULL : father);", source)
+        birth = source.index("skin_tone_birth(game_id, tone_carrier, child_record);")
+        self.assertLess(source.index("number_new_name(game_id, (unsigned char *)child_record);\n    }"), birth)
+        self.assertIn("first = last_child;", source)
+
 
 class File(unittest.TestCase):
     def test_round_trip(self) -> None:

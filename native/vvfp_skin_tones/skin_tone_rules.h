@@ -18,9 +18,14 @@
    0x4564A7, The Tree of Life 0x45F235, New Believers 0x46853A):
        rand(100) >= 5 and a parent's value not 0:  (father + mother) / 2 + rand(3) - 1, held to the range
        otherwise:                                  any value, each as likely
-   vvfp_skin_tone_inherit is that rule on the tone number, held to 1..COUNT.  A New Home's births inherit
-   nothing of their own (creator 0x43C350), so its tones use the same rule.  A parent whose tone is not
-   known counts as the other parent's; with neither known the tone is random, as the head is. */
+   vvfp_skin_tone_inherit is that rule on the tone number, held to 1..COUNT.  A New Home's stock creator
+   0x43C350 rolls a newborn's head at random and reads no parent; A New Home's own head rule is the
+   patcher's Genetics (native/vv1_genetics/vv1_genetics.c), which is this same rule: 5 in 100 any head,
+   otherwise (father + mother) / 2 rounded down + rand(3) - 1, held to the range, the mother's alone when
+   the father is not known (tests/test_skin_tones.py compares the two).  So A New Home's tones use it too,
+   with or without Genetics.  Its father is the one "VVFP VV1 Parentage.dll" captured at the conception,
+   handed to VvfpSkinToneConceived by Parentage Export.  A parent whose tone is not known counts as the
+   other parent's; with neither known the tone is random, as the head is. */
 #ifndef VVFP_SKIN_TONE_RULES_H
 #define VVFP_SKIN_TONE_RULES_H
 
