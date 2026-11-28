@@ -1,0 +1,7 @@
+LIBRARY "VVFP Sharp Picture.test.dll"
+EXPORTS
+    VvfpStartup=_VvfpStartup@8
+    VvfpSharpPictureInstalled=_VvfpSharpPictureInstalled@0
+    VvfpSharpPictureRect=_VvfpSharpPictureRect@16
+    VvfpSharpPictureTestPicture=_VvfpSharpPictureTestPicture@20
+    VvfpSharpPictureTestUseModule=_VvfpSharpPictureTestUseModule@4

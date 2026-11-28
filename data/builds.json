@@ -2177,7 +2177,7 @@
         {
           "source": "assets/fullscreen_mouse/VVFP Fullscreen Mouse.dll",
           "destination": "VVFP Fullscreen Mouse.dll",
-          "sha256": "3C0C8B534DC3FF3155F6A6F293A24560F59E6BA66E45A7EA46D8F280DFD35D34"
+          "sha256": "AD3AE4C24DAFB2F75137824D6082B1CD300114AA9AABAB4399A330307996616B"
         }
       ],
       "runtime_detours": [
@@ -3086,7 +3086,7 @@
         {
           "source": "assets/fullscreen_mouse/VVFP Fullscreen Mouse.dll",
           "destination": "VVFP Fullscreen Mouse.dll",
-          "sha256": "3C0C8B534DC3FF3155F6A6F293A24560F59E6BA66E45A7EA46D8F280DFD35D34"
+          "sha256": "AD3AE4C24DAFB2F75137824D6082B1CD300114AA9AABAB4399A330307996616B"
         }
       ],
       "runtime_detours": [
@@ -3268,7 +3268,7 @@
         {
           "source": "assets/fullscreen_mouse/VVFP Fullscreen Mouse.dll",
           "destination": "VVFP Fullscreen Mouse.dll",
-          "sha256": "3C0C8B534DC3FF3155F6A6F293A24560F59E6BA66E45A7EA46D8F280DFD35D34"
+          "sha256": "AD3AE4C24DAFB2F75137824D6082B1CD300114AA9AABAB4399A330307996616B"
         },
         {
           "source": "assets/exact_pickups/VVFP Exact Pickups.dll",
@@ -3783,7 +3783,7 @@
         {
           "source": "assets/fullscreen_mouse/VVFP Fullscreen Mouse.dll",
           "destination": "VVFP Fullscreen Mouse.dll",
-          "sha256": "3C0C8B534DC3FF3155F6A6F293A24560F59E6BA66E45A7EA46D8F280DFD35D34"
+          "sha256": "AD3AE4C24DAFB2F75137824D6082B1CD300114AA9AABAB4399A330307996616B"
         },
         {
           "source": "assets/exact_pickups/VVFP Exact Pickups.dll",
@@ -6523,7 +6523,7 @@
         {
           "source": "assets/fullscreen_mouse/VVFP Fullscreen Mouse.dll",
           "destination": "VVFP Fullscreen Mouse.dll",
-          "sha256": "3C0C8B534DC3FF3155F6A6F293A24560F59E6BA66E45A7EA46D8F280DFD35D34"
+          "sha256": "AD3AE4C24DAFB2F75137824D6082B1CD300114AA9AABAB4399A330307996616B"
         },
         {
           "source": "assets/exact_pickups/VVFP Exact Pickups.dll",

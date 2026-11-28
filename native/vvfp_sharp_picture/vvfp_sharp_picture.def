@@ -1,0 +1,5 @@
+LIBRARY "VVFP Sharp Picture"
+EXPORTS
+    VvfpStartup=_VvfpStartup@8
+    VvfpSharpPictureInstalled=_VvfpSharpPictureInstalled@0
+    VvfpSharpPictureRect=_VvfpSharpPictureRect@16

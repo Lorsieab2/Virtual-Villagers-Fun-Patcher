@@ -181,13 +181,44 @@ static void fm_set(void **slot, void *value) {
     }
 }
 
+typedef int(__stdcall *fm_picture_fn)(int *, int *, int *, int *);
+
+/* While "VVFP Sharp Picture.dll" (the 4K filter) draws the game's picture itself, the picture's place in the window
+   is its own (black bars or stretched), not SDL's viewport: it says where (x, y, w, h in window pixels). */
+static int fm_picture(int *x, int *y, int *w, int *h) {
+    static fm_picture_fn picture;
+    if (picture == NULL) {
+        HMODULE sharp = GetModuleHandleA("VVFP Sharp Picture.dll");   /* only if it is already loaded */
+        if (sharp == NULL) {
+            return 0;
+        }
+        picture = (fm_picture_fn)GetProcAddress(sharp, "VvfpSharpPictureRect");
+        if (picture == NULL) {
+            return 0;
+        }
+    }
+    return picture(x, y, w, h) && *w > 0 && *h > 0;
+}
+
 /* The window pixels SDL keeps -> the game's own pixels, exactly as SDL's event watch converts its events; inside
    the game's picture.  Without a logical size (never, in these games) nothing changes. */
 static void fm_to_game(int *x, int *y) {
     const unsigned char *r = (const unsigned char *)g_renderer;
-    int w = 0, h = 0;
+    int w = 0, h = 0, px, py, pw, ph;
     float sx, sy;
     if (r == NULL || *(const int *)(r + FM_LOGICAL_W) == 0) {
+        return;
+    }
+    if (fm_picture(&px, &py, &pw, &ph)) {
+        g_logical_size(g_renderer, &w, &h);
+        if (x != NULL) {
+            int v = (int)floor((double)(*x - px) * (double)w / (double)pw);
+            *x = v < 0 ? 0 : (v >= w ? w - 1 : v);
+        }
+        if (y != NULL) {
+            int v = (int)floor((double)(*y - py) * (double)h / (double)ph);
+            *y = v < 0 ? 0 : (v >= h ? h - 1 : v);
+        }
         return;
     }
     sx = *(const float *)(r + FM_SCALE_X);
@@ -210,7 +241,20 @@ static void fm_to_game(int *x, int *y) {
 static void fm_to_window(void *renderer, int *x, int *y) {
     const unsigned char *r = (const unsigned char *)renderer;
     float sx, sy;
+    int px, py, pw, ph, w = 0, h = 0;
     if (r == NULL || *(const int *)(r + FM_LOGICAL_W) == 0) {
+        return;
+    }
+    if (fm_picture(&px, &py, &pw, &ph)) {
+        double ax, ay;
+        g_logical_size(renderer, &w, &h);
+        if (w <= 0 || h <= 0) {
+            return;
+        }
+        ax = (double)pw / w;
+        ay = (double)ph / h;
+        *x = px + (int)ceil((double)*x * ax + (ax > 1.0 ? (ax - 1.0) * 0.5 : 0.0));
+        *y = py + (int)ceil((double)*y * ay + (ay > 1.0 ? (ay - 1.0) * 0.5 : 0.0));
         return;
     }
     sx = *(const float *)(r + FM_SCALE_X);
