@@ -69,11 +69,22 @@ def sites(game: int) -> list[tuple[int, int, str]]:
     body = text[text.index(f"static const st_draws VV{game}_DRAWS = {{"):]
     body = body[:body.index("};")]
     heads, bodies = re.findall(r"\{ (0x[0-9A-F]+u, 0x[0-9A-F]+u, 0x[0-9A-F]+u) \}", body)
-    where = ("the village's draw", "the small figure", "the Villager Details big figure")
+    # The second of each is in the Villager Details big figure (VV5 0x466C40, which draws at 200%), the third in
+    # the small one (100%), as the held baby's draws below.
+    where = ("the village's draw", "the Villager Details big figure", "the small figure")
     out = []
     for part, group in (("head", heads), ("body", bodies)):
         for place, va in zip(where, group.split(", ")):
             out.append((int(va[:-1], 16), 5, f"the call of the {part} sheet fetcher in {place}"))
+    held = re.search(r"0x[0-9A-F]+u, (0x[0-9A-F]+)u, 0x[0-9A-F]+u, 0x[0-9A-F]+u,\s*"
+                     r"\{ ((?:0x[0-9A-F]+u, ){5}0x[0-9A-F]+u) \}", body)
+    out.append((int(held.group(1), 16), 5, "the entry of the village's carried-item draw: while it draws a held "
+                                           "baby, the sprite manager's carrying sheet is the baby's tone's copy"))
+    for n, va in enumerate(held.group(2).split(", ")):
+        figure = "the Villager Details big figure" if n < 3 else "the small figure"
+        extra = ("", " (a twin)", " (a triplet)")[n % 3]
+        out.append((int(va[:-1], 16), 5, f"the call of the draw of the held baby (cell 3 of carrying.png) in "
+                                         f"{figure}{extra}"))
     return out
 
 
@@ -94,8 +105,9 @@ def description() -> str:
         "and masks keep the game's own colours, and patching without this patch leaves the copies out. Each "
         "villager's tone is kept in the save's own Skin Tones file and follows them through deaths, reloads and "
         "renames; Back Up Saves copies it and Start Over clears it. **Not there yet:** choosing a tone in Change "
-        "Appearance; and the memorial list's figures, the parents' small figures on Villager Details and the baby a "
-        "parent holds keep the game's own art. **Off by default and in Select All; on in Owner's Defaults.** **Works "
+        "Appearance; and the memorial list's figures and the parents' small figures on Villager Details keep the game's "
+        "own art. The baby a villager holds is drawn in the baby's own tone (The Tree of Life and New Believers), the "
+        "tone it will be born with. **Off by default and in Select All; on in Owner's Defaults.** **Works "
         "the same with every other patch and in every population mode.** **Not yet seen in a running game** (checked "
         f"by emulation of each game's own draw code). The companion is \"{DLL_NAME}\", started by VVFP More "
         "Companions.dll; nothing is written into a save or a villager record."
@@ -130,6 +142,13 @@ def row(game: int, dll_sha: str) -> dict:
             "At each site below the sheet about to be drawn from is changed to the villager's tone's copy of it "
             "(\"vvfp_skin_<NN>_<the game's own file name>\" in Images), loaded the first time it is needed and only "
             "when every file of it is there; otherwise the game's own sheet is drawn.",
+            "The held baby (The Tree of Life and New Believers): cell 3 of carrying.png, drawn by the village's "
+            "carried-item draw and by Villager Details, comes from the baby's tone's copy "
+            "\"vvfp_skin_<NN>_carrying.png\": the tone rolled at the conception and kept on the carrier, or, when "
+            "none is kept while the carrier is pregnant or nursing, chosen the first time the baby is drawn (the head "
+            "rule on the carrier's tone; a random tone when the carrier has none) and kept the same way, so the "
+            "newborn is given exactly it. Twins and triplets held together are alike. The carrier may be of either "
+            "sex.",
             "At patch time the patcher makes those copies from the pictures in the patched game's own Images folder "
             "(src/vv_skin_tone_art.py): each skin pixel takes the tone's hue and its own shading; every pixel "
             "outside the skin is byte for byte the game's. \"vvfp-skin-tones.json\" there records what they were "
@@ -141,7 +160,8 @@ def row(game: int, dll_sha: str) -> dict:
             "villager is drawn with the game's own art).",
             "No picture of the game is changed or replaced, and none is shipped: only new files are added.",
             "The villager record and the save are never written. Nothing depends on a villager's sex.",
-            "Masks, skeletons and every sheet that is not a villager's head or body sheet are never changed.",
+            "Masks, skeletons and every sheet that is not a villager's head or body sheet or carrying.png are never "
+            "changed; on carrying.png only the held baby's cell is drawn from the copy.",
         ],
         "evidence_status": "each game's draw routines read statically; the splices emulated on the stock "
                            "executables in tests/test_skin_tone_draws.py and the inheritance in "

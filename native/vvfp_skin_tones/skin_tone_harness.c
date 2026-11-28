@@ -452,6 +452,80 @@ int main(void) {
     check(VvfpSkinToneBorn(GAME, rec(24), rec(1), rec(23), 1) == t && VvfpSkinTonePending(GAME, rec(1)) == 0,
           "the second baby copies the first, and the last one spends the promise");
 
+    printf("The held baby\n");
+    {
+        const st_layout *l = &LAYOUT[GAME];
+        int carrier_tone, held, again;
+        gone(23);
+        gone(24);
+        later();
+        t = VvfpSkinToneConceived(GAME, rec(1), rec(2));
+        *(int *)(rec(1) + l->carrying) = 1;
+        check(t >= 1 && VvfpSkinToneHeld(GAME, rec(1)) == t, "a conception's tone is the held baby's");
+        *(int *)(rec(1) + l->carrying) = 0;
+        (void)VvfpSkinToneSet(GAME, rec(5), 6);
+        (void)hl_set(rec(5), 6);                        /* her kept byte: tone 6, no baby's tone */
+        later();
+        check(VvfpSkinToneHeld(GAME, rec(5)) == 0 && VvfpSkinTonePending(GAME, rec(5)) == 0,
+              "nobody carrying, no tone kept: nothing is held and nothing is chosen");
+        near_parents = 0;
+        for (k = 0; k < 200; ++k) {
+            (void)hl_set(rec(5), 6);
+            later();
+            *(int *)(rec(5) + l->carrying) = 1;
+            held = VvfpSkinToneHeld(GAME, rec(5));
+            if (held >= 5 && held <= 7) {
+                ++near_parents;
+            }
+            if (held < 1 || held > N || VvfpSkinTonePending(GAME, rec(5)) != held) {
+                near_parents = -100000;
+            }
+            *(int *)(rec(5) + l->carrying) = 0;
+        }
+        check(near_parents >= 175 && near_parents < 200,
+              "carrying with no tone kept: chosen on first sight by the head rule on the carrier's tone, and kept");
+        (void)hl_set(rec(5), 6);
+        later();
+        *(int *)(rec(5) + l->carrying) = 1;
+        held = VvfpSkinToneHeld(GAME, rec(5));
+        later();
+        again = VvfpSkinToneHeld(GAME, rec(5));
+        carrier_tone = tone(5);
+        new_session();
+        check(held >= 1 && again == held && VvfpSkinToneHeld(GAME, rec(5)) == held && carrier_tone == 6,
+              "the choice is kept (also in the file); the carrier's own tone is untouched");
+        villager(25, "HeldBaby", 0, (const char *)rec(2) + l->name, (const char *)rec(5) + l->name);
+        villager(26, "HeldTwin", 0, (const char *)rec(2) + l->name, (const char *)rec(5) + l->name);
+        *(int *)(rec(5) + l->carrying) = 0;
+        check(tone(25) == held && tone(26) == held, "the newborn and a twin are given exactly the held baby's tone");
+        later();
+        check(VvfpSkinTonePending(GAME, rec(5)) == 0, "and it is spent");
+        gone(25);
+        gone(26);
+
+        (void)VvfpSkinToneSet(GAME, rec(6), VVFP_SKIN_TONE_GAMES_OWN);
+        (void)hl_set(rec(6), VVFP_SKIN_TONE_GAMES_OWN);
+        later();
+        *(int *)(rec(6) + l->carrying) = 1;
+        held = VvfpSkinToneHeld(GAME, rec(6));
+        check(held >= 1 && held <= N && tone(6) == 0, "a carrier drawn with the game's own art: the baby gets a random tone");
+        *(int *)(rec(6) + l->carrying) = 0;
+
+        (void)hl_set(rec(7), 3);
+        later();
+        *(int *)(rec(7) + l->carrying) = 1;
+        g_fail_writes = 1;
+        check(VvfpSkinToneHeld(GAME, rec(7)) == 0 && VvfpSkinTonePending(GAME, rec(7)) == 0,
+              "a choice that cannot be written: the game's own art, and nothing kept");
+        g_fail_writes = 0;
+        check(VvfpSkinToneHeld(GAME, rec(7)) == 0, "and it is not tried again at once");
+        later();
+        held = VvfpSkinToneHeld(GAME, rec(7));
+        check(held >= 1 && held <= N && VvfpSkinTonePending(GAME, rec(7)) == held, "but after a while it is");
+        *(int *)(rec(7) + l->carrying) = 0;
+        check(VvfpSkinToneHeld(4, rec(7)) == 0, "another game's number answers nothing");
+    }
+
     remove_tree(g_root);
     printf("%s\n", failures ? "FAILED" : "ALL PASSED");
     return failures != 0;

@@ -13,6 +13,7 @@ EXPORTS
     VvfpSkinToneSetMany=_VvfpSkinToneSetMany@16
     VvfpSkinToneConceived=_VvfpSkinToneConceived@12
     VvfpSkinTonePending=_VvfpSkinTonePending@8
+    VvfpSkinToneHeld=_VvfpSkinToneHeld@8
     VvfpSkinToneBorn=_VvfpSkinToneBorn@20
     VvfpSkinToneInherit=_VvfpSkinToneInherit@20
     VvfpSkinToneRandom=_VvfpSkinToneRandom@12

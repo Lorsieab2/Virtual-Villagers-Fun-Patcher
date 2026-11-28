@@ -67,15 +67,16 @@ typedef struct {
     unsigned int father, mother;    /* the parents' names, 0x19 bytes each (0: none in this game) */
     unsigned int family;            /* A New Home's family number (0: none) */
     unsigned int age;
+    unsigned int carrying;          /* not 0 while pregnant or nursing (0: not known in this game) */
 } st_layout;
 
 static const st_layout LAYOUT[6] = {
     { 0 },
-    { 0x3D8u,  0x28u,   0x370u,  0x1Cu, 0x350u,  0u,      0u,      0x36Cu, 0x348u },
-    { 0xE48Cu, 0x30u,   0x564u,  0x18u, 0x538u,  0x57Du,  0x596u,  0u,     0x530u },
-    { 0x1F8Cu, 0xF10u,  0xDD4u,  0x19u, 0xDC8u,  0xDF8u,  0xE11u,  0u,     0xDC4u },
-    { 0x2E3Cu, 0x1CC4u, 0x1B9Cu, 0x19u, 0x1B90u, 0x1BC0u, 0x1BD9u, 0u,     0x1B8Cu },
-    { 0x2F44u, 0x1CD4u, 0x1B9Cu, 0x19u, 0x1B90u, 0x1BC0u, 0x1BD9u, 0u,     0x1B8Cu },
+    { 0x3D8u,  0x28u,   0x370u,  0x1Cu, 0x350u,  0u,      0u,      0x36Cu, 0x348u,  0u },
+    { 0xE48Cu, 0x30u,   0x564u,  0x18u, 0x538u,  0x57Du,  0x596u,  0u,     0x530u,  0u },
+    { 0x1F8Cu, 0xF10u,  0xDD4u,  0x19u, 0xDC8u,  0xDF8u,  0xE11u,  0u,     0xDC4u,  0u },
+    { 0x2E3Cu, 0x1CC4u, 0x1B9Cu, 0x19u, 0x1B90u, 0x1BC0u, 0x1BD9u, 0u,     0x1B8Cu, 0x1C4Cu },
+    { 0x2F44u, 0x1CD4u, 0x1B9Cu, 0x19u, 0x1B90u, 0x1BC0u, 0x1BD9u, 0u,     0x1B8Cu, 0x1C4Cu },
 };
 #define ST_PARENT_BYTES 0x19u
 
@@ -405,6 +406,49 @@ static int st_tone_ok(int tone) {
     return (tone >= 1 && tone <= VVFP_SKIN_TONE_COUNT) || tone == VVFP_SKIN_TONE_GAMES_OWN;
 }
 
+/* THE HELD BABY'S TONE: the tone of the baby the villager in `carrier` holds -- the one rolled at the
+   conception and kept on the carrier (VvfpSkinToneConceived).  With none kept while the carrier is pregnant
+   or nursing (a pregnancy from before the patch, a conception nobody told this DLL of) it is chosen the
+   first time the baby is seen: the head rule on the carrier's tone (the other parent not known counts as
+   the carrier), or, when the carrier has no tone of their own (the game's own chosen), a randomly made
+   villager's tone.  It is kept like a conception's, so the newborn is given exactly it (st_give) and a
+   twin or triplet held with it is the same.  The carrier may be of either sex.  1..COUNT, or 0: the game's
+   own art.  A keep that cannot be written is not tried again for a while (the draw asks every frame). */
+static int st_held(const unsigned char *carrier) {
+    static DWORD failed_at[HL_MAX];
+    static unsigned char failed[HL_MAX];
+    const st_layout *l = &LAYOUT[g_game];
+    unsigned char value;
+    int i, tone, own;
+    if (carrier == NULL) {
+        return 0;
+    }
+    value = st_value(carrier);                  /* everyone has a tone first */
+    i = hl_index(carrier);
+    if (i < 0 || g_roster[i] == 0 || g_roster[i] != hl_identity(carrier)) {
+        return 0;
+    }
+    tone = ST_BABY(value);
+    if (tone >= 1 && tone <= VVFP_SKIN_TONE_COUNT) {
+        return tone;
+    }
+    if (l->carrying == 0 || *(const int *)(carrier + l->carrying) == 0) {
+        return 0;
+    }
+    if (failed[i] && (DWORD)(GetTickCount() - failed_at[i]) < HL_SYNC_MS) {
+        return 0;
+    }
+    own = st_drawn_tone(value);
+    tone = own != 0 ? vvfp_skin_tone_inherit(0, own, st_roll() % 100u, st_roll() % 3u, st_roll()) : st_random_tone();
+    if (!hl_set(carrier, (int)((value & 0x0Fu) | ((unsigned int)tone << 4)))) {
+        failed[i] = 1;
+        failed_at[i] = GetTickCount();
+        return 0;
+    }
+    failed[i] = 0;
+    return tone;
+}
+
 /* ---- the draws -----------------------------------------------------------------------------------
 
    A TONE'S SHEET is "vvfp_skin_<NN>_<the game's own name>" in the game's Images folder, NN the tone 01..10
@@ -432,7 +476,17 @@ static int st_tone_ok(int tone) {
    it there); anything else in ESI -- the renderer, when the village's draw reaches the thunk -- is no
    villager and changes nothing.  A sheet that is not one of the eight villager sheets (a mask, the
    skeleton) is never changed.  The memorial list's figures (the dead: no record) and the Villager Details
-   parents' small figures (drawn from the child's record) keep the game's own art. */
+   parents' small figures (drawn from the child's record) keep the game's own art.
+
+   THE HELD BABY (The Tree of Life and New Believers).  A carrier's baby is cell 3 of carrying.png, drawn in
+   the baby's own tone (st_held) from that tone's copy of the sheet, "vvfp_skin_<NN>_carrying.png"; nothing
+   else on the sheet is ever drawn from the copy.  THE SITES: (1) the entry of the village's carried-item draw
+   (VV4 0x466770, VV5 0x4701C0; thiscall on the sprite manager, the record its first argument, the item at
+   the record's carry field: 3 is the baby).  While it runs, the manager's carrying sheet (+0x24) is the
+   tone's copy, put back when it returns -- the entry, not its draw calls, because "VVFP Cloth Sacks.dll"
+   owns The Tree of Life's first draw call 0x4667B4.  (2) The Villager Details big and small figures' draws
+   of cell 3 (the baby and any twin or triplet: three calls each, ESI the record), whose sheet is their
+   first argument, changed there.  A sheet that is not the game's own carrying sheet is never changed. */
 #ifndef VVFP_SKIN_TONE_HARNESS
 
 #define ST_SHEETS 8
@@ -448,7 +502,16 @@ typedef struct {
     int clip;                           /* 1: the clip bounds at +0x60 are opened (see st_toned_sheet) */
     unsigned int head_fetch, body_fetch;
     unsigned int head_sites[3], body_sites[3];
+    unsigned int carry_desc;            /* carrying.png's description (0: no held baby is toned) */
+    unsigned int carry_entry;           /* the village's carried-item draw: thiscall(record, ...) */
+    unsigned int carry_item;            /* the record's carried item: -1 none, 3 the baby */
+    unsigned int detail_draw;           /* the Details figures' draw: thiscall(sheet, x, y, cell, scale, 0) */
+    unsigned int detail_sites[6];
 } st_draws;
+
+#define ST_CARRY ST_SHEETS              /* the toned sheets' number for carrying.png */
+#define ST_BABY_CELL 3
+#define ST_MANAGER_CARRYING 0x24u       /* the sprite manager's carrying sheet (VV4 0x465F70 loads id 0x100 there) */
 
 /* A sheet description (the game's own: The Secret City's resource table 0x4A95A0, read by its cache 0x42E750;
    the registries VV4 0x44C9B0 / VV5 0x44F870): +4 the name, +8 columns, +0xC rows, +0x10 the extension,
@@ -463,27 +526,35 @@ static const st_draws VV3_DRAWS = {
 static const st_draws VV4_DRAWS = {
     0x470C5Cu, 0x40ABA0u, 0x40AB10u, 0x4C3B88u, 0u, { 0 }, 0x70u, 1, 0x44EA00u, 0x44E960u,
     { 0x467F36u, 0x45F6BAu, 0x45F99Cu }, { 0x4681C7u, 0x45F616u, 0x45F917u },
+    0x4C37C8u, 0x466770u, 0x1CDCu, 0x409AD0u,
+    { 0x45F75Eu, 0x45F787u, 0x45F7AFu, 0x45FA4Eu, 0x45FA73u, 0x45FA99u },
 };
 static const st_draws VV5_DRAWS = {
     0x47BBDCu, 0x40B0A0u, 0x40B010u, 0x4D1DA8u, 0u, { 0 }, 0x70u, 1, 0x451DA0u, 0x451D00u,
     { 0x47233Bu, 0x466DB7u, 0x4670CCu }, { 0x472683u, 0x466D17u, 0x467047u },
+    0x4D1A78u, 0x4701C0u, 0x1D0Cu, 0x409D00u,
+    { 0x466E81u, 0x466EAAu, 0x466ED3u, 0x46717Eu, 0x4671A3u, 0x4671C9u },
 };
 #define VV3_VILLAGE_DRAW 0x42E5E0u      /* fild dword [esp+8]; push ebx  (5 bytes), then 0x42E5E5 */
 #define VV3_DRAW_THUNK 0x409FB0u        /* mov ecx, [ecx]; jmp 0x4093A0  (7 bytes) */
 #define VV3_DRAW_ENTRY 0x4093A0u
 
 static const st_draws *g_draws;
-static void *g_toned[VVFP_SKIN_TONE_COUNT + 1][ST_SHEETS];
-static unsigned char g_toned_tried[VVFP_SKIN_TONE_COUNT + 1][ST_SHEETS];
-static char g_toned_name[VVFP_SKIN_TONE_COUNT + 1][ST_SHEETS][64];
+static void *g_toned[VVFP_SKIN_TONE_COUNT + 1][ST_SHEETS + 1];
+static unsigned char g_toned_tried[VVFP_SKIN_TONE_COUNT + 1][ST_SHEETS + 1];
+static char g_toned_name[VVFP_SKIN_TONE_COUNT + 1][ST_SHEETS + 1][64];
 
+/* The game's description of sheet `k`: one of the eight villager sheets, or ST_CARRY. */
 static const unsigned int *st_sheet_desc(int k) {
+    if (k == ST_CARRY) {
+        return (const unsigned int *)(UINT_PTR)g_draws->carry_desc;
+    }
     return (const unsigned int *)(UINT_PTR)(g_draws->sheets + (unsigned int)k * 0x30u);
 }
 
 /* The game's own loaded sheet number `k`. */
 static void *st_own_sheet(int k) {
-    if (g_draws->slots != 0) {
+    if (g_draws->slots != 0 && k != ST_CARRY) {
         return *(void **)(UINT_PTR)(g_draws->slots + g_draws->slot_at[k]);
     }
     return (void *)(UINT_PTR)st_sheet_desc(k)[11];
@@ -507,20 +578,28 @@ static int st_picture_there(const char *name, const char *suffix) {
     return attrs != INVALID_FILE_ATTRIBUTES && (attrs & FILE_ATTRIBUTE_DIRECTORY) == 0;
 }
 
-/* The sheet of `tone` (1..COUNT) for the game's sheet number `k` (0..7), or NULL when it is not all there
+/* The sheet of `tone` (1..COUNT) for the game's sheet number `k` (0..7, ST_CARRY), or NULL when it is not all there
    (tried once: a picture added while the game runs shows after a restart). */
 static void *st_toned_sheet(int tone, int k) {
     const unsigned int *desc = st_sheet_desc(k);
-    const char *own = (const char *)(UINT_PTR)desc[1];
-    const char *ext = (const char *)(UINT_PTR)desc[4];
+    const char *own, *ext;
     char *name = g_toned_name[tone][k];
-    unsigned int across = desc[5], down = desc[6], cols = desc[2], rows = desc[3], a, d;
+    unsigned int across, down, cols, rows, a, d;
     unsigned int alloc = g_draws->alloc, ctor, bytes = g_draws->object_bytes, i;
     unsigned int *obj;
     if (g_toned_tried[tone][k]) {
         return g_toned[tone][k];
     }
     g_toned_tried[tone][k] = 1;
+    if (desc == NULL) {
+        return NULL;
+    }
+    own = (const char *)(UINT_PTR)desc[1];
+    ext = (const char *)(UINT_PTR)desc[4];
+    across = desc[5];
+    down = desc[6];
+    cols = desc[2];
+    rows = desc[3];
     if (own == NULL || lstrlenA(own) > 40 || cols == 0 || rows == 0) {
         return NULL;
     }
@@ -687,14 +766,132 @@ static __declspec(naked) void st_vv3_thunk_stub(void) {
     }
 }
 
+/* ---- the held baby -------------------------------------------------------------------------------- */
+
+static const unsigned char *g_carry_rec;
+static unsigned int g_carry_manager, g_carry_ret, g_carry_resume, g_carry_after, g_detail_call;
+static void *g_carry_saved;
+static int g_carry_swapped, g_detail_cell;
+
+/* The tone's copy of carrying.png for the baby `carrier` holds, or NULL for the game's own. */
+static void *st_carry_sheet(const unsigned char *carrier) {
+    int tone;
+    if (g_draws == NULL || g_draws->carry_desc == 0) {
+        return NULL;
+    }
+    tone = st_held(carrier);
+    return tone == 0 ? NULL : st_toned_sheet(tone, ST_CARRY);
+}
+
+/* The carried-item draw entered for g_carry_rec on the manager g_carry_manager: when it is holding the baby,
+   the manager's carrying sheet is the baby's tone's copy until the draw returns (st_carry_end). */
+static void __cdecl st_carry_begin(void) {
+    void **slot;
+    void *own, *sheet;
+    g_carry_swapped = 0;
+    if (g_draws == NULL || g_draws->carry_desc == 0 || g_carry_rec == NULL || g_carry_manager == 0
+        || *(const int *)(g_carry_rec + g_draws->carry_item) != ST_BABY_CELL) {
+        return;
+    }
+    slot = (void **)(UINT_PTR)(g_carry_manager + ST_MANAGER_CARRYING);
+    own = st_own_sheet(ST_CARRY);
+    if (own == NULL || *slot != own) {
+        return;
+    }
+    sheet = st_carry_sheet(g_carry_rec);
+    if (sheet == NULL) {
+        return;
+    }
+    g_carry_saved = own;
+    *slot = sheet;
+    g_carry_swapped = 1;
+}
+
+static void __cdecl st_carry_end(void) {
+    if (g_carry_swapped) {
+        *(void **)(UINT_PTR)(g_carry_manager + ST_MANAGER_CARRYING) = g_carry_saved;
+        g_carry_swapped = 0;
+    }
+}
+
+/* The Details figures' draw of a cell: the sheet (*g_swap_out) is the baby's tone's copy when it is the
+   game's own carrying sheet and the cell is the baby. */
+static void __cdecl st_detail_swap(void) {
+    void *sheet;
+    if (g_draws == NULL || g_draws->carry_desc == 0 || g_detail_cell != ST_BABY_CELL || g_swap_out == NULL
+        || *g_swap_out == NULL || *g_swap_out != st_own_sheet(ST_CARRY)) {
+        return;
+    }
+    sheet = st_carry_sheet(g_swap_rec);
+    if (sheet != NULL) {
+        *g_swap_out = sheet;
+    }
+}
+
+/* The entry of the carried-item draw (its own first two instructions: mov eax, [esp+4]; push esi).  When the
+   sheet was changed, the draw returns here first (st_carry_after_stub) to put it back. */
+static __declspec(naked) void st_carry_entry_stub(void) {
+    __asm {
+        pushfd
+        pushad
+        mov  eax, [esp + 0x28]              ; the record: the first argument, past the registers, flags, return
+        mov  g_carry_rec, eax
+        mov  g_carry_manager, ecx
+        call st_carry_begin
+        popad
+        popfd
+        cmp  g_carry_swapped, 0
+        je   own_return
+        pop  eax                            ; the caller's return address: kept, the draw returns to us
+        mov  g_carry_ret, eax
+        push dword ptr [g_carry_after]
+    own_return:
+        mov  eax, [esp + 4]
+        push esi
+        jmp  dword ptr [g_carry_resume]
+    }
+}
+
+static __declspec(naked) void st_carry_after_stub(void) {
+    __asm {
+        push eax
+        push ecx
+        push edx
+        call st_carry_end
+        pop  edx
+        pop  ecx
+        pop  eax
+        jmp  dword ptr [g_carry_ret]
+    }
+}
+
+/* A Details figure's `call` of the draw: the sheet is the first argument, the cell the fourth, ESI the
+   record.  Every register and the flags are as the game had them when the draw is entered. */
+static __declspec(naked) void st_detail_stub(void) {
+    __asm {
+        pushfd
+        pushad
+        lea  eax, [esp + 0x28]              ; the sheet: past the registers, the flags and the return address
+        mov  g_swap_out, eax
+        mov  g_swap_rec, esi
+        mov  eax, [esp + 0x34]              ; the cell
+        mov  g_detail_cell, eax
+        call st_detail_swap
+        popad
+        popfd
+        jmp  dword ptr [g_detail_call]
+    }
+}
+
 static int g_drawn;
 
 /* Every site must hold the game's own bytes; then all of a game's sites are written, or none. */
 static void st_install_draws(const st_draws *draws) {
     static const unsigned char VILLAGE_STOCK[5] = { 0xDB, 0x44, 0x24, 0x08, 0x53 };
     static const unsigned char THUNK_STOCK[7] = { 0x8B, 0x09, 0xE9, 0xE9, 0xF3, 0xFF, 0xFF };
-    vvfp_site_write w[6];
-    unsigned char stock[6][5];
+    static const unsigned char CARRY_STOCK[5] = { 0x8B, 0x44, 0x24, 0x04, 0x56 };  /* mov eax, [esp+4]; push esi */
+    vvfp_site_write w[13];
+    unsigned char stock[12][5];
     int i;
     g_draws = draws;
     if (draws == &VV3_DRAWS) {
@@ -712,7 +909,19 @@ static void st_install_draws(const st_draws *draws) {
         memcpy(stock[i] + 1, &rel, 4);
         vvfp_site_branch(&w[i], va, 5, stock[i], 0xE8, (const void *)(i < 3 ? st_head_stub : st_body_stub));
     }
-    g_drawn = vvfp_install_sites(w, 6);
+    /* The held baby: the carried-item draw's entry and the Details figures' six draws of cell 3. */
+    g_carry_resume = draws->carry_entry + 5u;
+    g_carry_after = (unsigned int)(UINT_PTR)st_carry_after_stub;
+    g_detail_call = draws->detail_draw;
+    vvfp_site_branch(&w[6], draws->carry_entry, 5, CARRY_STOCK, 0xE9, (const void *)st_carry_entry_stub);
+    for (i = 0; i < 6; ++i) {
+        unsigned int va = draws->detail_sites[i];
+        unsigned int rel = draws->detail_draw - (va + 5u);
+        stock[6 + i][0] = 0xE8;
+        memcpy(stock[6 + i] + 1, &rel, 4);
+        vvfp_site_branch(&w[7 + i], va, 5, stock[6 + i], 0xE8, (const void *)st_detail_stub);
+    }
+    g_drawn = vvfp_install_sites(w, 13);
 }
 #else
 static int g_drawn;
@@ -903,6 +1112,15 @@ int __stdcall VvfpSkinTonePending(int game, const void *mother) {
     }
     tone = ST_BABY(g_look[i]);
     return tone >= 1 && tone <= VVFP_SKIN_TONE_COUNT ? tone : 0;
+}
+
+/* The tone the baby `carrier` holds is drawn with (st_held: chosen and kept the first time it is seen when
+   no conception kept one): 1..COUNT, or 0 for the game's own art. */
+int __stdcall VvfpSkinToneHeld(int game, const void *carrier) {
+    if (game != g_game || g_game == 0) {
+        return 0;
+    }
+    return st_held((const unsigned char *)carrier);
 }
 
 /* A BIRTH, told at once (A New Home's records name no parents, so there this is the only way a newborn

@@ -45,11 +45,22 @@ GAMES_OWN = 15
 DRAWS = {
     4: dict(alloc=0x470C5C, grid=0x40ABA0, one=0x40AB10, sheets=0x4C3B88, table=0x4E00E0,
             head=0x44EA00, body=0x44E960, head_sites=(0x467F36, 0x45F6BA, 0x45F99C),
-            body_sites=(0x4681C7, 0x45F616, 0x45F917), not_sites=(0x43D00F, 0x43CF8C)),
+            body_sites=(0x4681C7, 0x45F616, 0x45F917), not_sites=(0x43D00F, 0x43CF8C),
+            carry_desc=0x4C37C8, carry_rows=6, carry_entry=0x466770, carry_item=0x1CDC, carry_draw=0x44C640,
+            carry_args=3, carry_return=0x4680D7, detail=0x409AD0,
+            detail_sites=(0x45F75E, 0x45F787, 0x45F7AF, 0x45FA4E, 0x45FA73, 0x45FA99)),
     5: dict(alloc=0x47BBDC, grid=0x40B0A0, one=0x40B010, sheets=0x4D1DA8, table=0x5258B8,
             head=0x451DA0, body=0x451D00, head_sites=(0x47233B, 0x466DB7, 0x4670CC),
-            body_sites=(0x472683, 0x466D17, 0x467047), not_sites=(0x43F8DF, 0x43F85C)),
+            body_sites=(0x472683, 0x466D17, 0x467047), not_sites=(0x43F8DF, 0x43F85C),
+            carry_desc=0x4D1A78, carry_rows=7, carry_entry=0x4701C0, carry_item=0x1D0C, carry_draw=0x44F380,
+            carry_args=4, carry_return=0x472551, detail=0x409D00,
+            detail_sites=(0x466E81, 0x466EAA, 0x466ED3, 0x46717E, 0x4671A3, 0x4671C9)),
 }
+CARRY_STOCK = bytes.fromhex("8b44240456")       # the carried-item draw's entry: mov eax, [esp+4]; push esi
+CARRYING = 0x1C4C                               # pregnant or nursing (The Tree of Life and New Believers)
+LITTER = 0x1C50
+BABY = 3                                        # the baby's cell on carrying.png, and the carried item
+CLOTH_SACKS_SITE = 0x4667B4                     # "VVFP Cloth Sacks.dll"'s: never ours
 SHEETS = ("female_heads", "female_bodies", "female_actions", "male_heads", "male_bodies", "male_actions",
           "bigheads", "bigbodies.png")
 # files across, down; columns, rows -- the game's own descriptions (checked in test_the_sheet_descriptions).
@@ -74,10 +85,19 @@ class Draws:
             sheet = p.alloc(0x40)
             p.put32(self.d["sheets"] + k * 0x30 + 0x2C, sheet)
             self.own.append(sheet)
+        self.own_carrying = p.alloc(0x40)       # carrying.png, as the registry holds it
+        p.put32(self.d["carry_desc"] + 0x2C, self.own_carrying)
+        self.manager = p.alloc(0x40)            # the sprite manager: +0x24 carrying.png, +0x28 the other items
+        self.other_items = p.alloc(0x40)
+        p.put32(self.manager + 0x24, self.own_carrying)
+        p.put32(self.manager + 0x28, self.other_items)
         self.fetched, self.built, self.fail_load = [], [], False
+        self.drawn = []
         self.next_sheet = self.own[3]
         p.stub(self.d["head"], lambda p: self._fetch(p, 5, 0x1C))
         p.stub(self.d["body"], lambda p: self._fetch(p, 6, 0x20))
+        p.stub(self.d["carry_draw"], self._world_draw)
+        p.stub(self.d["detail"], self._detail_draw)
         p.stub(self.d["alloc"], lambda p: (p.alloc(0x70), 0))
         p.stub(self.d["grid"], lambda p: self._construct(p, 6))
         p.stub(self.d["one"], lambda p: self._construct(p, 3))
@@ -104,6 +124,79 @@ class Draws:
         self.built.append((name,) + ((p.cstring(args[1]),) + tuple(args[2:]) if count == 6 else tuple(args[1:])))
         p.put32(obj + 0x10, 0 if self.fail_load else 40)       # the cell width: 0 after a load that failed
         return obj, 4 * count
+
+    def _world_draw(self, p):
+        """The world draw the carried item calls: thiscall(sheet, x, y, cell, alpha)."""
+        self.drawn.append((p.arg(0), p.arg(3), p.u32(self.manager + 0x24), p.reg("ecx")))
+        return 0, 0x14
+
+    def _detail_draw(self, p):
+        """The Details figures' draw: thiscall(sheet, x, y, cell, scale, 0)."""
+        self.drawn.append((p.arg(0), p.arg(3), [p.arg(i) for i in range(1, 6)], p.reg("ecx")))
+        return 0, 0x18
+
+    def carrying_picture(self, tone: int) -> None:
+        self.g.disk.files[(self.images + f"vvfp_skin_{tone:02d}_carrying.png").lower()] = b"png"
+
+    def carrier(self, tone: int, i: int = 3, conceived: bool = True, carrying: int = 1, litter: int = 1):
+        """A villager of `tone` holding the baby (the carried item 3); (record, the baby's tone kept at a
+        conception, or 0 when `conceived` is False)."""
+        record = self.villager(tone, i)
+        p = self.p
+        p.put32(record + CARRYING, carrying)
+        p.put32(record + LITTER, litter)
+        p.put32(record + self.d["carry_item"], BABY)
+        held = 0
+        if conceived:
+            self.g.later()
+            held = p.export("VvfpSkinToneConceived", self.game, record, 0)
+            assert 1 <= held <= 10
+        return record, held
+
+    def carry(self, record: int, item: int | None = None) -> list:
+        """The village's carried-item draw entered for `record`; (sheet, cell) of each of its draws."""
+        p, d = self.p, self.d
+        if item is not None:
+            p.put32(record + d["carry_item"], item)
+        esp = STACK_TOP - 0x4000
+        args = [record, 120, 212, 0x3F800000][:d["carry_args"]]
+        p.put32(esp, d["carry_return"])
+        for i, value in enumerate(args):
+            p.put32(esp + 4 + 4 * i, value)
+        self.drawn.clear()
+        self.g.later()
+        for name, value in (("esp", esp), ("ecx", self.manager), ("esi", 0x11111111), ("ebx", 0x22222222),
+                            ("edi", 0x33333333), ("ebp", 0x44444444)):
+            p.set_reg(name, value)
+        p.run(d["carry_entry"], d["carry_return"])
+        assert p.reg("esp") == esp + 4 + 4 * len(args), "the draw's arguments were not popped once"
+        assert (p.reg("esi"), p.reg("ebx"), p.reg("edi"), p.reg("ebp")) == (0x11111111, 0x22222222, 0x33333333,
+                                                                          0x44444444)
+        assert p.u32(self.manager + 0x24) == self.own_carrying, "the manager's carrying sheet was not put back"
+        for sheet, _, then, ecx in self.drawn:
+            assert ecx == 0x4DB9F8 if self.game == 4 else ecx == 0x521078
+            assert then == sheet or sheet == self.other_items
+        return [(sheet, cell) for sheet, cell, _, _ in self.drawn]
+
+    def detail(self, site: int, record: int, sheet: int, cell: int = BABY) -> int:
+        """A Details figure's `call` of the draw as the game reaches it; the sheet the draw then got."""
+        p = self.p
+        esp = STACK_TOP - 0x4000
+        args = [sheet, 30, 40, cell, 0xC8, 0]
+        for i, value in enumerate(args):
+            p.put32(esp + 4 * i, value)
+        self.drawn.clear()
+        self.g.later()
+        for name, value in (("esp", esp), ("esi", record), ("ecx", 0x0C0C0C0C), ("ebx", 0x11111111),
+                            ("edi", 0x22222222), ("ebp", 0x33333333)):
+            p.set_reg(name, value)
+        p.run(site, site + 5)
+        assert p.reg("esp") == esp + 0x18, "the draw's arguments were not popped once"
+        assert (p.reg("esi"), p.reg("ebx"), p.reg("edi"), p.reg("ebp")) == (record, 0x11111111, 0x22222222, 0x33333333)
+        assert len(self.drawn) == 1
+        got, got_cell, rest, ecx = self.drawn[0]
+        assert ecx == 0x0C0C0C0C and got_cell == cell and rest == args[1:], "the draw's own arguments changed"
+        return got
 
     def picture(self, tone: int, k: int, missing: int = -1) -> None:
         """Every file of tone `tone`'s copy of sheet `k` on the disk (but number `missing`)."""
@@ -155,13 +248,44 @@ class _Base:
     def stock_call(self, va: int, target: int) -> bytes:
         return b"\xE8" + struct.pack("<i", target - (va + 5))
 
+    def all_sites(self):
+        """Every site of the game: (va, its stock five bytes, the opcode written there)."""
+        d = DRAWS[self.GAME]
+        calls = self.sites() + [(va, d["detail"]) for va in d["detail_sites"]]
+        return [(va, self.stock_call(va, target), b"\xE8") for va, target in calls] + [
+            (d["carry_entry"], CARRY_STOCK, b"\xE9")]
+
     def test_the_sites_are_the_games_own_calls(self):
         pe = pefile.PE(data=stock_exe(self.GAME))
         image, base = pe.get_memory_mapped_image(), pe.OPTIONAL_HEADER.ImageBase
         d = DRAWS[self.GAME]
-        for va, target in self.sites() + [(d["not_sites"][0], d["head"]), (d["not_sites"][1], d["body"])]:
+        for va, stock, _ in self.all_sites() + [(d["not_sites"][0], self.stock_call(d["not_sites"][0], d["head"]), 0),
+                                                (d["not_sites"][1], self.stock_call(d["not_sites"][1], d["body"]), 0)]:
             with self.subTest(site=hex(va)):
-                self.assertEqual(image[va - base:va - base + 5], self.stock_call(va, target))
+                self.assertEqual(image[va - base:va - base + 5], stock)
+
+    def test_the_carried_item_and_the_details_baby(self):
+        """The carried-item draw reads the item at the record's carry field and draws an item below 0x50 (VV4
+        0x46) from the manager's +0x24 sheet with the item as the cell, any twin or triplet again by the
+        litter; each Details block is gated by the carrying field and draws cell 3 from the same sheet."""
+        pe = pefile.PE(data=stock_exe(self.GAME))
+        image, base = pe.get_memory_mapped_image(), pe.OPTIONAL_HEADER.ImageBase
+        d = DRAWS[self.GAME]
+        entry = image[d["carry_entry"] - base:d["carry_entry"] - base + 0xA0]
+        self.assertEqual(entry[5:11], b"\x8b\xb0" + struct.pack("<I", d["carry_item"]), "mov esi, [eax + item]")
+        self.assertEqual(entry.count(b"\x8b\x47\x24") + entry.count(b"\x8b\x57\x24") + entry.count(b"\x8b\x4f\x24"), 3,
+                         "three reads of the manager's +0x24 sheet")
+        self.assertEqual(entry.count(b"\x83\xb9" + struct.pack("<I", LITTER)) + entry.count(b"\x83\xb8" + struct.pack("<I", LITTER)), 2)
+        global_sheet = {4: 0x50E58C, 5: 0x55416C}[self.GAME]
+        for va in d["detail_sites"]:
+            block = image[va - base - 0x30:va - base]
+            with self.subTest(site=hex(va)):
+                self.assertIn(b"\x6a\x03", block, "cell 3")
+                self.assertIn(struct.pack("<I", global_sheet), block, "the manager's carrying sheet")
+        # carrying.png's description: one file, 13 columns.
+        fields = struct.unpack_from("<12I", image, d["carry_desc"] - base)
+        name = image[fields[1] - base:fields[1] - base + 16].split(b"\0")[0]
+        self.assertEqual((name, fields[2], fields[3], fields[5]), (b"carrying.png", 13, d["carry_rows"], 0))
 
     def test_the_sheet_descriptions(self):
         pe = pefile.PE(data=stock_exe(self.GAME))
@@ -176,16 +300,19 @@ class _Base:
     def test_installs_every_site(self):
         t = Draws(self.GAME)
         self.assertEqual(t.p.export("VvfpSkinToneDrawn", self.GAME), 1)
-        for va, target in self.sites():
+        for va, stock, opcode in self.all_sites():
             with self.subTest(site=hex(va)):
                 now = t.p.read(va, 5)
-                self.assertEqual(now[:1], b"\xE8")
-                self.assertNotEqual(now, self.stock_call(va, target))
+                self.assertEqual(now[:1], opcode)
+                self.assertNotEqual(now, stock)
         for va, target in zip(DRAWS[self.GAME]["not_sites"], (DRAWS[self.GAME]["head"], DRAWS[self.GAME]["body"])):
             self.assertEqual(t.p.read(va, 5), self.stock_call(va, target), "the memorial list is left alone")
+        if self.GAME == 4:
+            self.assertEqual(t.p.read(CLOTH_SACKS_SITE, 5), self.stock_call(CLOTH_SACKS_SITE, DRAWS[4]["carry_draw"]),
+                             "the Cloth Sacks' carried-item call is left alone")
 
     def test_all_or_nothing(self):
-        for va, _ in self.sites():
+        for va, _, _ in self.all_sites():
             for k in (0, 4):
                 exe = bytearray(stock_exe(self.GAME))
                 pe = pefile.PE(data=bytes(exe))
@@ -193,16 +320,100 @@ class _Base:
                 t = Draws(self.GAME, bytes(exe))
                 with self.subTest(site=hex(va), byte=k):
                     self.assertEqual(t.p.export("VvfpSkinToneDrawn", self.GAME), 0)
-                    for other, target in self.sites():
+                    for other, stock, _ in self.all_sites():
                         if other != va:
-                            self.assertEqual(t.p.read(other, 5), self.stock_call(other, target))
+                            self.assertEqual(t.p.read(other, 5), stock)
 
     def test_another_game_installs_nothing(self):
         t = Draws(self.GAME, start=False)
         t.p.export("VvfpStartup", 3, 0)
         self.assertEqual(t.p.export("VvfpSkinToneDrawn", self.GAME), 0)
-        for va, target in self.sites():
-            self.assertEqual(t.p.read(va, 5), self.stock_call(va, target))
+        for va, stock, _ in self.all_sites():
+            self.assertEqual(t.p.read(va, 5), stock)
+
+    # ---- the held baby ----------------------------------------------------------------------------
+
+    def test_the_held_baby_is_drawn_in_its_own_tone_in_the_village(self):
+        t = Draws(self.GAME)
+        for tone in range(1, 11):
+            t.carrying_picture(tone)
+        record, held = t.carrier(2, litter=3)
+        drawn = t.carry(record)
+        self.assertEqual(len(drawn), 3, "the baby and two more of the litter")
+        sheets = {sheet for sheet, _ in drawn}
+        self.assertEqual(len(sheets), 1, "triplets are alike")
+        self.assertNotIn(t.own_carrying, sheets)
+        self.assertEqual([cell for _, cell in drawn], [BABY] * 3)
+        self.assertEqual(t.built, [(f"vvfp_skin_{held:02d}_carrying.png", 13, DRAWS[self.GAME]["carry_rows"])],
+                         "the baby's own tone (not the carrier's), built once by the game's own description")
+        self.assertEqual(t.carry(record), drawn, "the same sheet every time")
+        self.assertEqual(len(t.built), 1)
+
+    def test_the_held_baby_is_drawn_in_its_own_tone_in_the_details(self):
+        t = Draws(self.GAME)
+        for tone in range(1, 11):
+            t.carrying_picture(tone)
+        record, held = t.carrier(9)
+        seen = set()
+        for site in DRAWS[self.GAME]["detail_sites"]:
+            with self.subTest(site=hex(site)):
+                got = t.detail(site, record, t.own_carrying)
+                self.assertNotEqual(got, t.own_carrying)
+                seen.add(got)
+                other = t.p.alloc(0x40)
+                self.assertEqual(t.detail(site, record, other), other, "a sheet that is not carrying.png")
+                self.assertEqual(t.detail(site, record, t.own_carrying, cell=4), t.own_carrying, "a cell that is no baby")
+        self.assertEqual(len(seen), 1)
+        self.assertEqual(t.built, [(f"vvfp_skin_{held:02d}_carrying.png", 13, DRAWS[self.GAME]["carry_rows"])])
+        village = t.carry(record)
+        self.assertEqual(village[0][0], seen.pop(), "the village and the Details: the same baby")
+
+    def test_the_held_baby_is_chosen_on_first_sight(self):
+        t = Draws(self.GAME)
+        for tone in range(1, 11):
+            t.carrying_picture(tone)
+        record, _ = t.carrier(6, conceived=False, litter=2)
+        self.assertEqual(t.p.export("VvfpSkinTonePending", self.GAME, record), 0)
+        drawn = t.carry(record)
+        held = t.p.export("VvfpSkinTonePending", self.GAME, record)
+        self.assertTrue(1 <= held <= 10, "chosen and kept")
+        self.assertEqual(len({sheet for sheet, _ in drawn}), 1, "twins are alike")
+        self.assertEqual(t.built, [(f"vvfp_skin_{held:02d}_carrying.png", 13, DRAWS[self.GAME]["carry_rows"])])
+        self.assertEqual(t.p.export("VvfpSkinToneGet", self.GAME, record), 6, "the carrier's own tone is untouched")
+        self.assertEqual(t.carry(record), drawn)
+        self.assertEqual(t.p.export("VvfpSkinTonePending", self.GAME, record), held, "chosen once")
+
+    def test_the_games_own_carrying_otherwise(self):
+        t = Draws(self.GAME)
+        record, held = t.carrier(4)
+        self.assertEqual(t.carry(record), [(t.own_carrying, BABY)], "no picture of the baby's tone")
+        self.assertEqual(t.detail(DRAWS[self.GAME]["detail_sites"][0], record, t.own_carrying), t.own_carrying)
+        t2 = Draws(self.GAME)
+        for tone in range(1, 11):
+            t2.carrying_picture(tone)
+        fruit, _ = t2.carrier(5, i=4, conceived=False, carrying=0)
+        self.assertEqual(t2.carry(fruit, item=7), [(t2.own_carrying, 7)], "a carried item that is no baby")
+        self.assertEqual(t2.carry(fruit, item=BABY), [(t2.own_carrying, BABY)],
+                         "item 3 with no baby's tone kept and nobody pregnant or nursing: nothing is chosen")
+        self.assertEqual(t2.p.export("VvfpSkinTonePending", self.GAME, fruit), 0)
+        item = 0x50 if self.GAME == 5 else 0x46
+        self.assertEqual(t2.carry(fruit, item=item), [(t2.other_items, 0)], "the other items' sheet")
+        nobody = t2.g.record(40)
+        t2.p.put32(nobody + DRAWS[self.GAME]["carry_item"], BABY)
+        t2.p.put32(nobody + CARRYING, 1)
+        self.assertEqual(t2.carry(nobody), [(t2.own_carrying, BABY)], "a record nobody holds")
+        self.assertEqual(t2.built, [])
+
+    def test_a_carrying_load_that_fails_keeps_the_games_own(self):
+        t = Draws(self.GAME)
+        for tone in range(1, 11):
+            t.carrying_picture(tone)
+        record, _ = t.carrier(3)
+        t.fail_load = True
+        self.assertEqual(t.carry(record), [(t.own_carrying, BABY)])
+        t.fail_load = False
+        self.assertEqual(t.carry(record), [(t.own_carrying, BABY)], "tried once, not again in this session")
+        self.assertEqual(len(t.built), 1)
 
     def test_a_villager_with_a_tone_is_drawn_from_that_tones_sheet(self):
         t = Draws(self.GAME)
@@ -289,6 +500,11 @@ class _Base:
                 self.assertNotIn(t.draw(d["head_sites"][0], record, t.own[0]), t.own)
                 self.assertNotIn(t.draw(d["body_sites"][0], record, t.own[1]), t.own)
                 self.assertEqual(t.draw(d["body_sites"][0], record, t.own[4]), t.own[4])
+                for tone in range(1, 11):
+                    t.carrying_picture(tone)
+                carrier, _ = t.carrier(5, i=5)
+                self.assertNotEqual(t.carry(carrier)[0][0], t.own_carrying)
+                self.assertNotEqual(t.detail(d["detail_sites"][3], carrier, t.own_carrying), t.own_carrying)
 
 
 # ---- The Secret City ------------------------------------------------------------------------------

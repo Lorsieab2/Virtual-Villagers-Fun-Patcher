@@ -1636,7 +1636,9 @@ while the row is ticked) holds the Preferred skin tone: No preference (the
 default: founders, arrivals, villagers made by events or cheats, and villagers
 already there with no tone and no known parents get any tone), or one tone
 that 4 in 5 of those villagers get, the rest one of the other nine. Babies
-always inherit, whatever is chosen. Choosing a tone in Change Appearance is not
+always inherit, whatever is chosen. In The Tree of Life and New Believers the
+baby a villager holds is drawn in the baby's own tone, the one it is born with.
+Choosing a tone in Change Appearance is not
 there yet, and A New Home and The Lost Children do not have the patch yet. Not
 yet seen in a running game.
 
