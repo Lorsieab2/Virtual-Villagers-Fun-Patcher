@@ -393,7 +393,7 @@ class TheWords(unittest.TestCase):
             self.assertEqual(set(mine), {rc.TITLE, rb.TITLE}, game)
             for event in mine.values():
                 self.assertEqual(event.only_with, f"vv{game}_more_island_events")
-                self.assertIn("30-50% chance", event.text)   # a natural event replaced (the owner, 2026-11-15)
+                self.assertIn("has a 50% chance", event.text)   # a natural event replaced (the owner, 2026-11-15)
             text = " ".join(str(s) for s in mine[rc.TITLE].subs)
             self.assertIn("children", text)
             self.assertIn("nursing mothers and fathers", text)

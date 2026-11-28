@@ -1,29 +1,33 @@
 /* Isola Grand Event Collection: when the new island events come.  Included by vvfp_story_upgrades.c after
    story_graph.inc.
 
-   THE OWNER'S RULE (2026-11-15, replacing the separate rare roll between natural events): at each NATURAL island event
-   the game is about to deliver, a chance rolled at random in 30..50 percent each time; on a pass one of the new
-   events comes INSTEAD -- More Island Events'
+   THE OWNER'S RULE (2026-11-15, replacing the separate rare roll between natural events; 2026-11-27 "additional
+   events should replace vanilla ones 50% of the time"): at each NATURAL island event the game is about to deliver, a
+   chance of 50 in 100 (SC_REPLACE_PERCENT, the game's own random routine); on a pass one of the new events comes
+   INSTEAD -- More Island Events'
    (native/vvfp_more_island_events, its "due" paths: mie_pick.inc) and the collection's (the .cieg files and the
    Living Event Engine's pack the patcher puts in "<game folder>\Virtual Villagers Fun Patcher Files\Island Event
    Collection", with manifest.txt) -- and the game's own event does not happen that time.  When no new event can be
    cast, the game's own event comes as always.  NEVER replaced: the village's two opening events (CE_OPENING_EVENTS),
    a rescue event (the trouble guard below holds the game's own rescue rule), and nothing while the village is in
-   trouble.  THE POPULATION GATE: an event that can kill a villager, make one disappear or lose a pregnancy (a kill,
-   vanish, die_unrecovered, birth_then_die or baby_lost effect anywhere in it; More Island Events' by SC_MORE_DEADLY)
-   is drawn only when the village has 61 or more villagers (SC_MIN_POPULATION: the living villagers the game lists,
-   with the babies being carried, as the game's own rescue rule counts its population; New Believers' believers only);
-   every other new event at any population, when its own requirements hold.  No Safeguards for Island Events (and Additional Events too)
-   (island_events_any_time, "for masochists") lifts the gate, the opening-event and rescue rules, the trouble guard and
+   trouble.  THE CASUALTY LIMIT (the owner, 2026-11-27: "all events at any size; below 61 population a max of 1-2
+   villagers can die or disappear to prevent mass casualties"): every new event may come at any population, when its
+   own requirements hold -- but while the village has fewer than 61 villagers (SC_MIN_POPULATION: the living
+   villagers the game lists, with the babies being carried, as the game's own rescue rule counts its population; New
+   Believers' believers only) an event one of whose endings can take more than 2 villagers (SC_MAX_GONE: killed, made
+   to disappear, died unrecovered, or a parent who gives birth and then dies; a lost pregnancy takes none) is left
+   out of the draw (sc_graph_gone below counts it; More Island Events' by SC_MORE_GONE).  No Safeguards for Island
+   Events (and Additional Events too)
+   (island_events_any_time, "for masochists") lifts the limit, the opening-event and rescue rules, the trouble guard and
    the protected villagers (story_graph.inc cg_ns_cast); only the villagers each event needs remain.  Pick Island Event and Custom Island
-   Events (player-chosen) ignore the gate and the chance.  The draw's weights are unchanged.
+   Events (player-chosen) ignore the limit and the chance.  The draw's weights are unchanged.
 
    WHEN.  Every frame (VvfpStoryInstall) the game's clock and its island timer (the second its next island event is
    due) are read.  Once, for each natural time, when it is SC_WINDOW seconds away or less and nothing else is armed or
    on its way (no Pick Island Event or Custom Island Event, no bought island event, no branching event running), and
    in New Believers no God Power is armed (the trigger's own rule): the opening events are past, the village is not
-   in trouble, and the game's own random routine rolls a chance in 30..50 percent and then passes it -- then the draw
-   below arms a new event (below 61 villagers, without the deadly ones).  Its arm makes the island event due as a purchase does (now + 5 seconds; New Believers 0), and
+   in trouble, and the game's own random routine passes the 50 in 100 -- then the draw below arms a new event (below
+   61 villagers, without the ones that can take more than 2 villagers).  Its arm makes the island event due as a purchase does (now + 5 seconds; New Believers 0), and
    the island timer's keeper (native/shared/island_timer_keep.h) keeps the natural time to put back after it.  As
    soon as the keeper has the arm (story_bought_on_its_way), its kept time is set (story_island_arming again, a second
    write: sc_replace_pending) to a NEW natural time after this one, drawn as the game's own trigger draws it (A New
@@ -69,9 +73,10 @@
 #define SC_MAX STORY_TABLE_LIMIT                          /* collection entries of one game: a sanity limit (the
                                                             tables are allocated to the manifest's rows) */
 #define SC_WINDOW 3                                      /* seconds before a natural event: the decision */
-#define SC_REPLACE_PERCENT_MIN 30                        /* a natural event replaced by a new one: a chance */
-#define SC_REPLACE_PERCENT_SPAN 21                       /* ... rolled in 30..50 percent each time */
-#define SC_MIN_POPULATION 61                             /* deadly new events only from this population on */
+#define SC_REPLACE_PERCENT 50                            /* a natural event replaced by a new one: 50 in 100 */
+#define SC_MIN_POPULATION 61                             /* below it the casualty limit holds */
+#define SC_MAX_GONE 2                                    /* ... at most this many villagers taken in one ending */
+#define SC_GONE_MANY 255                                 /* a group with no fixed size: more than any limit */
 #define SC_MIN_GROWN 6                                   /* villagers of 14 or more */
 /* The game's own spacing of its natural island events, in hours (its trigger's write; island_timer_keep.h): the
    next natural time after a replaced one is drawn the same way. */
@@ -342,7 +347,7 @@ __declspec(dllexport) int __stdcall VvfpStoryNewEventPopulation(int game) {
 /* ---- The decision (no game data here: sc_tick reads the game and makes the changes) ------------------------- */
 
 static int sc_step(sc_state *s, const sc_input *in) {
-    int left, chance;
+    int left;
     if (in->counter < 0) {
         s->seen = -1;
         s->decided = 0;
@@ -362,8 +367,7 @@ static int sc_step(sc_state *s, const sc_input *in) {
     if (!in->any_time && sc_trouble(in->game)) {
         return SC_NONE;                /* in trouble: a rescue is never replaced */
     }
-    chance = SC_REPLACE_PERCENT_MIN + sc_rand(in->game, SC_REPLACE_PERCENT_SPAN);   /* 30..50, each time */
-    return sc_rand(in->game, 100) < chance ? SC_ARM : SC_NONE;
+    return sc_rand(in->game, 100) < SC_REPLACE_PERCENT ? SC_ARM : SC_NONE;   /* 50%, each time */
 }
 
 /* ---- The content filters (src/vv_event_content.py) ---------------------------------------------------------- */
@@ -389,9 +393,9 @@ static unsigned int sc_filters_on(int game) {
 }
 
 /* More Island Events' entries in its registry's order (native/vvfp_more_island_events/mie_pick.inc MIE_PICKS): the
-   content filters each one's outcomes touch (SC_MORE_FILTERS) and whether it can kill a villager, make one disappear
-   or lose a pregnancy (SC_MORE_DEADLY, the population gate: tagged F01..F04), both GENERATED from its content tag
-   table (data/event_collection/content_tags/mie.json) by scripts/build_story_more_filters.py, which
+   content filters each one's outcomes touch (SC_MORE_FILTERS), GENERATED from its content tag table
+   (data/event_collection/content_tags/mie.json), and the most villagers one of its endings can take (SC_MORE_GONE,
+   the casualty limit below 61 villagers), from the table in that script, by scripts/build_story_more_filters.py, which
    scripts/build_vvfp_story_upgrades.ps1 runs before every compile. */
 #include "story_more_filters.h"
 
@@ -782,12 +786,12 @@ static int sc_arm_more(int game, int k) {
 }
 
 /* Collection entry `i`, queued by the branching engine as a natural island event (strict cast). */
-/* The draw at a natural event leaves out the deadly events (sc_gate: the village below SC_MIN_POPULATION; set only
-   while that draw runs). */
+/* The draw at a natural event leaves out the events that can take more than SC_MAX_GONE villagers (sc_gate: the
+   village below SC_MIN_POPULATION; set only while that draw runs). */
 static int sc_gate;
 
 /* No Safeguards for Island Events (and Additional Events too) (island_events_any_time in the installed patches' list; the owner, 2026-11-15, "for
-   masochists"): for the new events no 61-villager gate, rescue events and the two opening events may be replaced, no
+   masochists"): for the new events no casualty limit below 61 villagers, rescue events and the two opening events may be replaced, no
    trouble guard -- only the villagers each event needs.  The game's own
    events' conditions are another companion's. */
 static int sc_any_time(int game) {
@@ -803,26 +807,172 @@ __declspec(dllexport) int __stdcall VvfpStoryNoSafeguards(int game) {
            && (sc_drawing || (pick_slot >= 0 && pick_game == game && pick_natural));
 }
 
-/* Whether the compiled event `data` can kill a villager, make one disappear or lose a pregnancy. */
-static int sc_graph_deadly(const unsigned char *data, unsigned int size) {
+/* ---- The casualty limit (the owner, 2026-11-27) -----------------------------------------------------------------
+   Below SC_MIN_POPULATION villagers the natural draw leaves out every event one of whose endings can take more than
+   SC_MAX_GONE villagers -- killed, made to disappear, died with the body never found, or a parent who gives birth
+   and then dies.  A lost pregnancy takes no villager.  THE COUNT, per ending: one path through the event from its
+   first page to an end, every page's effects on it; the distinct villager roles it takes, plus each villager the
+   event made itself (253 / 252, counted every time), plus a group's size (N of a random N; "every child", "every
+   elder" and the like are more than any limit, SC_GONE_MANY).  The event's count is its worst ending.  An alias role
+   counts as a villager of its own beside its members (never fewer than the real ones).  It is decided before the
+   event is chosen, so what an event shows is always what happens. */
+
+/* Whether an effect's code takes its villager for good. */
+static int sc_gone_code(unsigned int code) {
+    return code == CGE_KILL || code == CGE_VANISH || code == CGE_DIE_UNRECOVERED || code == CGE_BIRTH_THEN_DIE;
+}
+
+/* One effect that takes villagers (`role` its role byte, `selector` / `value` a group's): a role's bit in *mask (0..31),
+   else the number added to *extra. */
+static void sc_gone_add(unsigned int role, unsigned int selector, unsigned int value, unsigned int *mask, int *extra) {
+    int n;
+    if (role < 32u && role != CG_ROLE_GROUP) {
+        *mask |= 1u << role;
+        return;
+    }
+    if (role == CG_ROLE_NEWEST || role == CG_ROLE_NEWEST2) {
+        n = 1;                         /* a villager the event made: each time, never merged */
+    } else if (role == CG_ROLE_GROUP && (selector == CG_GROUP_RANDOM || selector == CG_GROUP_HEATHENS_RANDOM)
+               && value >= 1u) {
+        n = (int)value;                /* N of them */
+    } else {
+        n = SC_GONE_MANY;              /* every villager, every child, every elder, ... */
+    }
+    *extra = *extra + n > SC_GONE_MANY ? SC_GONE_MANY : *extra + n;
+}
+
+static int sc_gone_score(unsigned int mask, int extra) {
+    int n = extra;
+    for (; mask != 0u; mask &= mask - 1u) {
+        ++n;
+    }
+    return n > SC_GONE_MANY ? SC_GONE_MANY : n;
+}
+
+#define SC_GONE_STATES 8               /* the endings' sets kept apart per page; past it they are joined (an upper
+                                          bound: every role any of them takes, the most villagers made) */
+typedef struct {
+    unsigned int mask[SC_GONE_STATES];
+    unsigned char extra[SC_GONE_STATES];
+    unsigned char n;
+} sc_gone_set;
+
+/* (mask, extra) into `s`: dropped when another already takes as many or more; past SC_GONE_STATES all joined. */
+static void sc_gone_put(sc_gone_set *s, unsigned int mask, int extra) {
+    int k, j;
+    for (k = 0; k < s->n; ++k) {
+        if ((mask & ~s->mask[k]) == 0u && extra <= s->extra[k]) {
+            return;                    /* covered */
+        }
+    }
+    for (k = j = 0; k < s->n; ++k) {
+        if (!((s->mask[k] & ~mask) == 0u && s->extra[k] <= extra)) {
+            s->mask[j] = s->mask[k];
+            s->extra[j] = s->extra[k];
+            ++j;
+        }
+    }
+    s->n = (unsigned char)j;
+    if (s->n < SC_GONE_STATES) {
+        s->mask[s->n] = mask;
+        s->extra[s->n] = (unsigned char)extra;
+        ++s->n;
+        return;
+    }
+    for (k = 0; k < s->n; ++k) {
+        mask |= s->mask[k];
+        extra = s->extra[k] > extra ? s->extra[k] : extra;
+    }
+    s->mask[0] = mask;
+    s->extra[0] = (unsigned char)extra;
+    s->n = 1;
+}
+
+/* The most villagers one ending of the loaded graph `g` (acyclic: cg_load) can take (0..SC_GONE_MANY). */
+static int sc_graph_gone(const cg_graph *g) {
+    static sc_gone_set set[CG_MAX_NODES];
+    static unsigned short indegree[CG_MAX_NODES], order[CG_MAX_NODES];
+    static int edges[2 * 256 + 2];
+    int i, k, m, j, head = 0, tail = 0, best = 0;
+    if (g->n_node < 1 || g->n_node > CG_MAX_NODES || g->start < 0 || g->start >= g->n_node) {
+        return SC_GONE_MANY;
+    }
+    memset(indegree, 0, sizeof indegree);
+    for (i = 0; i < g->n_node; ++i) {
+        m = cg_edges(g, i, edges);
+        for (k = 0; k < m; ++k) {
+            ++indegree[edges[k]];
+        }
+    }
+    for (i = 0; i < g->n_node; ++i) {
+        if (indegree[i] == 0) {
+            order[tail++] = (unsigned short)i;
+        }
+    }
+    while (head < tail) {
+        i = order[head++];
+        m = cg_edges(g, i, edges);
+        for (k = 0; k < m; ++k) {
+            if (--indegree[edges[k]] == 0) {
+                order[tail++] = (unsigned short)edges[k];
+            }
+        }
+    }
+    if (tail != g->n_node) {
+        return SC_GONE_MANY;           /* a cycle: cg_load never lets one through */
+    }
+    for (j = tail - 1; j >= 0; --j) {  /* the last pages first: each page's endings from its next pages' */
+        const unsigned char *n;
+        unsigned int own = 0u, first, count;
+        int extra = 0;
+        i = order[j];
+        n = cg_node_at(g, i);
+        first = cg_u16(n + 18);
+        count = cg_u16(n + 20);
+        for (k = 0; k < (int)count; ++k) {
+            const unsigned char *e = cg_effect_at(g, (int)(first + (unsigned int)k));
+            if (sc_gone_code(e[0])) {
+                sc_gone_add(e[1], e[3], cg_u16(e + 14), &own, &extra);
+            }
+        }
+        set[i].n = 0;
+        m = cg_edges(g, i, edges);
+        if (m == 0) {
+            sc_gone_put(&set[i], own, extra);
+        }
+        for (k = 0; k < m; ++k) {
+            const sc_gone_set *next = &set[edges[k]];
+            int s;
+            for (s = 0; s < next->n; ++s) {
+                int x = extra + next->extra[s];
+                sc_gone_put(&set[i], own | next->mask[s], x > SC_GONE_MANY ? SC_GONE_MANY : x);
+            }
+        }
+    }
+    for (k = 0; k < set[g->start].n; ++k) {
+        int score = sc_gone_score(set[g->start].mask[k], set[g->start].extra[k]);
+        best = score > best ? score : best;
+    }
+    return best;
+}
+
+/* The most villagers one ending of the compiled event `data` can take; SC_GONE_MANY when it cannot be read. */
+static int sc_cieg_gone(const unsigned char *data, unsigned int size) {
     static unsigned char copy[CG_SHIPPED_FILE];
     static cg_graph g;
-    int k;
     if (size > sizeof copy) {
-        return 1;
+        return SC_GONE_MANY;
     }
     memcpy(copy, data, size);
     if (!cg_load(&g, copy, size)) {
-        return 1;
+        return SC_GONE_MANY;
     }
-    for (k = 0; k < g.n_effect; ++k) {
-        unsigned char code = cg_effect_at(&g, k)[0];
-        if (code == CGE_KILL || code == CGE_VANISH || code == CGE_DIE_UNRECOVERED || code == CGE_BIRTH_THEN_DIE
-            || code == CGE_BABY_LOST) {
-            return 1;
-        }
-    }
-    return 0;
+    return sc_graph_gone(&g);
+}
+
+/* Whether the casualty limit keeps the compiled event `data` out of the natural draw now (sc_gate). */
+static int sc_graph_too_deadly(const unsigned char *data, unsigned int size) {
+    return sc_gate && sc_cieg_gone(data, size) > SC_MAX_GONE;
 }
 
 static int sc_arm_collection(int game, int i) {
@@ -838,7 +988,7 @@ static int sc_arm_collection(int game, int i) {
     if (lv_entry_living(i)) {
         return lv_arm_entry(game, i, CG_ORIGIN_NATURAL, CG_CAST_STRICT);   /* a Living Event Engine seed */
     }
-    return sc_load_entry(i, &size) && !(sc_gate && sc_graph_deadly(sc_bytes, size))
+    return sc_load_entry(i, &size) && !sc_graph_too_deadly(sc_bytes, size)
            && cg_queue_origin(game, sc_bytes, size, CG_ORIGIN_NATURAL, CG_CAST_STRICT);
 }
 
@@ -983,7 +1133,8 @@ static int sc_choose_and_arm(int game) {
         for (i = 0; i < sm_list.count; ++i) {
             int k_more = sm_list.k[i];
             if (sm_list.possible[i] == 1
-                && !(sc_gate && k_more >= 0 && k_more < (int)sizeof SC_MORE_DEADLY && SC_MORE_DEADLY[k_more])) {
+                && !(sc_gate && k_more >= 0 && k_more < (int)sizeof SC_MORE_GONE
+                     && SC_MORE_GONE[k_more] > SC_MAX_GONE)) {
                 more[n_more++] = k_more;
             }
         }
@@ -1070,7 +1221,8 @@ static void sc_apply(int game, int act) {
            island timer's keeper (the game then writes the next natural time itself, as after its own event). */
         sc_replace_pending = game;
         sc_replace_natural = sc.decided_for;
-        /* Below 61 villagers no deadly event is in the draw -- unless No Safeguards for Island Events (and Additional Events too) is installed. */
+        /* Below 61 villagers no event that can take more than 2 villagers in one ending is in the draw -- unless No
+           Safeguards for Island Events (and Additional Events too) is installed. */
         sc_gate = !sc_any_time(game) && sc_population(game) < SC_MIN_POPULATION;
         sc_drawing = 1;
         if (!sc_choose_and_arm(game)) {
@@ -1375,6 +1527,22 @@ __declspec(dllexport) int __stdcall VvfpStoryProbeCollectionChoose(int game, int
 __declspec(dllexport) void __stdcall VvfpStoryProbeCollectionCieg(const unsigned char *data, unsigned int size) {
     sc_test_cieg = data;
     sc_test_cieg_size = size;
+}
+
+/* The most villagers one ending of the compiled event `data` can take (sc_cieg_gone). */
+__declspec(dllexport) int __stdcall VvfpStoryProbeCollectionGone(const unsigned char *data, unsigned int size) {
+    return sc_cieg_gone(data, size);
+}
+
+/* Whether the natural draw in `game` leaves the compiled event `data` out now, the gate set as sc_apply sets it (the
+   population: VvfpStoryProbeCollectionPopulation's forced one, else the village's own). */
+__declspec(dllexport) int __stdcall VvfpStoryProbeCollectionKeptOut(int game, const unsigned char *data,
+                                                                   unsigned int size) {
+    int out;
+    sc_gate = !sc_any_time(game) && sc_population(game) < SC_MIN_POPULATION;
+    out = sc_graph_too_deadly(data, size);
+    sc_gate = 0;
+    return out;
 }
 
 /* The Pick Island Event list's entry `m` as the chooser fills it (sm_fill): its title, what it needs (empty when

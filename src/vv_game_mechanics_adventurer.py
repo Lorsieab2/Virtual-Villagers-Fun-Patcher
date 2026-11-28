@@ -42,28 +42,37 @@ def never_picked(game: int) -> str:
     return (f"Never picked, in any role (the owner's protected villagers): a nursing mother or father, "
             f"{PROTECTED[game]}, and anyone the game's own island events never pick. Everyone else may be picked "
             "(titles, Esteemed Elders who are not statues, founders and the like included).")
-# Story / Cheat Upgrades replaces a natural island event with one of the patcher's events this often, percent, and
-# from this population on: SC_REPLACE_PERCENT and SC_MIN_POPULATION in native/vvfp_story_upgrades/story_collection.inc
-# (tests/test_the_climb.py keeps them equal; the owner, 2026-11-15).
-REPLACE_PERCENT = (30, 50)          # a chance rolled in this range each time (SC_REPLACE_PERCENT_MIN / _SPAN)
-REPLACE_MIN_POPULATION = 61         # the deadly events only from here (SC_MIN_POPULATION)
+# Story / Cheat Upgrades replaces a natural island event with one of the patcher's events this often, percent; below
+# this population an event one of whose endings can take more than REPLACE_MAX_GONE villagers stays out of that draw:
+# SC_REPLACE_PERCENT, SC_MIN_POPULATION and SC_MAX_GONE in native/vvfp_story_upgrades/story_collection.inc
+# (tests/test_more_island_events_stock_odds.py keeps them equal; the owner, 2026-11-15 and 2026-11-27).
+REPLACE_PERCENT = 50                # a flat 50 in 100 each time (SC_REPLACE_PERCENT)
+REPLACE_MIN_POPULATION = 61         # below it the casualty limit holds (SC_MIN_POPULATION)
+REPLACE_MAX_GONE = 2                # ... at most this many villagers killed or made to disappear (SC_MAX_GONE)
+
+
+def casualty_limit_words() -> str:
+    """The casualty limit in plain words (every page and row that states the rule says it this way)."""
+    return (f"Every new event can come at any population, but while the village has fewer than {REPLACE_MIN_POPULATION} "
+            f"villagers an event that can kill or make disappear more than {REPLACE_MAX_GONE} villagers in one of its "
+            "endings is left out (a lost pregnancy counts as no one)")
 
 
 def rare(game: int) -> str:
     """How every More Island Events event comes (the owner, 2026-11-14: the stock island events' chances never
-    change; 2026-11-15: half of the natural events from 61 villagers): never through the game's own draw, only in a
-    natural event's place or through Pick Island Event."""
+    change; 2026-11-15: in a natural event's place; 2026-11-27: half of the natural events, at most 2 villagers
+    taken below 61): never through the game's own draw, only in a natural event's place or through Pick Island
+    Event."""
     return ("it never takes a share of the game's own draw: each natural island event has a "
-            f"{REPLACE_PERCENT[0]}-{REPLACE_PERCENT[1]}% chance (rolled each time) to be one of the patcher's new "
+            f"{REPLACE_PERCENT}% chance to be one of the patcher's new "
             "events instead (Story / Cheat Upgrades; the game's own event then does not come that time, and the game's "
             "own events keep their chances among themselves), never one of the village's two opening events and never while "
             "the village is in trouble (the game's own rescue rule -- a rescue event "
             "is never replaced -- food below 10 a villager, half the village sick, or fewer than 6 villagers of 14 "
             "or more); every new event that can happen then is equally likely (with the Isola Grand Event "
             "Collection installed too, its events are drawn with More Island Events', each as likely as any other), "
-            "and when none can, the game's own event comes; an event that can kill a villager, make one disappear or "
-            f"lose a pregnancy comes only once the village has {REPLACE_MIN_POPULATION} or more villagers; "
-            "Pick Island Event can also pick it")
+            "and when none can, the game's own event comes; " + casualty_limit_words()[0].lower()
+            + casualty_limit_words()[1:] + "; Pick Island Event can also pick it")
 
 
 HOW = {

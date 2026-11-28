@@ -2869,6 +2869,70 @@ def harm_capable(g: dict) -> set[str]:
     return out
 
 
+# The casualty limit below 61 villagers (the owner, 2026-11-27; native/vvfp_story_upgrades/story_collection.inc
+# sc_graph_gone, the engine's count, which tests/test_casualty_limit.py keeps equal to this one): the effects that take
+# a villager for good, and the count of a group with no fixed size ("every villager").  A lost pregnancy takes none.
+GONE_EFFECTS = ("kill", "vanish", "die_unrecovered", "birth_then_die")
+GONE_MANY = 255
+GONE_LIMIT = 2                                # SC_MAX_GONE: below 61 villagers, more than this in one ending stays out
+
+
+def _gone_own(node: dict) -> tuple[frozenset, int]:
+    """The roles one page's effects take, and the villagers counted apart (made by the event, or a group's size)."""
+    roles: set[str] = set()
+    extra = 0
+    for e in node.get("effects") or ():
+        if e.get("do") not in GONE_EFFECTS:
+            continue
+        target = e.get("target")
+        if target:
+            n = target.get("random") if "random" in target else target.get("heathens")
+            extra += n if isinstance(n, int) and not isinstance(n, bool) and n >= 1 else GONE_MANY
+        elif e.get("role") in NEW_ROLES:
+            extra += 1                        # a villager the event made: each time
+        else:
+            roles.add(e.get("role"))
+    return frozenset(roles), min(extra, GONE_MANY)
+
+
+def gone(g: dict) -> int:
+    """The most villagers ONE ending of the graph `g` (a normalized or decompiled graph) can take: one path from its
+    first node to an end, every node's effects on it -- its distinct roles killed, made to disappear, dead with the
+    body never found or dead after giving birth, plus each villager the event made, plus a group's size -- the
+    largest over every path (GONE_MANY when a group has no fixed size)."""
+    nodes = g["nodes"]
+    order: list[str] = []
+    seen: set[str] = set()
+    stack: list[tuple[str, bool]] = [(g["start"], False)]
+    while stack:                              # post-order: every node after the nodes it leads to
+        nid, done = stack.pop()
+        if done:
+            order.append(nid)
+            continue
+        if nid in seen:
+            continue
+        seen.add(nid)
+        stack.append((nid, True))
+        stack.extend((nxt, False) for nxt in _edges(nodes[nid]) if nxt not in seen)
+    ends: dict[str, list[tuple[frozenset, int]]] = {}
+    for nid in order:
+        roles, extra = _gone_own(nodes[nid])
+        nexts = _edges(nodes[nid])
+        cands = [(roles, extra)] if not nexts else \
+            [(roles | r, min(extra + x, GONE_MANY)) for nxt in nexts for r, x in ends[nxt]]
+        kept: list[tuple[frozenset, int]] = []
+        for r, x in sorted(set(cands), key=lambda c: (-len(c[0]) - c[1], sorted(map(str, c[0])))):
+            if not any(r <= r2 and x <= x2 for r2, x2 in kept):
+                kept.append((r, x))
+        ends[nid] = kept
+    return min(GONE_MANY, max(len(r) + x for r, x in ends[g["start"]]))
+
+
+def too_deadly_below_61(g: dict) -> bool:
+    """Whether the natural draw leaves `g` out while the village has fewer than 61 villagers."""
+    return gone(g) > GONE_LIMIT
+
+
 def members_of(roles: dict, rid: str) -> list[str]:
     """The villager roles an alias, or an other role (G2: its alias's), can stand for; [] for the rest."""
     r = roles.get(rid, {})

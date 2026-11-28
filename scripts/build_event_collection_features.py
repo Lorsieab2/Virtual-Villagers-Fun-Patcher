@@ -24,8 +24,8 @@ src/vv_cie_graph.py (validate, then compile_graph) and writes:
   * data/vvN_isola_grand_event_collection_feature.json -- the five rows, pinning every file by SHA-256.
 
 No executable byte, no DLL of its own: Story / Cheat Upgrades (the row's prerequisite) runs the events -- its separate
-choice at a natural island event (half of them, from 61 villagers), Pick Island Event and the in-game library's
-"Isola Grand Event Collection"
+choice at a natural island event (half of them; below 61 villagers none that can take more than 2), Pick Island
+Event and the in-game library's "Isola Grand Event Collection"
 group.  The script works on whatever event files exist (none yet is fine: the rows then ship only the manifest header
 and the credits).
 
@@ -465,10 +465,11 @@ def compile_events(src: Path = DATA, only: set[str] | None = None) -> list[dict]
     return sorted(out, key=lambda e: e["id"])
 
 
-# How the new events come (the owner, 2026-11-15), the plain words every island-event row says.
-PLAIN = ("Each natural island event has a 30-50% chance to be one of these instead (never a rescue event or the "
-         "two opening events). Events that can kill a villager, make one disappear or lose a pregnancy only happen "
-         "once the village has 61 or more villagers. From 61 villagers the food and tech points they give or take "
+# How the new events come (the owner, 2026-11-15 and 2026-11-27), the plain words every island-event row says.
+PLAIN = ("Each natural island event has a 50% chance to be one of these instead (never a rescue event or the "
+         "two opening events). Every event can come at any population, but while the village has fewer than 61 "
+         "villagers an event that can kill or make disappear more than 2 villagers in one of its endings is left "
+         "out (a lost pregnancy counts as no one). From 61 villagers the food and tech points they give or take "
          "come in a random size each time (small, normal, large or huge, in the game's own ranges).")
 
 GUARDIANS = "guardians_of_isola"            # Guardians of Isola Rewrite (New Believers): the engine's patch name
@@ -671,10 +672,10 @@ def row(game: int, files: list[tuple[str, str, bytes]], count: int, living_count
             "Story / Cheat Upgrades (native/vvfp_story_upgrades/story_collection.inc), once for each natural island "
             "event, 3 seconds before it is due with nothing armed or on its way (and no God Power armed in New "
             "Believers): past the two opening events and outside trouble (the stock rescue predicate, little food, "
-            "much sickness, few grown villagers), the game's own random routine rolls a chance in 30..50 percent and "
-            "then passes it, and one new event is armed in the natural one's place; below 61 villagers (the living "
-            "villagers the game lists and the babies being carried; New Believers' believers only) an event that "
-            "can kill, make a villager disappear or lose a pregnancy is left out of the draw (unless No Safeguards "
+            "much sickness, few grown villagers), the game's own random routine passes 50 in 100 (SC_REPLACE_PERCENT), "
+            "and one new event is armed in the natural one's place; below 61 villagers (the living "
+            "villagers the game lists and the babies being carried; New Believers' believers only) an event one of "
+            "whose endings can kill or make disappear more than 2 villagers is left out of the draw (unless No Safeguards "
             "for Island Events (and Additional Events too) is installed). From 61 villagers each food or tech-point effect of a new event takes a random "
             "size (small, normal, large or huge, the game's own ranges; a gain stays a gain, a loss a loss). Every event that can happen "
             "is equally likely, More Island Events' and the collection's alike: one draw over all of them, each "

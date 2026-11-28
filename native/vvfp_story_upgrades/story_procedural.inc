@@ -132,11 +132,6 @@ static int pc_range(unsigned int at, unsigned int count, unsigned int each, unsi
     return at <= size && count <= (size - at) / each;
 }
 
-static int pc_deadly_code(unsigned int code) {
-    return code == CGE_KILL || code == CGE_VANISH || code == CGE_DIE_UNRECOVERED || code == CGE_BIRTH_THEN_DIE
-           || code == CGE_BABY_LOST;
-}
-
 /* `data` checked as a VPCB v1 file for `game` (header, CRC, every table and reference inside it) into pc_f. */
 static int pc_check(const unsigned char *data, unsigned int size) {
     unsigned int i;
@@ -220,23 +215,35 @@ static int pc_check(const unsigned char *data, unsigned int size) {
     return 1;
 }
 
-/* A piece's flags with DEADLY also set by its own effects (the engine never trusts the flag alone). */
-static int pc_deadly(const unsigned char *p) {
-    unsigned int k, first = pc_u32(p + 48), n = pc_u16(p + 52);
-    if (p[6] & PC_F_DEADLY) {
-        return 1;
-    }
+/* The casualty limit below 61 villagers (story_collection.inc, the owner 2026-11-27): one ending of a composed event
+   is its setup, one approach, ONE of that approach's outcomes, and the flavour line and frame -- so an OUTCOME is
+   left out when it alone can take more than SC_MAX_GONE villagers (its distinct slots, a villager it made each
+   time, a group's size: sc_gone_add), and every other piece when it can take any villager or is flagged DEADLY (so
+   an ending never takes more than its outcome does).  A lost pregnancy takes no villager. */
+static int pc_too_deadly(const unsigned char *p) {
+    unsigned int k, first = pc_u32(p + 48), n = pc_u16(p + 52), mask = 0u, slots[2] = { 0u, 0u };
+    int extra = 0, gone;
     for (k = 0; k < n; ++k) {
-        if (pc_deadly_code(pc_effect(first + k)[0])) {
-            return 1;
+        const unsigned char *e = pc_effect(first + k);
+        if (!sc_gone_code(e[0])) {
+            continue;
+        }
+        if (pc_role_kept(e[1])) {
+            sc_gone_add(e[1], e[3], pc_effect_extra(e), &mask, &extra);
+        } else {
+            slots[(e[1] >> 5) & 1u] |= 1u << (e[1] & 31u);   /* a local slot, 0..63 */
         }
     }
-    return 0;
+    gone = sc_gone_score(slots[0], extra) + sc_gone_score(slots[1], 0);
+    if (p[4] != PC_OUTCOME) {
+        return gone > 0 || (p[6] & PC_F_DEADLY) != 0u;
+    }
+    return gone > SC_MAX_GONE;
 }
 
 /* Section 3: a piece the composer may use now in `game`. */
 static int pc_usable(int game, const unsigned char *p, unsigned int filters) {
-    return (p[7] & (1u << (game - 1))) != 0u && (pc_u32(p + 16) & filters) == 0u && !(sc_gate && pc_deadly(p))
+    return (p[7] & (1u << (game - 1))) != 0u && (pc_u32(p + 16) & filters) == 0u && !(sc_gate && pc_too_deadly(p))
            && (game == 5 || !(p[6] & PC_F_BELIEVERS));
 }
 
@@ -1457,7 +1464,7 @@ __declspec(dllexport) void __stdcall VvfpStoryProbeProceduralFile(const unsigned
 }
 
 /* One composition from that file in `game` (the game's own rolls: VvfpStoryProbeSetRolls), the setup `fixed` (-1
-   drawn), `gate` the 61-villager gate, `notes` Content Notes on: the .cieg written into `out` (at most `cap` bytes),
+   drawn), `gate` the casualty limit below 61 villagers, `notes` Content Notes on: the .cieg written into `out` (at most `cap` bytes),
    nothing queued.  Its size, 0 when nothing could be composed. */
 __declspec(dllexport) unsigned int __stdcall VvfpStoryProbeProceduralCompose(int game, int fixed, int gate, int notes,
                                                                              unsigned char *out, unsigned int cap) {

@@ -276,7 +276,7 @@ class TheMechanicsPages(unittest.TestCase):
     Needs no emulator: it reads the pages' own catalogs."""
 
     STALE = ("1 in 23", "1 in m + ", "its own slot", "own place in the draw", "own case in that draw",
-             "drawn like them", "1 in 28 plus")
+             "drawn like them", "1 in 28 plus", "30-50%")
 
     def test_no_event_claims_a_share_of_the_stock_draw(self) -> None:
         sys.path.insert(0, str(ROOT / "src"))
@@ -300,10 +300,14 @@ class TheMechanicsPages(unittest.TestCase):
         sys.path.insert(0, str(ROOT / "src"))
         import vv_game_mechanics_adventurer as gm
         source = (ROOT / "native" / "vvfp_story_upgrades" / "story_collection.inc").read_text(encoding="utf-8")
-        low = int(re.search(r"#define SC_REPLACE_PERCENT_MIN (\d+)", source).group(1))
-        span = int(re.search(r"#define SC_REPLACE_PERCENT_SPAN (\d+)", source).group(1))
+        percent = int(re.search(r"#define SC_REPLACE_PERCENT (\d+)", source).group(1))
         population = int(re.search(r"#define SC_MIN_POPULATION (\d+)", source).group(1))
-        self.assertEqual((gm.REPLACE_PERCENT, gm.REPLACE_MIN_POPULATION), ((low, low + span - 1), population))
+        gone = int(re.search(r"#define SC_MAX_GONE (\d+)", source).group(1))
+        self.assertEqual((gm.REPLACE_PERCENT, gm.REPLACE_MIN_POPULATION, gm.REPLACE_MAX_GONE),
+                         (percent, population, gone))
+        self.assertEqual((percent, population, gone), (50, 61, 2))     # the owner, 2026-11-27
+        self.assertNotIn("SC_REPLACE_PERCENT_MIN", source)             # no chance of its own rolled first any more
+        self.assertIn("sc_rand(in->game, 100) < SC_REPLACE_PERCENT", source)
 
 
 if __name__ == "__main__":

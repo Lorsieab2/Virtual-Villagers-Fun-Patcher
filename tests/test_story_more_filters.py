@@ -12,8 +12,8 @@ scripts/build_vvfp_story_upgrades.ps1 before every compile).  Shown here:
   * the committed header is exactly what the generator writes now, the source includes it and keeps no table of its
     own;
   * the shipped DLL (and the test build) hold that very table;
-  * the population gate's table SC_MORE_DEADLY is generated from the same tags (any of F01..F04), matches every
-    event's real outcomes, and marks The Mysterious Mask deadly (owner, 2026-11-21).
+  * the casualty limit's table SC_MORE_GONE holds each event's real worst ending (the owner, 2026-11-27: at most 2
+    taken in one ending below 61 villagers) and is above 0 exactly when its tags name any of F01..F04.
 """
 from __future__ import annotations
 
@@ -89,30 +89,30 @@ class TheTableMatchesTheTagTable(unittest.TestCase):
         self.assertEqual(table[idx["the_climb"]], bit(3) | bit(5))
 
 
-def shipped_deadly() -> list[int]:
+def shipped_gone() -> list[int]:
     text = HEADER.read_text(encoding="ascii")
-    body = re.search(r"SC_MORE_DEADLY\[\] = \{(.*?)\};", text, re.S).group(1)
+    body = re.search(r"SC_MORE_GONE\[\] = \{(.*?)\};", text, re.S).group(1)
     body = re.sub(r"/\*.*?\*/", "", body, flags=re.S)
-    return [int(v) for v in re.findall(r"\b([01])\b", body)]
+    return [int(v) for v in re.findall(r"\b(\d+)\b", body)]
 
 
-# Independent of the generator: the events whose real outcomes kill or remove a villager for good (adv_game.kill /
+# Independent of the generator: the most villagers one ending of each event really takes for good (adv_game.kill /
 # adv_game.vanish in native/vvfp_more_island_events: adv_core, cave_core, climb_core, troubling_core, dive_core,
 # mask_core).  The Playful Dolphins (health floored at 1), The Rumblings (structures) and The Remembrance Ceremony
 # remove no one.
-REMOVES_VILLAGERS = {"aspiring_adventurer", "cave_explorers", "the_climb", "troubling_signs",
-                     "diving_for_treasure", "mysterious_mask"}
+TAKES = {"aspiring_adventurer": 1, "cave_explorers": 2, "the_climb": 1, "troubling_signs": 5,
+         "diving_for_treasure": 1, "mysterious_mask": 9}
 
 
-class TheDeadlyTableMatchesTheTagTable(unittest.TestCase):
-    """SC_MORE_DEADLY (the 61-villager population gate) is generated from the same tags: F01..F04.  It was written by
-    hand and left The Mysterious Mask (five villagers taken for good) out of the gate."""
+class TheCasualtyTableMatchesTheEvents(unittest.TestCase):
+    """SC_MORE_GONE (the casualty limit below 61 villagers, the owner 2026-11-27: at most 2 taken in one ending) holds
+    each event's real worst ending, and agrees with the tags: above 0 exactly when any of F01..F04 is named."""
 
     def test_every_event_in_every_game(self) -> None:
         tags = json.loads(TAGS.read_text(encoding="utf-8"))["events"]
-        deadly = shipped_deadly()
+        gone = shipped_gone()
         picks = gen.picks()
-        self.assertEqual(len(deadly), len(picks))
+        self.assertEqual(len(gone), len(picks))
         checked = 0
         for game in (1, 2, 3, 4, 5):
             in_game = [(k, ident) for k, (ident, games) in enumerate(picks) if game in games]
@@ -120,32 +120,35 @@ class TheDeadlyTableMatchesTheTagTable(unittest.TestCase):
             for k, ident in in_game:
                 with self.subTest(game=game, event=ident):
                     filters = tags[EVENT_OF[ident]]["filters"]
-                    by_tags = int(any(c in ("F01", "F02", "F03", "F04") for c in filters))
-                    self.assertEqual(deadly[k], by_tags, f"VV{game} {ident}: tags {sorted(filters)}")
-                    self.assertEqual(deadly[k], gen.deadly(sorted(set(filters))))
-                    self.assertEqual(deadly[k], int(ident in REMOVES_VILLAGERS),
-                                     f"VV{game} {ident}: the deadly mark does not match its real outcomes")
+                    by_tags = any(c in ("F01", "F02", "F03", "F04") for c in filters)
+                    self.assertEqual(gone[k] > 0, by_tags, f"VV{game} {ident}: tags {sorted(filters)}")
+                    self.assertEqual(gone[k], TAKES.get(ident, 0),
+                                     f"VV{game} {ident}: the count does not match its real outcomes")
                     checked += 1
         self.assertGreaterEqual(checked, 20)
 
-    def test_the_mask_is_deadly(self) -> None:
+    def test_below_61_only_the_signs_and_the_mask_stay_out(self) -> None:
+        gone = shipped_gone()
+        out = {ident for k, (ident, _g) in enumerate(gen.picks()) if gone[k] > 2}
+        self.assertEqual(out, {"troubling_signs", "mysterious_mask"})
         idx = {ident: k for k, (ident, _g) in enumerate(gen.picks())}
-        self.assertEqual(shipped_deadly()[idx["mysterious_mask"]], 1)
+        for ident in ("aspiring_adventurer", "cave_explorers", "the_climb", "diving_for_treasure"):
+            self.assertLessEqual(gone[idx[ident]], 2, ident)      # deadly, and drawable below 61 now
 
-    def test_source_keeps_no_deadly_table_of_its_own(self) -> None:
+    def test_source_keeps_no_table_of_its_own_and_uses_the_limit(self) -> None:
         text = COLLECTION.read_text(encoding="utf-8")
-        self.assertNotIn("SC_MORE_DEADLY[] =", text)
-        self.assertIn("SC_MORE_DEADLY[k_more]", text)
+        self.assertNotIn("SC_MORE_GONE[] =", text)
+        self.assertNotIn("SC_MORE_DEADLY", text)
+        self.assertIn("SC_MORE_GONE[k_more] > SC_MAX_GONE", text)
 
     def test_the_dlls_hold_this_table(self) -> None:
-        blob = bytes(shipped_deadly())
+        blob = bytes(shipped_gone())
         for dll in (DLL, TEST_DLL):
             with self.subTest(dll=dll.name):
                 if not dll.is_file():
                     self.skipTest(f"{dll} not built")
                 self.assertTrue(blob in dll.read_bytes(),
                                 f"{dll.name} is not built from this table (run scripts/build_vvfp_story_upgrades.ps1)")
-
 
 class TheTableIsGenerated(unittest.TestCase):
     def test_header_is_the_generators_output(self) -> None:

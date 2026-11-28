@@ -11,7 +11,7 @@
   "needs_on": [],
   "conflicts": [],
   "behavior_changes": [
-    "For the new events (Story / Cheat Upgrades): no 61-villager gate, rescue events and the two opening events may be replaced, no trouble guard and no safeguards; only the villagers each event needs. The game's own events' conditions are lifted by another companion (later). It applies to whichever island events are on in the game."
+    "For the new events (Story / Cheat Upgrades): no casualty limit below 61 villagers, rescue events and the two opening events may be replaced, no trouble guard and no safeguards; only the villagers each event needs. The game's own events' conditions are lifted by another companion (later). It applies to whichever island events are on in the game."
   ],
   "explicit_non_changes": [
     "No executable byte, game file or save is changed: the row is only a name in the installed patches' list (\"VVFP Installed Patches.txt\") that Story / Cheat Upgrades reads.",

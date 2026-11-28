@@ -17,7 +17,7 @@ def reward_words(game: int) -> str:
 
 # Every event's way in (collection_design.md C2): never a share of the stock draw.
 RARE = ("it never takes a share of the game's own draw: it comes only in a natural island event's place (Story / "
-        "Cheat Upgrades: 30-50% of the natural events, and the game's own event does not come that time) or through "
+        "Cheat Upgrades: 50% of the natural events, and the game's own event does not come that time) or through "
         "Pick Island Event")
 
 CAVE_DESCRIPTION = (
@@ -339,10 +339,11 @@ SCALE = {
     5: "with Island Events Scale With Population or With Stored Food and Tech Points ticked, the amount scales as "
        "that patch scales the game's own events",
 }
-# How they come (the owner, 2026-11-15; native/vvfp_story_upgrades/story_collection.inc sc_step).
-_HOW = ("Each natural island event has a 30-50% chance to be one of these instead (never a rescue event or the two "
-        "opening events). Events that can kill a villager, make one disappear or lose a pregnancy only happen once the "
-        "village has 61 or more villagers. "
+# How they come (the owner, 2026-11-15 and 2026-11-27; native/vvfp_story_upgrades/story_collection.inc sc_step).
+_HOW = ("Each natural island event has a 50% chance to be one of these instead (never a rescue event or the two "
+        "opening events). Every event can come at any population, but while the village has fewer than 61 villagers "
+        "an event that can kill or make disappear more than 2 villagers in one of its endings is left out (a lost "
+        "pregnancy counts as no one). "
         "When one of these events (or an Isola Grand Event Collection event) comes, the game's own event does not "
         "come that time; never while the village is in trouble, and when none can happen the game's own event comes. "
         "It never takes a share of the game's own draw, so the game's own events keep their chances among "

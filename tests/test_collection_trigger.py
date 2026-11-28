@@ -5,8 +5,8 @@ tests/story_emulator.py, the villagers laid out by tests/story_custom_fixtures.p
 
   * THE DECISION: once for each natural island event, 3 seconds (SC_WINDOW) or less before its island timer is due,
     with nothing armed or on its way and no God Power armed: never during the village's two opening events, never
-    below 61 villagers, never in trouble; the game's own random routine passes 50 of 100 (SC_REPLACE_PERCENT) and a
-    new event is armed in the natural one's place;
+    in trouble, at any population; the game's own random routine passes 50 of 100 (SC_REPLACE_PERCENT, one roll: the
+    owner, 2026-11-27) and a new event is armed in the natural one's place;
   * THE POPULATION the gate counts: the living villagers the game lists and the babies being carried (New Believers'
     believers only);
   * THE TROUBLE GUARD in every game on the game's own records: the stock rescue predicate (both sexes' rules, the
@@ -37,7 +37,7 @@ NEEDS = unittest.skipUnless(sci.HAVE_EMULATOR and sci.TEST_DLL.is_file() and aa.
                             "needs unicorn, pefile, the stock executables and the Story TEST build")
 
 GAMES = (1, 2, 3, 4, 5)
-CHANCE_MIN, CHANCE_SPAN = 30, 21
+CHANCE = 50                                            # SC_REPLACE_PERCENT: a flat 50 in 100 (the owner, 2026-11-27)
 SC_NONE, SC_ARM = 0, 3
 HOUR = 3600
 
@@ -74,13 +74,27 @@ class Roll:
 
 @NEEDS
 class TheDecision(unittest.TestCase):
-    def test_a_chance_in_30_to_50_percent_each_time(self) -> None:
+    def test_a_flat_50_percent_each_time(self) -> None:
+        """One roll of 100, the game's own: 0..49 replaces the natural event, 50..99 does not -- no chance of its own
+        rolled first (the old 30..50).  The second value is never read: a roll of 0 there would arm."""
         for game in GAMES:
-            for chance_draw, roll, expected in ((0, 29, SC_ARM), (0, 30, SC_NONE), (20, 49, SC_ARM), (20, 50, SC_NONE)):
-                with self.subTest(game=game, chance=CHANCE_MIN + chance_draw, roll=roll):
+            for roll, expected in ((0, SC_ARM), (29, SC_ARM), (30, SC_ARM), (49, SC_ARM), (50, SC_NONE),
+                                   (99, SC_NONE)):
+                with self.subTest(game=game, roll=roll):
                     r = Roll(game)
-                    r.rolls(chance_draw, roll)
-                    self.assertEqual(r.step(5, 1000, 1003)["action"], expected)
+                    r.rolls(roll, 0)
+                    self.assertEqual(r.step(5, 1000, 1003)["action"], SC_ARM if roll < CHANCE else SC_NONE)
+                    self.assertEqual(expected, SC_ARM if roll < CHANCE else SC_NONE)
+
+    def test_the_chance_is_the_same_at_any_population(self) -> None:
+        for population in (3, 20, 60, 61, 150):
+            with self.subTest(population=population):
+                r = Roll(4)
+                r.rolls(49, 0)
+                self.assertEqual(r.step(5, 1000, 1003, population=population)["action"], SC_ARM)
+                r = Roll(4)
+                r.rolls(50, 0)
+                self.assertEqual(r.step(5, 1000, 1003, population=population)["action"], SC_NONE)
 
     def test_once_for_each_natural_time(self) -> None:
         r = Roll(4)
@@ -341,7 +355,7 @@ class OneFrameAtATime(unittest.TestCase):
         p.write(text, MANIFEST.encode() + b"\0")
         p.export("VvfpStoryProbeCollectionReset")
         p.export("VvfpStoryProbeCollectionManifest", text, 0, 0b0001)
-        p.export("VvfpStoryProbeCollectionPopulation", 4, 61)  # 61 villagers for the gate
+        p.export("VvfpStoryProbeCollectionPopulation", 4, 61)  # 61 villagers: no casualty limit
         world = st.village.world
         counter = sci.EVENT_COUNTER_GLOBAL["vv4"]
         p.put32(counter, 5)
@@ -353,7 +367,7 @@ class OneFrameAtATime(unittest.TestCase):
         at = p.alloc(16)
         for k in range(4):
             p.put32(at + 4 * k, 0)
-        # the chance 30%, the roll 0: a pass; then the draw's file and its event (the split-file draw)
+        # the roll 0 (below 50): a pass; then the draw's file and its event (the split-file draw)
         p.export("VvfpStoryProbeSetRolls", at, 4)
         clock[0] += 598                                        # two seconds before it
         p.export("VvfpStoryProbeCollectionTick", 4)

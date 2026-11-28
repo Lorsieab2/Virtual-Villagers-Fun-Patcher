@@ -1,8 +1,8 @@
-"""Write which island-event content filters keep each of More Island Events' events out, and which of them are deadly
-(the population gate, SC_MORE_DEADLY: tagged F01..F04), from the events' content tag
+"""Write which island-event content filters keep each of More Island Events' events out, from the events' content tag
 table (data/event_collection/content_tags/mie.json, written by scripts/build_event_content_tags.py) -- never by hand,
-so the two can never disagree.  "VVFP Story Upgrades.dll" (story_collection.inc sc_more_filtered) keeps a More Island
-Events entry out of the draw and Pick Island Event's list when any filter its tag table names is ticked.  It writes
+so the two can never disagree -- and the most villagers one ending of each can take (SC_MORE_GONE, the casualty
+limit below 61 villagers: GONE below, checked against the same tags).  "VVFP Story Upgrades.dll"
+(story_collection.inc sc_more_filtered) keeps a More Island Events entry out of the draw and Pick Island Event's list when any filter its tag table names is ticked.  It writes
 
     native/vvfp_story_upgrades/story_more_filters.h
 
@@ -74,17 +74,33 @@ def mask(filters: list[str]) -> int:
 
 
 # The filters that mean a villager is gone for good: F01 Child and baby deaths, F02 Pregnancy loss, stillbirth and
-# death in childbirth, F03 All deaths in events, F04 Disappearances.  An event whose tags name any of them is DEADLY
-# (SC_MORE_DEADLY: the 61-villager population gate).  Checked against every event's real outcomes (2026-11-21): each
-# such event kills (adv_game.kill) or removes (adv_game.vanish) a villager on some path -- The Aspiring Adventurer,
-# The Cave Explorers, The Climb, The Troubling Signs, Diving for Treasure, The Mysterious Mask -- and no other does
-# (The Playful Dolphins' tail slap leaves at least 1 health; The Rumblings damages structures; The Remembrance
-# Ceremony removes no one).
+# death in childbirth, F03 All deaths in events, F04 Disappearances.  An event whose tags name any of them is deadly;
+# its GONE count below must then be above 0 (and every other event's 0), so the two can never disagree.
 DEADLY_FILTERS = ("F01", "F02", "F03", "F04")
 
 
 def deadly(filters: list[str]) -> int:
     return 1 if any(code in DEADLY_FILTERS for code in filters) else 0
+
+
+# The casualty limit below 61 villagers (the owner, 2026-11-27: "below 61 population a max of 1-2 villagers can die
+# or disappear"): the most villagers ONE ending of each event can kill or make disappear (SC_MORE_GONE;
+# story_collection.inc leaves an event out of the natural draw below 61 villagers when it is above SC_MAX_GONE, 2).
+# Read from each event's own effects in native/vvfp_more_island_events (adv_game.kill / adv_game.vanish), its
+# largest group:
+#   The Aspiring Adventurer  1  the adventurer dies, disappears or joins another tribe (adv_core.inc)
+#   The Cave Explorers       2  the two explorers: the map (both leave), the chasm (both fall), both die (cave_effects)
+#   The Climb                1  the climber falls (climb_core.inc)
+#   The Troubling Signs      5  the five travellers leave on the mission, every answer (troubling_core.inc ts_effects)
+#   Diving for Treasure      1  the diver drowns or is lost (dive_core.inc)
+#   The Mysterious Mask      9  the five volunteers in every ending, and in a capture the group of children, up to 4
+#                               (mask_core.inc mk_effects)
+#   The Playful Dolphins, The Remembrance Ceremony, The Rumblings  0  (the tail slap leaves at least 1 health)
+GONE = {
+    "aspiring_adventurer": 1, "cave_explorers": 2, "the_climb": 1, "troubling_signs": 5,
+    "diving_for_treasure": 1, "playful_dolphins": 0, "mysterious_mask": 9, "remembrance_ceremony": 0,
+    "remembrance_ceremony_nb": 0, "the_rumblings": 0,
+}
 
 
 def table() -> list[tuple[str, str, tuple[int, ...], list[str], int]]:
@@ -98,6 +114,11 @@ def table() -> list[tuple[str, str, tuple[int, ...], list[str], int]]:
         if event not in tags:
             raise SystemExit(f"{ident}: {event} is not in {TAGS.name}")
         filters = sorted(set(tags[event]))
+        if ident not in GONE:
+            raise SystemExit(f"{ident}: no casualty count (add it to GONE)")
+        if (GONE[ident] > 0) != bool(deadly(filters)):
+            raise SystemExit(f"{ident}: GONE {GONE[ident]} but its tags {filters} say "
+                             f"{'deadly' if deadly(filters) else 'not deadly'}")
         rows.append((ident, event, games, filters, mask(filters)))
     unused = set(tags) - {r[1] for r in rows}
     if unused:
@@ -119,13 +140,13 @@ def render() -> str:
         comma = "," if k < len(rows) - 1 else ""
         lines.append(f"    0x{bits:08X}u{comma}   /* {k}: {ident} ({event}): {names} */")
     lines += ["};", f"#define SC_MORE_FILTER_COUNT {len(rows)}", "",
-              "/* Whether each entry can kill a villager, make one disappear or lose a pregnancy (the population gate:",
-              "   drawn only at 61 or more villagers unless No Safeguards is on): 1 when its tags name any of",
-              f"   {' '.join(DEADLY_FILTERS)}, the same order. */",
-              "static const unsigned char SC_MORE_DEADLY[] = {"]
+              "/* The most villagers one ending of each entry can kill or make disappear (the casualty limit: below 61",
+              "   villagers an entry above SC_MAX_GONE stays out of the natural draw unless No Safeguards is on), the",
+              "   same order (scripts/build_story_more_filters.py GONE). */",
+              "static const unsigned char SC_MORE_GONE[] = {"]
     for k, (ident, event, games, filters, bits) in enumerate(rows):
         comma = "," if k < len(rows) - 1 else ""
-        lines.append(f"    {deadly(filters)}{comma}   /* {k}: {ident} */")
+        lines.append(f"    {GONE[ident]}{comma}   /* {k}: {ident} */")
     lines += ["};", "", "#endif", ""]
     return "\n".join(lines)
 

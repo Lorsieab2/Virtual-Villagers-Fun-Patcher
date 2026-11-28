@@ -43,8 +43,9 @@ of the built-in events.
   The patcher's own earlier files there (those names only) are replaced at each patch; nothing else is touched. The
   save and the exe are never written.
 - **In the game** player events are ordinary collection events: they come in the normal draw (each its draw weight,
-  a series counting once), obey the content filters and Content Notes, and an event that can kill a villager, make
-  one disappear or lose a pregnancy is drawn only from 61 villagers (the engine finds those effects itself).
+  a series counting once), obey the content filters and Content Notes, and below 61 villagers an event that can kill or
+  make disappear more than 2 villagers in one of its endings is left out (the engine counts those effects itself;
+  a lost pregnancy counts as no one).
 
 ## 2. Simple events (the owner's own layouts)
 

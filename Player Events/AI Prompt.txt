@@ -92,7 +92,7 @@ Use gameplay effects only when the story supports them, and only the effects lis
 Don't artificially balance every choice with one good outcome and one bad outcome.
 Some choices may have two good outcomes, two unfortunate outcomes, or two entirely different neutral outcomes.
 Death should be very rare, serious harm uncommon, and minor setbacks occasional, unless the particular event warrants otherwise.
-The patcher's casting rules: a pregnancy or a new baby (PREGNANT, NURSING) goes to a villager of any sex, 18 or older (villagers are villagers regardless of gender); in a couple's pregnancy (PREGNANT <who> WITH <who>) the partner may carry instead by the player's chance setting. Events that can kill a villager or make one disappear only happen in villages of 61 or more.
+The patcher's casting rules: a pregnancy or a new baby (PREGNANT, NURSING) goes to a villager of any sex, 18 or older (villagers are villagers regardless of gender); in a couple's pregnancy (PREGNANT <who> WITH <who>) the partner may carry instead by the player's chance setting. In a village of fewer than 61, an event that can kill or make disappear more than 2 villagers in one ending never comes.
 8. Quality Requirements
 Before presenting the events, check that:
 
