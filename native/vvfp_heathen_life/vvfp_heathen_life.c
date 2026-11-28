@@ -1181,7 +1181,7 @@ static int look_find(unsigned char *record, int area) {
    and practice it and eventually master them (same rate as believers, always evenly-distributed)") ---------- */
 
 #define TRAINED 20                     /* the Details screen's first level above "Untrained" (0x41C680: 20) */
-#define TR_MAGIC 0x31544856u           /* 'VHT1' */
+#define TR_MAGIC 0x31534856u           /* 'VHS1' ('VHT1' is the Heathen Tribe file's, PR #896) */
 #define TR_VERSION 1u
 #define TR_HEADER 20u
 #define TR_MAX 256

@@ -1586,6 +1586,11 @@ def plan_renames(folder: Path, game: int, slot: int, renames: dict[tuple, str],
         _plan_u32_file(result, _data_file(folder, "Heathen Couples", f"Heathen Couples - Save {slot}.dat"),
                        b"VHC1", {1: 16}, game, 20, 0, title_map, "Heathen Couples", title_conflicts,
                        more_fields=(4,))
+        # ...and Heathen Life's Heathen Training file (native/vvfp_heathen_life): each untrained Heathen's chosen
+        # skill by identity at +0 of each 8-byte entry (identity, skill) after a 20-byte header; version 1
+        # (Codex, PR #899: a renamed Heathen keeps their training).
+        _plan_u32_file(result, _data_file(folder, "Heathen Training", f"Heathen Training - Save {slot}.dat"),
+                       b"VHS1", {1: 8}, game, 20, 0, title_map, "Heathen Training", title_conflicts)
     _plan_look_store(result, _data_file(folder, "Head Looks", f"Head Looks - Save {slot}.dat"), (b"VHL2", b"VHL1"),
                      game, worn_map, worn_conflicts, "the head looks")
     _plan_look_store(result, _data_file(folder, "Gender Presentation", f"Gender Presentation - Save {slot}.dat"),

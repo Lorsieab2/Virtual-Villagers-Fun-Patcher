@@ -1246,7 +1246,7 @@ class Training(_Base):
         self.assertEqual(len(files), 1, list(camp.disk))
         data = camp.disk[files[0]]
         magic, version, game, count, slot = struct.unpack_from("<5I", data)
-        self.assertEqual((magic, version, game, count, slot), (0x31544856, 1, 5, 12, 2))
+        self.assertEqual((magic, version, game, count, slot), (0x31534856, 1, 5, 12, 2))
         skills = [struct.unpack_from("<2I", data, 20 + 8 * k)[1] for k in range(count)]
         self.assertEqual(sorted(skills.count(k) for k in range(6)), [2] * 6, "always evenly-distributed")
         # A new session: the same choices come back from the file.

@@ -176,7 +176,7 @@ def _heathen_evolution_facts(add, village, where: str) -> None:
         "the doctor \"Going to heal\" and \"Practising Healing on\" the patient's name.", sub=True)
     add("The pace: each Heathen goes out on their own now and then -- after an outing a Heathen waits 30, 15 or 8 "
         "age units (Quiet, Normal, Lively in the row's Settings window; Normal unless chosen; about 3, 1.5 and 0.8 "
-        "hours of game time), the first ones staggered; at most about the square root of the tribe's Heathens are "
+        "real-life hours on Normal speed), the first ones staggered; at most about the square root of the tribe's Heathens are "
         "out at once (x 0.4, 0.75 or 1.1, at least 1: 3, 6 or 8 of 50) and at most 1, 2 or 3 on one action; one "
         "who has stayed at the encampment for 4 waits goes next. The believers come first: a Heathen never goes "
         "where a believer is. A chase by an orange-masked Heathen or a fright from a red-masked one is the game's "
