@@ -544,8 +544,10 @@ def write_sheets(art: Art, out: Path):
 # ---- the GIMP workbench ------------------------------------------------------------------------------
 
 LAYER_GAME, LAYER_MASK, LAYER_TOP = "Game's own art", "Skin mask", "Hair and non-skin (vanilla)"
-LAYER_SHADING, PAINT_WORDS = "Shading (locked)", "colour (paint here)"
-SHOWN_TONE = 6          # the tone left visible in a new .xcf
+LAYER_SHADING, PAINT_WORDS = "Shading (locked)", "colour (paint here)"   # LAYER_SHADING: the files before 2026-11-28
+SHADING_WORDS = "shading (locked)"
+SHOWN_TONE = 10         # the tone shown, and its folder open, in a new .xcf: Ebony, the tone the owner edits
+QUICK_LAYOUT_BACKUP = "_before quick-edit layout 2026-11-28"
 
 
 def tone_layer_name(number):
@@ -556,6 +558,18 @@ def tone_layer_name(number):
 def paint_layer_name(number):
     """The layer of a tone's group the owner paints: flat colour where that tone has skin."""
     return f"{core.TONES[number - 1][4]} {PAINT_WORDS}"
+
+
+def shading_layer_name(number):
+    """The locked shading layer of a tone's group: "Ebony shading (locked)".  (Files before 2026-11-28 have
+    "Shading (locked)", "Shading (locked) #1" ... "#9"; nothing reads either name: the readers find a tone's
+    group by "Tone NN" and its colour layer by "paint here".)"""
+    return f"{core.TONES[number - 1][4]} {SHADING_WORDS}"
+
+
+def is_paint_layer(name: str) -> bool:
+    """Whether a layer of a tone's group is its colour layer (the one the owner paints), by old or new names."""
+    return "paint here" in name
 
 
 def tone_colour(number):
@@ -611,7 +625,7 @@ for item in job["files"]:
     whole.resize(width, height, 0, 0)
     whole.set_offsets(0, 0)
     image.resize(width, height, 0, 0)
-    groups, order = {}, []
+    groups, order, active = {}, [], None
     for part, layer in zip(parts, item["layers"]):
         part.set_name(layer["name"])
         part.set_visible(bool(layer["visible"]))
@@ -620,6 +634,7 @@ for item in job["files"]:
             part.set_composite_mode(Gimp.LayerCompositeMode.CLIP_TO_BACKDROP)
         if layer["lock"]:
             part.set_lock_content(True)
+            part.set_lock_position(True)
         name = layer.get("group")
         if name:
             if name not in groups:
@@ -631,9 +646,12 @@ for item in job["files"]:
                 image.insert_layer(group, None, image.get_item_position(part))
                 group.set_mode(Gimp.LayerMode.NORMAL)   # its own little picture: the clip sees the group only
                 group.set_visible(bool(layer["group_visible"]))
+                group.set_expanded(bool(layer["group_visible"]))    # the tone shown is the folder open
                 groups[name] = group
                 order.append(name)
             image.reorder_item(part, groups[name], 0)
+        if layer.get("active"):
+            active = part
     if item.get("check"):
         # Each group as it shows on its own, one under the other, for the builder to compare.
         tops = image.get_layers()
@@ -650,6 +668,8 @@ for item in job["files"]:
         tall.delete()
         for layer, was in zip(tops, shown):
             layer.set_visible(was)
+    if active is not None:
+        image.set_selected_layers([active])     # opens ready to paint
     Gimp.file_save(Gimp.RunMode.NONINTERACTIVE, image, Gio.File.new_for_path(item["xcf"]), None)
     image.delete()
     print("VVFP wrote", item["xcf"])
@@ -703,8 +723,8 @@ for item in job["files"]:
 '''
 
 
-def run_gimp(script: str, job: dict):
-    """One GIMP batch process (never two at once) running `script` with `job`."""
+def run_gimp(script: str, job: dict, idle=True):
+    """One GIMP batch process (never two at once) running `script` with `job`; `idle`: at idle priority."""
     if not GIMP.is_file():
         raise SystemExit(f"GIMP 3 was not found at {GIMP} (set VVFP_GIMP to gimp-console-3.exe)")
     with tempfile.TemporaryDirectory() as tmp:
@@ -715,7 +735,7 @@ def run_gimp(script: str, job: dict):
         command = [str(GIMP), "-n", "-i", "-d", "-f", "--batch-interpreter", "python-fu-eval",
                    "-b", f"exec(open(r'{script_path}', encoding='utf-8').read())", "--quit"]
         # At idle priority: the owner may be painting in GIMP on the same machine.
-        quiet = {"creationflags": 0x00000040} if os.name == "nt" else {}
+        quiet = {"creationflags": 0x00000040} if os.name == "nt" and idle else {}
         done = subprocess.run(command, env=env, capture_output=True, text=True, timeout=3600, **quiet)
         text = (done.stdout or "") + (done.stderr or "")
         if text.count("VVFP ") < len(job["files"]):
@@ -859,9 +879,9 @@ def _prepare_workbench(game, images: Path, folder: Path, only, tmp: Path, fresh_
                 raise SystemExit(f"{name}, tone {number}: the shading layer is not the tone's own shading")
             group = tone_layer_name(number)
             bands.append((flat, paint_layer_name(number), True, False, group, number == SHOWN_TONE, False))
-            bands.append((shaded, LAYER_SHADING, True, True, group, number == SHOWN_TONE, True))
+            bands.append((shaded, shading_layer_name(number), True, True, group, number == SHOWN_TONE, True))
             record[f"skin_{number:02d}.png"] = _sha(painted_from_layer(flat))      # as `import` will read it
-        bands.append((top, LAYER_TOP, True, True, None, False, False))
+        bands.append((top, LAYER_TOP, False, True, None, False, False))    # hidden: it would cover new skin
         tall = tmp / f"{game}_{stem}.png"
         Image.fromarray(np.concatenate([band[0] for band in bands], axis=0)).save(tall, compress_level=1)
         manifest[stem] = record
@@ -877,7 +897,8 @@ def _prepare_workbench(game, images: Path, folder: Path, only, tmp: Path, fresh_
             backed_up.append(xcf.name)
         item = {"xcf": str(xcf), "png": str(tall), "width": int(stock.shape[1]), "height": int(stock.shape[0]),
                 "layers": [{"name": label, "visible": shown, "lock": lock, "group": group, "group_visible": group_shown,
-                            "clip": clip} for _, label, shown, lock, group, group_shown, clip in bands]}
+                            "clip": clip, "active": label == paint_layer_name(SHOWN_TONE)}
+                           for _, label, shown, lock, group, group_shown, clip in bands]}
         if check is not None:
             Path(check).mkdir(parents=True, exist_ok=True)
             item["check"] = str(Path(check) / f"{game}_{stem}.png")
@@ -2125,20 +2146,262 @@ def write_manifest(out: Path):
     (out / "manifest.json").write_text(json.dumps(pins, indent=1, sort_keys=True) + "\n", encoding="utf-8")
 
 
+# ---- quick-edit layout (the owner, 2026-11-28, through the coordinator) -------------------------------
+#
+# Every .xcf opens ready to paint Ebony: Tone 10's group shown and open, every other tone's group hidden and
+# closed, "Ebony colour (paint here)" the active layer, "Hair and non-skin (vanilla)" and "Skin mask"
+# hidden, the game's art locked; each tone's shading layer named after its tone ("Ebony shading (locked)",
+# not GIMP's "Shading (locked) #9") with its pixels and position locked.  Nothing else in a file changes:
+# each is backed up first, and after it is saved GIMP reads it again and compares every layer with the
+# backup -- pixels, masks, sizes, places, modes, opacities -- allowing only visibility, locks, names of the
+# shading layers, folders open or closed, and the active layer to differ.  A file that fails is put back.
+
+QUICK_CHANGEABLE = ("visible", "lock_content", "lock_position", "expanded", "name")
+
+_GIMP_QUICK_LAYOUT = r'''
+import hashlib, json, os, re
+import gi
+gi.require_version("Gimp", "3.0")
+gi.require_version("Gegl", "0.4")
+from gi.repository import Gimp, Gio, Gegl
+job = json.load(open(os.environ["VVFP_SKIN_JOB"], encoding="utf-8"))
+SHOWN = job["shown"]
+NAMES = {int(k): v for k, v in job["tones"].items()}
+
+
+def pixels(drawable):
+    buffer = drawable.get_buffer()
+    rect = buffer.get_extent()
+    # Float RGBA holds every 8-bit value exactly, whatever the layer's own format.
+    data = buffer.get(rect, 1.0, "RGBA float", Gegl.AbyssPolicy.NONE)
+    return "%d,%d,%d,%d:%s" % (rect.x, rect.y, rect.width, rect.height, hashlib.sha1(bytes(data)).hexdigest())
+
+
+def describe(image):
+    out = []
+    def walk(layer, path):
+        mask = layer.get_mask()
+        entry = {
+            "path": path, "name": layer.get_name(), "group": bool(layer.is_group()),
+            "visible": bool(layer.get_visible()), "lock_content": bool(layer.get_lock_content()),
+            "lock_position": bool(layer.get_lock_position()), "lock_alpha": bool(layer.get_lock_alpha()),
+            "lock_visibility": bool(layer.get_lock_visibility()), "expanded": bool(layer.get_expanded()),
+            "opacity": round(float(layer.get_opacity()), 4), "mode": int(layer.get_mode()),
+            "composite_mode": int(layer.get_composite_mode()), "composite_space": int(layer.get_composite_space()),
+            "blend_space": int(layer.get_blend_space()), "offsets": list(layer.get_offsets()[-2:]),
+            "size": [layer.get_width(), layer.get_height()], "color_tag": int(layer.get_color_tag()),
+            "mask": pixels(mask) if mask is not None else None,
+            "pixels": None if layer.is_group() else pixels(layer),
+        }
+        out.append(entry)
+        if layer.is_group():
+            for k, child in enumerate(layer.get_children()):
+                walk(child, path + [k])
+    for k, layer in enumerate(image.get_layers()):
+        walk(layer, [k])
+    return {"width": image.get_width(), "height": image.get_height(), "precision": int(image.get_precision()),
+            "base": int(image.get_base_type()), "layers": out,
+            "selected": [layer.get_name() for layer in image.get_selected_layers()]}
+
+
+def lay_out(image, result):
+    paint, did = None, []
+    groups = [layer for layer in image.get_layers() if layer.is_group() and re.match(r"Tone (\d+)", layer.get_name())]
+    if len(groups) != len(NAMES):
+        result["did"] = "not ours (%d tone folders)" % len(groups)
+        return False
+    for layer in image.get_layers():
+        name = layer.get_name()
+        tone = re.match(r"Tone (\d+)", name)
+        if tone and layer.is_group():
+            n = int(tone.group(1))
+            if n not in NAMES:
+                result["did"] = "not ours (%s)" % name
+                return False
+            if layer.get_visible() != (n == SHOWN):
+                layer.set_visible(n == SHOWN)
+                did.append("%s %s" % (name, "shown" if n == SHOWN else "hidden"))
+            layer.set_expanded(n == SHOWN)
+            for child in layer.get_children():
+                cname = child.get_name()
+                if "paint here" in cname:
+                    if n == SHOWN:
+                        paint = child
+                        if not child.get_visible():
+                            child.set_visible(True)
+                            did.append("%s shown" % cname)
+                    continue
+                if cname.startswith("Shading (locked)") or cname.endswith("shading (locked)"):
+                    want = "%s shading (locked)" % NAMES[n]
+                    if cname != want:
+                        child.set_name(want)
+                        did.append("%s -> %s" % (cname, want))
+                    child.set_lock_content(True)
+                    child.set_lock_position(True)
+                    if n == SHOWN and not child.get_visible():
+                        child.set_visible(True)
+                        did.append("%s shown" % want)
+        elif name == "Hair and non-skin (vanilla)" or name.startswith("Skin mask"):
+            if layer.get_visible():
+                layer.set_visible(False)
+                did.append("%s hidden" % name)
+        elif name.startswith("Game's own art"):
+            layer.set_lock_content(True)
+            layer.set_lock_position(True)
+    if paint is None:
+        result["did"] = "not ours (no colour layer in Tone %d)" % SHOWN
+        return False
+    image.set_selected_layers([paint])
+    result["changes"] = did
+    result["active"] = paint.get_name()
+    return True
+
+
+for item in job["files"]:
+    result = {"xcf": item["xcf"], "did": "nothing"}
+    try:
+        image = Gimp.file_load(Gimp.RunMode.NONINTERACTIVE, Gio.File.new_for_path(item["xcf"]))
+        result["before"] = describe(image)
+        if lay_out(image, result):
+            Gimp.file_save(Gimp.RunMode.NONINTERACTIVE, image, Gio.File.new_for_path(item["xcf"]), None)
+            result["did"] = "saved"
+        image.delete()
+        if result["did"] == "saved":
+            # The file as saved, and the backup, each read again from disk.
+            for key, path in (("after", item["xcf"]), ("backup", item["backup"])):
+                image = Gimp.file_load(Gimp.RunMode.NONINTERACTIVE, Gio.File.new_for_path(path))
+                result[key] = describe(image)
+                image.delete()
+    except Exception as problem:
+        result["did"], result["why"] = "failed", repr(problem)
+    json.dump(result, open(item["result"], "w", encoding="utf-8"))
+    print("VVFP quick", item["xcf"], result["did"])
+'''
+
+
+def quick_layout_check(backup: dict, after: dict, shown=SHOWN_TONE) -> list[str]:
+    """What is wrong with a file laid out for quick editing, compared with its backup (both as GIMP described
+    them): [] when every layer's pixels, mask, size, place, mode and opacity are the backup's, only the
+    allowed things differ, and the file opens ready to paint `shown`."""
+    wrong = []
+    for key in ("width", "height", "precision", "base"):
+        if backup[key] != after[key]:
+            wrong.append(f"the picture's {key} changed")
+    was, now = backup["layers"], after["layers"]
+    if [layer["path"] for layer in was] != [layer["path"] for layer in now]:
+        return wrong + ["the layers are not the same layers in the same order"]
+    for old, new in zip(was, now):
+        for key in old:
+            if key in QUICK_CHANGEABLE or old[key] == new[key]:
+                continue
+            wrong.append(f"{old['name']}: its {key} changed")
+        if old["name"] != new["name"] and not (
+                (old["name"].startswith(LAYER_SHADING) or old["name"].endswith(SHADING_WORDS))
+                and new["name"].endswith(SHADING_WORDS)):
+            wrong.append(f"{old['name']}: renamed to {new['name']}")
+    tops = [layer for layer in now if len(layer["path"]) == 1]
+    for layer in tops:
+        name = layer["name"]
+        tone = name.startswith("Tone ") and layer["group"] and int(name[5:7])
+        if tone:
+            if layer["visible"] != (tone == shown) or layer["expanded"] != (tone == shown):
+                wrong.append(f"{name}: shown/open should be {tone == shown}")
+        elif name in (LAYER_TOP,) or name.startswith(LAYER_MASK):
+            if layer["visible"]:
+                wrong.append(f"{name}: should be hidden")
+        elif name.startswith(LAYER_GAME) and not (layer["lock_content"] and layer["lock_position"]):
+            wrong.append(f"{name}: should be locked")
+    for layer in now:
+        if len(layer["path"]) == 2 and layer["name"].endswith(SHADING_WORDS):
+            if not (layer["lock_content"] and layer["lock_position"]):
+                wrong.append(f"{layer['name']}: should be locked")
+    names = [layer["name"] for layer in now]
+    if len(set(names)) != len(names):
+        wrong.append("two layers share a name")
+    if after["selected"] != [paint_layer_name(shown)]:
+        wrong.append(f"the active layer is {after['selected']}")
+    return wrong
+
+
+def quick_layout(root: Path, games, yes=False, backup=QUICK_LAYOUT_BACKUP, normal_priority=True, say=print) -> dict:
+    """Lay out every .xcf of `games` under `root` for quick editing (above).  Each file is first copied into
+    <root>/<game>/<backup> (a copy already there is never overwritten); a file that fails the check is put
+    back from it.  A file still exactly as this tool wrote it (pinned) is pinned again as laid out, so a
+    rebuild still knows it is not the owner's.  Returns {file name: [what is wrong] or []}."""
+    files, pins_before, done = [], {}, {}
+    for game in games:
+        folder = root / game
+        for path in sorted(folder.glob(f"{game}_*.xcf")):
+            state, why = held_open(path)
+            if state == "open" or (state == "unknown" and not yes):
+                raise SystemExit(f"Nothing was changed: {path.name}: {why}. Save and close it in GIMP; run again "
+                                 "with --yes when no file is open there.")
+            kept = folder / backup / path.name
+            kept.parent.mkdir(parents=True, exist_ok=True)
+            if kept.exists() and _file_sha(kept) != _file_sha(path):
+                k = 2
+                while kept.with_name(f"{path.stem} ({k}).xcf").exists():
+                    k += 1
+                kept = kept.with_name(f"{path.stem} ({k}).xcf")
+            if not kept.exists():
+                shutil.copy2(path, kept)
+            if _file_sha(kept) != _file_sha(path):
+                raise SystemExit(f"the backup of {path.name} is not the file: nothing was changed")
+            pins_before[str(path)] = _file_sha(path)
+            files.append({"xcf": str(path), "backup": str(kept), "game": game})
+    tones = {str(n): core.TONES[n - 1][4] for n in range(1, len(core.TONES) + 1)}
+    with tempfile.TemporaryDirectory() as tmp:
+        for k, item in enumerate(files):
+            item["result"] = str(Path(tmp) / f"{k}.json")
+        if files:
+            run_gimp(_GIMP_QUICK_LAYOUT, {"files": files, "shown": SHOWN_TONE, "tones": tones}, idle=not normal_priority)
+        results = [json.loads(Path(item["result"]).read_text(encoding="utf-8")) for item in files]
+    for item, result in zip(files, results):
+        path = Path(item["xcf"])
+        if result["did"] != "saved":
+            wrong = [f"not changed: {result['did']} {result.get('why', '')}".strip()]
+        else:
+            wrong = quick_layout_check(result["backup"], result["after"])
+            if result["before"] != result["backup"]:
+                wrong.append("the file as opened is not its backup")
+        if wrong and result["did"] == "saved":
+            shutil.copy2(item["backup"], path)          # put back exactly as it was
+            wrong.append("PUT BACK from the backup")
+        done[path.name] = (wrong, result)
+    for game in games:
+        folder = root / game
+        manifest = _manifest(folder)
+        pins = manifest.get(XCF_PINS, {})
+        changed = False
+        for stem, pin in list(pins.items()):
+            path = folder / f"{game}_{stem}.xcf"
+            if pins_before.get(str(path)) == pin and not done[path.name][0]:
+                pins[stem] = _file_sha(path)
+                changed = True
+        if changed:
+            (folder / ".generated.json").write_text(json.dumps(manifest, indent=1), encoding="utf-8")
+    return done
+
+
 README = """VVFP Skin Tones Workbench
 =========================
 
 One GIMP file per head and body sheet of each game, for marking by hand where each skin tone goes.
 These files hold the game's own art. Keep them here; they must never be shared or shipped.
 
+EVERY FILE OPENS READY TO PAINT EBONY: Tone 10 (Ebony) is the one tone shown, its folder is
+open, its "Ebony colour (paint here)" layer is the highlighted one, and "Hair and non-skin
+(vanilla)" is hidden.
+
 THE LAYERS (top to bottom)
-  Hair and non-skin (vanilla)  The original's hair, eyes, mouths and clothes. Locked.
+  Hair and non-skin (vanilla)  The original's hair, eyes, mouths and clothes. Locked. Hidden
+                               (click its eye to see the hair and clothes again).
   Tone 10 - S10 Ebony ...      One folder (layer group) per skin tone, dark to light, down to
-  Tone 01 - S1 Porcelain       Tone 01 - S1 Porcelain. One is shown; click a folder's eye to see
-                               another. Inside each folder:
-      Shading (locked)             The game art's own light and dark, in the tone's colours. It
+  Tone 01 - S1 Porcelain       Tone 01 - S1 Porcelain. Ebony is shown; click a folder's eye to
+                               see another. Inside each folder:
+      <tone> shading (locked)      The game art's own light and dark, in the tone's colours. It
                                    shows only where the colour layer under it has paint.
-                                   Never paint it.
+                                   Never paint it. (Older files: "Shading (locked) #1" etc.)
       <tone> colour (paint here)   Flat paint in the tone's colour on every pixel that is skin
                                    in that tone. THE LAYER YOU EDIT: paint = skin, erased = not.
   Skin mask                    From the first version of these files. Hidden. White = skin for
@@ -2154,9 +2417,11 @@ HOW TO EDIT
     to the other nine in a file (save and close it in GIMP first):
         python scripts\\skin_tone_sheets.py spread --game vv1 --sheet vv1_carrying
     or leave the file alone and run "import" with  --same-for-all-tones  added.
-  - Hide "Hair and non-skin (vanilla)" while you work: it lies on top and would cover skin you
-    add over hair or clothes.
-  - Do not paint the Shading layer. Do not rename, merge or delete layers or folders, and do not
+  - "Hair and non-skin (vanilla)" is hidden while you work: it lies on top and would cover skin
+    you add over hair or clothes.
+  - If your painting does nothing, check you didn't add a layer mask: right-click the layer >
+    Delete Layer Mask.
+  - Do not paint the shading layer. Do not rename, merge or delete layers or folders, and do not
     resize the picture.
   - Save as .xcf under the same name (Ctrl+S).
 
@@ -2195,7 +2460,7 @@ THE OLDER FILES
 def main() -> int:
     ap = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     ap.add_argument("what", choices=["preview", "sheets", "workbench", "import", "mockup", "heathens", "publish", "audit",
-                                    "workbench-all", "spread", "learn", "orange"])
+                                    "workbench-all", "spread", "learn", "orange", "quick-layout"])
     ap.add_argument("--game", choices=sorted(TITLES))
     ap.add_argument("--images-root", type=Path, help="mockup: the folder holding every game's own folder")
     ap.add_argument("--images", type=Path, help="the game's own Images folder (read only)")
@@ -2242,6 +2507,18 @@ def main() -> int:
             print(f"{game}: wrote {len(written)}; kept {len(kept)} changed by you (edits read); "
                   f"kept {len(unread)} changed by you that could not be read")
         return 0
+    if args.what == "quick-layout":
+        games = sorted(TITLES) if args.all_games else [args.game]
+        if games == [None]:
+            raise SystemExit("say which game with --game, or --all-games")
+        games = [g for g in games if (args.workbench / g).is_dir()]
+        done = quick_layout(args.workbench, games, args.yes)
+        for name, (wrong, result) in sorted(done.items()):
+            print(f"{name}: " + ("; ".join(wrong) if wrong else
+                                 f"laid out and checked ({len(result.get('changes', []))} changes)"))
+        bad = sum(1 for wrong, _ in done.values() if wrong)
+        print(f"{len(done) - bad} of {len(done)} files laid out; every layer's pixels checked against the backup")
+        return 1 if bad else 0
     if args.what == "orange":
         games = sorted(TITLES) if args.all_games else [args.game]
         if games == [None] or args.images_root is None:

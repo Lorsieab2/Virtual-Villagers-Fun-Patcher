@@ -170,12 +170,36 @@ class Rebuild(unittest.TestCase):
         names = json.loads(self.xcf.read_bytes()[len(b"gimp xcf "):])
         want = [sheets.LAYER_GAME, sheets.LAYER_MASK]
         for number in range(1, len(sheets.core.TONES) + 1):
-            want += [sheets.paint_layer_name(number), sheets.LAYER_SHADING]
+            want += [sheets.paint_layer_name(number), sheets.shading_layer_name(number)]
         self.assertEqual(names, want + [sheets.LAYER_TOP])
+        self.assertEqual(len(set(names)), len(names), "every layer's name its own (no GIMP '#1' ... '#9')")
         self.assertEqual(self.gimp.jobs[-1][3]["group"], sheets.tone_layer_name(1))
         self.assertEqual(self.gimp.jobs[-1][2]["group"], sheets.tone_layer_name(1))
         self.assertEqual([(layer["clip"], layer["lock"]) for layer in self.gimp.jobs[-1][2:4]],
                          [(False, False), (True, True)], "paint: free to edit; shading: locked, shown only on paint")
+
+    def test_a_new_file_opens_ready_to_paint_ebony(self):
+        """The owner, 2026-11-28: Ebony shown and open and its colour layer active; the hair layer and the
+        mask hidden; every other tone hidden."""
+        self.build()
+        layers = {layer["name"]: layer for layer in self.gimp.jobs[-1]}
+        ebony = sheets.paint_layer_name(10)
+        self.assertEqual(sheets.SHOWN_TONE, 10)
+        self.assertEqual([name for name, layer in layers.items() if layer["active"]], [ebony])
+        shown = {layer["group"] for layer in layers.values() if layer["group"] and layer["group_visible"]}
+        self.assertEqual(shown, {sheets.tone_layer_name(10)})
+        self.assertFalse(layers[sheets.LAYER_TOP]["visible"])
+        self.assertFalse(layers[sheets.LAYER_MASK]["visible"])
+        self.assertTrue(layers[sheets.LAYER_GAME]["lock"])
+
+    def test_old_and_new_layer_names_read_alike(self):
+        """Files before 2026-11-28 (and their backups) have "Shading (locked) #N": still never a colour layer."""
+        self.build()
+        for name in ("Shading (locked)", "Shading (locked) #9", sheets.shading_layer_name(10)):
+            self.assertFalse(sheets.is_paint_layer(name))
+        self.assertTrue(sheets.is_paint_layer(sheets.paint_layer_name(10)))
+        for script in (sheets._GIMP_EXPORT, sheets._GIMP_SPREAD, sheets._GIMP_CUT):
+            self.assertIn('"paint here" in', script, "the readers find a colour layer by these words alone")
         record = json.loads((self.folder / ".generated.json").read_text(encoding="utf-8"))["carrying"]
         self.assertEqual(sorted(record), ["mask.png"] + [f"skin_{n:02d}.png" for n in range(1, 11)])
 
@@ -698,16 +722,73 @@ class Guides(unittest.TestCase):
     def test_the_tutorial_names_the_layers_as_they_are_built(self):
         text = sheets.TUTORIAL.read_text(encoding="utf-8")
         lines = [line.strip() for line in text.splitlines()]
-        top = lines.index(sheets.LAYER_TOP + "   (locked)")
+        top = lines.index(sheets.LAYER_TOP + "   (locked, hidden)")
         self.assertTrue(lines[top + 1].startswith(f"{sheets.tone_layer_name(len(sheets.core.TONES))} ... {sheets.tone_layer_name(1)}"))
         self.assertTrue(lines[top + 2].startswith(sheets.LAYER_MASK) and lines[top + 2].endswith("(hidden)"))
         self.assertTrue(lines[top + 3].startswith(sheets.LAYER_GAME) and lines[top + 3].endswith("(locked)"))
         self.assertIn("python scripts\\skin_tone_sheets.py import --game vv1", text)
         self.assertIn('"import" reads the mask\n   the same at any opacity', text)
-        inside = lines.index(sheets.LAYER_SHADING.replace(" (locked)", "") + " (locked)              never paint this one")
+        inside = lines.index(sheets.shading_layer_name(10) + "        never paint this one (named after its tone)")
         self.assertTrue(lines[inside + 1].startswith(sheets.paint_layer_name(len(sheets.core.TONES))))
-        for words in ("Pencil tool [N]", "Eraser [Shift+E]", "skin_NN.png"):
+        for words in ("Pencil tool [N]", "Eraser [Shift+E]", "skin_NN.png", "Delete Layer Mask"):
             self.assertIn(words, text)
+
+
+@unittest.skipUnless(HAVE, "numpy, scipy or Pillow is missing")
+class QuickLayoutCheck(unittest.TestCase):
+    """quick_layout_check: only visibility, locks, the shading layers' names, folders open and the active layer
+    may differ from the backup; and the file must open ready to paint Ebony."""
+
+    def described(self, laid_out):
+        layers, path = [], 0
+        def add(name, at, group=False, **kw):
+            entry = {"path": at, "name": name, "group": group, "visible": True, "lock_content": False,
+                     "lock_position": False, "lock_alpha": False, "lock_visibility": False, "expanded": False,
+                     "opacity": 100.0, "mode": 28, "composite_mode": 0, "composite_space": 0, "blend_space": 0,
+                     "offsets": [0, 0], "size": [8, 8], "color_tag": 0, "mask": None,
+                     "pixels": None if group else f"px-{name}"}
+            entry.update(kw)
+            layers.append(entry)
+        add(sheets.LAYER_TOP, [0], visible=not laid_out, lock_content=True)
+        for k, number in enumerate(range(10, 0, -1), 1):
+            shown = number == 10
+            add(sheets.tone_layer_name(number), [k], True, visible=shown if laid_out else number == 6,
+                expanded=shown if laid_out else True)
+            old = "Shading (locked)" + (f" #{number - 1}" if number > 1 else "")
+            add(sheets.shading_layer_name(number) if laid_out else old, [k, 0], lock_content=True,
+                lock_position=laid_out, pixels=f"shade-{number}")
+            add(sheets.paint_layer_name(number), [k, 1], pixels=f"paint-{number}")
+        add(sheets.LAYER_MASK, [11], visible=False)
+        add(sheets.LAYER_GAME, [12], lock_content=True, lock_position=laid_out)
+        return {"width": 8, "height": 8, "precision": 150, "base": 0, "layers": layers,
+                "selected": [sheets.paint_layer_name(10)] if laid_out else [sheets.tone_layer_name(10)]}
+
+    def test_a_good_layout_passes(self):
+        self.assertEqual(sheets.quick_layout_check(self.described(False), self.described(True)), [])
+
+    def test_a_changed_pixel_fails(self):
+        after = self.described(True)
+        after["layers"][3]["pixels"] = "something else"
+        self.assertTrue(any("pixels changed" in w for w in sheets.quick_layout_check(self.described(False), after)))
+
+    def test_a_moved_or_faded_layer_fails(self):
+        for key, value in (("offsets", [1, 0]), ("opacity", 50.0), ("mask", "a mask")):
+            after = self.described(True)
+            after["layers"][-1][key] = value
+            self.assertTrue(sheets.quick_layout_check(self.described(False), after), key)
+
+    def test_a_paint_layer_renamed_fails(self):
+        after = self.described(True)
+        after["layers"][3]["name"] = "something"
+        self.assertTrue(sheets.quick_layout_check(self.described(False), after))
+
+    def test_the_wrong_active_layer_or_tone_shown_fails(self):
+        after = self.described(True)
+        after["selected"] = [sheets.shading_layer_name(10)]
+        self.assertTrue(sheets.quick_layout_check(self.described(False), after))
+        after = self.described(True)
+        after["layers"][4]["visible"] = True       # Tone 09 shown too
+        self.assertTrue(sheets.quick_layout_check(self.described(False), after))
 
 
 if __name__ == "__main__":

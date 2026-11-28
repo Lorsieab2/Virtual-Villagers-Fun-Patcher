@@ -5,7 +5,7 @@ Every skin tone is its own folder of two layers (GIMP calls it a layer group):
 
     a colour layer   - flat paint, in the tone's colour, on every pixel that is skin in that tone.
                        THIS IS THE ONE YOU EDIT. Paint = skin. Erased = not skin.
-    a Shading layer  - sits on top and gives your paint the game art's own light and dark.
+    a shading layer  - sits on top and gives your paint the game art's own light and dark.
                        Locked. Never paint it. It shows only where the colour layer has paint.
 
 So: paint on a tone's colour layer and the skin appears there, already shaded.
@@ -23,24 +23,31 @@ This guide is for GIMP 3. Keys in [brackets].
 2. SHOW THE LAYERS PANEL
    - Windows > Dockable Dialogs > Layers [Ctrl+L] if it is not already showing.
    - You will see, top to bottom:
-       Hair and non-skin (vanilla)   (locked)
+       Hair and non-skin (vanilla)   (locked, hidden)
        Tone 10 - S10 Ebony ... Tone 01 - S1 Porcelain   (ten folders, one a tone)
        Skin mask                     (hidden)
        Game's own art                (locked)
-   - Click the small arrow beside a tone's folder to open it. Inside, top to bottom:
-       Shading (locked)              never paint this one
+   - Inside a tone's folder, top to bottom:
+       Ebony shading (locked)        never paint this one (named after its tone)
        Ebony colour (paint here)     the layer you edit (named after its tone)
-     (GIMP adds a number to most of the Shading layers' names, e.g. "Shading (locked) #9". Same thing.)
+     (In files made before 2026-11-28 the shading layers are called "Shading (locked)",
+     "Shading (locked) #1" ... "#9". Same thing.)
 
-3. PICK THE TONE AND SET UP THE VIEW
-   - Show ONE tone: click the EYE beside its folder so it is on, and turn the other tones' eyes off.
-     A dark tone such as "Tone 10 - S10 Ebony" shows mistakes best.
-   - Click the eye beside "Hair and non-skin (vanilla)" to HIDE it. It lies on top, and would cover
-     skin you add over hair or clothes. With it hidden, what you see is exactly what the game will show.
-   - Open the tone's folder (the small arrow) and click the NAME of its "... colour (paint here)"
-     layer so it is highlighted. Painting always goes on the highlighted layer, so check this
-     every time. If GIMP says the layer's pixels are locked, you have the Shading layer: click the
-     colour layer under it instead.
+3. THE FILE OPENS READY TO PAINT EBONY
+   Every file opens like this, so you can start painting at once:
+   - Tone 10 - S10 Ebony is the one tone shown, and its folder is open. The other tones' folders
+     are hidden and closed.
+   - "Hair and non-skin (vanilla)" is hidden, so it cannot cover skin you add over hair or
+     clothes. What you see is exactly what the game will show in Ebony.
+   - "Ebony colour (paint here)" is already the highlighted layer. Painting always goes on the
+     highlighted layer, so if you click another layer, click the NAME of the colour layer again
+     before you paint. If GIMP says the layer's pixels are locked, you have the shading layer:
+     click the colour layer under it instead.
+   - To look at another tone: click the EYE beside its folder to show it and turn Ebony's eye off,
+     then open the folder (the small arrow) and click its "... colour (paint here)" layer.
+   - To see the hair and clothes again, click the eye beside "Hair and non-skin (vanilla)".
+   - If your painting does nothing, check you didn't add a layer mask: right-click the layer >
+     Delete Layer Mask.
    - Zoom in: press [4] for 800% or [5] for 1600%. [1] goes back to 100%.
      Hold [Space] and move the mouse to pan around.
 
@@ -49,7 +56,7 @@ This guide is for GIMP 3. Keys in [brackets].
      Use the Pencil, not the Paintbrush: the Pencil gives hard, exact pixels.
    - Click or drag over every pixel that should be skin: necks, ears, arms, hands, legs, feet,
      the strip of skin between hair and clothes.
-   - Any paint colour works. The Shading layer on top turns it into the tone's own shaded colour
+   - Any paint colour works. The shading layer on top turns it into the tone's own shaded colour
      at once, so you see the real result as you paint.
    - Paint outside the villager (on the empty background) shows as a flat blob and is ignored by
      the mod. Erase it to keep the picture tidy.
