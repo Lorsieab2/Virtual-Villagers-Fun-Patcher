@@ -1,9 +1,16 @@
 How to mark skin in GIMP (VVFP Skin Tones Workbench)
 =====================================================
 
-The "Skin mask" layer decides which pixels get a skin tone, in every tone at once.
-White = skin. Empty (see-through) = not skin (hair, eyes, teeth, clothes, outlines...).
-Fix the mask once and all ten tones follow it.
+Every skin tone is its own folder of two layers (GIMP calls it a layer group):
+
+    a colour layer   - flat paint, in the tone's colour, on every pixel that is skin in that tone.
+                       THIS IS THE ONE YOU EDIT. Paint = skin. Erased = not skin.
+    a Shading layer  - sits on top and gives your paint the game art's own light and dark.
+                       Locked. Never paint it. It shows only where the colour layer has paint.
+
+So: paint on a tone's colour layer and the skin appears there, already shaded.
+Erase and the game's own art comes back. Each tone is separate: what you do in Ebony
+changes Ebony only.
 
 This guide is for GIMP 3. Keys in [brackets].
 
@@ -17,79 +24,79 @@ This guide is for GIMP 3. Keys in [brackets].
    - Windows > Dockable Dialogs > Layers [Ctrl+L] if it is not already showing.
    - You will see, top to bottom:
        Hair and non-skin (vanilla)   (locked)
-       Tone 10 - S10 Ebony ... Tone 01 - S1 Porcelain
+       Tone 10 - S10 Ebony ... Tone 01 - S1 Porcelain   (ten folders, one a tone)
        Skin mask                     (hidden)
        Game's own art                (locked)
+   - Click the small arrow beside a tone's folder to open it. Inside, top to bottom:
+       Shading (locked)              never paint this one
+       Ebony colour (paint here)     the layer you edit (named after its tone)
+     (GIMP adds a number to most of the Shading layers' names, e.g. "Shading (locked) #9". Same thing.)
 
-3. SET UP THE VIEW SO YOU CAN SEE WHAT YOU'RE MARKING
-   - Click the EYE next to "Skin mask" to show it.
-   - Click the NAME "Skin mask" so it is the selected layer (highlighted). Painting always goes
-     on the selected layer, so check this every time.
-   - Click the eye next to "Hair and non-skin (vanilla)" to HIDE it while you mark, so it doesn't
-     cover the mask.
-   - Lower "Skin mask"'s Opacity slider (top of the Layers panel) to about 50, so you can see the
-     game's art through the white. (Put it back to 100 before saving: step 7.)
+3. PICK THE TONE AND SET UP THE VIEW
+   - Show ONE tone: click the EYE beside its folder so it is on, and turn the other tones' eyes off.
+     A dark tone such as "Tone 10 - S10 Ebony" shows mistakes best.
+   - Click the eye beside "Hair and non-skin (vanilla)" to HIDE it. It lies on top, and would cover
+     skin you add over hair or clothes. With it hidden, what you see is exactly what the game will show.
+   - Open the tone's folder (the small arrow) and click the NAME of its "... colour (paint here)"
+     layer so it is highlighted. Painting always goes on the highlighted layer, so check this
+     every time. If GIMP says the layer's pixels are locked, you have the Shading layer: click the
+     colour layer under it instead.
    - Zoom in: press [4] for 800% or [5] for 1600%. [1] goes back to 100%.
      Hold [Space] and move the mouse to pan around.
 
-4. ADD SKIN (paint white)
-   - Press [D] to reset the colours (black and white), then [X] if needed so the FOREGROUND
-     (top-left square in the toolbox) is WHITE.
+4. ADD SKIN (Pencil)
    - Pick the Pencil tool [N]. In Tool Options set Size to 1 (one pixel), or bigger for big areas.
      Use the Pencil, not the Paintbrush: the Pencil gives hard, exact pixels.
-   - Click or drag over every pixel of skin that is missing: necks, ears, arms, hands, legs,
-     feet, the strip of skin between hair and clothes.
+   - Click or drag over every pixel that should be skin: necks, ears, arms, hands, legs, feet,
+     the strip of skin between hair and clothes.
+   - Any paint colour works. The Shading layer on top turns it into the tone's own shaded colour
+     at once, so you see the real result as you paint.
+   - Paint outside the villager (on the empty background) shows as a flat blob and is ignored by
+     the mod. Erase it to keep the picture tidy.
 
-5. REMOVE SKIN (erase)
+5. REMOVE SKIN (Eraser)
    - Pick the Eraser [Shift+E]. In Tool Options tick "Hard edge" and set Size to 1.
-   - Erase pixels that are NOT skin but got marked: pale blond hair, eye whites, teeth,
-     cream/tan/yellow clothes, belts, jewellery.
+     ("Hard edge" matters: a pixel that is only half erased still counts as skin.)
+   - Erase pixels that are NOT skin but got coloured: pale blond hair, eye whites, teeth,
+     cream/tan/yellow clothes, belts, jewellery. The game's own art shows again there.
    - If the eraser paints a colour instead of making pixels see-through, the layer has no
      transparency: Layer > Transparency > Add Alpha Channel, then erase again.
 
    Big areas faster (optional):
    - Free Select tool [F]: click around an area to outline it, double-click to close.
-   - With "Skin mask" selected: Edit > Fill with FG Color [Ctrl+,] to mark it all as skin,
-     or Edit > Clear [Delete] to unmark it all. Select > None [Ctrl+Shift+A] when done.
+   - With the colour layer highlighted: Edit > Fill with FG Color [Ctrl+,] to make it all skin,
+     or Edit > Clear [Delete] to make none of it skin. Select > None [Ctrl+Shift+A] when done.
 
-6. CHECK YOUR WORK
-   - Hide "Skin mask" (its eye), and show a DARK tone, e.g. "Tone 10 - S10 Ebony" (click its eye;
-     hide the other tone layers), and show "Hair and non-skin (vanilla)" again.
-   - Any light, untoned patch of skin now stands out on the dark tone: that's skin you still
-     need to add (step 4). Any hair or clothing turned dark brown: that's skin you need to
-     remove (step 5).
-   - Note: the tone layers in the .xcf are pictures made when the file was built. They do NOT change
-     when you change the mask, in GIMP or after "import". "import" makes the mod use your mask (every
-     tone you did not paint yourself is made again from it); the .xcf you saved stays exactly yours.
-     So judge a mask change with the original art and the mask view. To get a file whose tone layers
-     show your mask, see "TO SEE YOUR MASK IN THE TONE LAYERS" below.
+6. DO THE OTHER TONES
+   - Each tone has its own colour layer, so a change in one tone is not in the others.
+     To change all ten the same way, repeat it in each tone's colour layer.
+   - Quick way to copy one tone's skin to another: highlight the colour layer you finished,
+     Layer > Transparency > Alpha to Selection; then highlight the other tone's colour layer,
+     Edit > Clear [Delete], Edit > Fill with FG Color [Ctrl+,], Select > None [Ctrl+Shift+A].
 
 7. SAVE
-   - Set "Skin mask" Opacity back to 100. (If you forget, nothing is lost: "import" reads the mask
-     the same at any opacity, and whether or not a layer's eye is on.)
-   - Leave layer names, order and the picture size exactly as they are (don't rename, merge,
-     delete, crop or scale).
+   - Leave layer names, order, the folders and the picture size exactly as they are (don't rename,
+     merge, delete, crop or scale). Which eyes are on or off does not matter.
    - File > Save [Ctrl+S]. Keep it as .xcf in the same place with the same name.
      (Don't use File > Export.)
 
 8. BRING YOUR EDITS INTO THE MOD
    In the patcher's folder, run:
        python scripts\skin_tone_sheets.py import --game vv1        (vv1 ... vv5)
-   Your mask (and any tone layer you painted yourself) is kept in
-       <this folder>\<game>\edits\<sheet>\
-   and wins over the automatic version from then on. Rebuilding the workbench never replaces
-   a file you have changed.
+   For every tone whose colour layer you changed, where you painted is kept in
+       <this folder>\<game>\edits\<sheet>\skin_NN.png        (NN = the tone's number)
+   and wins over the automatic version from then on. Only WHERE the skin is gets kept: the mod
+   always makes the colours and the shading again from the game's own art, on each player's
+   own files. Rebuilding the workbench never replaces a file you have changed.
 
-TO SEE YOUR MASK IN THE TONE LAYERS (optional)
-   After "import", your edits are safe in the "edits" folder. If you then want a fresh .xcf whose
-   ten tone layers are made from your mask: delete that one .xcf yourself and run
-       python scripts\skin_tone_sheets.py workbench --game vv1 --images "<the game's Images folder>"
-   The new file has your mask and your own painted tone layers in it. Only delete a file after
-   "import" has kept its edits.
+ABOUT THE "Skin mask" LAYER
+   It is from the first version of these files and you can leave it alone. It still works: white
+   there = skin, for every tone whose colour layer you have NOT changed yourself. The tone folders
+   in the file do not follow it while you look at them in GIMP. "import" reads the mask
+   the same at any opacity, and whether or not a layer's eye is on.
 
 TIPS
    - Do one sheet at a time and save often.
    - A villager's skin is the same on every frame of a sheet, so work frame by frame across the row.
-   - If you paint directly on a tone layer (to touch up one tone), also paint the Skin mask white
-     under it: only paint inside the mask is used.
    - Made a mistake? Edit > Undo [Ctrl+Z], as many times as you need.
+   - The files as they were before 2026-11-27 are in each game's "_before overlay 2026-11-27" folder.

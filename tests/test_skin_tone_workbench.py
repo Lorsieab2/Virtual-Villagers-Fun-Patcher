@@ -35,12 +35,13 @@ class FakeGimp:
     """Writes an .xcf for a build job; for an export job, the layers the test says the owner painted."""
 
     def __init__(self):
-        self.built, self.read, self.painted, self.fail_reads = [], [], {}, False
+        self.built, self.read, self.painted, self.fail_reads, self.jobs = [], [], {}, False, []
 
     def __call__(self, script, job):
         if script is sheets._GIMP_BUILD:
             for item in job["files"]:
                 names = [layer["name"] for layer in item["layers"]]
+                self.jobs.append(item["layers"])
                 Path(item["xcf"]).write_bytes(b"gimp xcf " + json.dumps(names).encode())
                 self.built.append(Path(item["xcf"]).name)
             return ""
@@ -101,17 +102,29 @@ class Rebuild(unittest.TestCase):
         self.build()
         self.xcf.write_bytes(self.xcf.read_bytes() + b" and the owner's painting")
         theirs = self.xcf.read_bytes()
-        painted = Image.new("RGBA", (600, 25), (0, 0, 0, 0))
-        painted.putpixel((152, 7), (90, 60, 40, 255))
-        self.gimp.painted["vv1_carrying.xcf"] = {"tone_03.png": painted}
+        painted = Image.new("RGBA", (600, 25), (0, 0, 0, 0))     # tone 3's colour layer as the owner left it:
+        painted.putpixel((152, 7), (90, 60, 40, 255))            # paint of any colour on two pixels,
+        painted.putpixel((153, 7), (1, 2, 3, 9))                 # one of them faint, as a sprite's edge is
+        self.gimp.painted["vv1_carrying.xcf"] = {"skin_03.png": painted}
         written, kept, unread = self.build()
         self.assertEqual((written, kept, unread), ([], ["carrying"], []))
         self.assertEqual(self.xcf.read_bytes(), theirs, "the owner's file, byte for byte")
         self.assertEqual(self.gimp.read, ["vv1_carrying.xcf"], "read as `import` reads it")
         self.assertEqual(self.gimp.built, ["vv1_carrying.xcf"], "built once, the first time only")
-        kept_layer = self.folder / "edits" / "carrying" / "tone_03.png"
+        kept_layer = self.folder / "edits" / "carrying" / "skin_03.png"
         self.assertTrue(kept_layer.is_file(), "its edit is kept in edits")
-        self.assertEqual(Image.open(kept_layer).convert("RGBA").getpixel((152, 7)), (90, 60, 40, 255))
+        mark = np.array(Image.open(kept_layer).convert("RGBA"))
+        self.assertEqual({tuple(p) for p in mark.reshape(-1, 4)}, {(255, 255, 255, 255), (0, 0, 0, 0)},
+                         "kept as where the skin is: no colour of the owner's paint, none of the art")
+        self.assertEqual([(int(x), int(y)) for y, x in zip(*np.nonzero(mark[..., 3]))], [(152, 7), (153, 7)])
+        art = sheets.Art("vv1", self.images, self.folder / "edits", shipped=False)
+        self.assertEqual(int(art.tone_mask("carrying.png", 3).sum()), 2, "tone 3 has skin where they painted")
+        self.assertEqual(int(art.tone_mask("carrying.png", 4).sum()), int(art.mask("carrying.png").sum()),
+                         "and every other tone keeps the sheet's own mask")
+        stock = art.stock("carrying.png")
+        three = art.sheet("carrying.png", sheets.core.TONES[2])
+        self.assertEqual({(int(x), int(y)) for y, x in zip(*np.nonzero((three != stock).any(-1)))}, {(152, 7), (153, 7)},
+                         "the tone is made on exactly those pixels, shaded from the game's own art")
         # ... and again, however often: still theirs.
         self.build()
         self.assertEqual(self.xcf.read_bytes(), theirs)
@@ -144,6 +157,71 @@ class Rebuild(unittest.TestCase):
         self.assertEqual(sheets.changed_by_the_owner("vv1", self.folder, ["carrying"]), ["carrying"])
         self.assertEqual(sheets.pin_as_written("vv1", self.folder, built_at + 1), ["carrying"])
         self.assertEqual(sheets.changed_by_the_owner("vv1", self.folder, ["carrying"]), [])
+
+    def test_a_build_makes_each_tone_a_group_of_paint_under_shading(self):
+        self.build()
+        names = json.loads(self.xcf.read_bytes()[len(b"gimp xcf "):])
+        want = [sheets.LAYER_GAME, sheets.LAYER_MASK]
+        for number in range(1, len(sheets.core.TONES) + 1):
+            want += [sheets.paint_layer_name(number), sheets.LAYER_SHADING]
+        self.assertEqual(names, want + [sheets.LAYER_TOP])
+        self.assertEqual(self.gimp.jobs[-1][3]["group"], sheets.tone_layer_name(1))
+        self.assertEqual(self.gimp.jobs[-1][2]["group"], sheets.tone_layer_name(1))
+        self.assertEqual([(layer["clip"], layer["lock"]) for layer in self.gimp.jobs[-1][2:4]],
+                         [(False, False), (True, True)], "paint: free to edit; shading: locked, shown only on paint")
+        record = json.loads((self.folder / ".generated.json").read_text(encoding="utf-8"))["carrying"]
+        self.assertEqual(sorted(record), ["mask.png"] + [f"skin_{n:02d}.png" for n in range(1, 11)])
+
+    def test_a_colour_layer_still_as_built_is_not_an_edit(self):
+        self.build()
+        self.xcf.write_bytes(self.xcf.read_bytes() + b" saved again, nothing painted")
+        mask = sheets.Art("vv1", self.images, shipped=False).mask("carrying.png")
+        layer = np.zeros(mask.shape + (4,), np.uint8)
+        layer[mask] = (146, 98, 62, 255)
+        self.gimp.painted["vv1_carrying.xcf"] = {"skin_07.png": Image.fromarray(layer)}
+        self.build()
+        self.assertFalse((self.folder / "edits" / "carrying" / "skin_07.png").exists())
+
+    def test_starting_fresh_backs_every_file_up_first(self):
+        self.build()
+        self.xcf.write_bytes(self.xcf.read_bytes() + b" and the owner's painting")
+        theirs = self.xcf.read_bytes()
+        written, kept, unread = sheets.build_workbench("vv1", self.images, self.folder, fresh_backup="_before")
+        self.assertEqual((len(written), kept, unread), (1, [], []))
+        self.assertEqual((self.folder / "_before" / "vv1_carrying.xcf").read_bytes(), theirs, "their file is kept")
+        self.assertNotEqual(self.xcf.read_bytes(), theirs, "and a fresh one is in its place")
+        self.assertEqual(self.gimp.read, [], "nothing is read back")
+        self.xcf.write_bytes(b"painted again")
+        sheets.build_workbench("vv1", self.images, self.folder, fresh_backup="_before")
+        self.assertEqual((self.folder / "_before" / "vv1_carrying.xcf").read_bytes(), theirs, "a backup is never overwritten")
+        self.assertEqual((self.folder / "_before" / "vv1_carrying (2).xcf").read_bytes(), b"painted again")
+
+    def test_publishing_ships_where_the_skin_is_and_nothing_else(self):
+        """What goes into the patcher: white marks on the sprite's own pixels -- not the owner's paint colour,
+        not a pixel of the game's art -- and the patcher's own maker tones exactly those pixels."""
+        self.build()
+        self.xcf.write_bytes(self.xcf.read_bytes() + b" and the owner's painting")
+        painted = Image.new("RGBA", (600, 25), (0, 0, 0, 0))
+        painted.putpixel((152, 7), (90, 60, 40, 255))            # on the baby's face
+        painted.putpixel((130, 15), (90, 60, 40, 255))           # on the blanket: the owner says it is skin
+        painted.putpixel((3, 3), (90, 60, 40, 255))              # off the sprite: nothing
+        self.gimp.painted["vv1_carrying.xcf"] = {"skin_03.png": painted}
+        self.build()
+        edits, out = self.folder / "edits", self.folder.parent / "shipped"
+        written = sheets.publish_edits(sheets.Art("vv1", self.images, edits, shipped=False), edits, out)
+        self.assertEqual(written, ["vv1/carrying/skin_03.png"])
+        mark = np.array(Image.open(out / "vv1" / "carrying" / "skin_03.png").convert("RGBA"))
+        self.assertEqual({tuple(int(v) for v in p) for p in mark.reshape(-1, 4)}, {(255, 255, 255, 255), (0, 0, 0, 0)})
+        self.assertEqual({(int(x), int(y)) for y, x in zip(*np.nonzero(mark[..., 3]))}, {(152, 7), (130, 15)})
+        pins = json.loads((out / "manifest.json").read_text(encoding="utf-8"))
+        self.assertEqual(list(pins), ["vv1/carrying/skin_03.png"])
+        # The patcher's maker (Pillow only) and this tool make the same tone 3 from it.
+        sys.path.insert(0, str(ROOT / "src"))
+        import vv_skin_tone_art as maker
+        maker.write_tone_sheets(1, self.images, self.folder.parent / "made", edits=[out / "vv1"], tones=[3])
+        made = np.array(Image.open(self.folder.parent / "made" / maker.installed_name(3, "carrying.png")).convert("RGBA"))
+        stock = np.array(Image.open(self.images / "carrying.png").convert("RGBA"))
+        self.assertEqual({(int(x), int(y)) for y, x in zip(*np.nonzero((made != stock).any(-1)))}, {(152, 7), (130, 15)})
 
     def test_the_readme_says_so(self):
         self.assertIn("A file you have changed is never overwritten", sheets.README)
@@ -222,7 +300,11 @@ class Guides(unittest.TestCase):
         self.assertTrue(lines[top + 2].startswith(sheets.LAYER_MASK) and lines[top + 2].endswith("(hidden)"))
         self.assertTrue(lines[top + 3].startswith(sheets.LAYER_GAME) and lines[top + 3].endswith("(locked)"))
         self.assertIn("python scripts\\skin_tone_sheets.py import --game vv1", text)
-        self.assertIn("reads the mask\n     the same at any opacity", text)
+        self.assertIn('"import" reads the mask\n   the same at any opacity', text)
+        inside = lines.index(sheets.LAYER_SHADING.replace(" (locked)", "") + " (locked)              never paint this one")
+        self.assertTrue(lines[inside + 1].startswith(sheets.paint_layer_name(len(sheets.core.TONES))))
+        for words in ("Pencil tool [N]", "Eraser [Shift+E]", "skin_NN.png"):
+            self.assertIn(words, text)
 
 
 if __name__ == "__main__":

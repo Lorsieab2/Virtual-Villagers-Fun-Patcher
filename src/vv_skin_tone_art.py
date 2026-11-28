@@ -24,8 +24,8 @@ from pathlib import Path
 import vv_skin_tones
 
 ROOT = Path(__file__).resolve().parents[1]
-# The owner's hand-painted masks and tone layers that ship with the patcher, skin pixels only
-# (tests/test_skin_tone_owner_edits.py): <game folder "vv1".."vv5">/<sheet>/mask.png and tone_NN.png.
+# The owner's marking of the skin that ships with the patcher -- where the skin is, never a pixel of art
+# (tests/test_skin_tone_owner_edits.py): <game folder "vv1".."vv5">/<sheet>/skin_NN.png and mask.png.
 OWNER_EDITS = ROOT / "assets" / "skin_tones" / "owner_edits"
 
 CORE = (23.5, 42.0, 0.20, 0.82, 0.45)           # hue from, hue to, saturation from, to, value from
@@ -467,9 +467,11 @@ def _edit(edits, stem: str, leaf: str):
 def write_tone_sheets(game: int, images: Path, out: Path, edits=None, tones=None, report=None) -> list[str]:
     """Every tone's copy of every sheet of `game`, made from the pictures in `images` (the player's own
     game) and written to `out` under the names "VVFP Skin Tones.dll" looks for.  `edits`: folders of the
-    owner's art, the first that has a file winning (default: the shipped OWNER_EDITS of the game) -- a
-    sheet's mask.png there is its skin mask, and a tone_NN.png there is laid over the player's own sheet
-    in place of the generated tone.  A sheet the game does not have is skipped.  Nothing in `images` is
+    owner's marking, the first that has a file winning (default: the shipped OWNER_EDITS of the game) -- a
+    sheet's skin_NN.png there is where tone NN has skin on it (white where the owner painted that tone's
+    colour layer), and its mask.png the skin of every tone that has none of its own.  Only WHERE the skin
+    is comes from the owner: the colours and the shading are always made here, from the player's own
+    picture.  A sheet the game does not have is skipped.  Nothing in `images` is
     changed (unless `out` is `images`, where only the new names are written).  Returns the names written."""
     from PIL import Image
     images, out = Path(images), Path(out)
@@ -495,18 +497,19 @@ def write_tone_sheets(game: int, images: Path, out: Path, edits=None, tones=None
                 mask = {i for i, (r, g, b, a) in enumerate(layer.getdata())
                         if a >= MASK_ALPHA and max(r, g, b) > 127 and sheet[2][i][3] > 0}
         for tone in tones:
-            painted = _edit(edits, stem, f"tone_{tone:02d}.png")
-            pixels = None
+            painted = _edit(edits, stem, f"skin_{tone:02d}.png")
+            skin = None
             if painted is not None:
                 with Image.open(painted) as opened:
                     layer = opened.convert("RGBA")
                 if layer.size == image.size:
-                    pixels = [(lr, lg, lb, max(a, la)) if la > 0 else (r, g, b, a)
-                              for (r, g, b, a), (lr, lg, lb, la) in zip(sheet[2], layer.getdata())]
-            if pixels is None:
+                    skin = {i for i, (_r, _g, _b, a) in enumerate(layer.getdata())
+                            if a > 0 and sheet[2][i][3] > 0}
+            if skin is None:
                 if mask is None:
                     mask = mask_for(game, spec, sheet)
-                pixels = recolour(sheet, mask, vv_skin_tones.TONE_TABLE[tone - 1], spec["cell"][1])
+                skin = mask
+            pixels = recolour(sheet, skin, vv_skin_tones.TONE_TABLE[tone - 1], spec["cell"][1])
             made = Image.new("RGBA", image.size)
             made.putdata(pixels)
             name = installed_name(tone, spec["name"])

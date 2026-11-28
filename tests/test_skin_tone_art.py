@@ -7,7 +7,7 @@ On made-up sheets (no game's art is needed, and none is in the repository):
     pixel under 70% of the tone's own chroma), keeps the art's shading (a lighter skin pixel stays lighter)
     and runs from light to dark over the ten tones;
   * the files are written under the names "VVFP Skin Tones.dll" looks for, the owner's painted mask and
-    tone layers win over the generated art, and the player's own pictures are not touched;
+    marking of each tone's skin wins over the generated mask, and the player's own pictures are not touched;
   * and it is the same method as the development tool's (scripts/skin_tone_preview.py, on numpy): the same
     mask, the same colours to within one level of one channel.
 """
@@ -176,7 +176,7 @@ class Files(unittest.TestCase):
             got = list(made.convert("RGBA").getdata())
         self.assertEqual(got, art.recolour(sheet, art.skin_mask(sheet, True), tones.TONE_TABLE[4]))
 
-    def test_the_owners_painted_mask_and_tone_win(self):
+    def test_the_owners_marking_of_the_skin_wins(self):
         root, images, sheet = self.game()
         w, h, px = sheet
         edits = root / "edits"
@@ -186,9 +186,11 @@ class Files(unittest.TestCase):
             for x in range(10, 30):
                 mask.putpixel((x, y), (255, 255, 255, 255))
         mask.save(edits / "male_heads" / "mask.png")
-        layer = Image.new("RGBA", (w, h), (0, 0, 0, 0))
-        layer.putpixel((15, 22), (1, 2, 3, 255))
-        layer.save(edits / "male_heads" / "tone_07.png")
+        layer = Image.new("RGBA", (w, h), (0, 0, 0, 0))      # the owner: tone 7 has skin on ONE pixel only,
+        layer.putpixel((15, 22), (255, 255, 255, 255))       # and on a hair pixel they painted
+        layer.putpixel((20, 5), (255, 255, 255, 255))
+        layer.putpixel((2, 2), (255, 255, 255, 255))         # paint off the sprite is nothing
+        layer.save(edits / "male_heads" / "skin_07.png")
         art.write_tone_sheets(1, images, root / "out", edits=[edits], tones=[3, 7])
         with Image.open(root / "out" / "vvfp_skin_03_male_heads.png") as made:
             three = list(made.convert("RGBA").getdata())
@@ -197,9 +199,11 @@ class Files(unittest.TestCase):
         self.assertTrue(all(10 <= i % w < 30 and 10 <= i // w < 30 for i in changed), "only inside the owner's mask")
         with Image.open(root / "out" / "vvfp_skin_07_male_heads.png") as made:
             seven = list(made.convert("RGBA").getdata())
-        self.assertEqual(seven[22 * w + 15], (1, 2, 3, 255), "the owner's painted pixel")
-        self.assertEqual([p for i, p in enumerate(seven) if i != 22 * w + 15],
-                         [p for i, p in enumerate(px) if i != 22 * w + 15], "and the rest is the player's own sheet")
+        marked = {22 * w + 15, 5 * w + 20}
+        self.assertEqual({i for i, (a, b) in enumerate(zip(px, seven)) if a != b}, marked,
+                         "tone 7 is toned exactly where the owner painted it, on the sprite")
+        want = art.recolour(sheet, marked, tones.TONE_TABLE[6])
+        self.assertEqual(seven, want, "in the tone's own colours, shaded from the player's own picture")
 
     def test_a_sheet_the_game_does_not_have_is_skipped(self):
         root, images, _ = self.game()

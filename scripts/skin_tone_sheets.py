@@ -13,17 +13,23 @@ builds and reads back the owner's workbench:
 
 THE WORKBENCH (never in the repository: it holds game art).  One .xcf per head and body sheet, written
 by GIMP itself, with layers bottom to top: "Game's own art" (locked), "Skin mask" (white = skin, hidden),
-"Tone 01 - S1 Porcelain" ... one per tone (skin pixels only; all hidden but one), "Hair and non-skin (vanilla)"
-(locked).  `import` asks GIMP to export every layer again and keeps what the owner changed in
-<workbench>\\<game>\\edits\\<sheet>\\: mask.png and tone_NN.png.  Whatever is there wins over the generated
-art, here and wherever the sheets are made (Art(..., edits=...)).
+one layer GROUP per tone "Tone 01 - S1 Porcelain" ... (all hidden but one), "Hair and non-skin (vanilla)"
+(locked).  The owner, 2026-11-27: each tone is "an editable color overlay mask over the base art so it
+keeps its shading and i can add more colored skin and delete them in each tone".  So a tone's group holds
+"<tone> colour (paint here)" -- flat tone colour on that tone's skin pixels, the layer the owner paints and
+erases -- and over it "Shading (locked)": the tone's shaded colour for every pixel of the sprite, shown
+only where the colour layer has paint (Normal mode, composite mode "Clip to backdrop").  The group alone
+is, pixel for pixel, the tone's own sheet on its skin; a pixel the owner adds is shaded at once.
+`import` asks GIMP for every colour layer again and keeps where the owner painted, for each tone they
+changed, in <workbench>\\<game>\\edits\\<sheet>\\skin_NN.png (white where painted), and mask.png when the
+"Skin mask" was changed.  Whatever is there wins over the generated mask, here and wherever the sheets are
+made (Art(..., edits=...)).  The colours and the shading are never read back: always made from the art.
 
-THE OWNER'S ART MAY SHIP (the owner, 2026-11-26: "yes my art can ship").  `publish` copies what `import`
-kept into assets/skin_tones/owner_edits/<game>/<sheet>/, as the SKIN PIXELS ONLY: mask.png (white where
-skin, nothing else) and each painted tone_NN.png with every pixel outside that mask made transparent --
-never the game's own layer, hair, eyes or clothes.  manifest.json there pins each file by SHA-256
-(tests/test_skin_tone_owner_edits.py).  Where sheets are made, the workbench's edits come first, then
-these, then the generated art.
+THE OWNER'S MARKING MAY SHIP (the owner, 2026-11-26: "yes my art can ship").  `publish` copies what
+`import` kept into assets/skin_tones/owner_edits/<game>/<sheet>/ as WHERE THE SKIN IS ONLY: skin_NN.png
+and mask.png, white where skin and nothing else -- no colour, and never the game's own layer, hair, eyes
+or clothes.  manifest.json there pins each file by SHA-256 (tests/test_skin_tone_owner_edits.py).  Where
+sheets are made, the workbench's edits come first, then these, then the generated mask.
 
 Everything else this writes is made from the player's own game files and is never committed or shipped.
 """
@@ -33,6 +39,7 @@ import argparse
 import hashlib
 import json
 import os
+import shutil
 import subprocess
 import sys
 import tempfile
@@ -122,14 +129,14 @@ def find_file(folder: Path, name: str):
 
 class Art:
     """A game's sheets: its own art, each sheet's skin mask, and each tone's sheet.  `edits` is the
-    owner's folder (<workbench>/<game>/edits): a mask.png or a tone_NN.png there wins; then the owner's
+    owner's folder (<workbench>/<game>/edits): a skin_NN.png (a tone's own skin) or a mask.png there wins; then the owner's
     shipped edits (assets/skin_tones/owner_edits/<game>), unless `shipped` is False."""
 
     def __init__(self, game, images: Path, edits: Path | None = None, shipped: bool = True):
         self.game, self.images = game, Path(images)
         self.edit_folders = [f for f in (edits, SHIPPED_EDITS / game if shipped else None) if f is not None]
         self.specs = {s["name"]: s for s in sheets_of(game) if find_file(self.images, s["name"])}
-        self._raw, self._mask, self._made, self.mask_source = {}, {}, {}, {}
+        self._raw, self._mask, self._made, self.mask_source, self._tone_mask = {}, {}, {}, {}, {}
 
     def stock(self, name):
         if name not in self._raw:
@@ -185,6 +192,21 @@ class Art:
         self._mask[name], self.mask_source[name] = m, source
         return m
 
+    def tone_mask(self, name, number):
+        """The skin of one tone (1..10) on a sheet: what the owner painted on that tone's colour layer
+        (edits: skin_NN.png, white where painted) when they did, else the sheet's own mask."""
+        painted = self._edit(name, f"skin_{number:02d}.png")
+        if painted is None:
+            return self.mask(name)
+        key = (name, number)
+        if key not in self._tone_mask:
+            layer = np.array(Image.open(painted).convert("RGBA"))
+            stock = self.stock(name)
+            if layer.shape != stock.shape:
+                raise SystemExit(f"{painted}: not the sheet's size")
+            self._tone_mask[key] = painted_from_layer(layer) & (stock[..., 3] > 0)
+        return self._tone_mask[key]
+
     def sheet(self, name, tone=None):
         """The sheet for `tone` (a core.TONES row), or the game's own for None."""
         if tone is None:
@@ -193,27 +215,17 @@ class Art:
         key = (name, number)
         if key not in self._made:
             stock = self.stock(name)
-            edited = self._edit(name, f"tone_{number:02d}.png")
-            if edited is not None:
-                layer = np.array(Image.open(edited).convert("RGBA"))
-                if layer.shape != stock.shape:
-                    raise SystemExit(f"{edited}: not the sheet's size")
-                made = stock.copy()
-                painted = layer[..., 3] > 0
-                made[painted, :3] = layer[painted, :3]
-                made[..., 3] = np.maximum(stock[..., 3], np.where(painted, layer[..., 3], 0))
-            else:
-                mask = self.mask(name)
-                made = core.recolour(stock, mask, tone, self.specs[name]["cell"][1])
-                if not core.check_untouched(stock, made, mask):
-                    raise SystemExit(f"{name}: a pixel outside the skin mask changed")
+            mask = self.tone_mask(name, number)
+            made = core.recolour(stock, mask, tone, self.specs[name]["cell"][1])
+            if not core.check_untouched(stock, made, mask):
+                raise SystemExit(f"{name}: a pixel outside the skin mask changed")
             self._made[key] = made
         return self._made[key]
 
     def tone_layer(self, name, tone):
         """A tone's sheet with only its skin pixels on it (the workbench layer)."""
         made = self.sheet(name, tone).copy()
-        made[~self.mask(name)] = 0
+        made[~self.tone_mask(name, core.TONES.index(tone) + 1)] = 0
         return made
 
     def cell(self, name, col, row, tone=None):
@@ -530,11 +542,49 @@ def write_sheets(art: Art, out: Path):
 # ---- the GIMP workbench ------------------------------------------------------------------------------
 
 LAYER_GAME, LAYER_MASK, LAYER_TOP = "Game's own art", "Skin mask", "Hair and non-skin (vanilla)"
-SHOWN_TONE = 6          # the tone layer left visible in a new .xcf
+LAYER_SHADING, PAINT_WORDS = "Shading (locked)", "colour (paint here)"
+SHOWN_TONE = 6          # the tone left visible in a new .xcf
 
 
 def tone_layer_name(number):
+    """A tone's GROUP in an .xcf."""
     return f"Tone {number:02d} - S{number} {core.TONES[number - 1][4]}"
+
+
+def paint_layer_name(number):
+    """The layer of a tone's group the owner paints: flat colour where that tone has skin."""
+    return f"{core.TONES[number - 1][4]} {PAINT_WORDS}"
+
+
+def tone_colour(number):
+    return core._hex(core.TONE_TABLE[number - 1][1])
+
+
+def shaded_everywhere(stock, mask, tone, cell_h):
+    """The tone's shaded colour for EVERY opaque pixel of a sheet (opaque where the sheet is, nothing
+    elsewhere): each pixel's own lightness offset from its row's middle skin, as core.recolour shades skin.
+    On the mask it is exactly core.recolour's colours; off it, it is what a pixel would be if it were made
+    skin -- so a tone's group shows the right shading wherever the owner paints.  A row with no skin takes
+    the sheet's own middle."""
+    L = core.to_oklab(stock[..., :3])[..., 0]
+    opaque = stock[..., 3] > 0
+    out = np.zeros_like(stock)
+    if not opaque.any():
+        return out
+    whole = np.percentile(L[mask] if mask.any() else L[opaque], (2, 50, 98))
+    for r in range(stock.shape[0] // cell_h):
+        sl = slice(r * cell_h, (r + 1) * cell_h)
+        here, skin = opaque[sl], mask[sl]
+        if not here.any():
+            continue
+        lo, mid, hi = np.percentile(L[sl][skin], (2, 50, 98)) if skin.any() else whole
+        values, back = np.unique(L[sl][here], return_inverse=True)
+        colours = core.shade(values - mid, tone, mid - lo, hi - mid).round().astype(np.uint8)
+        block = out[sl]
+        block[here, :3] = colours[back]
+        block[here, 3] = 255
+        out[sl] = block
+    return out
 
 
 _GIMP_BUILD = r'''
@@ -559,11 +609,45 @@ for item in job["files"]:
     whole.resize(width, height, 0, 0)
     whole.set_offsets(0, 0)
     image.resize(width, height, 0, 0)
+    groups, order = {}, []
     for part, layer in zip(parts, item["layers"]):
         part.set_name(layer["name"])
         part.set_visible(bool(layer["visible"]))
+        if layer.get("clip"):
+            # Shown only where the layer under it in its group has paint.
+            part.set_composite_mode(Gimp.LayerCompositeMode.CLIP_TO_BACKDROP)
         if layer["lock"]:
             part.set_lock_content(True)
+        name = layer.get("group")
+        if name:
+            if name not in groups:
+                try:
+                    group = Gimp.GroupLayer.new(image, name)
+                except TypeError:
+                    group = Gimp.GroupLayer.new(image)
+                    group.set_name(name)
+                image.insert_layer(group, None, image.get_item_position(part))
+                group.set_mode(Gimp.LayerMode.NORMAL)   # its own little picture: the clip sees the group only
+                group.set_visible(bool(layer["group_visible"]))
+                groups[name] = group
+                order.append(name)
+            image.reorder_item(part, groups[name], 0)
+    if item.get("check"):
+        # Each group as it shows on its own, one under the other, for the builder to compare.
+        tops = image.get_layers()
+        shown = [layer.get_visible() for layer in tops]
+        tall = Gimp.Image.new(width, height * len(order), Gimp.ImageBaseType.RGB)
+        for k, name in enumerate(order):
+            for layer in tops:
+                layer.set_visible(layer.get_id() == groups[name].get_id())
+            shot = Gimp.Layer.new_from_visible(image, tall, name)
+            tall.insert_layer(shot, None, 0)
+            shot.set_offsets(0, k * height)
+        tall.merge_visible_layers(Gimp.MergeType.CLIP_TO_IMAGE)
+        Gimp.file_save(Gimp.RunMode.NONINTERACTIVE, tall, Gio.File.new_for_path(item["check"]), None)
+        tall.delete()
+        for layer, was in zip(tops, shown):
+            layer.set_visible(was)
     Gimp.file_save(Gimp.RunMode.NONINTERACTIVE, image, Gio.File.new_for_path(item["xcf"]), None)
     image.delete()
     print("VVFP wrote", item["xcf"])
@@ -583,9 +667,15 @@ for item in job["files"]:
     for layer in image.get_layers():
         name = layer.get_name()
         tone = re.match(r"Tone (\d+)", name)
-        leaf = "tone_%02d.png" % int(tone.group(1)) if tone else ("mask.png" if name.startswith("Skin mask") else None)
-        if leaf is not None:
-            wanted.append((leaf, layer))
+        if tone and layer.is_group():
+            # A tone's group: the layer the owner paints says where that tone has skin.
+            for child in layer.get_children():
+                if "paint here" in child.get_name():
+                    wanted.append(("skin_%02d.png" % int(tone.group(1)), child))
+            continue
+        # (A plain "Tone NN" layer of the first workbench is a painted picture: never read.)
+        if name.startswith("Skin mask"):
+            wanted.append(("mask.png", layer))
     if wanted:
         # Every wanted layer goes into one picture, one under the other (one file written a sheet): a copy
         # of each, cut to the sheet's own area and moved to its band.  Nothing is resampled.
@@ -710,14 +800,26 @@ def changed_by_the_owner(game, folder: Path, stems) -> list[str]:
             if (folder / f"{game}_{stem}.xcf").is_file() and _file_sha(folder / f"{game}_{stem}.xcf") != pins.get(stem)]
 
 
-def _prepare_workbench(game, images: Path, folder: Path, only, tmp: Path) -> dict:
+def painted_from_layer(layer):
+    """Where a tone's colour layer has paint: any colour, however faint.  (The layer is built with the
+    sprite's own alpha, so the faint pixels of a sprite's edge are skin as built; the hard-edged eraser leaves
+    nothing at all.)"""
+    return layer[..., 3] > 0
+
+
+def _prepare_workbench(game, images: Path, folder: Path, only, tmp: Path, fresh_backup=None, check=None) -> dict:
     """Everything a build of one game's workbench needs before GIMP runs: the owner's changed files read
-    (their edits kept), and one picture a sheet to build -- its layers one under the other."""
+    (their edits kept), and one picture a sheet to build -- its layers one under the other.
+
+    `fresh_backup` (the owner, 2026-11-27: "i want to start fresh"): a folder name.  Every sheet is then made
+    again whether or not its file was changed, nothing is read back first, and each file about to be replaced
+    is first copied into <folder>/<fresh_backup>/ (a copy already there is never overwritten).
+    `check`: a folder; each sheet's groups are also written there as GIMP shows them (<game>_<sheet>.png)."""
     folder.mkdir(parents=True, exist_ok=True)
     stems = [Path(s["name"]).stem for s in sheets_of(game) if find_file(Path(images), s["name"])]
     if only:
         stems = [stem for stem in stems if stem in only]
-    theirs = changed_by_the_owner(game, folder, stems)
+    theirs = [] if fresh_backup else changed_by_the_owner(game, folder, stems)
     unread = []
     if theirs:
         try:
@@ -729,32 +831,74 @@ def _prepare_workbench(game, images: Path, folder: Path, only, tmp: Path) -> dic
     art = Art(game, images, edits if edits.is_dir() else None)     # after the import: the edits just kept apply
     manifest = _manifest(folder)
     manifest.setdefault(XCF_PINS, {})
-    files, made = [], []
+    files, made, backed_up = [], [], []
     for name in art.specs:
         stem = Path(name).stem
         if stem not in stems or stem in theirs:
             continue
         stock, mask = art.stock(name), art.mask(name)
+        cell_h = art.specs[name]["cell"][1]
         white = np.zeros_like(stock)
         white[mask] = 255
         top = stock.copy()
         top[mask] = 0
-        bands = [(stock, LAYER_GAME, True, True), (white, LAYER_MASK, False, False)]
+        # (pixels, name, shown, locked, group, group shown, clipped to the layer under it)
+        bands = [(stock, LAYER_GAME, True, True, None, False, False), (white, LAYER_MASK, False, False, None, False, False)]
         record = {"mask.png": _sha(_clean(white))}
         for number, tone in enumerate(core.TONES, 1):
-            layer = art.tone_layer(name, tone)
-            bands.append((layer, tone_layer_name(number), number == SHOWN_TONE, False))
-            record[f"tone_{number:02d}.png"] = _sha(_clean(layer))
-        bands.append((top, LAYER_TOP, True, True))
+            skin = art.tone_mask(name, number)
+            flat = np.zeros_like(stock)
+            flat[skin, :3] = tone_colour(number)
+            flat[skin, 3] = stock[skin, 3]
+            shaded = shaded_everywhere(stock, skin, tone, cell_h)
+            if not (shaded[skin][:, :3] == art.tone_layer(name, tone)[skin][:, :3]).all():
+                raise SystemExit(f"{name}, tone {number}: the shading layer is not the tone's own shading")
+            group = tone_layer_name(number)
+            bands.append((flat, paint_layer_name(number), True, False, group, number == SHOWN_TONE, False))
+            bands.append((shaded, LAYER_SHADING, True, True, group, number == SHOWN_TONE, True))
+            record[f"skin_{number:02d}.png"] = _sha(painted_from_layer(flat))      # as `import` will read it
+        bands.append((top, LAYER_TOP, True, True, None, False, False))
         tall = tmp / f"{game}_{stem}.png"
         Image.fromarray(np.concatenate([band[0] for band in bands], axis=0)).save(tall, compress_level=1)
         manifest[stem] = record
         made.append(stem)
-        files.append({"xcf": str(folder / f"{game}_{stem}.xcf"), "png": str(tall), "width": int(stock.shape[1]),
-                      "height": int(stock.shape[0]),
-                      "layers": [{"name": label, "visible": visible, "lock": lock} for _, label, visible, lock in bands]})
-    return {"game": game, "folder": folder, "files": files, "made": made, "manifest": manifest,
-            "kept": [stem for stem in theirs if stem not in unread], "unread": unread}
+        xcf = folder / f"{game}_{stem}.xcf"
+        if fresh_backup and xcf.is_file():
+            kept = folder / fresh_backup / xcf.name
+            kept.parent.mkdir(parents=True, exist_ok=True)
+            if not kept.exists():
+                shutil.copy2(xcf, kept)
+            if _file_sha(kept) != _file_sha(xcf) and not kept.with_name(xcf.stem + " (2).xcf").exists():
+                shutil.copy2(xcf, kept.with_name(xcf.stem + " (2).xcf"))
+            backed_up.append(xcf.name)
+        item = {"xcf": str(xcf), "png": str(tall), "width": int(stock.shape[1]), "height": int(stock.shape[0]),
+                "layers": [{"name": label, "visible": shown, "lock": lock, "group": group, "group_visible": group_shown,
+                            "clip": clip} for _, label, shown, lock, group, group_shown, clip in bands]}
+        if check is not None:
+            Path(check).mkdir(parents=True, exist_ok=True)
+            item["check"] = str(Path(check) / f"{game}_{stem}.png")
+        files.append(item)
+    return {"game": game, "folder": folder, "files": files, "made": made, "manifest": manifest, "art": art,
+            "kept": [stem for stem in theirs if stem not in unread], "unread": unread, "backed_up": backed_up}
+
+
+def check_groups(prepared: dict) -> list[str]:
+    """After a build with `check`: each tone group as GIMP shows it against the tone's own sheet (its skin
+    pixels), pixel for pixel.  Returns one line per sheet."""
+    art, game, lines = prepared["art"], prepared["game"], []
+    for item in prepared["files"]:
+        if "check" not in item:
+            continue
+        stem = Path(item["xcf"]).stem[len(game) + 1:]
+        name = next(n for n in art.specs if Path(n).stem == stem)
+        tall = _layer_pixels(Path(item["check"]))
+        height, wrong = item["height"], 0
+        for k, tone in enumerate(core.TONES):
+            shown = _clean(tall[k * height:(k + 1) * height])
+            wrong += int((shown != _clean(art.tone_layer(name, tone))).any(-1).sum())
+        lines.append(f"{game} {stem}: {len(core.TONES)} tone groups, {int(art.mask(name).sum())} skin pixels each, "
+                     f"{wrong} pixels differ from the tone's own sheet")
+    return lines
 
 
 def _finish_workbench(prepared: dict):
@@ -766,7 +910,7 @@ def _finish_workbench(prepared: dict):
     return [f["xcf"] for f in prepared["files"]], prepared["kept"], prepared["unread"]
 
 
-def build_workbench(game, images: Path, folder: Path, only=None):
+def build_workbench(game, images: Path, folder: Path, only=None, fresh_backup=None, check=None):
     """<folder>/<game>_<sheet>.xcf for every sheet, and .generated.json (what each generated layer was, so
     `import` can tell the owner's edits from untouched layers, and what each .xcf was when written).
 
@@ -776,21 +920,26 @@ def build_workbench(game, images: Path, folder: Path, only=None):
     Returns (written, kept, unread): the .xcf files written, the owner's sheets kept (and read), and the
     owner's sheets kept that could not be read."""
     with tempfile.TemporaryDirectory() as tmp:
-        prepared = _prepare_workbench(game, Path(images), folder, only, Path(tmp))
+        prepared = _prepare_workbench(game, Path(images), folder, only, Path(tmp), fresh_backup, check)
         if prepared["files"]:
             run_gimp(_GIMP_BUILD, {"files": prepared["files"]})
+    for line in check_groups(prepared):
+        print(line)
     return _finish_workbench(prepared)
 
 
-def build_workbenches(games_and_images, root: Path):
+def build_workbenches(games_and_images, root: Path, fresh_backup=None, check=None):
     """Several games' workbenches with ONE start of GIMP (a start alone takes minutes): build_workbench for
     each (game, its Images folder), into <root>/<game>.  Returns {game: (written, kept, unread)}."""
     with tempfile.TemporaryDirectory() as tmp:
-        prepared = [_prepare_workbench(game, Path(images), root / game, None, Path(tmp))
+        prepared = [_prepare_workbench(game, Path(images), root / game, None, Path(tmp), fresh_backup, check)
                     for game, images in games_and_images]
         files = [item for one in prepared for item in one["files"]]
         if files:
             run_gimp(_GIMP_BUILD, {"files": files})
+    for one in prepared:
+        for line in check_groups(one):
+            print(line)
     return {one["game"]: _finish_workbench(one) for one in prepared}
 
 
@@ -811,9 +960,9 @@ def pin_as_written(game, folder: Path, not_after: float):
 
 
 def import_workbench(game, folder: Path, only=None):
-    """Read every <game>_<sheet>.xcf (or only the sheets in `only`) back through GIMP; keep each mask and
-    tone layer the owner changed in <folder>/edits/<sheet>/ and drop the ones that are still as generated.
-    Returns what was kept."""
+    """Read every <game>_<sheet>.xcf (or only the sheets in `only`) back through GIMP; keep where the owner
+    painted each tone's colour layer (skin_NN.png) and their mask, when changed, in <folder>/edits/<sheet>/
+    and drop the ones that are still as generated.  Returns what was kept."""
     manifest = _manifest(folder)
     edits = folder / "edits"
     kept = []
@@ -834,6 +983,20 @@ def import_workbench(game, folder: Path, only=None):
             for k, leaf in enumerate(leaves):
                 layer = tall[k * height:(k + 1) * height]
                 target = edits / stem / leaf
+                if leaf.startswith("skin_"):
+                    # A tone's colour layer: painted is skin for that tone, erased is not.  Kept as white
+                    # where painted -- nothing of the game's art, and not the colour either.
+                    painted = painted_from_layer(layer)
+                    if _sha(painted) == manifest.get(stem, {}).get(leaf):
+                        if target.is_file():
+                            target.unlink()         # as generated again: the edit is withdrawn
+                        continue
+                    layer = np.zeros_like(layer)
+                    layer[painted] = 255
+                    target.parent.mkdir(parents=True, exist_ok=True)
+                    Image.fromarray(layer).save(target)
+                    kept.append(f"{stem}/{leaf}")
+                    continue
                 if _sha(_clean(layer)) == manifest.get(stem, {}).get(leaf):
                     if target.is_file():
                         target.unlink()         # put back as generated: the edit is withdrawn
@@ -852,18 +1015,12 @@ def import_workbench(game, folder: Path, only=None):
     return kept
 
 
-def skin_only(layer, mask):
-    """A tone layer with every pixel outside the skin mask made fully transparent (what may ship)."""
-    out = layer.copy()
-    out[~mask] = 0
-    out[out[..., 3] == 0] = 0
-    return out
-
-
 def publish_edits(art: Art, edits: Path, out: Path):
     """The owner's kept edits (<workbench>/<game>/edits) as shippable files under `out`/<game>/<sheet>/:
-    mask.png (white where skin) for every sheet with an edit, and each painted tone layer cut to that mask.
-    Then `out`/manifest.json is written again for everything under `out`.  Returns the files written."""
+    skin_NN.png for each tone whose colour layer the owner painted, and mask.png when they changed the
+    "Skin mask" -- each white where skin and nothing else, on pixels of the sprite only.  WHERE the skin is
+    ships; no colour and nothing of a game's art does.  Then `out`/manifest.json is written again for
+    everything under `out`.  Returns the files written."""
     written = []
     target = out / art.game
     if target.is_dir():
@@ -872,21 +1029,20 @@ def publish_edits(art: Art, edits: Path, out: Path):
     for name in art.specs:
         stem = Path(name).stem
         folder = edits / stem
-        tones = sorted(folder.glob("tone_*.png")) if folder.is_dir() else []
-        if not tones and not (folder / "mask.png").is_file():
+        if not folder.is_dir():
             continue
-        mask = art.mask(name)                   # the owner's edited mask when there is one, else the generated
-        (target / stem).mkdir(parents=True, exist_ok=True)
-        white = np.zeros(mask.shape + (4,), np.uint8)
-        white[mask] = 255
-        Image.fromarray(white).save(target / stem / "mask.png")
-        written.append(f"{art.game}/{stem}/mask.png")
-        for path in tones:
-            layer = np.array(Image.open(path).convert("RGBA"))
-            if layer.shape[:2] != mask.shape:
-                raise SystemExit(f"{path}: not the sheet's size")
-            Image.fromarray(skin_only(layer, mask)).save(target / stem / path.name)
-            written.append(f"{art.game}/{stem}/{path.name}")
+        marks = {}
+        if (folder / "mask.png").is_file():
+            marks["mask.png"] = art.mask(name)
+        for number in range(1, len(core.TONES) + 1):
+            if (folder / f"skin_{number:02d}.png").is_file():
+                marks[f"skin_{number:02d}.png"] = art.tone_mask(name, number)
+        for leaf, mask in marks.items():
+            (target / stem).mkdir(parents=True, exist_ok=True)
+            white = np.zeros(mask.shape + (4,), np.uint8)
+            white[mask] = 255
+            Image.fromarray(white).save(target / stem / leaf)
+            written.append(f"{art.game}/{stem}/{leaf}")
     write_manifest(out)
     return written
 
@@ -902,43 +1058,53 @@ def write_manifest(out: Path):
 README = """VVFP Skin Tones Workbench
 =========================
 
-One GIMP file per head and body sheet of each game, for editing the skin tones by hand.
+One GIMP file per head and body sheet of each game, for marking by hand where each skin tone goes.
 These files hold the game's own art. Keep them here; they must never be shared or shipped.
 
-THE LAYERS (bottom to top)
-  Game's own art               The original sheet. Locked. For reference.
-  Skin mask                    White where the patcher treats a pixel as skin. Hidden.
-                               Paint white to make a pixel skin, erase to make it not skin.
-  Tone 01 - S1 Porcelain ...   One layer per skin tone, light to dark, to Tone 10 - S10 Ebony.
-                               Only the skin pixels are on it. All hidden but one; click the
-                               eye to see another.
-  Hair and non-skin (vanilla)  The original's hair, eyes, mouths and clothes. Locked, on top,
-                               so painting a tone layer never covers them.
+THE LAYERS (top to bottom)
+  Hair and non-skin (vanilla)  The original's hair, eyes, mouths and clothes. Locked.
+  Tone 10 - S10 Ebony ...      One folder (layer group) per skin tone, dark to light, down to
+  Tone 01 - S1 Porcelain       Tone 01 - S1 Porcelain. One is shown; click a folder's eye to see
+                               another. Inside each folder:
+      Shading (locked)             The game art's own light and dark, in the tone's colours. It
+                                   shows only where the colour layer under it has paint.
+                                   Never paint it.
+      <tone> colour (paint here)   Flat paint in the tone's colour on every pixel that is skin
+                                   in that tone. THE LAYER YOU EDIT: paint = skin, erased = not.
+  Skin mask                    From the first version of these files. Hidden. White = skin for
+                               every tone whose colour layer you have not changed yourself.
+  Game's own art               The original sheet. Locked. Shows wherever a tone has no paint.
 
 HOW TO EDIT
   Step by step, with GIMP's tools and keys: see "How to mark skin in GIMP.txt" in this folder.
-  - To change how one tone looks: show that Tone layer and paint on it.
-  - To change WHAT counts as skin for every tone: show the Skin mask layer and paint or erase.
-    Every tone you did not paint yourself is then made again from your mask.
-  - If you paint a tone where the Skin mask is not white, paint the Skin mask white there too:
-    only paint inside the mask goes into the patcher.
-  - Do not rename, merge or delete layers, and do not resize the picture.
+  - Open a tone's folder and click its "colour (paint here)" layer.
+  - Pencil to add skin, Eraser to remove it. Any paint colour works: the Shading layer gives it
+    the tone's shaded colour as you paint.
+  - Each tone is separate. A change in one tone is in that tone only.
+  - Hide "Hair and non-skin (vanilla)" while you work: it lies on top and would cover skin you
+    add over hair or clothes.
+  - Do not paint the Shading layer. Do not rename, merge or delete layers or folders, and do not
+    resize the picture.
   - Save as .xcf under the same name (Ctrl+S).
 
 HOW TO GET YOUR EDITS INTO THE MOD
   Run, from the patcher's folder:
       python scripts\\skin_tone_sheets.py import --game vv1      (vv1 ... vv5)
-  It asks GIMP to read your .xcf files and keeps every layer you changed in
-      <this folder>\\<game>\\edits\\<sheet>\\mask.png  and  tone_NN.png
-  Whatever is in "edits" wins over the generated art from then on.
-  A layer you did not change is not kept, so it still follows later changes to the tone list.
+  It asks GIMP to read your .xcf files and keeps, for every tone whose colour layer you changed,
+  where you painted, in
+      <this folder>\\<game>\\edits\\<sheet>\\skin_NN.png        (NN = the tone's number)
+  (and mask.png if you changed the Skin mask). Whatever is in "edits" wins from then on.
+  Only WHERE the skin is gets kept. The colours and the shading are always made again from the
+  game's own art.
+  A tone you did not change is not kept, so it still follows later changes to the automatic mask.
   To drop an edit, delete its file in "edits".
 
 TO PUT YOUR EDITS IN THE PATCHER ITSELF (so every player gets them)
       python scripts\\skin_tone_sheets.py publish --game vv1 --images "<the game's Images folder>"
-  It copies your mask and your painted tone layers into the patcher's
+  It copies where you marked skin into the patcher's
       assets\\skin_tones\\owner_edits\\<game>\\<sheet>\\
-  as the skin pixels only: nothing of the game's own art goes with them.
+  as plain white marks: no colour and nothing of the game's own art goes with them. The patcher
+  makes each tone from every player's own game files, on the pixels you marked.
 
 TO MAKE THE FILES AGAIN (safe: nothing of yours is ever replaced)
       python scripts\\skin_tone_sheets.py workbench --game vv1 --images "<the game's Images folder>"
@@ -946,6 +1112,10 @@ TO MAKE THE FILES AGAIN (safe: nothing of yours is ever replaced)
   edits are kept in "edits", and then it is left as it is. Only files you have not touched are made
   again (with your "edits" applied). To have one of your own files made again, delete it yourself first.
   "import" is still how to bring "edits" up to date after you paint.
+
+THE OLDER FILES
+  The files as they were before 2026-11-27 (one flat layer a tone) are in each game's
+  "_before overlay 2026-11-27" folder.
 """
 
 
@@ -960,6 +1130,10 @@ def main() -> int:
     ap.add_argument("--masks", action="store_true", help="preview: also a mask picture per sheet")
     ap.add_argument("--workbench", type=Path, default=WORKBENCH)
     ap.add_argument("--only", nargs="*", help="workbench: only these sheets (file names without .png)")
+    ap.add_argument("--fresh-backup", help="workbench: make EVERY sheet again, first copying each file replaced "
+                                           "into this folder beside it; nothing is read back first")
+    ap.add_argument("--check", type=Path, help="workbench: also write each sheet's tone groups as GIMP shows them "
+                                               "into this folder, and compare them with the tones' own sheets")
     args = ap.parse_args()
     if args.what == "mockup":
         mockup(args.images_root, args.out, args.workbench if args.workbench.is_dir() else None)
@@ -968,7 +1142,8 @@ def main() -> int:
         for name, what in write_guides(args.workbench).items():
             print(f"{name}: {what}")
         games = [g for g in sorted(TITLES) if not args.only or g in args.only]
-        done = build_workbenches([(g, args.images_root / FOLDERS[g] / "Images") for g in games], args.workbench)
+        done = build_workbenches([(g, args.images_root / FOLDERS[g] / "Images") for g in games], args.workbench,
+                                 args.fresh_backup, args.check)
         for game, (written, kept, unread) in done.items():
             print(f"{game}: wrote {len(written)}; kept {len(kept)} changed by you (edits read); "
                   f"kept {len(unread)} changed by you that could not be read")
@@ -1008,7 +1183,8 @@ def main() -> int:
     else:
         for name, what in write_guides(args.workbench).items():
             print(f"{name}: {what}")
-        written, kept, unread = build_workbench(args.game, args.images, folder, args.only)
+        written, kept, unread = build_workbench(args.game, args.images, folder, args.only, args.fresh_backup,
+                                                args.check)
         for path in written:
             print("wrote", path)
         for stem in kept:
