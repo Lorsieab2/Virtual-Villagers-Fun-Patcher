@@ -1313,16 +1313,21 @@ static void train_prune(void) {
     }
 }
 
-static void train_write(void) {
+/* `pruned`: drop the entries no living Heathen holds -- only while the villager table is this slot's own village.
+   On a switch of save slot the table already holds the NEW village, so the last slot's table is written as it is,
+   unpruned and without waiting for the write throttle, or its choices would be lost (Codex, PR #899). */
+static void train_write_as(int pruned, int now) {
     unsigned int header[5];
     const void *parts[2];
     DWORD sizes[2];
     char path[MAX_PATH];
     if (!g_train_dirty || g_train_slot == 0 || g_train_blocked || !vv_sidecar_gate_ready(&g_train_gate, g_train_slot)
-        || GetTickCount() - g_train_synced_at < TR_WRITE_MS || !train_path(g_train_slot, path, 1)) {
+        || (!now && GetTickCount() - g_train_synced_at < TR_WRITE_MS) || !train_path(g_train_slot, path, 1)) {
         return;
     }
-    train_prune();
+    if (pruned) {
+        train_prune();
+    }
     g_train_synced_at = GetTickCount();
     header[0] = TR_MAGIC;
     header[1] = TR_VERSION;
@@ -1338,17 +1343,24 @@ static void train_write(void) {
     }
 }
 
-/* The game's save slot now (its save manager's field): a new slot writes the last one's file first and reads
-   its own; then the file is kept up to date. */
+static void train_write(void) {
+    train_write_as(1, 0);
+}
+
+/* The game's save slot now (its save manager's field): a new slot writes the last one's file first (unpruned: the
+   table is the new village's) and reads its own; a read that found the file locked is tried again once the gate's
+   throttle lets it (Codex, PR #899), as the other sidecar readers do; then the file is kept up to date. */
 static void train_sync(void) {
     int slot = vv_game_save_slot(HL_GAME);
     if (slot != g_train_slot) {
-        train_write();
+        train_write_as(0, 1);
         g_train_slot = slot;
         g_train_count = 0;
         if (slot != 0) {
             train_read(slot);
         }
+    } else if (slot != 0 && g_train_blocked && !vv_sidecar_gate_throttled(&g_train_gate)) {
+        train_read(slot);
     }
     train_write();
 }
