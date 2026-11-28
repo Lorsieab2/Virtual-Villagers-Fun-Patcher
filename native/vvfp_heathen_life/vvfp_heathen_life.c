@@ -1671,7 +1671,17 @@ static int show(unsigned char *record, int may_go_out) {
     }
     OFFER(ACT_MEAL, A_CAMP);
     OFFER(ACT_MUD_HUT, A_CAMP);
-    OFFER(ACT_CHAT, A_CAMP);
+    {
+        /* A Heathen-to-Heathen chat counts as one PAIR against the same-action cap (the partner and this Heathen
+           both go out on it): a new pair only while fewer pairs than the cap are chatting, so Quiet allows one
+           pair, never three Heathens (Codex, PR #899). */
+        int s_, a_, t_;
+        tally(&t_, &a_, &s_, ACT_CHAT);
+        if ((s_ + 1) / 2 < same_cap()) {
+            open[count] = ACT_CHAT;
+            areas[count++] = A_CAMP;
+        }
+    }
 #undef OFFER
     if (count == 0) {
         return 0;
