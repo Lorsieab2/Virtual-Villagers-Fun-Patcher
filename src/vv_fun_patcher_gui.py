@@ -4465,6 +4465,11 @@ class App(tk.Tk):
             wraplength=480, justify="left",
         ).pack(anchor="w", pady=(0, 8))
         for line in guide.lines:
+            if vv_how_to_use.is_warning(line):
+                # The owner's red-and-bold warning lines (vv_how_to_use.WARNING_PREFIX).
+                tk.Label(frame, text=gui_text(vv_how_to_use.plain(line)), wraplength=480, justify="left",
+                         fg="#C00000", font=("Segoe UI", 9, "bold")).pack(anchor="w", pady=(0, 6))
+                continue
             ttk.Label(frame, text=gui_text(line), wraplength=480, justify="left").pack(
                 anchor="w", pady=(0, 6)
             )
