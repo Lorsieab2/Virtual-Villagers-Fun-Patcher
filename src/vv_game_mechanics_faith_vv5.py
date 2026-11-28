@@ -159,9 +159,13 @@ def _heathen_evolution_facts(add, village, where: str) -> None:
         "restored and fish once The Lake is solved -- taking nothing, carried to the encampment, not the granary; "
         "visiting the pools, the Believer Idol once carved, the science lab, and the Love Shack and Clothing Hut doors "
         "once built (no embrace, no clothes); a show meal; praying at the mud hut. Only what believers of their age "
-        "do: every show action is an adult's (14 or older; elders do them all), the Love Shack only at the couples' "
-        "ages (18 to 49); a Heathen child plays in the nursery only while someone teaches at the nursery school. A "
-        "sick Heathen rests at the encampment.", sub=True)
+        "do: every show action is an adult's (14 or older; an elder, retired to the encampment, only eats there and "
+        "prays at the mud hut), the Love Shack only at the couples' ages (18 to 49); a Heathen child plays in the "
+        "nursery only while someone teaches at the nursery school. A sick Heathen rests at the encampment. The "
+        "Details text says where the Heathen is going (\"Going to the lab\") and, once there, what they do "
+        "(\"Practising Research at the lab\"; \"Practising Farming at the noni bushes\", then \"Bringing noni home "
+        "to the camp\" and \"Dropping off noni at the camp\"); a sick Heathen shows \"Waiting for the healer\" and "
+        "the doctor \"Going to heal\" and \"Practising Healing on\" the patient's name.", sub=True)
     add("Skills: the skill of the show action just done (Devotion at the statue and the mud hut, Research at the lab), "
         "or on 1 unit in 20 the skill of the Heathen's camp role, is practised by the believers' own check (a roll of "
         "0 to 99 at or under the skill + 33, + 66 for one who likes learning, + 16 for one who dislikes it) and gain "

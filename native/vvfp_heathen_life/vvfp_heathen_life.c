@@ -35,8 +35,8 @@
                           Heathen Doctor, role 12; not sick, not expecting, not held) is the camp's doctor: the one
                           with the best Healing goes to the patient (the believers' healer walk, 0x46CD86..0x46CDA1:
                           the patient's spot +10 down, distance 150) with the believers' healing look (0x45D060: its
-                          animation 0x11, waits and gestures) while the patient waits ("Waiting for someone",
-                          0x45CFD0).  At the patient's next unit the doctor's skill check decides, by the believers'
+                          animation 0x11, waits and gestures) while the patient waits (0x45CFD0's pose; labels in
+                          section 4).  At the patient's next unit the doctor's skill check decides, by the believers'
                           own rule (0x46B270, below): pass, the sickness ends (as 0x468CCB / 0x46E1FB end it); fail,
                           another doctor or another try later.  People Cured (0x51D368, which 0x468D4D and 0x46E202
                           bump) is never written: Heathen cures never count.  With no Heathen able to heal they get
@@ -73,37 +73,49 @@
                  believers' 0x457C80), carry 0 -- this is also the farm plots' visit;
           fish   The Lake (project 10: the dispatcher 0x46C600), area 0x69, the believers' 0x463B20, carry 0x38;
         facilities (decision 10), a walk, two gestures and a wait, then back to the encampment:
-          the spa         the pools, area 0x7C ("Soaking in the pools", 0x45C000; its payoff step 0x16 left out);
+          the spa         the pools, area 0x7C (0x45C000's walk; its payoff step 0x16, the soak, left out);
           the statue      the Believer Idol, once carved (project 14), area 0x45 (where the believers show a baby
                           "the statue", 0x462430); Devotion practised;
-          the science lab area 0x0E ("Researching (in the lab)", 0x45A890); Research practised;
-          the Love Shack  once built (project 23), its walk area (+0x14, 0x11), "Waiting for someone" there: no
+          the science lab area 0x0E (0x45A890's walk); Research practised;
+          the Love Shack  once built (project 23), its walk area (+0x14, 0x11), waiting at its door: no
                           embrace step (0x474CE0) and no conception; only at the couples' ages (18 to 49: the
                           partner search 0x470A53 / 0x470A8F, the embrace 0x468A00);
-          the Clothing Hut once built (project 22), its walk area (+0x14, 0x10), "Waiting for someone": no
+          the Clothing Hut once built (project 22), its walk area (+0x14, 0x10), looking at the clothes: no
                           clothes (work event 90 is never queued);
           a building's area is used only while the map has cells for it (read from the live map 0x718EE8, the
           area field the walk picker 0x477B90 reads: cell >> 4 & 0x7FF), so a walk never aims at a spot the game
           has not drawn;
         a show meal, at the encampment: the believers' eating look (0x457D30: animation 0x6F, gestures) with no
         payoff step 0x57, so the food store is never touched -- Heathens never eat from it and never starve;
-        devotion at the mud hut: "Praising" (gesture 0x1E of animation 0x10, as 0x4598A0's) on the walkable ground
+        devotion at the mud hut: the believers' praising pose (gesture 0x1E of animation 0x10, as 0x4598A0's) on the walkable ground
         in front of the hovel (2176..2271 x 1576..1599, the Memorial Actions at the Heathen Hovel row's points);
         Devotion practised.
       AGE RULES (the owner, 2026-11-26: Heathens do only what believers of their age do).  Every action above is an
       adult's (14 or older: the picker's child test 0x46F117 sends a believer child to the children's routine
       0x46E3F0, an adult to the dispatcher, chooser and player's job, which test no age: elders do all of it), the
       Love Shack's the couples' ages.  A Heathen CHILD gets only the nursery play believer children get and Heathen
-      children do not (0x46E447 skips them): walk area 0x22 with "Going to play in the nursery", while someone is
+      children do not (0x46E447 skips them): walk area 0x22 ("Going to play in the nursery"), while someone is
       teaching at the nursery school (0x43A810, as 0x46E433 asks).  No adult visits the nursery.
 
    3. PEOPLE CURED (decision 8: a Heathen's cure never counts, a believer healer's included).  The drag-a-healer
       cure's +1 (0x468D4D) is skipped when its patient was a Heathen as the cure began (noted at 0x468C3C), the
       Village Statistics row's own guard; when that row is applied its detours are already there and are left alone
       (see SITE_CURE_BEGIN below).
-      The Details text is the game's own for the look (the strings 0x450D40 / 0x4506D0 hold), and the record's
-      behaviour id +0x1D10 is the Heathens' own camp wander 0x9C.  The stock Heathens' noni eating (behaviour 0x97,
-      role 1) is vanilla and left alone.
+      The record's behaviour id +0x1D10 is the Heathens' own camp wander 0x9C.  The stock Heathens' noni eating
+      (behaviour 0x97, role 1) is vanilla and left alone.
+
+   4. THE DETAILS TEXT (the owner, 2026-11-27: "the labels aren't super descriptive. please change them to describe
+      where they are going and what they are doing", then "and practicing skills too").  A show action's Details
+      text (+0x1D14, the text the Details screen and the hover line show) says where the Heathen is going; when the
+      walk ends the game's own text step (type 6, added by 0x474270, which the believers' scripts use through
+      0x4742E0 and 0x43821F) changes it to what they do there -- "Practising <skill> at <place>" where a skill is
+      practised -- and again on the walk back ("Going back to the camp", or for a harvest what they carry).  The
+      doctor's lines name the patient when they fit.  Each text is the patcher's own, in the player's language
+      through "VVFP Translations.dll" (native/shared/vvfp_translate.h; rows "vvfp.heathen_life/...label.*" of
+      data/translations/patcher_strings.json), and at most 37 characters in English -- the longest Details text the
+      stock game writes itself -- within the field's 0x27 bytes.  A child's walk to the nursery keeps the game's own
+      line (text 0x35).  Role practice (1 unit in 20) has no action of its own, so it shows no text: the Heathen
+      goes on with the stock Heathen AI's action and its own line.
 
    NOT LOGGED.  The believers' logs have no sickness, recovery or skill records, so none are written for Heathens.
    Nothing depends on a Heathen's sex.
@@ -111,7 +123,7 @@
    SAFETY.  Three splices (0x46F0BA, 8 bytes; 0x468C3C, 8; 0x468D4D, 7 -- the last two only when the Statistics
    row's are not there), stock bytes checked first, all or none (native/shared/install_sites.h).  Every step
    of ours runs under structured exception handling; a fault leaves the stock behaviour.  No debug output, no file
-   written, no text shown. */
+   written; the only text shown is the Details text of section 4. */
 #include <windows.h>
 #include <string.h>
 #include "../shared/install_sites.h"
@@ -119,6 +131,7 @@
 #include "../shared/vv5_villager_table.h"
 #include "../shared/custom_titles.h"
 #include "../shared/heathen_evo.h"
+#include "../shared/vvfp_translate.h"
 
 #define HL_GAME 5
 
@@ -182,6 +195,10 @@
 #define G_DROP 0x474DE0u               /* ret */
 #define G_ANIM 0x475160u               /* (animation, float speed, count); ret 0xC */
 #define G_POSITION 0x466350u           /* (int out[2]) -> out; ret 4 */
+#define G_TEXT_STEP 0x474270u          /* (const char *text); ret 4: a step of type 6 holding the text (copied, 0x27
+                                          bytes, into the step's +0x28); when the queue reaches it the queue's start
+                                          0x473590 copies it into the Details text +0x1D14 (0x473743) -- the game's
+                                          own mid-script text change (0x4742E0 wraps it for a string id) */
 
 #define CAMP_WANDER 0x9C               /* the Heathens' own behaviour id (0x46F00C) */
 
@@ -204,21 +221,12 @@
 #define SITE_CLOTHING 3
 #define SITE_LOVE 4
 
-/* The game's Details texts (each the believers' script's own). */
-#define T_NONI 0x232
-#define T_CROPS 0x233
-#define T_FISH 0x106
-#define T_POOLS 0x18A
-#define T_HONORING 0x16E
-#define T_RESEARCH 0x163
-/* A Heathen child's nursery play: the believer children's own line (0x460F00, "Going to play in the nursery").
-   The owner may swap it: this one define. */
+/* A Heathen child's walk to the nursery: the believer children's own line (0x460F00, "Going to play in the
+   nursery"), the game's text id. */
 #define T_NURSERY_PLAY 0x35
-#define T_WAITING 0x192
-#define T_EATING 0x4C4
-#define T_SICK 0x157
-#define T_HEALING 0x194
-#define T_PRAISING 0x155
+/* Every other Details text is the patcher's own (labels(), below): where the Heathen is going, then what they do
+   there, each changed by the game's own text step when the walk ends. */
+#define LABEL_LONGEST 37               /* the longest Details text the stock game itself writes (0x268, 0x181) */
 
 #define A_NURSERY_PLAY 0x22            /* the believer children's nursery play walks here (0x460F29) */
 #define G_TEACHER 0x43A810u            /* al: someone is "Teaching at the nursery school" (0x4717A0(0x6F, 0)) */
@@ -256,6 +264,7 @@ typedef void (__fastcall *tc1_fn)(void *self, void *unused_edx, int a);
 typedef void (__fastcall *tc2_fn)(void *self, void *unused_edx, int a, int b);
 typedef void (__fastcall *tc3_fn)(void *self, void *unused_edx, int a, int b, int c);
 typedef void (__fastcall *tc4_fn)(void *self, void *unused_edx, int a, int b, int c, int d);
+typedef void (__fastcall *text_step_fn)(void *self, void *unused_edx, const char *text);
 typedef void (__fastcall *anim_fn)(void *self, void *unused_edx, int animation, float speed, int count);
 typedef int *(__fastcall *position_fn)(void *self, void *unused_edx, int *out);
 typedef void *(__cdecl *texts_fn)(void);
@@ -429,11 +438,99 @@ static int role_skill(const unsigned char *record) {
     }
 }
 
+/* ---- the Details texts (the owner, 2026-11-27: "describe where they are going and what they are doing") ------ */
+
+enum {
+    L_SICK_GO, L_SICK_AT, L_WAIT_HEALER, L_HEAL_GO_ANY, L_HEAL_AT_ANY, L_BACK,
+    L_NONI_GO, L_NONI_AT, L_NONI_CARRY, L_NONI_DROP, L_CROPS_GO, L_CROPS_AT, L_CROPS_CARRY, L_CROPS_DROP,
+    L_FISH_GO, L_FISH_AT, L_FISH_CARRY, L_FISH_DROP,
+    L_POOLS_GO, L_POOLS_AT, L_STATUE_GO, L_STATUE_AT, L_LAB_GO, L_LAB_AT, L_LOVE_GO, L_LOVE_AT,
+    L_CLOTHING_GO, L_CLOTHING_AT, L_MEAL_GO, L_MEAL_AT, L_MUD_HUT_GO, L_MUD_HUT_AT, L_NURSERY_AT
+};
+
+/* Each label in the player's language (Translations: native/shared/vvfp_translate.h), at most the Details text's
+   0x27 bytes with its NUL; the English is at most LABEL_LONGEST characters, as the game's own. */
+static const char *label(int which) {
+    switch (which) {
+    case L_SICK_GO: return vvfp_tr("vvfp.heathen_life/vvfp_heathen_life.label.sick_go", "Going home to the camp, sick", R_DOING_CAP);
+    case L_SICK_AT: return vvfp_tr("vvfp.heathen_life/vvfp_heathen_life.label.sick_at", "Resting at the camp, sick", R_DOING_CAP);
+    case L_WAIT_HEALER: return vvfp_tr("vvfp.heathen_life/vvfp_heathen_life.label.wait_healer", "Waiting for the healer", R_DOING_CAP);
+    case L_HEAL_GO_ANY: return vvfp_tr("vvfp.heathen_life/vvfp_heathen_life.label.heal_go_any", "Going to heal someone sick", R_DOING_CAP);
+    case L_HEAL_AT_ANY: return vvfp_tr("vvfp.heathen_life/vvfp_heathen_life.label.heal_at_any", "Practising Healing on the sick", R_DOING_CAP);
+    case L_BACK: return vvfp_tr("vvfp.heathen_life/vvfp_heathen_life.label.back", "Going back to the camp", R_DOING_CAP);
+    case L_NONI_GO: return vvfp_tr("vvfp.heathen_life/vvfp_heathen_life.label.noni_go", "Going to the noni bushes", R_DOING_CAP);
+    case L_NONI_AT: return vvfp_tr("vvfp.heathen_life/vvfp_heathen_life.label.noni_at", "Practising Farming at the noni bushes", R_DOING_CAP);
+    case L_NONI_CARRY: return vvfp_tr("vvfp.heathen_life/vvfp_heathen_life.label.noni_carry", "Bringing noni home to the camp", R_DOING_CAP);
+    case L_NONI_DROP: return vvfp_tr("vvfp.heathen_life/vvfp_heathen_life.label.noni_drop", "Dropping off noni at the camp", R_DOING_CAP);
+    case L_CROPS_GO: return vvfp_tr("vvfp.heathen_life/vvfp_heathen_life.label.crops_go", "Going to the farm plots", R_DOING_CAP);
+    case L_CROPS_AT: return vvfp_tr("vvfp.heathen_life/vvfp_heathen_life.label.crops_at", "Practising Farming at the farm plots", R_DOING_CAP);
+    case L_CROPS_CARRY: return vvfp_tr("vvfp.heathen_life/vvfp_heathen_life.label.crops_carry", "Bringing crops home to the camp", R_DOING_CAP);
+    case L_CROPS_DROP: return vvfp_tr("vvfp.heathen_life/vvfp_heathen_life.label.crops_drop", "Dropping off crops at the camp", R_DOING_CAP);
+    case L_FISH_GO: return vvfp_tr("vvfp.heathen_life/vvfp_heathen_life.label.fish_go", "Going fishing at the lake", R_DOING_CAP);
+    case L_FISH_AT: return vvfp_tr("vvfp.heathen_life/vvfp_heathen_life.label.fish_at", "Practising Farming at the lake", R_DOING_CAP);
+    case L_FISH_CARRY: return vvfp_tr("vvfp.heathen_life/vvfp_heathen_life.label.fish_carry", "Bringing a fish home to the camp", R_DOING_CAP);
+    case L_FISH_DROP: return vvfp_tr("vvfp.heathen_life/vvfp_heathen_life.label.fish_drop", "Dropping off a fish at the camp", R_DOING_CAP);
+    case L_POOLS_GO: return vvfp_tr("vvfp.heathen_life/vvfp_heathen_life.label.pools_go", "Going to the pools", R_DOING_CAP);
+    case L_POOLS_AT: return vvfp_tr("vvfp.heathen_life/vvfp_heathen_life.label.pools_at", "Relaxing by the pools", R_DOING_CAP);
+    case L_STATUE_GO: return vvfp_tr("vvfp.heathen_life/vvfp_heathen_life.label.statue_go", "Going to the statue", R_DOING_CAP);
+    case L_STATUE_AT: return vvfp_tr("vvfp.heathen_life/vvfp_heathen_life.label.statue_at", "Practising Devotion at the statue", R_DOING_CAP);
+    case L_LAB_GO: return vvfp_tr("vvfp.heathen_life/vvfp_heathen_life.label.lab_go", "Going to the lab", R_DOING_CAP);
+    case L_LAB_AT: return vvfp_tr("vvfp.heathen_life/vvfp_heathen_life.label.lab_at", "Practising Research at the lab", R_DOING_CAP);
+    case L_LOVE_GO: return vvfp_tr("vvfp.heathen_life/vvfp_heathen_life.label.love_go", "Going to the love shack", R_DOING_CAP);
+    case L_LOVE_AT: return vvfp_tr("vvfp.heathen_life/vvfp_heathen_life.label.love_at", "Waiting at the love shack", R_DOING_CAP);
+    case L_CLOTHING_GO: return vvfp_tr("vvfp.heathen_life/vvfp_heathen_life.label.clothing_go", "Going to the clothing hut", R_DOING_CAP);
+    case L_CLOTHING_AT: return vvfp_tr("vvfp.heathen_life/vvfp_heathen_life.label.clothing_at", "Looking at the clothes", R_DOING_CAP);
+    case L_MEAL_GO: return vvfp_tr("vvfp.heathen_life/vvfp_heathen_life.label.meal_go", "Going to eat at the camp", R_DOING_CAP);
+    case L_MEAL_AT: return vvfp_tr("vvfp.heathen_life/vvfp_heathen_life.label.meal_at", "Eating at the camp", R_DOING_CAP);
+    case L_MUD_HUT_GO: return vvfp_tr("vvfp.heathen_life/vvfp_heathen_life.label.mud_hut_go", "Going to the mud hut", R_DOING_CAP);
+    case L_MUD_HUT_AT: return vvfp_tr("vvfp.heathen_life/vvfp_heathen_life.label.mud_hut_at", "Practising Devotion at the mud hut", R_DOING_CAP);
+    default: return vvfp_tr("vvfp.heathen_life/vvfp_heathen_life.label.nursery_at", "Playing in the nursery", R_DOING_CAP);
+    }
+}
+
+/* `format`'s one %s filled with the record's name into `out` (R_DOING_CAP bytes); 0 when the English would be
+   longer than the game's own Details texts (then the caller shows the label without the name). */
+static int with_name(const char *format, const unsigned char *record, char *out) {
+    unsigned int n = 0, k;
+    const char *at;
+    for (at = format; *at != '\0'; ++at) {
+        if (at[0] == '%' && at[1] == 's') {
+            for (k = 0; k < R_NAME_CAP && record[R_NAME + k] != 0; ++k) {
+                if (n >= LABEL_LONGEST) {
+                    return 0;
+                }
+                out[n++] = (char)record[R_NAME + k];
+            }
+            ++at;
+            continue;
+        }
+        if (n >= LABEL_LONGEST) {
+            return 0;
+        }
+        out[n++] = *at;
+    }
+    out[n] = '\0';
+    return 1;
+}
+
+/* The doctor's two labels, naming the patient when it fits. */
+static const char *heal_label(int at_patient, const unsigned char *patient, char *out) {
+    char filled[R_DOING_CAP];
+    if (at_patient) {
+        if (with_name("Practising Healing on %s", patient, filled)) {
+            return vvfp_trf("vvfp.heathen_life/vvfp_heathen_life.label.heal_at", "Practising Healing on %s", filled, out, R_DOING_CAP);
+        }
+        return label(L_HEAL_AT_ANY);
+    }
+    if (with_name("Going to heal %s", patient, filled)) {
+        return vvfp_trf("vvfp.heathen_life/vvfp_heathen_life.label.heal_go", "Going to heal %s", filled, out, R_DOING_CAP);
+    }
+    return label(L_HEAL_GO_ANY);
+}
+
 /* ---- the game's step adders ------------------------------------------------------------------------------- */
 
-static void say(unsigned char *record, int text) {
-    void *table = ((texts_fn)(UINT_PTR)G_TEXTS)();
-    const char *words = ((text_fn)(UINT_PTR)G_TEXT)(table, NULL, text);
+static void put_doing(unsigned char *record, const char *words) {
     unsigned int i = 0;
     if (words != NULL) {
         for (; i + 1u < R_DOING_CAP && words[i] != '\0'; ++i) {
@@ -443,10 +540,31 @@ static void say(unsigned char *record, int text) {
     record[R_DOING + i] = 0;
 }
 
-static void begin(unsigned char *record, int text) {
+static void begin_with(unsigned char *record, const char *words) {
     ((tc0_fn)(UINT_PTR)G_STOP)(record, NULL);
     *(int *)(record + R_BEHAVIOUR) = CAMP_WANDER;
-    say(record, text);
+    put_doing(record, words);
+}
+
+static void begin(unsigned char *record, int which) {
+    begin_with(record, label(which));
+}
+
+/* The game's text step: the Details text changes to `words` when the queue reaches it. */
+static void then_say(unsigned char *record, const char *words) {
+    char copy[R_DOING_CAP];
+    unsigned int i = 0;
+    if (words != NULL) {
+        for (; i + 1u < R_DOING_CAP && words[i] != '\0'; ++i) {
+            copy[i] = words[i];
+        }
+    }
+    copy[i] = '\0';
+    ((text_step_fn)(UINT_PTR)G_TEXT_STEP)(record, NULL, copy);
+}
+
+static void then(unsigned char *record, int which) {
+    then_say(record, label(which));
 }
 
 static void walk_area(unsigned char *record, int area, int distance) {
@@ -484,36 +602,43 @@ static void start(unsigned char *record) {
 /* ---- the looks -------------------------------------------------------------------------------------------- */
 
 static void look_sick(unsigned char *record) {           /* 0x45C3A0's pose, at the encampment */
-    begin(record, T_SICK);
+    begin(record, L_SICK_GO);
     walk_area(record, A_CAMP, 0x28);
+    then(record, L_SICK_AT);
     gesture(record, rnd(40) + 15, 9);
     wait_for(record, rnd(3) + 2);
     start(record);
 }
 
-static void look_waiting(unsigned char *record) {        /* 0x45CFD0 */
-    begin(record, T_WAITING);
+static void look_waiting(unsigned char *record) {        /* 0x45CFD0's pose */
+    begin(record, L_WAIT_HEALER);
     gesture(record, 0x3C, 0);
     start(record);
 }
 
 static void look_healing(unsigned char *doctor, const unsigned char *patient) {   /* 0x46CD86 + 0x45D060 */
     int spot[2];
+    char words[R_DOING_CAP];
     int *at = ((position_fn)(UINT_PTR)G_POSITION)((void *)patient, NULL, spot);
-    begin(doctor, T_HEALING);
+    begin_with(doctor, heal_label(0, patient, words));
     walk_point(doctor, at[0], at[1] + 10, 0x96);
+    then_say(doctor, heal_label(1, patient, words));
     animate(doctor, 0x11);
     wait_for(doctor, 3);
     gesture(doctor, 1, 1);
     wait_for(doctor, 3);
     gesture(doctor, 1, 1);
+    then(doctor, L_BACK);
     walk_area(doctor, A_CAMP, 0x64);
     start(doctor);
 }
 
-static void look_harvest(unsigned char *record, int text, int area, int item, int fish) {
-    begin(record, text);
+/* A harvest's labels: going, there (practising Farming), bringing it home, dropping it off at the
+   encampment. */
+static void look_harvest(unsigned char *record, int going, int area, int item, int fish) {
+    begin(record, going);
     walk_area(record, area, 0x64);
+    then(record, going + 1);
     if (fish) {                                           /* 0x463B20 */
         wait_for(record, 3);
     } else {                                              /* 0x457910 / 0x457C80 */
@@ -523,25 +648,36 @@ static void look_harvest(unsigned char *record, int text, int area, int item, in
     }
     carry(record, item);
     wait_for(record, 3);
+    then(record, going + 2);
     walk_area(record, A_CAMP, 0x64);                      /* the encampment, never the granary (area 5) */
+    then(record, going + 3);
     wait_for(record, 3);
     drop(record);
     start(record);
 }
 
-static void look_visit(unsigned char *record, int text, int area) {
-    begin(record, text);
+/* A visit's labels: going (or the game's own line for `going_text` > 0), there, then back to the encampment. */
+static void look_visit(unsigned char *record, int going, int going_text, int area) {
+    if (going_text > 0) {
+        void *table = ((texts_fn)(UINT_PTR)G_TEXTS)();
+        begin_with(record, ((text_fn)(UINT_PTR)G_TEXT)(table, NULL, going_text));
+    } else {
+        begin(record, going);
+    }
     walk_area(record, area, 0x64);
+    then(record, going_text > 0 ? L_NURSERY_AT : going + 1);
     gesture(record, rnd(4) + 2, 0);
     wait_for(record, rnd(3) + 2);
     gesture(record, rnd(4) + 2, 0);
+    then(record, L_BACK);
     walk_area(record, A_CAMP, 0x64);
     start(record);
 }
 
 static void look_meal(unsigned char *record) {            /* 0x457D30 without its payoff 0x57 */
-    begin(record, T_EATING);
+    begin(record, L_MEAL_GO);
     walk_area(record, A_CAMP, 0x64);
+    then(record, L_MEAL_AT);
     animate(record, 0x6F);
     wait_for(record, rnd(2) + 2);
     gesture(record, 1, 5);
@@ -551,11 +687,13 @@ static void look_meal(unsigned char *record) {            /* 0x457D30 without it
     start(record);
 }
 
-static void look_devotion(unsigned char *record) {        /* "Praising" (0x4598A0) in front of the mud hut */
-    begin(record, T_PRAISING);
+static void look_devotion(unsigned char *record) {        /* 0x4598A0's praising pose in front of the mud hut */
+    begin(record, L_MUD_HUT_GO);
     walk_point(record, 2176 + rnd(96), 1576 + rnd(24), 0x64);
+    then(record, L_MUD_HUT_AT);
     gesture(record, 0x1E, 0x10);
     wait_for(record, rnd(3) + 2);
+    then(record, L_BACK);
     walk_area(record, A_CAMP, 0x64);
     start(record);
 }
@@ -643,14 +781,14 @@ static int show(unsigned char *record) {
     choice = rnd(count);
     area = areas[choice];
     switch (open[choice]) {
-    case SHOW_NONI: look_harvest(record, T_NONI, area, 0, 0); plan_practice(record, SKILL_FARMING); break;
-    case SHOW_CROPS: look_harvest(record, T_CROPS, area, 0, 0); plan_practice(record, SKILL_FARMING); break;
-    case SHOW_FISH: look_harvest(record, T_FISH, area, 0x38, 1); plan_practice(record, SKILL_FARMING); break;
-    case SHOW_POOLS: look_visit(record, T_POOLS, area); break;
-    case SHOW_STATUE: look_visit(record, T_HONORING, area); plan_practice(record, SKILL_DEVOTION); break;
-    case SHOW_LAB: look_visit(record, T_RESEARCH, area); plan_practice(record, SKILL_RESEARCH); break;
-    case SHOW_LOVE: look_visit(record, T_WAITING, area); break;
-    case SHOW_CLOTHING: look_visit(record, T_WAITING, area); break;
+    case SHOW_NONI: look_harvest(record, L_NONI_GO, area, 0, 0); plan_practice(record, SKILL_FARMING); break;
+    case SHOW_CROPS: look_harvest(record, L_CROPS_GO, area, 0, 0); plan_practice(record, SKILL_FARMING); break;
+    case SHOW_FISH: look_harvest(record, L_FISH_GO, area, 0x38, 1); plan_practice(record, SKILL_FARMING); break;
+    case SHOW_POOLS: look_visit(record, L_POOLS_GO, 0, area); break;
+    case SHOW_STATUE: look_visit(record, L_STATUE_GO, 0, area); plan_practice(record, SKILL_DEVOTION); break;
+    case SHOW_LAB: look_visit(record, L_LAB_GO, 0, area); plan_practice(record, SKILL_RESEARCH); break;
+    case SHOW_LOVE: look_visit(record, L_LOVE_GO, 0, area); break;
+    case SHOW_CLOTHING: look_visit(record, L_CLOTHING_GO, 0, area); break;
     case SHOW_MEAL: look_meal(record); break;
     default: look_devotion(record); plan_practice(record, SKILL_DEVOTION); break;
     }
@@ -678,7 +816,7 @@ static int __cdecl pick(unsigned char *record) {
             /* A child: only what a believer child does that a Heathen child does not in stock -- play in the
                nursery while an adult teaches at the nursery school (0x46E433..0x46E472; 0x43A810). */
             if (((teacher_fn)(UINT_PTR)G_TEACHER)() && area_drawn(A_NURSERY_PLAY)) {
-                look_visit(record, T_NURSERY_PLAY, A_NURSERY_PLAY);
+                look_visit(record, 0, T_NURSERY_PLAY, A_NURSERY_PLAY);
                 return 1;
             }
             return 0;

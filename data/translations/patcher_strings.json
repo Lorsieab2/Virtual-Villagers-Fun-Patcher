@@ -75869,6 +75869,391 @@
    "route": "key"
   },
   {
+   "stem": "vvfp.heathen_life/vvfp_heathen_life.label.sick_go",
+   "english": "Going home to the camp, sick",
+   "games": [
+    "vv5"
+   ],
+   "mechanism": "a",
+   "context": "Heathen Tribe Expansion and Evolution: a Heathen's Details text (\"VVFP Heathen Life.dll\")",
+   "notes": "drawn by the game's text routine; at most 38 bytes",
+   "route": "key"
+  },
+  {
+   "stem": "vvfp.heathen_life/vvfp_heathen_life.label.sick_at",
+   "english": "Resting at the camp, sick",
+   "games": [
+    "vv5"
+   ],
+   "mechanism": "a",
+   "context": "Heathen Tribe Expansion and Evolution: a Heathen's Details text (\"VVFP Heathen Life.dll\")",
+   "notes": "drawn by the game's text routine; at most 38 bytes",
+   "route": "key"
+  },
+  {
+   "stem": "vvfp.heathen_life/vvfp_heathen_life.label.wait_healer",
+   "english": "Waiting for the healer",
+   "games": [
+    "vv5"
+   ],
+   "mechanism": "a",
+   "context": "Heathen Tribe Expansion and Evolution: a Heathen's Details text (\"VVFP Heathen Life.dll\")",
+   "notes": "drawn by the game's text routine; at most 38 bytes",
+   "route": "key"
+  },
+  {
+   "stem": "vvfp.heathen_life/vvfp_heathen_life.label.heal_go_any",
+   "english": "Going to heal someone sick",
+   "games": [
+    "vv5"
+   ],
+   "mechanism": "a",
+   "context": "Heathen Tribe Expansion and Evolution: a Heathen's Details text (\"VVFP Heathen Life.dll\")",
+   "notes": "drawn by the game's text routine; at most 38 bytes",
+   "route": "key"
+  },
+  {
+   "stem": "vvfp.heathen_life/vvfp_heathen_life.label.heal_at_any",
+   "english": "Practising Healing on the sick",
+   "games": [
+    "vv5"
+   ],
+   "mechanism": "a",
+   "context": "Heathen Tribe Expansion and Evolution: a Heathen's Details text (\"VVFP Heathen Life.dll\")",
+   "notes": "drawn by the game's text routine; at most 38 bytes",
+   "route": "key"
+  },
+  {
+   "stem": "vvfp.heathen_life/vvfp_heathen_life.label.back",
+   "english": "Going back to the camp",
+   "games": [
+    "vv5"
+   ],
+   "mechanism": "a",
+   "context": "Heathen Tribe Expansion and Evolution: a Heathen's Details text (\"VVFP Heathen Life.dll\")",
+   "notes": "drawn by the game's text routine; at most 38 bytes",
+   "route": "key"
+  },
+  {
+   "stem": "vvfp.heathen_life/vvfp_heathen_life.label.noni_go",
+   "english": "Going to the noni bushes",
+   "games": [
+    "vv5"
+   ],
+   "mechanism": "a",
+   "context": "Heathen Tribe Expansion and Evolution: a Heathen's Details text (\"VVFP Heathen Life.dll\")",
+   "notes": "drawn by the game's text routine; at most 38 bytes",
+   "route": "key"
+  },
+  {
+   "stem": "vvfp.heathen_life/vvfp_heathen_life.label.noni_at",
+   "english": "Practising Farming at the noni bushes",
+   "games": [
+    "vv5"
+   ],
+   "mechanism": "a",
+   "context": "Heathen Tribe Expansion and Evolution: a Heathen's Details text (\"VVFP Heathen Life.dll\")",
+   "notes": "drawn by the game's text routine; at most 38 bytes",
+   "route": "key"
+  },
+  {
+   "stem": "vvfp.heathen_life/vvfp_heathen_life.label.noni_carry",
+   "english": "Bringing noni home to the camp",
+   "games": [
+    "vv5"
+   ],
+   "mechanism": "a",
+   "context": "Heathen Tribe Expansion and Evolution: a Heathen's Details text (\"VVFP Heathen Life.dll\")",
+   "notes": "drawn by the game's text routine; at most 38 bytes",
+   "route": "key"
+  },
+  {
+   "stem": "vvfp.heathen_life/vvfp_heathen_life.label.noni_drop",
+   "english": "Dropping off noni at the camp",
+   "games": [
+    "vv5"
+   ],
+   "mechanism": "a",
+   "context": "Heathen Tribe Expansion and Evolution: a Heathen's Details text (\"VVFP Heathen Life.dll\")",
+   "notes": "drawn by the game's text routine; at most 38 bytes",
+   "route": "key"
+  },
+  {
+   "stem": "vvfp.heathen_life/vvfp_heathen_life.label.crops_go",
+   "english": "Going to the farm plots",
+   "games": [
+    "vv5"
+   ],
+   "mechanism": "a",
+   "context": "Heathen Tribe Expansion and Evolution: a Heathen's Details text (\"VVFP Heathen Life.dll\")",
+   "notes": "drawn by the game's text routine; at most 38 bytes",
+   "route": "key"
+  },
+  {
+   "stem": "vvfp.heathen_life/vvfp_heathen_life.label.crops_at",
+   "english": "Practising Farming at the farm plots",
+   "games": [
+    "vv5"
+   ],
+   "mechanism": "a",
+   "context": "Heathen Tribe Expansion and Evolution: a Heathen's Details text (\"VVFP Heathen Life.dll\")",
+   "notes": "drawn by the game's text routine; at most 38 bytes",
+   "route": "key"
+  },
+  {
+   "stem": "vvfp.heathen_life/vvfp_heathen_life.label.crops_carry",
+   "english": "Bringing crops home to the camp",
+   "games": [
+    "vv5"
+   ],
+   "mechanism": "a",
+   "context": "Heathen Tribe Expansion and Evolution: a Heathen's Details text (\"VVFP Heathen Life.dll\")",
+   "notes": "drawn by the game's text routine; at most 38 bytes",
+   "route": "key"
+  },
+  {
+   "stem": "vvfp.heathen_life/vvfp_heathen_life.label.crops_drop",
+   "english": "Dropping off crops at the camp",
+   "games": [
+    "vv5"
+   ],
+   "mechanism": "a",
+   "context": "Heathen Tribe Expansion and Evolution: a Heathen's Details text (\"VVFP Heathen Life.dll\")",
+   "notes": "drawn by the game's text routine; at most 38 bytes",
+   "route": "key"
+  },
+  {
+   "stem": "vvfp.heathen_life/vvfp_heathen_life.label.fish_go",
+   "english": "Going fishing at the lake",
+   "games": [
+    "vv5"
+   ],
+   "mechanism": "a",
+   "context": "Heathen Tribe Expansion and Evolution: a Heathen's Details text (\"VVFP Heathen Life.dll\")",
+   "notes": "drawn by the game's text routine; at most 38 bytes",
+   "route": "key"
+  },
+  {
+   "stem": "vvfp.heathen_life/vvfp_heathen_life.label.fish_at",
+   "english": "Practising Farming at the lake",
+   "games": [
+    "vv5"
+   ],
+   "mechanism": "a",
+   "context": "Heathen Tribe Expansion and Evolution: a Heathen's Details text (\"VVFP Heathen Life.dll\")",
+   "notes": "drawn by the game's text routine; at most 38 bytes",
+   "route": "key"
+  },
+  {
+   "stem": "vvfp.heathen_life/vvfp_heathen_life.label.fish_carry",
+   "english": "Bringing a fish home to the camp",
+   "games": [
+    "vv5"
+   ],
+   "mechanism": "a",
+   "context": "Heathen Tribe Expansion and Evolution: a Heathen's Details text (\"VVFP Heathen Life.dll\")",
+   "notes": "drawn by the game's text routine; at most 38 bytes",
+   "route": "key"
+  },
+  {
+   "stem": "vvfp.heathen_life/vvfp_heathen_life.label.fish_drop",
+   "english": "Dropping off a fish at the camp",
+   "games": [
+    "vv5"
+   ],
+   "mechanism": "a",
+   "context": "Heathen Tribe Expansion and Evolution: a Heathen's Details text (\"VVFP Heathen Life.dll\")",
+   "notes": "drawn by the game's text routine; at most 38 bytes",
+   "route": "key"
+  },
+  {
+   "stem": "vvfp.heathen_life/vvfp_heathen_life.label.pools_go",
+   "english": "Going to the pools",
+   "games": [
+    "vv5"
+   ],
+   "mechanism": "a",
+   "context": "Heathen Tribe Expansion and Evolution: a Heathen's Details text (\"VVFP Heathen Life.dll\")",
+   "notes": "drawn by the game's text routine; at most 38 bytes",
+   "route": "key"
+  },
+  {
+   "stem": "vvfp.heathen_life/vvfp_heathen_life.label.pools_at",
+   "english": "Relaxing by the pools",
+   "games": [
+    "vv5"
+   ],
+   "mechanism": "a",
+   "context": "Heathen Tribe Expansion and Evolution: a Heathen's Details text (\"VVFP Heathen Life.dll\")",
+   "notes": "drawn by the game's text routine; at most 38 bytes",
+   "route": "key"
+  },
+  {
+   "stem": "vvfp.heathen_life/vvfp_heathen_life.label.statue_go",
+   "english": "Going to the statue",
+   "games": [
+    "vv5"
+   ],
+   "mechanism": "a",
+   "context": "Heathen Tribe Expansion and Evolution: a Heathen's Details text (\"VVFP Heathen Life.dll\")",
+   "notes": "drawn by the game's text routine; at most 38 bytes",
+   "route": "key"
+  },
+  {
+   "stem": "vvfp.heathen_life/vvfp_heathen_life.label.statue_at",
+   "english": "Practising Devotion at the statue",
+   "games": [
+    "vv5"
+   ],
+   "mechanism": "a",
+   "context": "Heathen Tribe Expansion and Evolution: a Heathen's Details text (\"VVFP Heathen Life.dll\")",
+   "notes": "drawn by the game's text routine; at most 38 bytes",
+   "route": "key"
+  },
+  {
+   "stem": "vvfp.heathen_life/vvfp_heathen_life.label.lab_go",
+   "english": "Going to the lab",
+   "games": [
+    "vv5"
+   ],
+   "mechanism": "a",
+   "context": "Heathen Tribe Expansion and Evolution: a Heathen's Details text (\"VVFP Heathen Life.dll\")",
+   "notes": "drawn by the game's text routine; at most 38 bytes",
+   "route": "key"
+  },
+  {
+   "stem": "vvfp.heathen_life/vvfp_heathen_life.label.lab_at",
+   "english": "Practising Research at the lab",
+   "games": [
+    "vv5"
+   ],
+   "mechanism": "a",
+   "context": "Heathen Tribe Expansion and Evolution: a Heathen's Details text (\"VVFP Heathen Life.dll\")",
+   "notes": "drawn by the game's text routine; at most 38 bytes",
+   "route": "key"
+  },
+  {
+   "stem": "vvfp.heathen_life/vvfp_heathen_life.label.love_go",
+   "english": "Going to the love shack",
+   "games": [
+    "vv5"
+   ],
+   "mechanism": "a",
+   "context": "Heathen Tribe Expansion and Evolution: a Heathen's Details text (\"VVFP Heathen Life.dll\")",
+   "notes": "drawn by the game's text routine; at most 38 bytes",
+   "route": "key"
+  },
+  {
+   "stem": "vvfp.heathen_life/vvfp_heathen_life.label.love_at",
+   "english": "Waiting at the love shack",
+   "games": [
+    "vv5"
+   ],
+   "mechanism": "a",
+   "context": "Heathen Tribe Expansion and Evolution: a Heathen's Details text (\"VVFP Heathen Life.dll\")",
+   "notes": "drawn by the game's text routine; at most 38 bytes",
+   "route": "key"
+  },
+  {
+   "stem": "vvfp.heathen_life/vvfp_heathen_life.label.clothing_go",
+   "english": "Going to the clothing hut",
+   "games": [
+    "vv5"
+   ],
+   "mechanism": "a",
+   "context": "Heathen Tribe Expansion and Evolution: a Heathen's Details text (\"VVFP Heathen Life.dll\")",
+   "notes": "drawn by the game's text routine; at most 38 bytes",
+   "route": "key"
+  },
+  {
+   "stem": "vvfp.heathen_life/vvfp_heathen_life.label.clothing_at",
+   "english": "Looking at the clothes",
+   "games": [
+    "vv5"
+   ],
+   "mechanism": "a",
+   "context": "Heathen Tribe Expansion and Evolution: a Heathen's Details text (\"VVFP Heathen Life.dll\")",
+   "notes": "drawn by the game's text routine; at most 38 bytes",
+   "route": "key"
+  },
+  {
+   "stem": "vvfp.heathen_life/vvfp_heathen_life.label.meal_go",
+   "english": "Going to eat at the camp",
+   "games": [
+    "vv5"
+   ],
+   "mechanism": "a",
+   "context": "Heathen Tribe Expansion and Evolution: a Heathen's Details text (\"VVFP Heathen Life.dll\")",
+   "notes": "drawn by the game's text routine; at most 38 bytes",
+   "route": "key"
+  },
+  {
+   "stem": "vvfp.heathen_life/vvfp_heathen_life.label.meal_at",
+   "english": "Eating at the camp",
+   "games": [
+    "vv5"
+   ],
+   "mechanism": "a",
+   "context": "Heathen Tribe Expansion and Evolution: a Heathen's Details text (\"VVFP Heathen Life.dll\")",
+   "notes": "drawn by the game's text routine; at most 38 bytes",
+   "route": "key"
+  },
+  {
+   "stem": "vvfp.heathen_life/vvfp_heathen_life.label.mud_hut_go",
+   "english": "Going to the mud hut",
+   "games": [
+    "vv5"
+   ],
+   "mechanism": "a",
+   "context": "Heathen Tribe Expansion and Evolution: a Heathen's Details text (\"VVFP Heathen Life.dll\")",
+   "notes": "drawn by the game's text routine; at most 38 bytes",
+   "route": "key"
+  },
+  {
+   "stem": "vvfp.heathen_life/vvfp_heathen_life.label.mud_hut_at",
+   "english": "Practising Devotion at the mud hut",
+   "games": [
+    "vv5"
+   ],
+   "mechanism": "a",
+   "context": "Heathen Tribe Expansion and Evolution: a Heathen's Details text (\"VVFP Heathen Life.dll\")",
+   "notes": "drawn by the game's text routine; at most 38 bytes",
+   "route": "key"
+  },
+  {
+   "stem": "vvfp.heathen_life/vvfp_heathen_life.label.nursery_at",
+   "english": "Playing in the nursery",
+   "games": [
+    "vv5"
+   ],
+   "mechanism": "a",
+   "context": "Heathen Tribe Expansion and Evolution: a Heathen's Details text (\"VVFP Heathen Life.dll\")",
+   "notes": "drawn by the game's text routine; at most 38 bytes",
+   "route": "key"
+  },
+  {
+   "stem": "vvfp.heathen_life/vvfp_heathen_life.label.heal_at",
+   "english": "Practising Healing on %s",
+   "games": [
+    "vv5"
+   ],
+   "mechanism": "a",
+   "context": "Heathen Tribe Expansion and Evolution: a Heathen's Details text (\"VVFP Heathen Life.dll\")",
+   "notes": "drawn by the game's text routine; at most 38 bytes; %1 = text (person when it is a villager's name)",
+   "route": "key"
+  },
+  {
+   "stem": "vvfp.heathen_life/vvfp_heathen_life.label.heal_go",
+   "english": "Going to heal %s",
+   "games": [
+    "vv5"
+   ],
+   "mechanism": "a",
+   "context": "Heathen Tribe Expansion and Evolution: a Heathen's Details text (\"VVFP Heathen Life.dll\")",
+   "notes": "drawn by the game's text routine; at most 38 bytes; %1 = text (person when it is a villager's name)",
+   "route": "key"
+  },
+  {
    "stem": "vvfp.gui/rename_tribe.long_name_note",
    "english": "Allowed. This name is longer than the game keeps in its save, so the save keeps a short form of it. The game shows the whole name only with \"Render Unicode with In-Game Fonts\" or \"Use Unicode Font\" patched in; otherwise it shows the short form (for example \"Alexandria Montg...\").",
    "games": [
