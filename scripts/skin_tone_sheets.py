@@ -4,7 +4,8 @@
     python scripts/skin_tone_sheets.py sheets    --game vv3 --images "<game>\\Images" --out "<folder>"
     python scripts/skin_tone_sheets.py workbench --game vv3 --images "<game>\\Images"
     python scripts/skin_tone_sheets.py workbench-all --images-root "<the folder of the five games>"
-    python scripts/skin_tone_sheets.py import    --game vv3
+    python scripts/skin_tone_sheets.py import    --game vv3 [--same-for-all-tones]
+    python scripts/skin_tone_sheets.py spread    --game vv3 --sheet vv3_carrying [--from 10]   (or --all-sheets)
     python scripts/skin_tone_sheets.py publish   --game vv3 --images "<game>\\Images"
 
 The method is scripts/skin_tone_preview.py's (the skin mask, then REPLACE in OKLCh, everything outside
@@ -712,7 +713,9 @@ def run_gimp(script: str, job: dict):
         env = dict(os.environ, VVFP_SKIN_JOB=str(job_path))
         command = [str(GIMP), "-n", "-i", "-d", "-f", "--batch-interpreter", "python-fu-eval",
                    "-b", f"exec(open(r'{script_path}', encoding='utf-8').read())", "--quit"]
-        done = subprocess.run(command, env=env, capture_output=True, text=True, timeout=3600)
+        # At idle priority: the owner may be painting in GIMP on the same machine.
+        quiet = {"creationflags": 0x00000040} if os.name == "nt" else {}
+        done = subprocess.run(command, env=env, capture_output=True, text=True, timeout=3600, **quiet)
         text = (done.stdout or "") + (done.stderr or "")
         if text.count("VVFP ") < len(job["files"]):
             raise SystemExit("GIMP did not finish every file:\n" + text[-3000:])
@@ -959,10 +962,28 @@ def pin_as_written(game, folder: Path, not_after: float):
     return done
 
 
-def import_workbench(game, folder: Path, only=None):
+def _keep_skin(target: Path, painted, as_built, kept, label):
+    """Keep where a tone has skin as a white mark in "edits" -- or, when it is as built, withdraw the edit."""
+    if _sha(painted) == as_built:
+        if target.is_file():
+            target.unlink()
+        return
+    mark = np.zeros(painted.shape + (4,), np.uint8)
+    mark[painted] = 255
+    target.parent.mkdir(parents=True, exist_ok=True)
+    Image.fromarray(mark).save(target)
+    kept.append(label)
+
+
+def import_workbench(game, folder: Path, only=None, same_for_all=False, source=None, say=print):
     """Read every <game>_<sheet>.xcf (or only the sheets in `only`) back through GIMP; keep where the owner
     painted each tone's colour layer (skin_NN.png) and their mask, when changed, in <folder>/edits/<sheet>/
-    and drop the ones that are still as generated.  Returns what was kept."""
+    and drop the ones that are still as generated.  Returns what was kept.
+
+    `same_for_all` (the owner, 2026-11-28: "copy the edited pixels of one tone to the other tones"): for each
+    sheet, the paint of ONE tone -- `source` (1..10), or the one tone the owner changed -- is taken as the skin
+    of all ten tones, whatever the other tones' layers hold.  The .xcf is not touched.  A sheet where several
+    tones were changed differently and no `source` is given is read the ordinary way, and said so."""
     manifest = _manifest(folder)
     edits = folder / "edits"
     kept = []
@@ -980,22 +1001,32 @@ def import_workbench(game, folder: Path, only=None):
                 continue
             tall = _layer_pixels(Path(item["out"]) / "layers.png")
             height = tall.shape[0] // len(leaves)
+            record = manifest.get(stem, {})
+            for_all = None
+            if same_for_all:
+                tones = {leaf: painted_from_layer(tall[k * height:(k + 1) * height])
+                         for k, leaf in enumerate(leaves) if leaf.startswith("skin_")}
+                changed = [leaf for leaf in sorted(tones) if _sha(tones[leaf]) != record.get(leaf)]
+                if source is not None:
+                    if f"skin_{source:02d}.png" not in tones:
+                        say(f"{game}_{stem}: it has no colour layer for tone {source}; read the ordinary way")
+                    else:
+                        for_all = f"skin_{source:02d}.png"
+                elif len({_sha(tones[leaf]) for leaf in changed}) == 1:
+                    for_all = changed[0]
+                elif changed:
+                    say(f"{game}_{stem}: tones " + ", ".join(leaf[5:7] for leaf in changed) + " were changed, and "
+                        "differently, so each was read as it is. To use one of them for all ten, add --from and its number.")
+                if for_all is not None:
+                    say(f"{game}_{stem}: tone {for_all[5:7]}'s paint is the skin of all {len(core.TONES)} tones")
             for k, leaf in enumerate(leaves):
                 layer = tall[k * height:(k + 1) * height]
                 target = edits / stem / leaf
                 if leaf.startswith("skin_"):
                     # A tone's colour layer: painted is skin for that tone, erased is not.  Kept as white
                     # where painted -- nothing of the game's art, and not the colour either.
-                    painted = painted_from_layer(layer)
-                    if _sha(painted) == manifest.get(stem, {}).get(leaf):
-                        if target.is_file():
-                            target.unlink()         # as generated again: the edit is withdrawn
-                        continue
-                    layer = np.zeros_like(layer)
-                    layer[painted] = 255
-                    target.parent.mkdir(parents=True, exist_ok=True)
-                    Image.fromarray(layer).save(target)
-                    kept.append(f"{stem}/{leaf}")
+                    painted = tones[for_all] if for_all is not None else painted_from_layer(layer)
+                    _keep_skin(target, painted, record.get(leaf), kept, f"{stem}/{leaf}")
                     continue
                 if _sha(_clean(layer)) == manifest.get(stem, {}).get(leaf):
                     if target.is_file():
@@ -1013,6 +1044,255 @@ def import_workbench(game, folder: Path, only=None):
                 Image.fromarray(layer).save(target)
                 kept.append(f"{stem}/{leaf}")
     return kept
+
+
+_GIMP_SPREAD = r'''
+import hashlib, json, os, re, shutil
+import gi
+gi.require_version("Gimp", "3.0")
+gi.require_version("Gegl", "0.4")
+from gi.repository import Gimp, Gio, Gegl
+FORMAT = "R'G'B'A u8"
+PAINTED = bytes([0] + [1] * 255)
+job = json.load(open(os.environ["VVFP_SKIN_JOB"], encoding="utf-8"))
+
+
+def colour_layers(image):
+    found = {}
+    for group in image.get_layers():
+        tone = re.match(r"Tone (\d+)", group.get_name())
+        if tone and group.is_group():
+            for child in group.get_children():
+                if "paint here" in child.get_name():
+                    found[int(tone.group(1))] = child
+    return found
+
+
+def alpha_of(layer, width, height):
+    # The layer's alpha over the picture's own area, whatever the layer's size and place.
+    at = layer.get_offsets()
+    rect = Gegl.Rectangle.new(-at[-2], -at[-1], width, height)
+    return bytes(layer.get_buffer().get(rect, 1.0, FORMAT, Gegl.AbyssPolicy.NONE)[3::4])
+
+
+def cover(alpha):
+    return hashlib.sha1(alpha.translate(PAINTED)).hexdigest()
+
+
+def spread(item, result):
+    image = Gimp.file_load(Gimp.RunMode.NONINTERACTIVE, Gio.File.new_for_path(item["xcf"]))
+    width, height = image.get_width(), image.get_height()
+    layers = colour_layers(image)
+    if sorted(layers) != list(range(1, item["tones"] + 1)):
+        result["did"] = "not ours"
+        image.delete()
+        return
+    alphas = {n: alpha_of(layer, width, height) for n, layer in layers.items()}
+    covers = {n: cover(alpha) for n, alpha in alphas.items()}
+    changed = sorted(n for n in covers if covers[n] != item["records"].get(str(n)))
+    result["changed"] = changed
+    source = item.get("source")
+    if source is None:
+        if not changed:
+            result["did"] = "unchanged"
+        elif len({covers[n] for n in changed}) > 1:
+            result["did"] = "several"
+        else:
+            source = changed[0]
+    if source is None:
+        image.delete()
+        return
+    result["source"] = source
+    result["pixels"] = alphas[source].translate(PAINTED).count(1)
+    targets = sorted(n for n in layers if covers[n] != covers[source])
+    if not targets:
+        result["did"] = "same already"
+        image.delete()
+        return
+    # The file as it is, kept first (a copy already there is never overwritten).
+    os.makedirs(item["backup"], exist_ok=True)
+    stem, k = os.path.splitext(os.path.basename(item["xcf"]))[0], 1
+    kept = os.path.join(item["backup"], stem + ".xcf")
+    while os.path.exists(kept):
+        k += 1
+        kept = os.path.join(item["backup"], "%s (%d).xcf" % (stem, k))
+    shutil.copy2(item["xcf"], kept)
+    result["backup"] = kept
+    alpha = alphas[source]
+    for n in targets:
+        layer = layers[n]
+        at = layer.get_offsets()
+        if at[-2] or at[-1] or layer.get_width() != width or layer.get_height() != height:
+            layer.resize_to_image_size()
+        red, green, blue = item["colours"][str(n)]
+        data = bytearray(4 * width * height)
+        data[0::4] = alpha.translate(bytes([0] + [red] * 255))
+        data[1::4] = alpha.translate(bytes([0] + [green] * 255))
+        data[2::4] = alpha.translate(bytes([0] + [blue] * 255))
+        data[3::4] = alpha
+        buffer = layer.get_buffer()
+        buffer.set(Gegl.Rectangle.new(0, 0, width, height), FORMAT, bytes(data))
+        buffer.flush()
+        layer.update(0, 0, width, height)
+    Gimp.file_save(Gimp.RunMode.NONINTERACTIVE, image, Gio.File.new_for_path(item["xcf"]), None)
+    image.delete()
+    # Read the saved file again: every tone must now cover exactly the source's pixels.
+    image = Gimp.file_load(Gimp.RunMode.NONINTERACTIVE, Gio.File.new_for_path(item["xcf"]))
+    again = {n: cover(alpha_of(layer, width, height)) for n, layer in colour_layers(image).items()}
+    image.delete()
+    result["same"] = len(again) == item["tones"] and set(again.values()) == {covers[source]}
+    result["targets"] = targets
+    result["did"] = "spread"
+
+
+for item in job["files"]:
+    result = {"xcf": item["xcf"], "did": "nothing"}
+    try:
+        spread(item, result)
+    except Exception as problem:
+        result["did"], result["why"] = "failed", repr(problem)
+    json.dump(result, open(item["result"], "w", encoding="utf-8"))
+    print("VVFP spread", item["xcf"], result["did"])
+'''
+
+
+def held_open(path: Path):
+    """Whether another program has an .xcf open: ("open" | "unknown" | "free", why).  GIMP reads a file
+    and lets go of it, so no lock says a file is open in it; its windows' titles name the picture in front
+    only.  So with GIMP running and the file not named, the honest answer is "unknown"."""
+    try:
+        with open(path, "r+b"):
+            pass
+    except PermissionError:
+        return "open", "another program has it locked"
+    except OSError as problem:
+        return "unknown", str(problem)
+    if os.name != "nt":
+        return "unknown", "whether GIMP has it open can only be seen on Windows"
+    try:
+        titles = _gimp_window_titles()
+    except Exception as problem:          # the list of programs or of windows could not be had
+        return "unknown", f"the running programs could not be listed ({problem})"
+    if titles is None:
+        return "free", ""
+    if any(Path(path).stem.lower() in title.lower() for title in titles):
+        return "open", "GIMP has it open"
+    return "unknown", "GIMP is running, and which files it has open cannot be seen"
+
+
+def _gimp_window_titles():
+    """The titles of every window of every running gimp*.exe (Windows), or None when none is running."""
+    import csv
+    import ctypes
+    from ctypes import wintypes
+    done = subprocess.run(["tasklist", "/fo", "csv", "/nh", "/fi", "imagename eq gimp*"],
+                          capture_output=True, text=True, timeout=60)
+    ids = {int(row[1]) for row in csv.reader(done.stdout.splitlines())
+           if len(row) > 1 and row[0].lower().startswith("gimp") and row[1].isdigit()}
+    if not ids:
+        return None
+    user, titles = ctypes.windll.user32, []
+
+    @ctypes.WINFUNCTYPE(wintypes.BOOL, wintypes.HWND, wintypes.LPARAM)
+    def each(window, _):
+        owner = wintypes.DWORD()
+        user.GetWindowThreadProcessId(window, ctypes.byref(owner))
+        if owner.value in ids:
+            text = ctypes.create_unicode_buffer(1024)
+            user.GetWindowTextW(window, text, 1024)
+            if text.value:
+                titles.append(text.value)
+        return True
+
+    user.EnumWindows(each, 0)
+    return titles
+
+
+def sheet_stem(game, sheet):
+    """A sheet as the owner may name it ("vv1_carrying", "vv1_carrying.xcf", "carrying") -> "carrying"."""
+    stem = Path(sheet).stem if sheet.lower().endswith(".xcf") else sheet
+    return stem[len(game) + 1:] if stem.lower().startswith(game + "_") else stem
+
+
+def spread_tone(game, folder: Path, sheets=None, source=None, yes=False, backup=None):
+    """Make every tone's colour layer of an .xcf the same painted pixels as one tone's -- `source` (1..10),
+    or the one tone changed since the file was built -- each in its own tone's flat colour.  (The owner,
+    2026-11-28: "to save time, i'd like to copy the edited pixels of one tone to the other tones in a
+    file.")  `sheets`: the sheets ("carrying"), or None for every .xcf of the game.
+
+    A file another program has open is left alone; when that cannot be told (GIMP is running) nothing is
+    done without `yes`.  Each file changed is first copied into <folder>/<backup>.  One start of GIMP.
+    Returns [(sheet, plain words)], and prints nothing."""
+    import datetime
+    backup = backup or f"_before spread {datetime.date.today().isoformat()}"
+    manifest = _manifest(folder)
+    paths = sorted(folder.glob(f"{game}_*.xcf"))
+    if sheets:
+        wanted = {sheet_stem(game, sheet) for sheet in sheets}
+        missing = wanted - {path.stem[len(game) + 1:] for path in paths}
+        if missing:
+            raise SystemExit(f"no such file in {folder}: " + ", ".join(f"{game}_{stem}.xcf" for stem in sorted(missing)))
+        paths = [path for path in paths if path.stem[len(game) + 1:] in wanted]
+    if not paths:
+        raise SystemExit(f"no {game}_*.xcf in {folder}")
+    said, unknown, files = [], [], []
+    with tempfile.TemporaryDirectory() as tmp:
+        for path in paths:
+            stem = path.stem[len(game) + 1:]
+            record = manifest.get(stem, {})
+            records = {str(n): record.get(f"skin_{n:02d}.png") for n in range(1, len(core.TONES) + 1)}
+            if not all(records.values()):
+                said.append((stem, "left alone: it is one of the older files, without a colour layer for each tone."))
+                continue
+            state, why = held_open(path)
+            if state == "open":
+                said.append((stem, f"left alone: {why}. Save it and close it in GIMP, then run this again."))
+                continue
+            if state == "unknown":
+                unknown.append((stem, why))
+            files.append({"xcf": str(path), "source": source, "tones": len(core.TONES), "records": records,
+                          "colours": {str(n): [int(v) for v in tone_colour(n)] for n in range(1, len(core.TONES) + 1)},
+                          "backup": str(folder / backup), "result": str(Path(tmp) / f"{stem}.json"), "stem": stem})
+        if unknown and not yes:
+            raise SystemExit(
+                f"Nothing was changed. {unknown[0][1]}.\n"
+                "If one of these files is open in GIMP, save it and close it there first: this tool rewrites the\n"
+                "file on disk, and GIMP would not show the change (and saving from GIMP afterwards would undo it).\n"
+                "When none of them is open in GIMP, run the same command again with --yes added.")
+        if files:
+            run_gimp(_GIMP_SPREAD, {"files": files})
+        for item in files:
+            said.append((item["stem"], _spread_words(json.loads(Path(item["result"]).read_text(encoding="utf-8")), folder)))
+    return sorted(said)
+
+
+def _tone_words(number):
+    return f"Tone {number:02d} ({core.TONES[number - 1][4]})"
+
+
+def _spread_words(result, folder: Path) -> str:
+    did, changed = result["did"], result.get("changed", [])
+    if did == "spread":
+        kept = Path(result["backup"])
+        where = kept.relative_to(folder) if kept.is_relative_to(folder) else kept
+        if not result.get("same"):
+            return (f"SOMETHING WENT WRONG: after copying {_tone_words(result['source'])}'s skin, the tones do not all "
+                    f"cover the same pixels. The file as it was is safe in {where}")
+        return (f"copied {_tone_words(result['source'])}'s skin to the other {len(result['targets'])} tones that differed. "
+                f"All {len(core.TONES)} tones now cover the same "
+                f"{result['pixels']:,} pixels (checked in the saved file). The file as it was is in {where}")
+    if did == "same already":
+        return f"nothing to do: every tone already covers the same pixels as {_tone_words(result['source'])}."
+    if did == "unchanged":
+        return "nothing to do: no tone has been changed since the file was built. (To copy a tone anyway, add --from and its number.)"
+    if did == "several":
+        return ("left alone: " + ", ".join(_tone_words(n) for n in changed) + " were changed, and differently. "
+                "Say which one to copy: add --from and its number.")
+    if did == "not ours":
+        return "left alone: it does not have the ten tone folders with their colour layers."
+    if result.get("backup"):
+        return f"FAILED ({result.get('why', did)}). The file as it was is in {result['backup']}"
+    return f"FAILED ({result.get('why', did)}). The file was not changed."
 
 
 def publish_edits(art: Art, edits: Path, out: Path):
@@ -1080,7 +1360,10 @@ HOW TO EDIT
   - Open a tone's folder and click its "colour (paint here)" layer.
   - Pencil to add skin, Eraser to remove it. Any paint colour works: the Shading layer gives it
     the tone's shaded colour as you paint.
-  - Each tone is separate. A change in one tone is in that tone only.
+  - Each tone is separate. A change in one tone is in that tone only. To copy one tone's skin
+    to the other nine in a file (save and close it in GIMP first):
+        python scripts\\skin_tone_sheets.py spread --game vv1 --sheet vv1_carrying
+    or leave the file alone and run "import" with  --same-for-all-tones  added.
   - Hide "Hair and non-skin (vanilla)" while you work: it lies on top and would cover skin you
     add over hair or clothes.
   - Do not paint the Shading layer. Do not rename, merge or delete layers or folders, and do not
@@ -1122,7 +1405,7 @@ THE OLDER FILES
 def main() -> int:
     ap = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     ap.add_argument("what", choices=["preview", "sheets", "workbench", "import", "mockup", "heathens", "publish", "audit",
-                                    "workbench-all"])
+                                    "workbench-all", "spread"])
     ap.add_argument("--game", choices=sorted(TITLES))
     ap.add_argument("--images-root", type=Path, help="mockup: the folder holding every game's own folder")
     ap.add_argument("--images", type=Path, help="the game's own Images folder (read only)")
@@ -1134,6 +1417,15 @@ def main() -> int:
                                            "into this folder beside it; nothing is read back first")
     ap.add_argument("--check", type=Path, help="workbench: also write each sheet's tone groups as GIMP shows them "
                                                "into this folder, and compare them with the tones' own sheets")
+    ap.add_argument("--sheet", nargs="*", help="spread, import: only these files (vv1_carrying or carrying)")
+    ap.add_argument("--all-sheets", action="store_true", help="spread: every .xcf of the game")
+    ap.add_argument("--from", dest="source", type=int, choices=range(1, len(core.TONES) + 1), metavar="TONE",
+                    help="spread, import --same-for-all-tones: the tone (1-10) whose painted pixels are copied; "
+                         "left out, the one tone you changed")
+    ap.add_argument("--yes", action="store_true", help="spread: go ahead although it cannot be seen whether GIMP "
+                                                       "has the file open (you have checked that it has not)")
+    ap.add_argument("--same-for-all-tones", action="store_true",
+                    help="import: take the one changed tone's paint as the skin of all ten tones (the .xcf is not touched)")
     args = ap.parse_args()
     if args.what == "mockup":
         mockup(args.images_root, args.out, args.workbench if args.workbench.is_dir() else None)
@@ -1151,8 +1443,16 @@ def main() -> int:
     if not args.game:
         raise SystemExit("--game is needed")
     folder = args.workbench / args.game
+    if args.what == "spread":
+        if bool(args.sheet) == bool(args.all_sheets):
+            raise SystemExit("say which file with --sheet (for example --sheet vv1_carrying), or --all-sheets for every file of the game")
+        for stem, words in spread_tone(args.game, folder, args.sheet or None, args.source, args.yes):
+            print(f"{args.game}_{stem}: {words}")
+        print('To bring the result into the mod, run "import" for this game. If a file was open in GIMP, open it again there.')
+        return 0
     if args.what == "import":
-        kept = import_workbench(args.game, folder)
+        kept = import_workbench(args.game, folder, [sheet_stem(args.game, s) for s in args.sheet] if args.sheet else None,
+                                args.same_for_all_tones, args.source)
         print("kept", len(kept), "edited layers in", folder / "edits")
         for line in kept:
             print(" ", line)

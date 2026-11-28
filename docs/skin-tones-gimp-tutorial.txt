@@ -69,10 +69,8 @@ This guide is for GIMP 3. Keys in [brackets].
 
 6. DO THE OTHER TONES
    - Each tone has its own colour layer, so a change in one tone is not in the others.
-     To change all ten the same way, repeat it in each tone's colour layer.
-   - Quick way to copy one tone's skin to another: highlight the colour layer you finished,
-     Layer > Transparency > Alpha to Selection; then highlight the other tone's colour layer,
-     Edit > Clear [Delete], Edit > Fill with FG Color [Ctrl+,], Select > None [Ctrl+Shift+A].
+   - To save time, do ONE tone properly and copy its skin to the other nine: see
+     "COPY ONE TONE'S SKIN TO ALL THE OTHERS" below.
 
 7. SAVE
    - Leave layer names, order, the folders and the picture size exactly as they are (don't rename,
@@ -88,6 +86,33 @@ This guide is for GIMP 3. Keys in [brackets].
    and wins over the automatic version from then on. Only WHERE the skin is gets kept: the mod
    always makes the colours and the shading again from the game's own art, on each player's
    own files. Rebuilding the workbench never replaces a file you have changed.
+
+COPY ONE TONE'S SKIN TO ALL THE OTHERS
+   The quick, exact way is the tool. Save the file in GIMP and close it there (File > Close View
+   [Ctrl+W]), then in the patcher's folder run:
+       python scripts\skin_tone_sheets.py spread --game vv1 --sheet vv1_carrying
+   It finds the one tone you changed and makes the other nine tones' colour layers the same painted
+   pixels, each in its own colour. Then open the file again in GIMP.
+     - If you changed more than one tone, say which to copy: add  --from 10  (the tone's number).
+     - For every file of a game at once:  --all-sheets  instead of  --sheet ...
+     - It keeps the file as it was in the game's "_before spread <date>" folder first.
+     - It leaves a file alone if GIMP has it open. While GIMP is running it cannot always see that,
+       and then it changes nothing and asks you to run it again with  --yes  added.
+     - Afterwards run "import" as in step 8.
+
+   Or, without touching the .xcf at all, let "import" do it:
+       python scripts\skin_tone_sheets.py import --game vv1 --same-for-all-tones
+   This uses the one tone you changed as the skin for all ten tones in the mod. (The other tones'
+   layers in the .xcf stay as they are. Add  --from 10  if you changed more than one tone.)
+
+   By hand, in GIMP:
+     1. Right-click the colour layer you edited > Alpha to Selection.
+     2. Click the next tone's colour layer, then Edit > Fill with FG Color [Ctrl+,].
+        (Any foreground colour works.)
+     3. Select > Invert [Ctrl+I], Edit > Clear [Delete], Select > Invert [Ctrl+I].
+     4. Repeat 2 and 3 for each other tone, then Select > None [Ctrl+Shift+A].
+   This copies what you added and erased. It can drop a few of the faintest, nearly see-through
+   pixels on a villager's outline (148 of 21,985 on one sheet tested); the tool copies exactly.
 
 ABOUT THE "Skin mask" LAYER
    It is from the first version of these files and you can leave it alone. It still works: white

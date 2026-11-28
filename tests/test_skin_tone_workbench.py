@@ -36,6 +36,7 @@ class FakeGimp:
 
     def __init__(self):
         self.built, self.read, self.painted, self.fail_reads, self.jobs = [], [], {}, False, []
+        self.spreads, self.spread_results = [], {}
 
     def __call__(self, script, job):
         if script is sheets._GIMP_BUILD:
@@ -44,6 +45,12 @@ class FakeGimp:
                 self.jobs.append(item["layers"])
                 Path(item["xcf"]).write_bytes(b"gimp xcf " + json.dumps(names).encode())
                 self.built.append(Path(item["xcf"]).name)
+            return ""
+        if script is sheets._GIMP_SPREAD:
+            for item in job["files"]:
+                self.spreads.append(item)
+                result = dict(self.spread_results.get(item["stem"], {"did": "unchanged", "changed": []}), xcf=item["xcf"])
+                Path(item["result"]).write_text(json.dumps(result), encoding="utf-8")
             return ""
         if self.fail_reads:
             raise SystemExit("GIMP did not finish every file")
@@ -222,6 +229,136 @@ class Rebuild(unittest.TestCase):
         made = np.array(Image.open(self.folder.parent / "made" / maker.installed_name(3, "carrying.png")).convert("RGBA"))
         stock = np.array(Image.open(self.images / "carrying.png").convert("RGBA"))
         self.assertEqual({(int(x), int(y)) for y, x in zip(*np.nonzero((made != stock).any(-1)))}, {(152, 7), (130, 15)})
+
+    def colour_layers(self, **changes):
+        """Every tone's colour layer as GIMP hands it back: as built, but for {tone number: [(x, y) erased]}."""
+        mask = sheets.Art("vv1", self.images, shipped=False).mask("carrying.png")
+        layers = {}
+        for number in range(1, 11):
+            layer = np.zeros(mask.shape + (4,), np.uint8)
+            layer[mask] = tuple(sheets.tone_colour(number)) + (255,)
+            for x, y in changes.get(f"t{number}", ()):
+                layer[y, x] = 0
+            layers[f"skin_{number:02d}.png"] = Image.fromarray(layer)
+        return layers
+
+    def kept_marks(self):
+        folder = self.folder / "edits" / "carrying"
+        return {p.name: np.array(Image.open(p).convert("RGBA"))[..., 3] > 0 for p in sorted(folder.glob("skin_*.png"))}
+
+    def test_import_can_take_the_one_changed_tone_for_all_ten(self):
+        """The owner, 2026-11-28: "copy the edited pixels of one tone to the other tones"."""
+        self.build()
+        theirs = self.xcf.read_bytes()
+        self.gimp.painted["vv1_carrying.xcf"] = self.colour_layers(t10=[(152, 7)])
+        said = []
+        kept = sheets.import_workbench("vv1", self.folder, same_for_all=True, say=said.append)
+        marks = self.kept_marks()
+        self.assertEqual(sorted(marks), [f"skin_{n:02d}.png" for n in range(1, 11)])
+        self.assertEqual(len(kept), 10)
+        for mark in marks.values():
+            self.assertFalse(mark[7, 152], "the pixel erased in tone 10 is skin in no tone")
+            self.assertTrue((mark == marks["skin_10.png"]).all())
+        self.assertEqual(said, ["vv1_carrying: tone 10's paint is the skin of all 10 tones"])
+        self.assertEqual(self.xcf.read_bytes(), theirs, "the .xcf is not touched")
+        # Without the option, only the tone that was changed is kept.
+        for path in (self.folder / "edits" / "carrying").glob("*.png"):
+            path.unlink()
+        sheets.import_workbench("vv1", self.folder)
+        self.assertEqual(sorted(self.kept_marks()), ["skin_10.png"])
+
+    def test_import_for_all_tones_needs_to_know_which_when_several_differ(self):
+        self.build()
+        self.gimp.painted["vv1_carrying.xcf"] = self.colour_layers(t10=[(152, 7)], t3=[(153, 8)])
+        said = []
+        sheets.import_workbench("vv1", self.folder, same_for_all=True, say=said.append)
+        self.assertEqual(sorted(self.kept_marks()), ["skin_03.png", "skin_10.png"], "each read as it is")
+        self.assertIn("add --from and its number", said[0])
+        sheets.import_workbench("vv1", self.folder, same_for_all=True, source=3, say=said.append)
+        marks = self.kept_marks()
+        self.assertEqual(len(marks), 10)
+        self.assertTrue(all((mark == marks["skin_03.png"]).all() for mark in marks.values()))
+        self.assertTrue(marks["skin_10.png"][7, 152] and not marks["skin_10.png"][8, 153], "tone 3's skin, in tone 10 too")
+        # Naming a tone that is still as built puts every tone back as built: no edit is left.
+        sheets.import_workbench("vv1", self.folder, same_for_all=True, source=5, say=said.append)
+        self.assertEqual(self.kept_marks(), {})
+
+    def test_two_tones_changed_the_same_way_need_no_from(self):
+        self.build()
+        self.gimp.painted["vv1_carrying.xcf"] = self.colour_layers(t10=[(152, 7)], t9=[(152, 7)])
+        sheets.import_workbench("vv1", self.folder, same_for_all=True, say=lambda _line: None)
+        self.assertEqual(len(self.kept_marks()), 10)
+
+    def spread(self, state=("free", ""), **more):
+        with mock.patch.object(sheets, "held_open", lambda _path: state):
+            return sheets.spread_tone("vv1", self.folder, **more)
+
+    def test_spread_hands_gimp_the_file_its_record_and_each_tones_colour(self):
+        self.build()
+        backup = self.folder / "_b" / "vv1_carrying.xcf"
+        self.gimp.spread_results["carrying"] = {"did": "spread", "changed": [10], "source": 10, "pixels": 55,
+                                                "targets": list(range(1, 10)), "same": True, "backup": str(backup)}
+        said = self.spread(sheets=["vv1_carrying"], backup="_b")
+        item = self.gimp.spreads[0]
+        record = json.loads((self.folder / ".generated.json").read_text(encoding="utf-8"))["carrying"]
+        self.assertEqual(item["xcf"], str(self.xcf))
+        self.assertIsNone(item["source"], "left out: GIMP finds the one tone changed")
+        self.assertEqual(item["records"], {str(n): record[f"skin_{n:02d}.png"] for n in range(1, 11)})
+        self.assertEqual(item["colours"]["10"], [0x32, 0x20, 0x17])
+        self.assertEqual(item["backup"], str(self.folder / "_b"))
+        self.assertEqual(len(said), 1)
+        self.assertIn("copied Tone 10 (Ebony)'s skin to the other 9 tones", said[0][1])
+        self.assertIn("All 10 tones now cover the same 55 pixels", said[0][1])
+        self.assertIn("vv1_carrying.xcf", said[0][1])
+        self.assertEqual(self.spread(sheets=["carrying.xcf"[:-4]], source=4)[0][0], "carrying")
+        self.assertEqual(self.gimp.spreads[-1]["source"], 4)
+
+    def test_spread_says_when_the_check_afterwards_fails(self):
+        self.build()
+        self.gimp.spread_results["carrying"] = {"did": "spread", "changed": [10], "source": 10, "pixels": 55,
+                                                "targets": [1], "same": False, "backup": str(self.folder / "_b" / "x.xcf")}
+        self.assertIn("SOMETHING WENT WRONG", self.spread()[0][1])
+
+    def test_spread_leaves_a_file_gimp_has_open(self):
+        self.build()
+        said = self.spread(("open", "GIMP has it open"), yes=True)
+        self.assertEqual(self.gimp.spreads, [], "GIMP is not even started")
+        self.assertIn("left alone: GIMP has it open", said[0][1])
+
+    def test_spread_does_nothing_when_it_cannot_tell_unless_told_yes(self):
+        self.build()
+        unknown = ("unknown", "GIMP is running, and which files it has open cannot be seen")
+        with self.assertRaises(SystemExit) as stopped:
+            self.spread(unknown)
+        self.assertIn("Nothing was changed", str(stopped.exception))
+        self.assertIn("--yes", str(stopped.exception))
+        self.assertEqual(self.gimp.spreads, [])
+        self.spread(unknown, yes=True)
+        self.assertEqual(len(self.gimp.spreads), 1)
+
+    def test_spread_leaves_an_older_file_and_refuses_a_missing_one(self):
+        self.build()
+        manifest = self.folder / ".generated.json"
+        data = json.loads(manifest.read_text(encoding="utf-8"))
+        data["carrying"] = {"mask.png": data["carrying"]["mask.png"]}       # as the first workbench recorded it
+        manifest.write_text(json.dumps(data), encoding="utf-8")
+        self.assertIn("one of the older files", self.spread()[0][1])
+        self.assertEqual(self.gimp.spreads, [])
+        with self.assertRaises(SystemExit):
+            self.spread(sheets=["vv1_nothing"])
+
+    def test_a_sheet_may_be_named_as_its_file(self):
+        for name in ("vv1_carrying", "vv1_carrying.xcf", "carrying", "VV1_carrying"):
+            self.assertEqual(sheets.sheet_stem("vv1", name), "carrying")
+
+    def test_the_tutorial_tells_how_to_copy_a_tone(self):
+        text = sheets.TUTORIAL.read_text(encoding="utf-8")
+        for words in ("COPY ONE TONE'S SKIN TO ALL THE OTHERS",
+                      "python scripts\\skin_tone_sheets.py spread --game vv1 --sheet vv1_carrying",
+                      "python scripts\\skin_tone_sheets.py import --game vv1 --same-for-all-tones",
+                      "Alpha to Selection", "Fill with FG Color", "Select > Invert", "Select > None"):
+            self.assertIn(words, text)
+        self.assertIn("spread --game vv1 --sheet vv1_carrying", sheets.README)
 
     def test_the_readme_says_so(self):
         self.assertIn("A file you have changed is never overwritten", sheets.README)
