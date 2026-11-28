@@ -13843,8 +13843,10 @@ STARTUP_LOADER_COMPANIONS_3 = (
     # Heathen Tribe Expansion and Evolution, and Former Villagers Among the Heathens Leave Skeletons (New Believers,
     # v1.35.101): bit 22, the Shrine to the Ancestors.
     "VVFP Heathen Mausoleum.dll",
+    # Villagers Dropped on an Unfinished Statue May Honor (New Believers; the owner, 2026-11-27): bit 23.
+    "VVFP Statue Honoring.dll",
     # Sharp Full Screen Picture (4K Filter) (New Believers first; the owner, 2026-11-26/27): the game's picture
-    # drawn sharp at the screen's own size.
+    # drawn sharp at the screen's own size: bit 24 (bit 23 is #898's Statue Honoring).
     "VVFP Sharp Picture.dll",
 )
 MORE_COMPANIONS_DLL = "VVFP More Companions.dll"

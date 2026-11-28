@@ -1,7 +1,7 @@
 """Sharp Full Screen Picture (4K Filter) (New Believers first; the owner, 2026-11-26/27): "VVFP Sharp Picture.dll".
 
 * The row: off by default (Owner's Defaults ticks it), says to use it with Fix Vanilla Bugs, ships the DLL pinned,
-  started from the third word (bit 23); its Settings window: black bars (default) or stretch.
+  started from the third word (bit 24; bit 23 is #898's Statue Honoring); its Settings window: black bars (default) or stretch.
 * The DLL: its exports, its imports (no Direct3D import and no DLL loaded: it uses the d3d9.dll SDL's renderer
   loaded), nothing written but its import entries, the shaders compiled in, no file but its settings file read.
 * The harness native/vvfp_sharp_picture/sharp_picture_harness.c (with the games' SDL2.dll, when present): the game's
@@ -64,11 +64,11 @@ class TheRow(unittest.TestCase):
                                                    "sha256": hashlib.sha256(DLL.read_bytes()).hexdigest().upper()}])
         self.assertEqual(row["patches"], [])
 
-    def test_third_word_bit_23_and_off_by_default(self) -> None:
-        self.assertEqual(patcher.STARTUP_LOADER_COMPANIONS_3.index(DLL_NAME), 23)
+    def test_third_word_bit_24_and_off_by_default(self) -> None:
+        self.assertEqual(patcher.STARTUP_LOADER_COMPANIONS_3.index(DLL_NAME), 24)
         header = (ROOT / "native" / "shared" / "startup_companions_3.h").read_text(encoding="utf-8")
         names = re.findall(r'^\s+"(VVFP [^"]+\.dll)",', header, re.M)
-        self.assertEqual(names.index(DLL_NAME), 23)
+        self.assertEqual(names.index(DLL_NAME), 24)
         import vv_fun_patcher_gui as gui
         self.assertIn("vv5_sharp_picture", gui.DEFAULT_OFF_FUN_PATCH_IDS)
         # Owner's Defaults ticks it (the owner, 2026-11-28), as every default-off row it does not hold back;
