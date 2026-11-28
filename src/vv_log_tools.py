@@ -432,6 +432,8 @@ class ApprovalResult:
     originals: object | None = None             # src/vv_original_look.py Result: the logs' original looks added
     rejoined: object | None = None              # src/vv5_rejoined_masks.py Result: rejoined villagers' masks given back
     heathen_masks: object | None = None         # src/vv5_heathen_masks_restore.py Result (or why not): Heathens' masks
+    revive: object | None = None                # src/vv_revive_backfill.py Result: revival snapshots made afterwards
+    parents: list = field(default_factory=list)  # WordFix: files the parents were put by their sex in (the save...)
 
 
 def _refuse_if_running(folder: Path, processes: vv_save_backup.ProcessController) -> None:
@@ -583,6 +585,25 @@ def approve_repair(
         except LogToolError as exc:
             raise LogToolError(f"{exc} The logs were repaired; repair again to give the graves the epitaph. The "
                                f"backup is in {backup.backup_folder}.") from exc
+    # The parents by their sex (the owner, 2026-11-27; src/vv_parents_follow_sex.py): the save and the patcher's
+    # files LAST, after the logs' lines are traded -- a save that could not be written is planned again by the next
+    # Repair from the save, and only it is written then (its records already say it).
+    parents_swapped: list[WordFix] = []
+    import vv_parents_follow_sex
+    planned_parents = next((k for k in kinds if getattr(k, "id", None) == vv_parents_follow_sex.KIND_ID), None)
+    if planned_parents is not None and planned_parents.id in chosen:
+        if added.get(planned_parents.id):
+            # One per record traded (a Birth's six lines and note, a snapshot's six lines), not per line.
+            added[planned_parents.id] = [
+                WordFix(fix.name, vv_parents_follow_sex.records_swapped(planned_parents, str(folder / fix.name),
+                                                                         answers or {}), fix.backup)
+                for fix in added[planned_parents.id]]
+        try:
+            parents_swapped = vv_parents_follow_sex.write_save(folder, game, slot, planned_parents, answers or {},
+                                                               now)
+        except LogToolError as exc:
+            raise LogToolError(f"{exc} The logs were repaired; repair again to put the parents right in the save. "
+                               f"The backup is in {backup.backup_folder}.") from exc
     # "Retroactively edit records?" No: the log stays as it is and the verdict is remembered for the
     # readers (src/vv_log_decisions.py).
     kept = additions.resolve_decisions(kinds, chosen, answers or {})
@@ -644,8 +665,12 @@ def approve_repair(
             note_word_repair(folder, game, village, added[kind.id], now,
                              checked=additions.CHECKED[kind.id], corrected=additions.ADDED[kind.id],
                              unit="record(s)" if kind.id in ("contradictions", "false_unaccounted", "misfiled")
+                             else "record(s)" if kind.id == vv_parents_follow_sex.KIND_ID
                              else "villager(s)",
                              slot=slot)
+    if parents_swapped:
+        note_word_repair(folder, game, village, parents_swapped, now, checked=vv_parents_follow_sex.CHECKED,
+                         corrected="Parents put by their sex in", unit="villager(s)", slot=slot)
     # The original looks behind Change Appearance's "Reset to original" (src/vv_original_look.py, the owner,
     # 2026-10-28): what the logs prove of the villagers changed before "VVFP Original Look.dll" first saw
     # them, added to the save's Original Looks file -- after the names above are given back, so each is keyed
@@ -688,6 +713,15 @@ def approve_repair(
         except (vv5_heathen_masks_restore.HeathenMasksError, vv_last_names.LastNamesError, OSError, ValueError,
                 KeyError, IndexError, struct.error) as exc:
             heathen_masks = str(exc)
+    # Revival snapshots for every villager who died or disappeared before "VVFP Cause of Death.dll" kept them (the
+    # owner, 2026-11-26; src/vv_revive_backfill.py): from the stale copies the save still holds and the same
+    # village's older saves, byte for byte, never written into a save.  Never stops a Repair.
+    import vv_revive_backfill
+    try:
+        revive = vv_revive_backfill.backfill(folder, game, slot)
+    except (vv_last_names.LastNamesError, OSError, ValueError, KeyError, IndexError, struct.error) as exc:
+        revive = vv_revive_backfill.Result(vv_revive_backfill.path(folder, game, slot), False,
+                                           note=f"the revival snapshots were not made ({exc})")
     # Nothing is moved or renamed: an older build's folders and files keep their names, and every
     # repair above wrote where its file already was (the owner, 2026-10-09; src/vv_save_layout.py).
     approval = approval_path(folder, game, slot)
@@ -703,7 +737,7 @@ def approve_repair(
             kept_backup = backup                # kept: an unneeded backup is never a fault
     return ApprovalResult(folder, slot, game, cleared, approval if rearm else None, kept_backup, words,
                           added.get("sex", []), added, answered, renamed, answer_lines, originals, rejoined,
-                          heathen_masks)
+                          heathen_masks, revive, parents_swapped)
 
 
 # ---------------------------------------------------------------------------

@@ -103,6 +103,10 @@ class Manifest(unittest.TestCase):
             row = next(p for p in load_fun_patches() if p.id == f"{game}_fix_vanilla_bugs").raw
             pinned = [(int(p["offset"], 16), bytes.fromhex(p["before"]), bytes.fromhex(p["after"]))
                       for p in row["patches"]]
+            from test_duplicate_pickups import dupe_pickup_fixes          # the duplicate-pickup fix comes last
+            dupe = list(dupe_pickup_fixes(game))
+            self.assertEqual(pinned[-len(dupe):], dupe)
+            pinned = pinned[:-len(dupe)]
             if game == "vv5":                   # the statue polish fix, the Nursery foundation caption, then the
                 from test_vv5_clothing_hut_click import clothing_hut_click_fixes      # Clothing Hut click come after it
                 from test_vv5_nursery_foundation_caption import foundation_caption_fixes

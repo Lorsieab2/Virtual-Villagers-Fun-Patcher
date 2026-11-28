@@ -593,11 +593,39 @@ def collectible_lines(village: gm.Village, group: str) -> list[gm.Fact]:
     feature = DUPLICATION.format(game=village.game)
     name = gm.feature_name(feature)
     words = "Normal game: a mushroom or collectible is picked up by the one child dropped on it."
-    if village.has(feature):
+    if village.game == 1:
+        # A New Home's own way (the Duplication Cheat's model): every child dropped on the mushroom picks one.
+        words = "Normal game: several children can be dropped on the mushroom, and each brings one back."
+        fix = FIX_VANILLA.format(game=1)
+        words += (f" With \"{gm.feature_name(fix)}\" (in this game): " if village.has(fix) else
+                  " Without Fix Vanilla Bugs: ") + (
+            "each child takes only the mushroom it stands on, so no new mushroom vanishes." if village.has(fix) else
+            "a child picking after the first takes " + _DUPLICATE_LOSS[1] + ", with no food or count for it.")
+    elif village.has(feature):
         words += (f" With \"{name}\" (in this game): several children can be dropped onto one mushroom or "
                   "collectible and it is multiplied, one for each, so the counts above can grow faster.")
+        # tests/test_duplicate_pickups.py: the pickup takes only the item the child was dropped on ("VVFP Exact
+        # Pickups.dll" in VV3-VV5; The Lost Children tests the map's area under the child, its only item).
+        fix = FIX_VANILLA.format(game=village.game)
+        if village.has(fix):
+            words += (f" With \"{gm.feature_name(fix)}\" (in this game): each child takes only the item it was "
+                      "dropped on, so no other mushroom or collectible vanishes, however close it lies.")
+        else:
+            words += (" Without Fix Vanilla Bugs each child after the first takes another item off the island with "
+                      "no food or count for it: " + _DUPLICATE_LOSS[village.game] + ".")
     out.append(gm.Fact(group, words, False, sub=True))
     return out
+
+
+FIX_VANILLA = "vv{game}_fix_vanilla_bugs"
+_DUPLICATE_LOSS = {
+    1: "a new mushroom that has just grown elsewhere",
+    2: "a new mushroom or collectible that has just appeared elsewhere",
+    3: "the nearest other item of the same kind, up to 1,000 pixels away",
+    4: "the nearest other item of the same kind, up to 1,000 pixels away",
+    5: "the nearest other item of the same kind, up to 1,000 pixels away (the other red mushrooms after a Hand of "
+       "Bloom, say)",
+}
 
 
 GOLDEN_KIND = "Golden Mushrooms"

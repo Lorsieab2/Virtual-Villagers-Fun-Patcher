@@ -68,6 +68,8 @@
         Disappearances": both are read (an old folder is never made), so
         graves logged in the old one are not recorded again, and a record
         kept word for word in both is one record.
+     9. New Believers: a record made from a grave at the Shrine to the Ancestors (places 500-999) says
+        "Faction: Heathen"; every game's believers' grave says no faction.
 
    And from Codex's review of #524: a record from the grave that is only
    held for the save (the village not yet named) and lost with the session
@@ -94,6 +96,9 @@
 #include "save_reset.h"
 #include "../shared/harness_ldw_tree.h"
 #include "patcher_files.h"
+#include "grave_backfill.h"           /* vv_grave_fact, the Shrine to the Ancestors' places (part 9) */
+
+#define SHRINE_HEAD "\r\n  Name: Shrina\r\n  Faction: Heathen\r\n  Age at death: 1111\r\n"
 
 static int failures;
 #define CHECK(cond, ...) do { if (cond) { printf("  ok   " __VA_ARGS__); printf("\n"); } \
@@ -1035,6 +1040,41 @@ int main(int argc, char **argv) {
                   && count_of(text, "\r\n  Name: Youth\r\n") == 1 && count_of(text, "\r\n  Name: Renny\r\n") == 1
                   && GetFileAttributesA(old_log) != INVALID_FILE_ATTRIBUTES,
                   "...Repair records the second Dup, Lonely, Youth and Renny, never Kito or Chika again");
+        }
+
+        /* 9: New Believers' places 500-999 are the graves at the Shrine to the Ancestors ("VVFP Heathen
+           Mausoleum.dll"), every one a Heathen's: a Death record from such a grave carries "Faction: Heathen", as
+           the burial's own does (the logs mark Heathens).  A grave of the believers' places -- every game's --
+           carries none. */
+        {
+            typedef int (__stdcall *graves_t)(int, const void *, int, vv_grave_fact *, int, int);
+            graves_t record_graves = (graves_t)GetProcAddress(parentage, "RecordGravesMissingFromLog");
+            vv_grave_fact fact;
+            const char *r;
+            char want[96];
+            memset(&fact, 0, sizeof fact);
+            fact.place = game == 5 ? VV_GRAVE_SHRINE_FIRST : 40;
+            fact.age = 1111;
+            lstrcpynA(fact.name, game == 5 ? "Shrina" : "Plaino", VV_GRAVE_NAME);
+            lstrcpynA(fact.grave, game == 5 ? "the Shrine to the Ancestors (Untrained)" : "Untrained", VV_GRAVE_LINE);
+            lstrcpynA(fact.cause, "Old age", VV_GRAVE_CAUSE);
+            record_graves(game, buffer, 1, &fact, 1, 1);
+            deaths_path(1, path);
+            read_into(path);
+            _snprintf(want, sizeof want, "\r\n  Name: %s\r\n", fact.name);
+            r = strstr(text, want);
+            if (game == 5) {
+                CHECK(fact.outcome == VV_GRAVE_RECORDED && r != NULL
+                      && strncmp(r, SHRINE_HEAD, strlen(SHRINE_HEAD)) == 0
+                      && strstr(r, "  Grave: the Shrine to the Ancestors (Untrained)\r\n") != NULL,
+                      "a Death record from a grave at the Shrine to the Ancestors says \"Faction: Heathen\"");
+            } else {
+                const char *end = r != NULL ? strstr(r + 2, "\r\n\r\n") : NULL;
+                const char *faction = r != NULL ? strstr(r, "Faction:") : NULL;
+                CHECK(fact.outcome == VV_GRAVE_RECORDED && r != NULL && end != NULL
+                      && (faction == NULL || faction > end),
+                      "a Death record from a believers' grave has no Faction line");
+            }
         }
 
         unload();

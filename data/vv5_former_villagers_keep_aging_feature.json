@@ -5,7 +5,7 @@
   "catalog_hidden": false,
   "game_id": "vv5",
   "name": "Former Villagers Keep Aging Among the Heathens",
-  "description": "A villager who leaves your tribe and becomes a Heathen -- by losing Faith (The Breaking Point), an island event such as The Spa or The Cracked Mask, a Custom Island Event, any way at all -- keeps growing older among the Heathens, as believers do: their age goes up, their hair greys at the usual age, and they can die of old age by exactly the believers' rule (each year past 55, or later with Medicine). They still never eat, starve or fall sick: only aging and old age apply. Heathens who were never your villagers (the camp's own, the puzzle Heathens) do not age. **A former villager who dies is not replaced**, so leaving your tribe never grows the camp. **What is left when they die is decided by \"All Heathens Leave Skeletons\" or \"Former Villagers Among the Heathens Leave Skeletons\"**; with neither they simply disappear from the camp, no grave. Every death goes in the Deaths log (cause: old age). **Heathens never count in the Village Statistics.** **Villagers who left before this patch are recognised by the parents on their record** (born in your village); one who never had parents there (a founder or newcomer) is recognised only if they leave after the patch is installed. The companion is \"VVFP Heathen Aging.dll\"; it keeps its own small file per save, never writes a save.",
+  "description": "A villager who leaves your tribe and becomes a Heathen -- by losing Faith (The Breaking Point), an island event such as The Spa or The Cracked Mask, a Custom Island Event, any way at all -- keeps growing older among the Heathens, as believers do: their age goes up, their hair greys at the usual age, and they can die of old age by exactly the believers' rule (each year past 55, or later with Medicine). They still never eat, starve or fall sick: only aging and old age apply. Heathens who were never your villagers (the camp's own, the puzzle Heathens) do not age. **A former villager who dies is not replaced**, so leaving your tribe never grows the camp. **What is left when they die is decided by \"Heathen Tribe Expansion and Evolution\" or \"Former Villagers Among the Heathens Leave Skeletons\"**; with neither they simply disappear from the camp, no grave. **With \"Heathen Tribe Expansion and Evolution\" ticked, that row covers everyone: nobody ages twice.** Every death goes in the Deaths log (cause: old age). **Heathens never count in the Village Statistics.** **Villagers who left before this patch are recognised by the parents on their record** (born in your village); one who never had parents there (a founder or newcomer) is recognised only if they leave after the patch is installed. The companion is \"VVFP Heathen Aging.dll\"; it keeps its own small file per save, never writes a save.",
   "output_tag": "Former Villagers Age",
   "dependencies": [],
   "conflicts": [],
@@ -26,7 +26,7 @@
     {
       "source": "assets/heathen_aging/VVFP Heathen Aging.dll",
       "destination": "VVFP Heathen Aging.dll",
-      "sha256": "B7F4923E38CB591891EF62D6FB7B4C3A572EB9181BE39149006CFFE7B5A886D7"
+      "sha256": "C8DAD8F6683867ACC2D430B3A27403424422936F212934726A4E462F924B9AB9"
     },
     {
       "source": "assets/heathen_aging/VVFP Heathen Aging Former.txt",

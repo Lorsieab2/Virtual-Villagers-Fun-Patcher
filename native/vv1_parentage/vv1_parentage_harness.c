@@ -653,6 +653,46 @@ int main(int argc, char **argv) {
         }
     }
 
+    printf("== parents follow their sex (the owner, 2026-11-27) ==\n");
+    {
+        /* A man carries a woman's baby: she is the Mother and he the Father, each their own looks. */
+        memset(records, 0, sizeof records);
+        villager(40, "Ahi", 5, 6, 61); *(int *)(rec(40) + GENDER) = 1;      /* the carrier, a man */
+        villager(41, "Vaihi", 8, 3, 62); *(int *)(rec(41) + GENDER) = 2;    /* the other parent, a woman */
+        villager(42, "Tane", 11, 12, 63); *(int *)(rec(42) + GENDER) = 1;   /* a man */
+        villager(43, "Moana", 14, 15, 64); *(int *)(rec(43) + GENDER) = 2;  /* a woman */
+        reset();
+        tick(records);
+        conceived(conceive, 40, 41);
+        *(int *)(rec(40) + DUE) = 500; tick(records);
+        *(int *)(rec(40) + DUE) = 0; born_from(50, 40, "Coral"); tick(records);
+        entry(50, e); CHECK(same(e, 5, 6, 8, 3), "a man carried a woman's baby: Father Ahi (5,6), Mother Vaihi (8,3) (%d,%d,%d,%d)", e[0], e[1], e[2], e[3]);
+        names(50, father, mother, 32); CHECK(strcmp(father, "Ahi") == 0 && strcmp(mother, "Vaihi") == 0, "...by name: Father %s, Mother %s", father, mother);
+        /* the hooked birth (Vv1ParentageBorn) takes the same rule */
+        conceived(conceive, 40, 41); *(int *)(rec(40) + DUE) = 600; tick(records);
+        born_from(51, 40, "Hooked"); born(records, rec(51), rec(40));
+        entry(51, e); CHECK(same(e, 5, 6, 8, 3), "the hooked birth: Father Ahi, Mother Vaihi too (%d,%d,%d,%d)", e[0], e[1], e[2], e[3]);
+        *(int *)(rec(40) + DUE) = 0; tick(records);
+        /* two men: the carrier stays the Mother */
+        conceived(conceive, 40, 42); *(int *)(rec(40) + DUE) = 700; tick(records);
+        *(int *)(rec(40) + DUE) = 0; born_from(52, 40, "Same"); tick(records);
+        entry(52, e); CHECK(same(e, 11, 12, 5, 6), "two men: the carrier Ahi stays the Mother (%d,%d,%d,%d)", e[0], e[1], e[2], e[3]);
+        /* two women: the carrier stays the Mother */
+        conceived(conceive, 41, 43); *(int *)(rec(41) + DUE) = 800; tick(records);
+        *(int *)(rec(41) + DUE) = 0; born_from(53, 41, "Women"); tick(records);
+        entry(53, e); CHECK(same(e, 14, 15, 8, 3), "two women: the carrier Vaihi stays the Mother (%d,%d,%d,%d)", e[0], e[1], e[2], e[3]);
+        /* a woman carries a man's baby: unchanged */
+        conceived(conceive, 43, 42); *(int *)(rec(43) + DUE) = 900; tick(records);
+        *(int *)(rec(43) + DUE) = 0; born_from(54, 43, "Usual"); tick(records);
+        entry(54, e); CHECK(same(e, 11, 12, 14, 15), "a woman carried: Father Tane, Mother Moana as ever (%d,%d,%d,%d)", e[0], e[1], e[2], e[3]);
+        /* the other parent not certain (two women answer to her name and looks): as the game recorded it */
+        villager(44, "Vaihi", 8, 3, 65); *(int *)(rec(44) + GENDER) = 2;
+        tick(records);
+        conceived(conceive, 40, 41); *(int *)(rec(40) + DUE) = 950; tick(records);
+        *(int *)(rec(40) + DUE) = 0; born_from(55, 40, "Unsure"); tick(records);
+        entry(55, e); CHECK(same(e, 8, 3, 5, 6), "the other parent not certain: the carrier stays the Mother (%d,%d,%d,%d)", e[0], e[1], e[2], e[3]);
+    }
+
     printf("== %d failure(s) ==\n", failures);
     return failures ? 1 : 0;
 }

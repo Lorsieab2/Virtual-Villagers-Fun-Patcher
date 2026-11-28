@@ -428,10 +428,10 @@ class UpgradeMenuArtifactParityTests(unittest.TestCase):
         # Buried/Disappeared Villagers button (native/shared/story_bridge.h).
         # Re-pinned for the Tech menu's Revive Buried/Disappeared Villagers button (native/shared/story_bridge.h).
         # Larger again: the Time Warp credits the Heathens the Heathen aging rows age (VvfpHeathenAgingAges, #850 live check).
-        self.assertEqual(vv5_companion["size"], 1903616)
+        self.assertEqual(vv5_companion["size"], 1902592)
         self.assertEqual(
             vv5_companion["sha256"],
-            "21EB62872B8AD4456AB118D7AF2EAA67AD1448A6969016A9640F10F65EB26614",
+            "07BA0A2FCA426553D195FC66DC6342A6DBA4A55B0F99B661ACF694EA9480B18F",
         )
 
     def test_vv3_archival_builder_binding_tamper_fails_closed(self) -> None:

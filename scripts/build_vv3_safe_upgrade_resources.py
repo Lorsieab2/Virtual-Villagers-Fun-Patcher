@@ -129,7 +129,10 @@ FOUNDATION_OUTPUT = (
 # log is read once per load, and Change Appearance has the "Change sex..." button (native/shared/sex_change_ui.h).
 # Recertified for Revive Buried/Disappeared Villagers (native/shared/story_bridge.h, the owner, 2026-11-22): the
 # Tech menu's Revive button, added last, and its click handed to "VVFP Story Upgrades.dll".
-SOURCE_SHA256 = "BDACD47B0BFA4E1E402BCD8EFFC3D5C230FED5F8E93061C3E358CCE58B4C1CC3"
+# Recertified for island events keeping masks (the owner, 2026-11-25): a Likes or Dislikes change in place -- the
+# game's own island events, a Custom Island Event's -- moves the mask to the villager's new fingerprint; and the
+    # Change sex warning no longer says a born-male villager won't conceive (merged with main, 2026-11-26).
+SOURCE_SHA256 = "3247EBB1959C7B9A5E68036D70F251D48BADC5C322C765000FF6F561B7EB885E"
 SOURCE_SIZE = 2022400
 TARGET_COUNTS = {201: 26, 202: 2, 203: 31}
 PUBLIC_TARGET_COUNTS = {201: 46, 202: 26, 203: 31}

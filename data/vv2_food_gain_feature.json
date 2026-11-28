@@ -5,12 +5,12 @@
   "catalog_hidden": false,
   "game_id": "vv2",
   "name": "Food Gained per Food Source",
-  "description": "Each food source gives more or less food each time: 0.1 to 10 times its normal food, as you choose with the Food Gained per Food Source slider in the patcher window (it reads -10 to 10: 10 is 10 times, -10 a tenth, -2 half, and 1, the middle, the normal game; 1 unless you move it; type it in the box beside the slider too); the rest of a whole food is a chance, so on average it is exact. The sources: coconuts, crops, fish, mushroom, the big catch. What the source itself loses is the game's own, and so is every other food gain: island events, puzzles' and messages' rewards, purchases and cheats. **Needs no other patch.** Off by default; Owner's Defaults ticks it, with the slider at 1. **Unverified in play** (checked by emulation of the game's own code). The companion is \"VVFP Food Gain.dll\", started by VVFP More Companions.dll, and the slider's number is written beside it in \"VVFP Food Gain.txt\"; nothing is written to a save.",
+  "description": "Each food source gives more or less food each time: 0.1 to 10 times its normal food, as you choose with the Food Gained per Food Source slider in the patcher window (it reads -10 to 10: 10 is 10 times, -10 a tenth, -2 half, and 1, the middle, the normal game; 1 unless you move it; type it in the box beside the slider too); the rest of a whole food is a chance, so on average it is exact. The sources: coconuts, crops, fish, mushroom, the big catch. What the source itself loses is the game's own, and so is every other food gain: island events, puzzles' and messages' rewards, purchases and cheats. With Super-Secret Golden Mushroom the mushrooms, golden ones too, are multiplied the same way. **Needs no other patch.** Off by default; Owner's Defaults ticks it, with the slider at 1. **Unverified in play** (checked by emulation of the game's own code). The companion is \"VVFP Food Gain.dll\", started by VVFP More Companions.dll, and the slider's number is written beside it in \"VVFP Food Gain.txt\"; nothing is written to a save.",
   "output_tag": "Food Gain",
   "dependencies": [],
   "conflicts": [],
   "behavior_changes": [
-    "Food Gained per Food Source: the companion's sites 0x463198, 0x463259, 0x463312, 0x463364, 0x4633CD (see runtime_detours), installed only when the slider is not 1; N is read at start from \"VVFP Food Gain.txt\" beside the companion in tenths (0.1 to 10; none is 1)."
+    "Food Gained per Food Source: the companion's sites 0x463198, 0x463259, 0x463312, 0x463364, 0x4633CD, 0x473E1B (see runtime_detours), installed only when the slider is not 1; N is read at start from \"VVFP Food Gain.txt\" beside the companion in tenths (0.1 to 10; none is 1)."
   ],
   "explicit_non_changes": [
     "No executable byte is patched: the companion writes its sites at run time, only after verifying their stock bytes (all of them, or none; an optional site another patch owns is left alone).",
@@ -22,7 +22,7 @@
     {
       "source": "assets/food_gain/VVFP Food Gain.dll",
       "destination": "VVFP Food Gain.dll",
-      "sha256": "45AE3AA7E16160342D5AA4E07D1DF2083369C59274D4F035462A9134D338189F"
+      "sha256": "0A2E113D3B1127975DA3821B6B0B24ACE2B68118D2FAAFEE36A4633474339834"
     }
   ],
   "patches": [],
@@ -59,7 +59,14 @@
       "va": "0x4633CD",
       "stock_bytes": "E8DE2EFCFF",
       "written_bytes": "E8XXXXXXXX",
-      "routine": "mushroom (left alone while Super-Secret Golden Mushroom owns the call): the call of the food writer 0x4262B0 goes through the companion, which multiplies a positive amount by N (the rest a chance) and goes on into the writer; optional",
+      "routine": "mushroom (left alone while Super-Secret Golden Mushroom owns the call; then that row's jump, below): the call of the food writer 0x4262B0 goes through the companion, which multiplies a positive amount by N (the rest a chance) and goes on into the writer; optional",
+      "installed_by": "VVFP Food Gain.dll, VvfpStartup (started by VVFP More Companions.dll, third word)"
+    },
+    {
+      "va": "0x473E1B",
+      "stock_bytes": "E99024FBFF",
+      "written_bytes": "E9XXXXXXXX",
+      "routine": "the mushroom (brown, red or golden) with Super-Secret Golden Mushroom: that row's jump into the food writer at the end of its code at 0x473E05, written only while that code is there byte for byte: the jump goes through the companion instead, which multiplies a positive amount by N (the rest a chance) and goes on into the writer; optional",
       "installed_by": "VVFP Food Gain.dll, VvfpStartup (started by VVFP More Companions.dll, third word)"
     }
   ]

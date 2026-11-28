@@ -22,7 +22,7 @@
     {
       "source": "assets/food_gain/VVFP Food Gain.dll",
       "destination": "VVFP Food Gain.dll",
-      "sha256": "45AE3AA7E16160342D5AA4E07D1DF2083369C59274D4F035462A9134D338189F"
+      "sha256": "0A2E113D3B1127975DA3821B6B0B24ACE2B68118D2FAAFEE36A4633474339834"
     }
   ],
   "patches": [],

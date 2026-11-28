@@ -47,7 +47,7 @@ if HAVE_EMULATOR:
 
 FACTION, ROLE, SICK, FAITH = 0x1CEC, 0x1CFC, 0x1C48, 0x1CF0
 MOTHER_NAME = 0x1BD9
-ROW = "vv5_heathens_in_island_events"
+ROW = "vv5_heathen_tribe_evolution"   # folds Heathens can be selected in Island Events (v1.35.101)
 STRIDE = 0x2F44
 
 # The draft's own totals (part 4): events by verdict, roles by verdict.

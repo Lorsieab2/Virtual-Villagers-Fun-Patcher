@@ -74,12 +74,33 @@
 
    PRICE (the owner, 2026-11-23).  As the other story upgrades: 100,000 tech points while Story / Cheat
    Upgrades cost Tech Points is ticked (the Story companion's `charges`), free while it is not.  Taken
-   only once the villager is back; never more than the village has (with fewer it is refused). */
+   only once the villager is back; never more than the village has (with fewer it is refused).
+
+   EVERY DETAIL (the owner, 2026-11-25, all five games: "every single detail of every villager should be
+   preserved so that the resurrect upgrade can perfectly recreate them").  Since v1.35.101 the Cause of Death
+   companion keeps each villager's complete record at the moment the game frees it -- every field the game's own
+   save keeps of them, and what the patcher's files keep (head look, gender presentation, cosmetic mask, story
+   traits, A New Home's parents): native/shared/revive_snapshot.h, cod_revive.inc.  Each Death or Disappeared
+   record is matched to its snapshot by who they were (name, sex, head, body, age at death, likes and dislikes);
+   the revival then writes every persistent field of it onto the record the game's own creator made, all or none
+   and read back (vv_rs_apply): the name, last name and numbered name, sex, looks and personal number, family,
+   parents and their looks, likes, dislikes, every skill with its fractions, the job preference, The Lost
+   Children's Esteemed Elder, The Secret City's Tribal Chief (while no other Chief lives), New Believers' faction,
+   Faith, masks and role -- and the head look, presentation and traits in the patcher's files.  What is never
+   restored is the state: the age (RV_AGE_YEARS), health, sickness, a pregnancy, timers, the current task and
+   position.  A death logged before v1.35.101 (no snapshot), or a snapshot that two different people could be, or
+   one whose fields fail the checks, comes back from the logs as before, and the details say so. */
 
 #include "../shared/log_slot.h"      /* the logs' folders, in their reading order */
+#include "../shared/revive_snapshot.h"   /* the complete records kept at each departure */
+#include "../shared/heathen_mausoleum.h" /* New Believers' mud-hut graves (VVFP Heathen Mausoleum.dll) */
 
 #define RV_PRICE 100000               /* with Story / Cheat Upgrades cost Tech Points ticked; else 0 (rv_price) */
-#define RV_AGE 100                    /* five years */
+/* The age a revived villager comes back at, in years (the owner, 2026-11-22 "reset them to age.... 5? same
+   person", confirmed 2026-11-25 "keep age 5").  Change it here to bring them back older; every other detail is
+   their own. */
+#define RV_AGE_YEARS 5
+#define RV_AGE (RV_AGE_YEARS * 20)    /* age units: 20 a year */
 #define RV_MAX 4096                   /* people kept: past it the OLDEST record goes (the newest always show) */
 #define RV_PREFS 64                   /* likes (or dislikes) kept per person (The Secret City holds 62) */
 #define RV_NAME 32
@@ -128,6 +149,9 @@ typedef struct {
     int grave;                        /* the grave's place, -1 none */
     const char *refusal;              /* why this person can not come back; NULL can */
     int listed;                       /* 0: in the village (not shown) or replaced by a newer record */
+    int snap;                         /* their complete record (rv_snaps), -1 none: from the logs */
+    int snap_ambiguous;               /* more than one different snapshot could be them: from the logs */
+    int grave_hut;                    /* New Believers: their grave at the mud hut (VVFP Heathen Mausoleum.dll), -1 none */
 } rv_person;
 
 static rv_person *rv_people;         /* grown on the process heap (rv_room), up to RV_MAX */
@@ -352,6 +376,8 @@ static void rv_begin(rv_person *p, int kind, int number) {
     p->father_head = p->father_body = p->mother_head = p->mother_body = CE_KEEP;
     p->grave = -1;
     p->listed = 1;
+    p->snap = -1;
+    p->grave_hut = -1;
 }
 
 static int rv_same_person(const rv_person *x, const rv_person *y);
@@ -749,9 +775,64 @@ static int rv_grave_remove(int game, int place) {
     return 1;
 }
 
+/* ---- New Believers' mud-hut graves (the owner, 2026-11-26) ---------------------------------------------------
+
+   With "VVFP Heathen Mausoleum.dll" a Heathen is buried at the mud hut, in the companion's own Roster of the Dead
+   (native/shared/heathen_mausoleum.h): the stock layout, name +0, age +0x1C, head +0x20, body +0x24, epitaph +0x38.
+   A Heathen's Death record is matched to such a grave as a believer's is to the game's (name, age at death, head,
+   body), and the revival takes it away through the companion's own Remove (the later graves move down, the file
+   follows at the next save).  The DLL is found loaded (GetModuleHandleA), never loaded from here; without it there
+   are no mud-hut graves. */
+static FARPROC rv_hut_export(const char *name) {
+    HMODULE module = GetModuleHandleA(HE_MAUSOLEUM_DLL);
+    return module != NULL ? GetProcAddress(module, name) : NULL;
+}
+
+static int rv_hut_count(void) {
+    hm_count_fn count = (hm_count_fn)(void *)rv_hut_export(HM_COUNT_EXPORT);
+    int n = count != NULL ? count() : 0;
+    return n >= 0 && n <= 500 ? n : 0;
+}
+
+static const unsigned char *rv_hut_entry(int place) {
+    hm_entry_fn entry = (hm_entry_fn)(void *)rv_hut_export(HM_ENTRY_EXPORT);
+    return entry != NULL && place >= 0 ? entry(place) : NULL;
+}
+
+/* Whether mud-hut grave `place` is `p`'s. */
+static int rv_hut_is(int place, const rv_person *p) {
+    const unsigned char *g = rv_hut_entry(place);
+    char name[RV_NAME];
+    int k;
+    if (g == NULL || p->age <= 0 || *(const int *)(g + 0x1C) != p->age || *(const int *)(g + 0x20) != p->head
+        || *(const int *)(g + 0x24) != p->body) {
+        return 0;
+    }
+    for (k = 0; k + 1 < RV_NAME && k < 0x19 && g[k] != 0; ++k) {
+        name[k] = (char)g[k];
+    }
+    name[k] = '\0';
+    return lstrcmpA(name, p->name) == 0;
+}
+
+static int rv_hut_remove(int place) {
+    hm_remove_fn remove = (hm_remove_fn)(void *)rv_hut_export(HM_REMOVE_EXPORT);
+    return remove != NULL && remove(place) == 1;
+}
+
 /* ---- Who is listed ----------------------------------------------------------------- */
 
-/* Whether a record in the village now (alive, or a body awaiting burial) is this person. */
+#define RV_ROBE 29                    /* The Secret City's Tribal Chief's robe, the body the robing 0x45FBDE writes */
+
+/* Whether `p` died a robed Tribal Chief of The Secret City: their logged body is the robe.  Who they are is told
+   without the body (Codex, PR #880): the robe is the Chiefs' alike, and a revived duplicate keeps it (the owner,
+   2026-11-26: "Vv3 duplicate chiefs may keep the robe body. But only the current chief has the powers"). */
+static int rv_robed(const rv_person *p) {
+    return rv_game == 3 && p->body == RV_ROBE;
+}
+
+/* Whether a record in the village now (alive, or a body awaiting burial) is this person.  The list and the purchase
+   both ask this: a robed Chief brought back in their own body is still "in the village" (Codex, PR #880). */
 static int rv_in_village(const ce_adapter *a, const rv_person *p) {
     int i, k;
     for (i = 0; i < a->record_count; ++i) {
@@ -763,7 +844,7 @@ static int rv_in_village(const ce_adapter *a, const rv_person *p) {
             continue;
         }
         if (ce_sex(a, r) != p->sex || *(const int *)(r + a->off_head) != p->head
-            || *(const int *)(r + a->off_body) != p->body) {
+            || (!rv_robed(p) && *(const int *)(r + a->off_body) != p->body)) {
             continue;
         }
         ce_copy_name(name, RV_NAME, r + a->off_name, a->name_bytes);
@@ -805,6 +886,375 @@ static int rv_same_person(const rv_person *x, const rv_person *y) {
         && x->like_count == y->like_count && x->dislike_count == y->dislike_count
         && memcmp(x->likes, y->likes, (size_t)x->like_count) == 0
         && memcmp(x->dislikes, y->dislikes, (size_t)x->dislike_count) == 0;
+}
+
+/* ---- The complete records (native/shared/revive_snapshot.h) ------------------------------------- */
+
+static vv_rs_entry *rv_snaps;         /* this slot's snapshot file, oldest first (process heap) */
+static unsigned char *rv_snap_claimed;
+static int rv_snap_count;
+static int rv_snap_cap;
+static int rv_last_restored;          /* the last revival: 1 every detail from the snapshot, 0 from the logs */
+#ifdef VVFP_TEST
+static const unsigned char *rv_test_snap_file;   /* TEST build: the snapshot file's bytes, instead of the disk */
+static DWORD rv_test_snap_length;
+#endif
+
+/* The snapshots of a whole file image (`length` bytes); none unless every entry is whole (vv_rs_file_valid). */
+static void rv_snaps_from(int game, const unsigned char *data, DWORD length) {
+    unsigned int count;
+    rv_snap_count = 0;
+    if (data == NULL || !vv_rs_file_valid(data, length, game)) {
+        return;
+    }
+    count = ((const unsigned int *)data)[3];
+    if ((int)count > rv_snap_cap) {
+        vv_rs_entry *more = (vv_rs_entry *)HeapAlloc(GetProcessHeap(), 0, (SIZE_T)count * sizeof(vv_rs_entry));
+        unsigned char *claimed = (unsigned char *)HeapAlloc(GetProcessHeap(), 0, (SIZE_T)count);
+        if (more == NULL || claimed == NULL) {
+            if (more != NULL) HeapFree(GetProcessHeap(), 0, more);
+            if (claimed != NULL) HeapFree(GetProcessHeap(), 0, claimed);
+            return;
+        }
+        if (rv_snaps != NULL) HeapFree(GetProcessHeap(), 0, rv_snaps);
+        if (rv_snap_claimed != NULL) HeapFree(GetProcessHeap(), 0, rv_snap_claimed);
+        rv_snaps = more;
+        rv_snap_claimed = claimed;
+        rv_snap_cap = (int)count;
+    }
+    if (count > 0) {
+        memcpy(rv_snaps, data + VV_RS_HEADER, (size_t)count * sizeof(vv_rs_entry));
+    }
+    rv_snap_count = (int)count;
+}
+
+/* Whether the likes and dislikes `likes` / `dislikes` (the record's own arrays) are the lists of `p`. */
+static int rv_prefs_same(const ce_adapter *a, const rv_person *p, const int *likes, const int *dislikes) {
+    int k, j, like_count = 0, dislike_count = 0;
+    for (k = 0; k < a->pref_slots; ++k) {
+        like_count += likes[k] >= 0;
+        dislike_count += dislikes[k] >= 0;
+    }
+    if (like_count != (p->like_count < a->pref_slots ? p->like_count : a->pref_slots)
+        || dislike_count != (p->dislike_count < a->pref_slots ? p->dislike_count : a->pref_slots)) {
+        return 0;
+    }
+    for (k = 0; k < p->like_count && k < a->pref_slots; ++k) {
+        int found = 0;
+        for (j = 0; j < a->pref_slots; ++j) found |= likes[j] == p->likes[k];
+        if (!found) return 0;
+    }
+    for (k = 0; k < p->dislike_count && k < a->pref_slots; ++k) {
+        int found = 0;
+        for (j = 0; j < a->pref_slots; ++j) found |= dislikes[j] == p->dislikes[k];
+        if (!found) return 0;
+    }
+    return 1;
+}
+
+/* Whether snapshot `e` is the person `p` of the log: the name, sex, head, body and age at death, and the likes
+   and dislikes when the record lists them -- the same departure wrote both. */
+static int rv_snap_is(const ce_adapter *a, int game, const rv_person *p, const vv_rs_entry *e) {
+    const vv_rs_layout *l = &VV_RS_LAYOUT[game];
+    char name[RV_NAME];
+    const int *likes, *dislikes;
+    int age = vv_rs_int(e, l->age, -1);
+    /* A capture holds the age at the departure; a backfill the age when its source was saved (no later). */
+    if (p->age < 0 || p->sex == 0 || p->head < 0 || p->body < 0
+        || (e->source == VV_RS_CAPTURED ? age != p->age : age < 0 || age > p->age)
+        || vv_rs_int(e, l->head, -1) != p->head
+        || vv_rs_int(e, l->body, -1) != p->body
+        || vv_rs_int(e, l->sex, -99) != (p->sex == STORY_SEX_MALE ? a->sex_male : a->sex_female)) {
+        return 0;
+    }
+    vv_rs_name(e, name, RV_NAME);
+    if (lstrcmpA(name, p->name) != 0) {
+        return 0;
+    }
+    if (!p->prefs_known) {
+        return 1;
+    }
+    likes = (const int *)vv_rs_at(e, l->likes, 4u * l->pref_slots);
+    dislikes = (const int *)vv_rs_at(e, l->dislikes, 4u * l->pref_slots);
+    return likes != NULL && dislikes != NULL && rv_prefs_same(a, p, likes, dislikes);
+}
+
+/* Each person of the list given their snapshot: the newest one that is them, never one taken already, and none at
+   all when two different snapshots could be them (never guessed: the logs then). */
+static void rv_match_snaps(int game, const ce_adapter *a) {
+    int i, k;
+    if (rv_snap_count > 0) {
+        memset(rv_snap_claimed, 0, (size_t)rv_snap_count);
+    }
+    for (i = 0; i < rv_count; ++i) {
+        rv_person *p = &rv_people[i];
+        int best = -1, other = 0, captured = 0;
+        p->snap = -1;
+        p->snap_ambiguous = 0;
+        if (!p->listed) {
+            continue;                 /* an older record of someone listed again (or in the village): it never claims
+                                         a snapshot the shown record is to have (Codex, PR #880) */
+        }
+        /* A capture at the departure always wins over a backfill (Repair Saves & Logs) of the same person. */
+        for (k = 0; k < rv_snap_count && !captured; ++k) {
+            captured = !rv_snap_claimed[k] && rv_snaps[k].source == VV_RS_CAPTURED && rv_snap_is(a, game, p, &rv_snaps[k]);
+        }
+        for (k = rv_snap_count - 1; k >= 0; --k) {
+            if (rv_snap_claimed[k] || (captured && rv_snaps[k].source != VV_RS_CAPTURED)
+                || !rv_snap_is(a, game, p, &rv_snaps[k])) {
+                continue;
+            }
+            if (best < 0) {
+                best = k;
+            } else if (!vv_rs_same_keep(&rv_snaps[best], &rv_snaps[k])) {
+                other = 1;
+            }
+        }
+        if (best >= 0 && !other) {
+            p->snap = best;
+            rv_snap_claimed[best] = 1;
+        } else if (best >= 0) {
+            p->snap_ambiguous = 1;
+        }
+    }
+}
+
+/* Whether a float skill's bits are a number (never an infinity or NaN). */
+static int rv_finite(const unsigned char *at) {
+    return (*(const unsigned int *)at & 0x7F800000u) != 0x7F800000u;
+}
+
+/* `p`'s snapshot when every field of it is one the game holds (a name it has room for, looks of its sheets,
+   likes of its list, skills that are numbers), else NULL: they come back from the logs. */
+static const vv_rs_entry *rv_snapshot_of(int game, const ce_adapter *a, const rv_person *p) {
+    const vv_rs_layout *l = &VV_RS_LAYOUT[game];
+    const vv_rs_entry *e;
+    const int *likes, *dislikes;
+    char name[RV_NAME];
+    int head, body, k;
+    if (p->snap < 0 || p->snap >= rv_snap_count) {
+        return NULL;
+    }
+    e = &rv_snaps[p->snap];
+    if (!vv_rs_valid(e, game)) {
+        return NULL;
+    }
+    vv_rs_name(e, name, RV_NAME);
+    head = vv_rs_int(e, l->head, -1);
+    body = vv_rs_int(e, l->body, -1);
+    if (name[0] == '\0' || lstrlenA(name) > a->name_room || head < 0 || head >= a->head_count || body < 0
+        || body >= a->body_count) {
+        return NULL;
+    }
+    likes = (const int *)vv_rs_at(e, l->likes, 4u * l->pref_slots);
+    dislikes = (const int *)vv_rs_at(e, l->dislikes, 4u * l->pref_slots);
+    if (likes == NULL || dislikes == NULL) {
+        return NULL;
+    }
+    for (k = 0; k < (int)l->pref_slots; ++k) {
+        if ((likes[k] >= 0 && !ce_valid_pref(a, likes[k])) || (dislikes[k] >= 0 && !ce_valid_pref(a, dislikes[k]))
+            || likes[k] < -1 || dislikes[k] < -1) {
+            return NULL;
+        }
+    }
+    for (k = 0; a->skills_float && k < a->skill_count && k < CE_SKILLS; ++k) {
+        const unsigned char *at = vv_rs_at(e, a->off_skills + 4u * (unsigned int)k, 4);
+        if (at == NULL || !rv_finite(at)) {
+            return NULL;
+        }
+    }
+    return e;
+}
+
+/* A New Believers role the puzzles give (12 Doctor, 14..16 the Masters, 17 Mommy, 13 the Heathen Chief while a
+   Heathen): such a Heathen keeps the puzzle's role and never comes back (as RV_WHY_PUZZLE_HEATHEN). */
+static int rv_snap_puzzle_role(int game, const vv_rs_entry *e) {
+    const vv_rs_layout *l = &VV_RS_LAYOUT[game];
+    const unsigned char *faction;
+    int role;
+    if (game != 5 || l->role == 0u) {
+        return 0;
+    }
+    role = vv_rs_int(e, l->role, 0);
+    faction = vv_rs_at(e, l->faction, 1);
+    return role == 12 || (role >= 14 && role <= 17) || (role == 13 && faction != NULL && *faction != 0);
+}
+
+/* ---- New Believers' puzzle Heathens (the owner, 2026-11-26) -----------------------------------------------
+
+   The owner: the puzzle Heathens (roles 12..17: the Heathen Doctor, the Heathen Chief, the three Masters, the
+   Heathen Mommy) "CAN be revived, any time": in their own role and mask, set up as the game sets that role up --
+   the Chief with every skill 100, the Mommy with her infant by a NAMED other parent (a living adult Heathen of any
+   sex, never "Unknown") -- and as an ordinary Heathen, keeping their other details, when a living Heathen already
+   holds the role or its puzzle is solved.
+
+   THE GAME.  The camp's seeding 0x424AC0 makes each role through the Heathen creator 0x46FD20 (lineage, skill,
+   value, sex, age, orange, red, role, faith): Doctor 0x424E49 (Healing 70, faith -14), Chief 0x424D77 (Healing
+   90, faith -94, then all six skills = 100.0 at 0x424D87..0x424DAF), Master Scientist 0x424DCB, Master Builder
+   0x424E1F, Master Farmer 0x424DF5 (Research / Building / Farming 90, faith -74); the Mommy (the Heathen Mommy
+   Puzzle Restoration build's cave) Parenting 70, faith -25, then the conception 0x465E00.  Every role has orange
+   and red 0: its mask is drawn from the role (0x4728C6: 12, 14..16 purple, 13 the Chief's mask).  The role finder
+   0x470690 takes the first record present (+0x1CD4, not +0x1CE1), a Heathen (+0x1CEC) with the role (+0x1CFC),
+   whatever its health; two holders would leave the second a Heathen forever (its puzzle converts only the first)
+   and The Last Heathen unsolvable -- so a held role is never given twice.  A puzzle is solved when its progress
+   [0x51E008 + p*8] reaches its need [0x51DF30 + p*4] (0x43AE80); a solved puzzle's conversion took the role away
+   (0x4668B0 clears it, the Chief's apart), so its role is never made again.
+   Role -> puzzle: 12 -> 1, 13 -> 16, 14 -> 13, 15 -> 9, 16 -> 5, 17 -> 17. */
+typedef struct {
+    int role, puzzle, faith, age;   /* age: the seeding's, age units (the owner, 2026-11-26: a role Heathen comes back
+                                        at it, so the role works -- the role AI waits for 280) */
+} rv_role_def;
+
+static const rv_role_def RV_ROLES[6] = {
+    { 12, 1, -14, 400 }, { 13, 16, -94, 1000 }, { 14, 13, -74, 540 }, { 15, 9, -74, 540 }, { 16, 5, -74, 540 },
+    { 17, 17, -25, 400 },
+};
+#define RV_PUZZLE_PROGRESS 0x51E008u
+#define RV_PUZZLE_NEEDED 0x51DF30u
+#define RV_ROLE_ADULT 280             /* the role AI's adult age (0x46EA5E), age units */
+
+static const rv_role_def *rv_role_def_of(int role) {
+    return role >= 12 && role <= 17 ? &RV_ROLES[role - 12] : NULL;
+}
+
+/* The role a log's "Special villager:" names (either wording), 0 none. */
+static int rv_title_role(const char *title) {
+    int k;
+    for (k = 0; title != NULL && k < 6; ++k) {
+        if (lstrcmpA(title, VV5_ROLE_TITLES_HEATHEN[k]) == 0 || lstrcmpA(title, VV5_ROLE_TITLES_ISOLAN[k]) == 0) {
+            return 12 + k;
+        }
+    }
+    return 0;
+}
+
+/* The puzzle role `p` held when they left (12..17), 0 none: their snapshot's role on a Heathen, else the log's
+   title. */
+static int rv_role_of(int game, const rv_person *p) {
+    if (game != 5) {
+        return 0;
+    }
+    if (p->snap >= 0 && p->snap < rv_snap_count) {
+        return rv_snap_puzzle_role(game, &rv_snaps[p->snap]) ? vv_rs_int(&rv_snaps[p->snap], 0x1CFCu, 0) : 0;
+    }
+    return rv_title_role(p->special);
+}
+
+static int rv_puzzle_solved(int puzzle) {
+    return *(volatile const int *)(uintptr_t)(RV_PUZZLE_PROGRESS + (unsigned int)puzzle * 8u)
+        >= *(volatile const int *)(uintptr_t)(RV_PUZZLE_NEEDED + (unsigned int)puzzle * 4u);
+}
+
+/* Whether a record other than `self` holds `role` as the role finder 0x470690 takes one. */
+static int rv_role_held(const ce_adapter *a, int role, int self) {
+    int i;
+    for (i = 0; i < a->record_count; ++i) {
+        const unsigned char *r = a->record(i);
+        if (i != self && r != NULL && r[0x1CD4] != 0 && r[0x1CE1] == 0 && r[0x1CEC] != 0
+            && *(const int *)(r + 0x1CFC) == role) {
+            return 1;
+        }
+    }
+    return 0;
+}
+
+static unsigned int rv_seed;
+
+/* 0..n-1: the game's own random routine when the adapter has it. */
+static int rv_rand(const ce_adapter *a, int n) {
+    if (n <= 1) {
+        return 0;
+    }
+    if (a->rand_below != NULL) {
+        int k = a->rand_below(n);
+        if (k >= 0 && k < n) {
+            return k;
+        }
+    }
+    rv_seed = rv_seed * 1103515245u + 12345u + GetTickCount();
+    return (int)((rv_seed >> 16) % (unsigned int)n);
+}
+
+/* Whether record `r` (not `self`'s) could be the Mommy's infant's other parent: a living adult Heathen. */
+static int rv_partner_ok(const unsigned char *r) {
+    return r != NULL && r[0x1CD4] != 0 && r[0x1CE1] == 0 && r[0x1CEC] != 0 && *(const int *)(r + 0x1C40) > 0
+        && *(const int *)(r + 0x1B8C) >= RV_ROLE_ADULT;
+}
+
+/* The Mommy's infant's other parent: a living adult Heathen of any sex other than `self`, at random; -1 none. */
+static int rv_mommy_partner(const ce_adapter *a, int self) {
+    int i, count = 0, pick;
+    for (i = 0; i < a->record_count; ++i) {
+        count += i != self && rv_partner_ok(a->record(i));
+    }
+    if (count == 0) {
+        return -1;
+    }
+    pick = rv_rand(a, count);
+    for (i = 0; i < a->record_count; ++i) {
+        if (i != self && rv_partner_ok(a->record(i)) && pick-- == 0) {
+            return i;
+        }
+    }
+    return -1;
+}
+
+/* Whether role `role` can be given back now: its puzzle unsolved, nobody holding it, and (the Mommy) another adult
+   Heathen to be her infant's other parent. */
+static int rv_role_free(const ce_adapter *a, int role) {
+    const rv_role_def *d = rv_role_def_of(role);
+    return d != NULL && !rv_puzzle_solved(d->puzzle) && !rv_role_held(a, role, -1)
+        && (role != 17 || rv_mommy_partner(a, -1) >= 0);
+}
+
+/* Record `index` (a Heathen the creator just made) set up in `role` as the seeding sets it up. */
+static void rv_set_up_role(const ce_adapter *a, int index, unsigned char *r, int role) {
+    const rv_role_def *d = rv_role_def_of(role);
+    int k;
+    *(int *)(r + 0x1CFC) = role;
+    r[0x1CED] = 0;                    /* orange and red 0: the role's own mask is drawn */
+    r[0x1CEE] = 0;
+    *(int *)(r + 0x1CF0) = d->faith;  /* raw, as the creator's SetFaith leaves it (a SetFaith <= 0 would convert) */
+    if (role == 13) {
+        for (k = 0; k < 6; ++k) {
+            *(float *)(r + 0x1C5C + 4 * k) = 100.0f;   /* the seeding's [0x4980D4] */
+        }
+    } else if (role == 17) {
+        int partner = rv_mommy_partner(a, index);
+        const unsigned char *f = partner >= 0 ? a->record(partner) : NULL;
+        if (f != NULL && *(const int *)(r + 0x1C4C) == 0) {
+            int twins = *(volatile int *)(uintptr_t)0x51D380u;
+            int triplets = *(volatile int *)(uintptr_t)0x51D384u;
+            TC7(0x465E00u, r, *(const int *)(f + 0x1B98), 1, 50, (int)(uintptr_t)(f + 0x1B9C),
+                *(const int *)(f + 0x1BB8), *(const int *)(f + 0x1BBC), 1);
+            *(volatile int *)(uintptr_t)0x51D380u = twins;      /* the routine's own counts taken back */
+            *(volatile int *)(uintptr_t)0x51D384u = triplets;
+            *(int *)(r + 0x1C50) = 1;
+            if (*(int *)(r + 0x1C4C) == 0) {
+                *(int *)(r + 0x1C4C) = 1;   /* a fresh carrier's processed age is 0, which reads "not expecting" */
+            }
+        }
+    }
+}
+
+/* The age, in years, p comes back at: RV_AGE_YEARS, or a puzzle Heathen's role's own while the role is free. */
+static int rv_years_back(int game, const rv_person *p) {
+    const ce_adapter *a = ce_adapter_for(game);
+    int role = rv_role_of(game, p);
+    return role != 0 && a != NULL && rv_role_free(a, role) ? rv_role_def_of(role)->age / 20 : RV_AGE_YEARS;
+}
+
+/* The Secret City: whether a villager other than record `self` is the Tribal Chief now. */
+static int rv_other_chief(int game, const ce_adapter *a, int self) {
+    unsigned int at = VV_RS_LAYOUT[game].chief;
+    int i;
+    for (i = 0; at != 0u && i < a->record_count; ++i) {
+        const unsigned char *r = a->record(i);
+        if (i != self && r != NULL && a->listed(r) && r[at] != 0) {
+            return 1;
+        }
+    }
+    return 0;
 }
 
 /* Why a person can not come back, each its own row of the translations template (the English is what
@@ -862,6 +1312,31 @@ static void rv_settle(int game, const ce_adapter *a) {
             }
         }
     }
+    /* New Believers: a Heathen's grave at the mud hut (VVFP Heathen Mausoleum.dll), each to one record. */
+    if (game == 5) {
+        unsigned char hut_claimed[500];
+        int huts = rv_hut_count();
+        memset(hut_claimed, 0, sizeof hut_claimed);
+        for (i = 0; i < rv_count && huts > 0; ++i) {
+            rv_person *p = &rv_people[i];
+            if (p->kind != RV_DEATH || p->grave >= 0 || strncmp(p->grave_line, "no grave", 8) == 0) {
+                continue;
+            }
+            for (place = 0; place < huts; ++place) {
+                if (!hut_claimed[place] && rv_hut_is(place, p)) {
+                    const unsigned char *g = rv_hut_entry(place);
+                    int k;
+                    hut_claimed[place] = 1;
+                    p->grave_hut = place;
+                    for (k = 0; k < 0x20 && k + 1 < (int)sizeof p->epitaph && g[0x38 + k] != 0; ++k) {
+                        p->epitaph[k] = (char)(g[0x38 + k] >= 0x20 ? g[0x38 + k] : '?');
+                    }
+                    p->epitaph[k] = '\0';
+                    break;
+                }
+            }
+        }
+    }
     for (i = 0; i < rv_count; ++i) {
         rv_person *p = &rv_people[i];
         for (j = i + 1; j < rv_count && p->listed; ++j) {
@@ -882,10 +1357,20 @@ static void rv_settle(int game, const ce_adapter *a) {
             p->refusal = RV_WHY[RV_WHY_NAME][1];
         } else if (game == 1 && lstrcmpA(p->special, "Golden Child") == 0) {
             p->refusal = RV_WHY[RV_WHY_GOLDEN][1];
-        } else if (game == 5 && vv5_puzzle_role_title(p->special)) {   /* either wording: shared/isolan_log_words.h */
-            p->refusal = RV_WHY[RV_WHY_PUZZLE_HEATHEN][1];
         } else if (game == 5 && p->kind == RV_GONE && rv_left_for_the_heathens(p->cause)) {
             p->refusal = RV_WHY[RV_WHY_HEATHEN][1];
+        }
+    }
+    /* Their complete records, and what those say that the log may not (a puzzle role, the Golden Child's family). */
+    rv_match_snaps(game, a);
+    for (i = 0; i < rv_count; ++i) {
+        rv_person *p = &rv_people[i];
+        if (p->snap < 0 || p->refusal != NULL) {
+            continue;
+        }
+        /* A puzzle Heathen comes back in their role, or as an ordinary Heathen (rv_role_free): never refused. */
+        if (game == 1 && vv_rs_int(&rv_snaps[p->snap], VV_RS_LAYOUT[1].family, 0) == 0xC7) {
+            p->refusal = RV_WHY[RV_WHY_GOLDEN][1];
         }
     }
 }
@@ -1042,6 +1527,67 @@ static int rv_slot(int game) {
         ? story_hosts[game]->slot() : 0;
 }
 
+/* The current village's snapshots not written to the file yet (Codex, PR #880): a villager who died or vanished
+   since the last save has their Death or Disappeared record already, but their snapshot is only in "VVFP Cause of
+   Death.dll" until the next save (cod_revive.inc VvfpCauseReviveSnapshots, found loaded, never loaded from here).
+   Added after the file's, so they are the newest: each person's newest snapshot is theirs (rv_match_snaps). */
+static void rv_merge_pending(int game) {
+    typedef int (__stdcall *pending_fn)(int game, int slot, void *out, int max_entries);
+    HMODULE cod = GetModuleHandleA("VVFP Cause of Death.dll");
+    pending_fn pending = cod != NULL ? (pending_fn)(void *)GetProcAddress(cod, "VvfpCauseReviveSnapshots") : NULL;
+    int slot = rv_slot(game), n, got, k, kept = 0;
+    if (pending == NULL || slot <= 0) {
+        return;
+    }
+    n = pending(game, slot, NULL, 0);
+    if (n <= 0 || n > VV_RS_MAX) {
+        return;
+    }
+    if (rv_snap_count + n > rv_snap_cap) {
+        int cap = rv_snap_count + n;
+        vv_rs_entry *more = (vv_rs_entry *)HeapAlloc(GetProcessHeap(), 0, (SIZE_T)cap * sizeof(vv_rs_entry));
+        unsigned char *claimed = (unsigned char *)HeapAlloc(GetProcessHeap(), 0, (SIZE_T)cap);
+        if (more == NULL || claimed == NULL) {
+            if (more != NULL) HeapFree(GetProcessHeap(), 0, more);
+            if (claimed != NULL) HeapFree(GetProcessHeap(), 0, claimed);
+            return;
+        }
+        if (rv_snap_count > 0) {
+            memcpy(more, rv_snaps, (size_t)rv_snap_count * sizeof(vv_rs_entry));
+        }
+        if (rv_snaps != NULL) HeapFree(GetProcessHeap(), 0, rv_snaps);
+        if (rv_snap_claimed != NULL) HeapFree(GetProcessHeap(), 0, rv_snap_claimed);
+        rv_snaps = more;
+        rv_snap_claimed = claimed;
+        rv_snap_cap = cap;
+    }
+    got = pending(game, slot, rv_snaps + rv_snap_count, n);
+    for (k = 0; k < got && k < n; ++k) {
+        if (vv_rs_valid(&rv_snaps[rv_snap_count + k], game)) {
+            if (kept != k) {
+                rv_snaps[rv_snap_count + kept] = rv_snaps[rv_snap_count + k];
+            }
+            ++kept;
+        }
+    }
+    rv_snap_count += kept;
+}
+
+/* This slot's snapshot file from disk (read only: an unreadable one gives none, and stays as it is). */
+static void rv_load_snaps(int game, int slot) {
+    wchar_t path[MAX_PATH], name[96];
+    int length;
+    rv_snap_count = 0;
+    wsprintfW(name, L"Virtual Villagers %d Revive Snapshots - Save %d.dat", game, slot);
+    if (slot < 1 || !vv_ps_data_file_w(path, L"" VV_RS_FOLDER, name, 1)) {
+        return;
+    }
+    length = rv_read(path);
+    if (length > 0) {
+        rv_snaps_from(game, (const unsigned char *)rv_text, (DWORD)length);
+    }
+}
+
 /* Everyone listed for `game` now, from the logs on disk. */
 static void rv_load(int game) {
     const ce_adapter *a = ce_adapter_for(game);
@@ -1052,6 +1598,8 @@ static void rv_load(int game) {
         return;
     }
     rv_village_header(game, slot);
+    rv_load_snaps(game, slot);        /* first: the logs then reuse the read buffer */
+    rv_merge_pending(game);           /* ...and those not saved yet (VVFP Cause of Death.dll) */
     rv_each_log(a, slot, L"Deaths and Disappearances", L"Deaths", rv_parse_deaths);
     if (rv_count > 0) {
         rv_each_log(a, slot, L"Tribe History", NULL, rv_parse_history);
@@ -1081,13 +1629,26 @@ static int rv_village_refusal(int game, const ce_adapter *a) {
     return 0;
 }
 
+static int rs_keep_traits(int game, int index, unsigned int traits);   /* story_traits.inc */
+/* What the last revival could not write to the patcher's files (RV_MISSED_*), for the done box. */
+#define RV_MISSED_LOOK 0x01
+#define RV_MISSED_PRESENTATION 0x02
+#define RV_MISSED_TRAITS 0x04
+#define RV_MISSED_MASK 0x08
+#define RV_MISSED_TITLE 0x10
+static int rv_last_missed;
+static int rv_last_role;              /* the last revival's puzzle role (New Believers), 0 none */
+static unsigned char rv_backup[0xF000];   /* a record as the creator made it (the largest: The Lost Children's 0xE48C) */
+
 /* Person `which` brought back.  RV_DONE, or why not (nothing changed, nothing charged). */
 static int rv_buy(int game, int which, int *made) {
     const ce_adapter *a = ce_adapter_for(game);
+    const vv_rs_entry *e;
     rv_person *p;
     ce_spawn s;
     unsigned char *r;
-    int why, index, k;
+    int why, index, k, heathen, role, role_kept = 0;
+    char father[RV_NAME], mother[RV_NAME];
     *made = -1;
     if (game != rv_game || which < 0 || which >= rv_count) {
         return RV_NOT_REVIVABLE;
@@ -1109,35 +1670,77 @@ static int rv_buy(int game, int which, int *made) {
             return RV_IN_VILLAGE;     /* the graveyard changed since the list was made: look again */
         }
     }
+    if (p->grave_hut >= 0 && !rv_hut_is(p->grave_hut, p)) {
+        return RV_IN_VILLAGE;         /* the mud hut's graves changed since the list was made */
+    }
+    e = rv_snapshot_of(game, a, p);
+    rv_copy(father, RV_NAME, p->father);
+    rv_copy(mother, RV_NAME, p->mother);
+    heathen = p->heathen;
+    if (e != NULL && VV_RS_LAYOUT[game].faction != 0u) {
+        heathen = *vv_rs_at(e, VV_RS_LAYOUT[game].faction, 1) != 0;   /* the record's own faction */
+    }
+    /* New Believers' puzzle Heathen: back in the role while it is free, else an ordinary Heathen (rv_role_free). */
+    role = rv_role_of(game, p);
+    if (role != 0) {
+        heathen = 1;
+        role_kept = rv_role_free(a, role);
+    }
     memset(&s, 0, sizeof s);
     s.count = 1;
     s.sex = p->sex;
-    s.age = RV_AGE;
+    /* Age 5 (RV_AGE_YEARS); a puzzle Heathen back in the role at the role's own age, as the seeding makes it (the
+       owner, 2026-11-26), so the role works. */
+    s.age = role_kept ? rv_role_def_of(role)->age : RV_AGE;
     rv_copy(s.name, CE_NAME_BYTES, p->name);
+    if (e != NULL) {
+        vv_rs_name(e, s.name, CE_NAME_BYTES);   /* the record's own bytes (the same name) */
+    }
     s.head = p->head;
     s.body = p->body;
     s.prefs_set = 0;                  /* written below, every one the game holds */
     for (k = 0; k < CE_SKILLS; ++k) {
-        s.skills[k] = p->skills_known ? p->skills[k] : CE_KEEP;
+        s.skills[k] = p->skills_known && e == NULL ? p->skills[k] : CE_KEEP;   /* a snapshot's: written whole below */
     }
     rv_copy(s.title, (int)sizeof s.title, p->title);
     /* A Heathen comes back a Heathen (RV_HEATHENS_STAY_HEATHENS): the game's own Heathen creator, its own mask
        (the game draws a Heathen's); a believer through the believer creator, with their cosmetic mask. */
-    s.faction = game == 5 && p->heathen && RV_HEATHENS_STAY_HEATHENS ? 1 : CE_KEEP;
+    s.faction = game == 5 && heathen && RV_HEATHENS_STAY_HEATHENS ? 1 : CE_KEEP;
     s.mask = p->mask > 0 && s.faction != 1 ? p->mask : CE_KEEP;
+    if (e != NULL && (e->flags & VV_RS_MASK)) {
+        s.mask = e->mask > 0 && s.faction != 1 ? e->mask : CE_KEEP;   /* the mask they wore at the end */
+    }
     s.health = CE_KEEP;
     s.father_record = s.mother_record = -1;
     s.father_head = p->father_head;
     s.father_body = p->father_body;
     s.mother_head = p->mother_head;
     s.mother_body = p->mother_body;
-    if (p->father[0] != '\0' && p->father_head != CE_KEEP && p->father_body != CE_KEEP) {
-        rv_copy(s.father_name, CE_NAME_BYTES, p->father);
+    if (e != NULL && game == 1 && (e->flags & VV_RS_PARENTS)) {
+        rv_copy(father, RV_NAME, e->father);   /* A New Home's parents, as the Show Parents file kept them */
+        rv_copy(mother, RV_NAME, e->mother);
+        s.father_head = e->parent_looks[0] >= 0 ? e->parent_looks[0] : CE_KEEP;
+        s.father_body = e->parent_looks[1] >= 0 ? e->parent_looks[1] : CE_KEEP;
+        s.mother_head = e->parent_looks[2] >= 0 ? e->parent_looks[2] : CE_KEEP;
+        s.mother_body = e->parent_looks[3] >= 0 ? e->parent_looks[3] : CE_KEEP;
+    } else if (e != NULL && game >= 2 && a->off_father_name != 0u) {
+        const unsigned char *at;          /* the parents on the record itself */
+        at = vv_rs_at(e, a->off_father_name, (unsigned int)a->name_bytes);
+        if (at != NULL) ce_copy_name(father, RV_NAME, at, a->name_bytes);
+        at = vv_rs_at(e, a->off_mother_name, (unsigned int)a->name_bytes);
+        if (at != NULL) ce_copy_name(mother, RV_NAME, at, a->name_bytes);
+        s.father_head = vv_rs_int(e, a->off_father_head, CE_KEEP);
+        s.father_body = vv_rs_int(e, a->off_father_body, CE_KEEP);
+        s.mother_head = vv_rs_int(e, a->off_mother_head, CE_KEEP);
+        s.mother_body = vv_rs_int(e, a->off_mother_body, CE_KEEP);
+    }
+    if (father[0] != '\0' && s.father_head != CE_KEEP && s.father_body != CE_KEEP) {
+        rv_copy(s.father_name, CE_NAME_BYTES, father);
         s.father_kind = CE_PARENT_CUSTOM;
         s.parents_set = 1;
     }
-    if (p->mother[0] != '\0' && p->mother_head != CE_KEEP && p->mother_body != CE_KEEP) {
-        rv_copy(s.mother_name, CE_NAME_BYTES, p->mother);
+    if (mother[0] != '\0' && s.mother_head != CE_KEEP && s.mother_body != CE_KEEP) {
+        rv_copy(s.mother_name, CE_NAME_BYTES, mother);
         s.mother_kind = CE_PARENT_CUSTOM;
         s.parents_set = 1;
     }
@@ -1147,8 +1750,18 @@ static int rv_buy(int game, int which, int *made) {
         return RV_NOT_MADE;
     }
     *made = index;
-    /* The likes and dislikes, every one the record holds room for. */
-    {
+    /* Every persistent field of their complete record, all or none (vv_rs_apply reads each back; any difference
+       and the record is the creator's again, and they come back from the logs below). */
+    rv_last_restored = 0;
+    if (e != NULL) {
+        const unsigned char *chief = VV_RS_LAYOUT[game].chief != 0u ? vv_rs_at(e, VV_RS_LAYOUT[game].chief, 1) : NULL;
+        story_preferences_changing(game, 0);
+        rv_last_restored = vv_rs_apply(e, r, rv_backup,
+                                       chief != NULL && *chief != 0 && !rv_other_chief(game, a, index));
+        story_preferences_changing(game, 1);
+    }
+    /* From the logs: the likes and dislikes, every one the record holds room for. */
+    if (!rv_last_restored) {
         int *likes = (int *)(r + a->off_likes);
         int *dislikes = (int *)(r + a->off_dislikes);
         story_preferences_changing(game, 0);
@@ -1164,22 +1777,52 @@ static int rv_buy(int game, int which, int *made) {
         }
         story_preferences_changing(game, 1);
     }
+    if (role_kept) {
+        rv_set_up_role(a, index, r, role);
+    } else if (role != 0) {
+        *(int *)(r + 0x1CFC) = 0;     /* an ordinary Heathen: the role is held, or its puzzle solved */
+    }
+    rv_last_role = role_kept ? role : 0;
     ce_arrival_how = "Returned from the dead";
     ce_tell_arrival(game, index, &s);
     ce_arrival_how = CE_ARRIVAL_HOW;
-    if ((a->caps & CAP_PARENTS) && s.parents_set && a->parents_supported()) {
+    /* The parents: The Lost Children to New Believers keep them on the record (written above with the rest);
+       A New Home only in the Show Parents file. */
+    if ((a->caps & CAP_PARENTS) && s.parents_set && a->parents_supported() && !(rv_last_restored && game >= 2)) {
         ce_change parents;
         ce_spawn_parents(&s, &parents);
         (void)a->set_parents(index, &parents);
     }
-    if ((a->caps & CAP_TITLE) && s.title[0] != '\0') {
-        (void)titles_set(game, index, s.title);
+    rv_last_missed = 0;
+    if ((a->caps & CAP_TITLE) && s.title[0] != '\0' && !titles_set(game, index, s.title)) {
+        rv_last_missed |= RV_MISSED_TITLE;
     }
-    if ((a->caps & CAP_MASK) && s.mask != CE_KEEP) {
-        (void)story_set_mask(game, r, s.mask);
+    if ((a->caps & CAP_MASK) && s.mask != CE_KEEP && !story_set_mask(game, r, s.mask)) {
+        rv_last_missed |= RV_MISSED_MASK;
+    }
+    /* What the patcher's own files kept for them: the head look, the gender presentation, the story traits. */
+    if (rv_last_restored) {
+        vvfp_head_look_api look;
+        vvfp_gp_api presentation;
+        /* Each setter looks at the village now (the head look and presentation stores force their own roster
+           sync; the story traits' is forced here, rs_keep_traits), and what failed is said in the done box. */
+        if ((e->flags & VV_RS_HEAD_LOOK) && e->head_look != VVFP_HEAD_LOOK_AUTO && vvfp_head_look_find(game, &look)
+            && look.set(game, r, e->head_look) != 1) {
+            rv_last_missed |= RV_MISSED_LOOK;
+        }
+        if ((e->flags & VV_RS_PRESENTATION) && e->presentation == 1 && vvfp_gp_find(game, &presentation)
+            && presentation.set(game, r, 1) != 1) {
+            rv_last_missed |= RV_MISSED_PRESENTATION;
+        }
+        if ((e->flags & VV_RS_TRAITS) && e->traits != 0u && !rs_keep_traits(game, index, e->traits)) {
+            rv_last_missed |= RV_MISSED_TRAITS;
+        }
     }
     if (p->grave >= 0) {
         (void)rv_grave_remove(game, p->grave);
+    }
+    if (p->grave_hut >= 0) {
+        (void)rv_hut_remove(p->grave_hut);
     }
     if (rv_price(game) > 0) {
         a->change_tech(CE_AMOUNT_SUBTRACT, rv_price(game));
@@ -1231,7 +1874,7 @@ static void rv_row_text(const rv_person *p, char *out, int size) {
                 p->age >= 0 ? years : vvfp_tr("vvfp.story/story_revive.rv_row_text.s4", "an unknown age", 60),
                 p->refusal != NULL ? vvfp_tr("vvfp.story/story_revive.rv_row_text.s5", " - can not come back", 60)
                 : p->heathen ? vv5_isolan(cg_guardians_on(), vvfp_tr("vvfp.story/story_revive.rv_row_text.s6", " - a Heathen", 40))
-                : p->grave >= 0 ? vvfp_tr("vvfp.story/story_revive.rv_row_text.s7", " - buried", 40) : "");
+                : p->grave >= 0 || p->grave_hut >= 0 ? vvfp_tr("vvfp.story/story_revive.rv_row_text.s7", " - buried", 40) : "");
     lstrcpynA(out, row, size);
 }
 
@@ -1329,13 +1972,20 @@ static void rv_details(int game, const ce_adapter *a, const rv_person *p, char *
     if (p->kind == RV_DEATH) {
         wsprintfA(line, vvfp_tr("vvfp.story/story_revive.rv_details.s5", "Grave: %s\r\nEpitaph: %s\r\nWhere: %s\r\n", 400),
                     p->grave_line[0] ? p->grave_line : "unknown", p->epitaph[0] ? p->epitaph : "(none)",
-                    p->grave >= 0 ? vvfp_tr("vvfp.story/story_revive.rv_details.s6", "buried here (the grave is removed when they come back)", 120)
+                    p->grave >= 0 || p->grave_hut >= 0 ? vvfp_tr("vvfp.story/story_revive.rv_details.s6", "buried here (the grave is removed when they come back)", 120)
                                   : vvfp_tr("vvfp.story/story_revive.rv_details.s7", "no grave in the graveyard now", 120));
         rv_add(out, size, line);
     }
-    if (p->special[0] != '\0') {
+    if (game == 5 && rv_role_of(game, p) != 0) {
+        const char *title = VV5_ROLE_TITLES_HEATHEN[rv_role_of(game, p) - 12];
+        wsprintfA(line, vv5_isolan(cg_guardians_on(), vvfp_tr("vvfp.story/story_revive.rv_details.s28", "Special villager: %s. They come back in that role and its mask, set up as the game sets the role up and at the role's own age, %d (the Heathen Chief with every skill 100, the Heathen Mommy with her infant by a living adult Heathen) - unless a living Heathen holds the role now or its puzzle is solved: then as an ordinary Heathen, with every other detail.\r\n", 600)),
+                  p->special[0] != '\0' ? p->special : title, rv_years_back(game, p));
+        rv_add(out, size, line);
+    } else if (p->special[0] != '\0') {
         wsprintfA(line, vvfp_tr("vvfp.story/story_revive.rv_details.s8", "Special villager: %s%s\r\n", 400), p->special,
-                    p->refusal == NULL ? vvfp_tr("vvfp.story/story_revive.rv_details.s9", " (they come back as an ordinary villager)", 120) : "");
+                    p->refusal != NULL ? ""
+                    : p->snap >= 0 ? vvfp_tr("vvfp.story/story_revive.rv_details.s29", " (kept: they come back with it where the game allows it)", 120)
+                    : vvfp_tr("vvfp.story/story_revive.rv_details.s9", " (they come back as an ordinary villager)", 120));
         rv_add(out, size, line);
     }
     if (p->heathen) {
@@ -1363,7 +2013,25 @@ static void rv_details(int game, const ce_adapter *a, const rv_person *p, char *
     } else {
         rv_add(out, size, vvfp_tr("vvfp.story/story_revive.rv_details.s17", "Likes and dislikes: unknown\r\n", 400));
     }
-    if (p->skills_known) {
+    if (p->snap >= 0 && p->snap < rv_snap_count) {
+        const vv_rs_entry *e = &rv_snaps[p->snap];
+        rv_add(out, size, vvfp_tr("vvfp.story/story_revive.rv_details.s30", "Skills (kept at their death):\r\n", 400));
+        for (k = 0; k < a->skill_count && k < CE_SKILLS; ++k) {
+            const unsigned char *at = vv_rs_at(e, a->off_skills + 4u * (unsigned int)k, 4);
+            if (at == NULL) {
+                continue;
+            }
+            if (a->skills_float) {
+                float value = *(const float *)at;
+                int whole = rv_finite(at) ? (int)value : 0;
+                int hundredths = rv_finite(at) ? (int)((value - (float)whole) * 100.0f) : 0;
+                wsprintfA(line, "    %s %d.%02d\r\n", a->skill_names[k], whole, hundredths < 0 ? -hundredths : hundredths);
+            } else {
+                wsprintfA(line, "    %s %d\r\n", a->skill_names[k], *(const int *)at);
+            }
+            rv_add(out, size, line);
+        }
+    } else if (p->skills_known) {
         rv_add(out, size, vvfp_tr("vvfp.story/story_revive.rv_details.s18", "Skills (the last Village History snapshot of them):\r\n", 400));
         for (k = 0; k < a->skill_count && k < CE_SKILLS; ++k) {
             wsprintfA(line, "    %s %d\r\n", a->skill_names[k], p->skills[k]);
@@ -1388,12 +2056,39 @@ static void rv_details(int game, const ce_adapter *a, const rv_person *p, char *
     if (game == 1 && !a->parents_supported() && (p->father[0] != '\0' || p->mother[0] != '\0')) {
         rv_add(out, size, vvfp_tr("vvfp.story/story_revive.rv_details.s24", "(A New Home keeps parents only with Show Parents in Details Screen.)\r\n", 400));
     }
+    if (p->snap >= 0 && rv_snaps[p->snap].source != VV_RS_CAPTURED) {
+        const vv_rs_entry *e = &rv_snaps[p->snap];
+        FILETIME utc, local;
+        SYSTEMTIME st;
+        char when[64];
+        utc.dwLowDateTime = e->when_lo;
+        utc.dwHighDateTime = e->when_hi;
+        if (FileTimeToLocalFileTime(&utc, &local) && FileTimeToSystemTime(&local, &st)) {
+            wsprintfA(when, "%04d-%02d-%02d %02d:%02d", st.wYear, st.wMonth, st.wDay, st.wHour, st.wMinute);
+        } else {
+            lstrcpyA(when, "unknown");
+        }
+        wsprintfA(line, vvfp_tr("vvfp.story/story_revive.rv_details.s31", "\r\nKept afterwards by Repair Saves & Logs, from %s saved %s: their name, sex, looks, family, parents, likes and dislikes exactly; their skills, job preference and titles %s.\r\n", 600),
+                  e->source == VV_RS_FROM_SAVE ? vvfp_tr("vvfp.story/story_revive.rv_details.s32", "the copy of their record the save still held", 120)
+                                                : vvfp_tr("vvfp.story/story_revive.rv_details.s33", "a backup of the save", 120),
+                  when,
+                  (e->exact & VV_RS_EXACT_LATER) ? vvfp_tr("vvfp.story/story_revive.rv_details.s34", "as they were at the end", 120)
+                                                 : vvfp_tr("vvfp.story/story_revive.rv_details.s35", "as they were then (they may have grown since)", 120));
+        rv_add(out, size, line);
+    } else if (p->snap >= 0) {
+        rv_add(out, size, vvfp_tr("vvfp.story/story_revive.rv_details.s36", "\r\nEvery detail was kept at their death: they come back with their own looks, family, parents, likes, dislikes, skills, job preference and titles, and what the patcher keeps for them. Only their age, health and what they were doing start fresh.\r\n", 600));
+    } else if (p->snap_ambiguous) {
+        rv_add(out, size, vvfp_tr("vvfp.story/story_revive.rv_details.s37", "\r\nFrom the logs only: more than one kept record could be this villager, so none is used.\r\n", 400));
+    } else {
+        rv_add(out, size, vvfp_tr("vvfp.story/story_revive.rv_details.s38", "\r\nFrom the logs only: no complete record was kept (they left before v1.35.101, or Show Cause of Death and Epitaphs on Graves was off). What the logs do not say, the game picks.\r\n", 400));
+    }
     if (p->refusal != NULL) {
         wsprintfA(line, vvfp_tr("vvfp.story/story_revive.rv_details.s25", "\r\nCan not come back: %s.\r\n", 400), rv_why(p->refusal));
     } else {
-        lstrcpyA(line, p->heathen && RV_HEATHENS_STAY_HEATHENS
-                           ? vv5_isolan(cg_guardians_on(), vvfp_tr("vvfp.story/story_revive.rv_details.s26", "\r\nComes back as this same person at age 5, a Heathen in the camp.\r\n", 400))
-                           : vvfp_tr("vvfp.story/story_revive.rv_details.s27", "\r\nComes back as this same person at age 5.\r\n", 400));
+        wsprintfA(line, p->heathen && RV_HEATHENS_STAY_HEATHENS
+                            ? vv5_isolan(cg_guardians_on(), vvfp_tr("vvfp.story/story_revive.rv_details.s26", "\r\nComes back as this same person at age %d, a Heathen in the camp.\r\n", 400))
+                            : vvfp_tr("vvfp.story/story_revive.rv_details.s27", "\r\nComes back as this same person at age %d.\r\n", 400),
+                  rv_years_back(game, p));
     }
     rv_add(out, size, line);
 }
@@ -1414,6 +2109,11 @@ static void rv_fill_details(HWND window) {
         rv_details(rv_game, a, &rv_people[rv_order[sel]], text, (int)sizeof text);
     }
     SetDlgItemTextA(window, IDC_RG_DETAILS, text);
+}
+
+/* New Believers' intro adds: a puzzle Heathen comes back at the role's own age (the owner, 2026-11-26). */
+static const char *rv_role_age_note(void) {
+    return vv5_isolan(cg_guardians_on(), vvfp_tr("vvfp.story/story_revive.rv_role_age_note.s0", " A puzzle Heathen (the Doctor, the Chief, the Masters, the Mommy) comes back at their role's own age, so the role works.", 300));
 }
 
 static INT_PTR CALLBACK rv_dialog(HWND window, UINT message, WPARAM wparam, LPARAM lparam) {
@@ -1448,6 +2148,9 @@ static INT_PTR CALLBACK rv_dialog(HWND window, UINT message, WPARAM wparam, LPAR
             wsprintfA(button, vvfp_tr("vvfp.story/story_revive.rv_dialog.s1", "Revive (%s tech points)", 120),
                       rv_price_text(rv_game));
             SetDlgItemTextA(window, IDOK, button);
+        }
+        if (rv_game == 5) {
+            rv_add(intro, (int)sizeof intro, rv_role_age_note());
         }
         SetDlgItemTextA(window, IDC_RG_INTRO, intro);
         if (rv_rows > 0) {
@@ -1522,6 +2225,11 @@ static int rv_offered(int game) {
     return vvfp_patcher_file_exists(RV_FLAG_FILE);
 }
 
+/* The done box's words when something the patcher keeps for them could not be written now (rv_last_missed). */
+static const char *rv_missed_note(void) {
+    return vvfp_tr("vvfp.story/story_revive.rv_missed_note.s0", "\r\n\r\nSome of what the patcher keeps for them could not be written now (their head look, gender presentation, story traits, mask or custom title): every other detail is back. Set it again in Change Appearance or the Custom Island Event.", 400);
+}
+
 static int story_revive_from_graves(int game, HWND owner) {
     const ce_adapter *a = ce_adapter_for(game);
     char text[RV_LINE];
@@ -1544,9 +2252,9 @@ static int story_revive_from_graves(int game, HWND owner) {
     }
     wsprintfA(text,
                 vvfp_tr("vvfp.story/story_revive.story_revive_from_graves.s0",
-                        "Do you want to bring back %s for %s tech points?\r\nThey return as the same person, aged 5%s.\r\n\r\nPress OK to confirm, or Cancel.", 500),
-                rv_people[rv_chosen].name, rv_price_text(game),
-                rv_people[rv_chosen].grave >= 0
+                        "Do you want to bring back %s for %s tech points?\r\nThey return as the same person, aged %d%s.\r\n\r\nPress OK to confirm, or Cancel.", 500),
+                rv_people[rv_chosen].name, rv_price_text(game), rv_years_back(game, &rv_people[rv_chosen]),
+                rv_people[rv_chosen].grave >= 0 || rv_people[rv_chosen].grave_hut >= 0
                     ? vvfp_tr("vvfp.story/story_revive.story_revive_from_graves.s1", ", and their grave is removed", 100) : "");
     if (MessageBoxA(owner, text, vvfp_tr("vvfp.storybridge/story_bridge.vvfp_story_add_revive_button.s0", "Revive Buried/Disappeared Villagers", 128),
                     MB_OKCANCEL | MB_ICONQUESTION | MB_TOPMOST | MB_SETFOREGROUND) != IDOK) {
@@ -1558,8 +2266,11 @@ static int story_revive_from_graves(int game, HWND owner) {
                     MB_OK | MB_ICONINFORMATION | MB_TOPMOST | MB_SETFOREGROUND);
         return 0;
     }
-    wsprintfA(text, vvfp_tr("vvfp.story/story_revive.story_revive_from_graves.s2", "%s is back in the village, aged 5.", 200),
-              rv_people[rv_chosen].name);
+    wsprintfA(text, vvfp_tr("vvfp.story/story_revive.story_revive_from_graves.s2", "%s is back in the village, aged %d.", 200),
+              rv_people[rv_chosen].name, rv_last_role != 0 ? rv_role_def_of(rv_last_role)->age / 20 : RV_AGE_YEARS);
+    if (rv_last_missed != 0) {
+        rv_add(text, (int)sizeof text, rv_missed_note());
+    }
     MessageBoxA(owner, text, vvfp_tr("vvfp.storybridge/story_bridge.vvfp_story_add_revive_button.s0", "Revive Buried/Disappeared Villagers", 128),
                 MB_OK | MB_ICONINFORMATION | MB_TOPMOST | MB_SETFOREGROUND);
     return 1;
@@ -1597,6 +2308,8 @@ __declspec(dllexport) int __stdcall VvfpStoryProbeReviveLoad(int game, const cha
     if (history != NULL && rv_count > 0) {
         rv_parse_history(a, history, lstrlenA(history));
     }
+    rv_snaps_from(game, rv_test_snap_file, rv_test_snap_length);
+    rv_merge_pending(game);
     rv_settle(game, a);
     rv_make_rows();
     return rv_rows;
@@ -1624,6 +2337,8 @@ __declspec(dllexport) int __stdcall VvfpStoryProbeReviveLoadShared(int game, con
     if (history != NULL && rv_count > 0) {
         rv_parse_history(a, history, lstrlenA(history));
     }
+    rv_snaps_from(game, rv_test_snap_file, rv_test_snap_length);
+    rv_merge_pending(game);
     rv_settle(game, a);
     rv_make_rows();
     return rv_rows;
@@ -1678,5 +2393,60 @@ __declspec(dllexport) int __stdcall VvfpStoryProbeReviveRefusal(int game) {
 /* Grave `place` removed as the purchase removes it. */
 __declspec(dllexport) int __stdcall VvfpStoryProbeReviveRemoveGrave(int game, int place) {
     return rv_grave_remove(game, place);
+}
+
+/* The snapshot file the next load reads (a whole file image, `length` bytes; NULL none), as the Cause of Death
+   companion writes it. */
+__declspec(dllexport) void __stdcall VvfpStoryProbeReviveSnapshotFile(const void *data, int length) {
+    rv_test_snap_file = (const unsigned char *)data;
+    rv_test_snap_length = data != NULL && length > 0 ? (DWORD)length : 0;
+}
+
+/* Record `index` of `game` as a departure keeps it (revive_snapshot.h vv_rs_take, the shared code the Cause of
+   Death companion runs), with the patcher's files' fields given (`flags` VV_RS_*).  Into `out`
+   (VV_RS_ENTRY_BYTES); its size, 0 when there is no such record. */
+__declspec(dllexport) int __stdcall VvfpStoryProbeReviveCapture(int game, int index, int flags, int head_look,
+                                                                int presentation, int mask, int traits, void *out) {
+    const ce_adapter *a = ce_adapter_for(game);
+    const unsigned char *r = a != NULL ? a->record(index) : NULL;
+    static vv_rs_entry e;
+    if (r == NULL || out == NULL) {
+        return 0;
+    }
+    vv_rs_begin(&e, game);
+    if (!vv_rs_take(&e, r)) {
+        return 0;
+    }
+    e.flags = (unsigned int)flags;
+    e.head_look = head_look;
+    e.presentation = presentation;
+    e.mask = mask;
+    e.traits = (unsigned int)traits;
+    vv_rs_seal(&e);
+    memcpy(out, &e, sizeof e);
+    return (int)sizeof e;
+}
+
+/* Row `row`'s snapshot: 1 matched (every detail), 0 none, -1 more than one could be them. */
+__declspec(dllexport) int __stdcall VvfpStoryProbeReviveSnapshotOf(int row) {
+    if (row < 0 || row >= rv_rows) {
+        return 0;
+    }
+    return rv_people[rv_order[row]].snap >= 0 ? 1 : rv_people[rv_order[row]].snap_ambiguous ? -1 : 0;
+}
+
+/* Whether the last revival wrote every detail of the snapshot (1) or came back from the logs (0). */
+__declspec(dllexport) int __stdcall VvfpStoryProbeReviveRestored(void) {
+    return rv_last_restored;
+}
+
+/* What the last revival could not write to the patcher's files (RV_MISSED_*), 0 everything. */
+__declspec(dllexport) int __stdcall VvfpStoryProbeReviveMissed(void) {
+    return rv_last_missed;
+}
+
+/* The last revival's puzzle role (New Believers: 12..17 back in the role), 0 none. */
+__declspec(dllexport) int __stdcall VvfpStoryProbeReviveRole(void) {
+    return rv_last_role;
 }
 #endif

@@ -91,6 +91,7 @@
 #include "identity_in_place.h"  /* a former Heathen whose likes change stays one (cod_former.inc) */
 #include "mask_line.h"         /* the mask a roster snapshot keeps */
 #include "heathen_word.h"      /* New Believers' "Faction:" word (Heathen, or the Guardians of Isola one) */
+#include "guardians_role_titles.h"   /* the camp roles' names, for the Took the role record (cod_arrivals.inc) */
 #include "save_folder.h"
 #include "patcher_files.h"
 #include "grave_backfill.h"
@@ -373,7 +374,7 @@ static unsigned int cod_name_hash(const unsigned char *record) {
 /* ---- The log -------------------------------------------------------------- */
 
 enum { LOG_DEATH = 2, LOG_DISAPPEARED = 3, LOG_EPITAPH = 4, LOG_UNACCOUNTED = 5, LOG_ARRIVED = 6,
-       LOG_LOST_BIRTH = 9 };
+       LOG_LOST_BIRTH = 9, LOG_ROLE = 12, LOG_RETIRED = 13 };
 
 typedef int (__stdcall *write_record_fn)(int game, int kind, const void *record, int check,
                                          const char *before, const char *after, int detail);
@@ -745,6 +746,11 @@ static void cie_reset(int slot);
 static void cw_saved(int slot);
 static void cw_reset(int slot);
 static const char *cw_words(unsigned int fingerprint);
+/* cod_revive.inc: every villager's complete record at their departure, for Revive (revive_snapshot.h). */
+static void revive_note(int index, const unsigned char *record);
+static void revive_saved(int slot);
+static void revive_reset(int slot);
+static void revive_tick(void);
 
 #include "cod_roster.inc"
 #include "cod_gone.inc"
@@ -755,6 +761,7 @@ static const char *cw_words(unsigned int fingerprint);
 #include "cod_backfill.inc"
 #include "cod_cie.inc"             /* the Custom Island Event's "Dies" */
 #include "cod_cie_words.inc"       /* ...and its own cause words (VvfpCauseKilledBy) */
+#include "cod_revive.inc"          /* every villager's complete record at their departure, for Revive */
 #include "cod_former.inc"
 #include "cod_arrivals.inc"
 #include "cod_creation_save.inc"   /* the logs at village creation */
@@ -910,6 +917,8 @@ __declspec(dllexport) void __stdcall VvfpCauseTick(int game) {
     if (!cod_pass_starts(g_game)) {
         return;                       /* the same draw pass: the records are as the passes left them */
     }
+    revive_tick();                    /* what the patcher's files keep, while each villager is there (cod_revive.inc):
+                                         once a draw pass, never once a head drawn */
 #ifdef VVFP_TEST
     ++cod_test_passes;
 #endif
@@ -989,6 +998,7 @@ __declspec(dllexport) void __stdcall VvfpCauseVillageReset(int game, int slot) {
         cie_reset(slot);
     }
     cw_reset(slot);
+    revive_reset(slot);
     if (saved_slot == slot) {
         saved_slot = 0;
     }

@@ -477,6 +477,12 @@ ITEMS = (
          "Mushroom worth 100 food.", E),
         ("With the patcher (VV1 Mushroom/Collectible Duplication Cheat, off by default): several children can be "
          "dropped on one mushroom or collectible, and it is multiplied: each of them gets it.", C),
+        # The pick callbacks 0x3E / 0x3F remove the one item object whatever it is by then; Fix Vanilla Bugs reaches
+        # them only when the map's area under the child is the item's own (tests/test_duplicate_pickups.py).
+        ("With the patcher (Fix Vanilla Bugs, on by default): with several children on one item, each takes it only "
+         "when it is standing on it; in the normal game a child picking after the first takes whatever mushroom or "
+         "collectible is out by then, so a new one that has just appeared elsewhere vanishes with nothing for it.",
+         C),
         # The mushroom job 0x45BCA0 queues its award (step 17, callback 39/40) right after the carry step 15
         # (data/builds.json vv2_collectibles_stay_collected: "VVFP Collectibles Stay Collected.dll"); stock: at the
         # end of the trip.

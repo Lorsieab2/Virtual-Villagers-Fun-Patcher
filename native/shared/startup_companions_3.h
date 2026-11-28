@@ -63,6 +63,16 @@ static const char *const VVFP_STARTUP_COMPANIONS_3[] = {
     /* 0.1-10x Divine Energy Gain (New Believers): the believers' Divine Energy earnings times the slider's number (VVFP
        Divine Energy Gain.txt beside it; the owner, 2026-11-25). */
     "VVFP Divine Energy Gain.dll",
+    /* Fix Vanilla Bugs (all five games): the picture no longer freezes when a maximized or full screen game window
+       comes back from being minimized (SDL 2.0.3 never told its renderer the window was back; the owner, 2026-11-26). */
+    "VVFP Window Restore.dll",
+    /* Heathen Tribe Expansion and Evolution (New Believers, v1.35.101): the Heathens' sickness, Heathen doctors, show
+       actions and skill practice (VVFP Heathen Tribe Evolution.txt beside it; the owner, 2026-11-26).  Bit 21. */
+    "VVFP Heathen Life.dll",
+    /* Heathen Tribe Expansion and Evolution, and Former Villagers Among the Heathens Leave Skeletons (New Believers,
+       v1.35.101): the Shrine to the Ancestors, the Heathens' own graves at the mud hut (the owner, 2026-11-26).
+       Bit 22. */
+    "VVFP Heathen Mausoleum.dll",
     /* APPEND ONLY (see above). */
 };
 #define VVFP_STARTUP_COMPANION_COUNT_3 \

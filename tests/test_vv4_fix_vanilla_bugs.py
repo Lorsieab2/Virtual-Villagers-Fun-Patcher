@@ -120,6 +120,10 @@ from test_vv4_effects_survive_save import EFFECTS_FIXES  # noqa: E402
 
 # The frog and effects rows sit before the Nursery School rows (tests/test_nursery_tie_random.py pins those last).
 FIXES = FIXES + FROG_FIXES + EFFECTS_FIXES + nursery_tie_fixes("vv4")
+# A later child dropped on an item already taken removes no other item (tests/test_duplicate_pickups.py).
+from test_duplicate_pickups import dupe_pickup_fixes  # noqa: E402
+
+FIXES = FIXES + dupe_pickup_fixes("vv4")
 
 
 def _vv4():

@@ -193,6 +193,10 @@ FIXES = FIXES + zero_length_line_fixes("vv3")
 from test_overview_map_water import overview_map_water_fixes  # noqa: E402
 
 FIXES = FIXES + overview_map_water_fixes("vv3")
+# A later child dropped on an item already taken removes no other item (tests/test_duplicate_pickups.py).
+from test_duplicate_pickups import dupe_pickup_fixes  # noqa: E402
+
+FIXES = FIXES + dupe_pickup_fixes("vv3")
 TECH_REWARD = 100
 
 # Game addresses.
@@ -358,6 +362,7 @@ class ManifestTests(unittest.TestCase):
         vas += (0x482EE8,)                                                      # the hospital sheet's name
         vas += (0x403EB9, 0x4045A4)                                             # the line drawer (no divide by 0)
         vas += (0x42E285, 0x428F01)                                             # the Overview Map's percent
+        vas += (0x42D5EE,)                                                      # duplicate pickups (vf0's reach)
         self.assertEqual(len(vas), len(FIXES))
         for va, (offset, before, _after) in zip(vas, FIXES):
             self.assertEqual(pe.get_offset_from_rva(va - 0x400000), offset)

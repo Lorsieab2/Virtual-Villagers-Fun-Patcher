@@ -149,7 +149,7 @@ static void edit_after(int site, const unsigned int *regs) {
         if (entry == NULL) {
             return;
         }
-        v345_title(entry, title);
+        v345_grave_words(entry, title, (int)sizeof title);   /* a mud-hut grave named so (New Believers) */
         epitaph_log(entry, 0x19u, *(const int *)(entry + V345[g_game].e_age), title,
                     edit_old, (const char *)epitaph);
     }

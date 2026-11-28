@@ -268,17 +268,20 @@ STOCK_CATALOG_COMPOSITION_RESULTS = {
     # 0x5BF63 and the PE CheckSum differ): a fresh render of the merged catalog.
     # Re-pinned when All Villagers are 18 (the village-wide VVFPOWU payload at 0x7B820) began moving the lived age
     # (+0xE74) and a running conception mark (+0xE8C) with the age (v1.35.97): that payload and the PE CheckSum only.
+    # Re-pinned for Fix Vanilla Bugs' collectible pickup reach (#889, vf0 0x42D5E0's `mov edi, 0x384` at 0x42D5EE):
+    # putting 0x42D5EF..0x42D5F1 back to stock and the previous CheckSum gives the previous digests (D0D8EAE4...,
+    # 745719D7..., DD2876EF...) in all three modes; nothing else differs.
     "stock": (
-        "D0D8EAE4F0D80CBBA8438B2E635CAB62BD54FC5F4E4A51C6702BFA4FF34657DB",
-        "2CCB0D00",
+        "6A74C6C7783E3E61C01669A97A55BC46378DCD5689C367C1913A839F9EFF3B22",
+        "EEFF0C00",
     ),
     "collection_progression": (
-        "745719D7E5DAFD923027471417CBE57D48629F7BD375D2D93894315D7CC91C9C",
-        "2DE40C00",
+        "EAA4F4427868331BB46EA417B8266449D4155DFAB2EA624BF64F8EC34B361F88",
+        "EE180D00",
     ),
     "immediate_fixed": (
-        "DD2876EFC22A8E4ED74627D888A225258DCABA7F7D2F0B8920D45E1EC910CB06",
-        "2B260D00",
+        "0A9AEAB21FC6E8BA6A2A72C60CACBA294D80F33D8869BBD1E5F1412BAE44DF07",
+        "EC5A0D00",
     ),
     # Re-pinned for the hospital tables' Fix Vanilla Bugs bytes (052a1b81), which changed this
     # render on main without re-pinning it: the three digests above are main's own render at

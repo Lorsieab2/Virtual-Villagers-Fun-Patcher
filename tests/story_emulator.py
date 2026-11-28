@@ -268,6 +268,28 @@ class Process:
     def _api_GetTickCount(self):
         return self.tick, 0
 
+    def _api_GetCurrentProcessId(self):
+        # a fixed id: Heathen Aging seeds its own xorshift with it at start (Heathen Tribe Expansion's flag)
+        return 0x1234, 0
+    # A fixed clock (2022-06-20 UTC) for the Revive snapshots' departure and source times; local time is UTC.
+    FILETIME_NOW = 133_000_000_000_000_000
+
+    def _api_GetSystemTimeAsFileTime(self):
+        self.write(self.arg(0), struct.pack("<Q", self.FILETIME_NOW))
+        return 0, 4
+
+    def _api_FileTimeToLocalFileTime(self):
+        self.write(self.arg(1), self.read(self.arg(0), 8))
+        return 1, 8
+
+    def _api_FileTimeToSystemTime(self):
+        import datetime
+        ticks = struct.unpack("<Q", self.read(self.arg(0), 8))[0]
+        t = datetime.datetime(1601, 1, 1) + datetime.timedelta(microseconds=ticks // 10)
+        self.write(self.arg(1), struct.pack("<8H", t.year, t.month, t.isoweekday() % 7, t.day, t.hour, t.minute,
+                                            t.second, t.microsecond // 1000))
+        return 1, 8
+
     def _api_MessageBoxA(self):
         self.messages.append(self.cstring(self.arg(1)))
         return self.message_answer, 16

@@ -1,4 +1,10 @@
-"""Write New Believers' four Heathen aging rows (the owner, 2026-11-22) and their flag files.
+"""Write New Believers' Heathen aging rows (the owner, 2026-11-22) and their flag files.
+
+Since v1.35.101 two of the four rows below ("Heathen Tribe Ages, Dies and Has Children" and "All Heathens Leave
+Skeletons") are folded into "Heathen Tribe Expansion and Evolution" (scripts/build_heathen_tribe_evolution_feature.py,
+which this script runs last); only "Former Villagers Keep Aging Among the Heathens" and "Former Villagers Among the
+Heathens Leave Skeletons" are written here, the latter shipping "VVFP Heathen Mausoleum.dll" too (decision 14), and
+the two skeleton rows no longer exclude each other.  The original notes follow.
 
 * "Former Villagers Keep Aging Among the Heathens" -- "villagers-converted-heathens continue to age (only applies to
   our villagers who converted into heathens)"; off by default, on in Owner's Defaults;
@@ -80,8 +86,8 @@ SITES = (
 )
 
 NOT_SEEN = ("**Not yet seen in a running game** (checked by emulation of the stock executable).")
-SKELETON_NOTE = ("**Only matters with \"Former Villagers Keep Aging Among the Heathens\" or \"Heathen Tribe Ages, Dies "
-                 "and Has Children\" ticked**: in the normal game a Heathen never ages, so never dies of old age.")
+SKELETON_NOTE = ("**Only matters with \"Former Villagers Keep Aging Among the Heathens\" or \"Heathen Tribe Expansion "
+                 "and Evolution\" ticked**: in the normal game a Heathen never ages, so never dies of old age.")
 
 
 def description(row: str) -> str:
@@ -94,8 +100,9 @@ def description(row: str) -> str:
             "Medicine). They still never eat, starve or fall sick: only aging and old age apply. Heathens who were "
             "never your villagers (the camp's own, the puzzle Heathens) do not age. **A former villager who dies is not "
             "replaced**, so leaving your tribe never grows the camp. **What is left when they die "
-            "is decided by \"All Heathens Leave Skeletons\" or \"Former Villagers Among the Heathens Leave "
-            "Skeletons\"**; with neither they simply disappear from the camp, no grave. Every death goes in the "
+            "is decided by \"Heathen Tribe Expansion and Evolution\" or \"Former Villagers Among the Heathens Leave "
+            "Skeletons\"**; with neither they simply disappear from the camp, no grave. **With \"Heathen Tribe "
+            "Expansion and Evolution\" ticked, that row covers everyone: nobody ages twice.** Every death goes in the "
             "Deaths log (cause: old age). **Heathens never "
             "count in the Village Statistics.** **Villagers who left before this patch are recognised by the "
             "parents on their record** (born in your village); one who never had parents there (a founder or "
@@ -111,8 +118,9 @@ def description(row: str) -> str:
             "Heathen whose puzzle is not solved yet is replaced by a new one in the same role, set up as the game "
             "sets that role up (the Heathen Mommy with her infant), so every puzzle can still be solved; a solved "
             "puzzle's Heathen never comes back. **A villager who left your tribe is not replaced when they die**, so "
-            "defections never grow the camp. Heathen couples now and then have children (about once in 20 years for "
-            "each woman from 14 to 45 with a man in the camp), only while at least 10 places stay free for your own "
+            "defections never grow the camp. Heathen couples have children: about one baby for the whole tribe every 24 "
+            "real-life hours on Normal speed (12 on Fast, 40 on Slow), from the women aged 14 to 45 with a man in the "
+            "camp, only while at least 10 places stay free for your own "
             "village's babies; a Heathen child grows up in the camp. **Once The Last Heathen is solved no new Heathen "
             "comes from this patch at all** -- nobody is replaced and no Heathen baby is conceived or born (a "
             "pregnancy already started waits, as in the stock game) -- so the camp empties over time; and **with no "
@@ -128,10 +136,15 @@ def description(row: str) -> str:
     if row == BONES_FORMER_ID:
         return (
             SKELETON_NOTE + " When a villager who had left your tribe dies of old age among the Heathens, they "
-            "leave a skeleton like any villager: your believers bury it with \"Burying the dead\" (once The Buried "
-            "Mausoleum is solved), which gives a normal grave. Other Heathens who die leave nothing. **Cannot be "
-            "ticked with \"All Heathens Leave Skeletons\"**: ticking one unticks the other. The Death record says "
-            "how they died; **Heathens never count in the Village Statistics.**"
+            "leave a skeleton like any villager. Heathens carry it to the mud hut and bury it there, in the Shrine "
+            "to the Ancestors (believers do it, still to the mud hut, when no Heathen can, once The Buried "
+            "Mausoleum is solved); click the mud hut, or drop a villager on it, to see the Shrine's graves on the "
+            "game's own Mausoleum screen. One who rejoined your tribe before dying goes to your Mausoleum as "
+            "always. Other Heathens who die leave nothing. **With \"Heathen Tribe Expansion and Evolution\" "
+            "ticked every Heathen leaves a skeleton anyway, so this row then changes nothing more.** The Death "
+            "record says how they died and names the grave; **Heathens never count in the Village Statistics.** "
+            "The companion is \"VVFP Heathen Mausoleum.dll\"; it keeps its own small file per save, never writes a "
+            "save."
         )
     return (
         SKELETON_NOTE + " Every Heathen who dies of old age leaves a skeleton like any villager: your believers "
@@ -179,7 +192,7 @@ AGING_CHANGES = [
 ]
 TRIBE_CHANGES = [
     "Heathen babies: an aging Heathen woman (+0x1B90 1) aged 280-900 units, not expecting, not the Heathen Mommy "
-    "(role 17), with a living adult Heathen man, conceives on rand(400) == 0 each unit through 0x465E00 forced "
+    "(role 17), with a living adult Heathen man, conceives on rand(240 x the number of such women) == 0 each unit (about one baby for the whole tribe in 240 units, 24 real hours on Normal: the owner, 2026-11-25) through 0x465E00 forced "
     "(father a random adult Heathen man), only while more than 10 records are free and The Last Heathen (puzzle 25) "
     "is unsolved; the twins and triplets counters "
     "0x51D380 / 0x51D384 are put back. 40 units later (+0x1C4C + 0x28 < processed age, the stock birth's rule), once the litter still leaves 10 records free (else the birth waits, the pregnancy kept), each "
@@ -198,8 +211,8 @@ AGING_NON_CHANGES = [
 ]
 SKELETON_CHANGES = {
     BONES_FORMER_ID: ["While this file is shipped, VVFP Heathen Aging.dll lets a former villager who dies of old "
-                      "age among the Heathens leave a body (SetHealth 0x4758B0(0, 2)) for the believers' burial; "
-                      "any other Heathen who dies leaves nothing."],
+                      "age among the Heathens leave a body (SetHealth 0x4758B0(0, 2)) for the burial at the mud hut "
+                      "(below); any other Heathen who dies leaves nothing."],
     BONES_ALL_ID: ["While this file is shipped, VVFP Heathen Aging.dll lets every Heathen who dies of old age leave a "
                    "body (SetHealth 0x4758B0(0, 2)) for the believers' burial; a puzzle Heathen's body gets role 0."],
 }
@@ -223,7 +236,22 @@ def row(row_id: str) -> dict:
     if aging:
         files.append({"source": f"assets/heathen_aging/{DLL_NAME}", "destination": DLL_NAME, "sha256": sha(DLL)})
     files.append({"source": f"assets/heathen_aging/{flag}", "destination": flag, "sha256": sha(FOLDER / flag)})
-    conflicts = {BONES_FORMER_ID: [BONES_ALL_ID], BONES_ALL_ID: [BONES_FORMER_ID]}.get(row_id, [])
+    detours = [
+        {"va": f"0x{va:X}", "stock_bytes": stock,
+         "written_bytes": "E9XXXXXXXX"
+         + "90" * (len(stock) // 2 - 5),
+         "routine": what, "installed_by": INSTALLED_BY}
+        for va, stock, what in SITES
+    ] if aging else []
+    changes = (AGING_CHANGES + (TRIBE_CHANGES if row_id == TRIBE_ID else [])) if aging else SKELETON_CHANGES[row_id]
+    if row_id == BONES_FORMER_ID:
+        # Decision 14: the Shrine to the Ancestors also ships with this row on its own.
+        import build_heathen_tribe_evolution_feature as evo
+        source = evo.DLL_SOURCES[evo.MAUSOLEUM_DLL]
+        files.insert(0, {"source": source.relative_to(ROOT).as_posix(), "destination": evo.MAUSOLEUM_DLL,
+                         "sha256": sha(source)})
+        detours = evo.detours(evo.MAUSOLEUM_SITES, evo.MAUSOLEUM_DLL)
+        changes = changes + evo.MAUSOLEUM_CHANGES
     return {
         "id": row_id,
         "enabled": True,
@@ -234,21 +262,21 @@ def row(row_id: str) -> dict:
         "description": description(row_id),
         "output_tag": TAGS[row_id],
         "dependencies": [],
-        "conflicts": conflicts,
-        "behavior_changes": (AGING_CHANGES + (TRIBE_CHANGES if row_id == TRIBE_ID else [])) if aging
-        else SKELETON_CHANGES[row_id],
+        "conflicts": [],
+        "behavior_changes": changes,
         "explicit_non_changes": AGING_NON_CHANGES if aging else [
             "Nothing happens unless a Heathen aging row is ticked: in the stock game no Heathen dies of old age."],
         "companion_files": files,
         "patches": [],
-        "runtime_detours": [
-            {"va": f"0x{va:X}", "stock_bytes": stock,
-             "written_bytes": "E9XXXXXXXX"
-             + "90" * (len(stock) // 2 - 5),
-             "routine": what, "installed_by": INSTALLED_BY}
-            for va, stock, what in SITES
-        ] if aging else [],
+        "runtime_detours": detours,
     }
+
+
+# The rows written today.  "Heathen Tribe Ages, Dies and Has Children" and "All Heathens Leave Skeletons" were folded
+# into "Heathen Tribe Expansion and Evolution" (v1.35.101; scripts/build_heathen_tribe_evolution_feature.py): their
+# flags are still read by the companion (an old patch set) and removed by a re-patch (src/vv_fun_patcher.py
+# RETIRED_PATCHER_FILES), but no row ships them.
+WRITTEN_ROWS = (FORMER_ID, BONES_FORMER_ID)
 
 
 def main() -> None:
@@ -256,13 +284,14 @@ def main() -> None:
         subprocess.run(["powershell", "-NoProfile", "-ExecutionPolicy", "Bypass", "-File",
                         str(ROOT / "scripts" / "build_vvfp_heathen_aging.ps1")], check=True)
     FOLDER.mkdir(parents=True, exist_ok=True)
-    for row_id, flag in FLAGS.items():
-        (FOLDER / flag).write_bytes(flag_text(row_id))
-    (FOLDER / EVENTS_FLAG).write_bytes(flag_text(EVENTS_ID))   # its row: build_island_event_content_features.py
-    for row_id in FLAGS:
+    sys.path.insert(0, str(ROOT / "scripts"))
+    for row_id in WRITTEN_ROWS:
+        (FOLDER / FLAGS[row_id]).write_bytes(flag_text(row_id))
         out = ROOT / "data" / f"{row_id}_feature.json"
         out.write_text(json.dumps(row(row_id), indent=2) + "\n", encoding="utf-8", newline="\n")
         print("wrote", out.relative_to(ROOT))
+    import build_heathen_tribe_evolution_feature as evo   # the row that ships the companion with the tribe's flag
+    evo.main()
 
 
 if __name__ == "__main__":

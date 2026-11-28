@@ -602,10 +602,8 @@ static int pc_merge(int pi, int optional_new, unsigned char *map) {
         int r = pc_role_of(name);
         pc_role *role;
         if (special == PC_SPECIAL_CARRIER) {
-            min_age = min_age < 18 ? 18 : min_age;          /* a carrier: 18 or more, born female unless flag bit 5 */
-            if (!(s[9] & PC_S_ANY_BIRTH_SEX)) {
-                sex = 2;
-            }
+            min_age = min_age < 18 ? 18 : min_age;          /* a carrier: 18 or more, of any sex (the owner,
+                                                               2026-11-26; flag bit 5 is no longer needed) */
             special = 0;
         }
         if (band == 1u) {

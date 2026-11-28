@@ -437,6 +437,11 @@ FIX_PERCENT |= {off for off, _, _ in nursery_tie_fixes("vv4")}
 FIX_PERCENT |= {0xB9F0C, 0xB9F1C}
 # ... and the clean body's sparkles beyond the rain's 101 slots.
 FIX_PERCENT |= {0x1CEDB}
+# ... and the collectible pickup's reach (tests/test_duplicate_pickups.py: vf0 0x4139A0's `mov ebx, 0x384` at
+# 0x4139AE), kept with 256 Villagers: the manager's two slots and vf0 are untouched by the 256 rows.
+from test_duplicate_pickups import dupe_pickup_fixes  # noqa: E402
+
+FIX_PERCENT |= {off for off, _, _ in dupe_pickup_fixes("vv4")}
 BLOCK_CHECK, BLOCK_OBJECT, BLOCK_SIZE_FN = 0x4387A0, 0x4D8BF8, 0x438770
 
 

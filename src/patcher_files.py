@@ -159,12 +159,12 @@ PATCHER_READS: frozenset[str] = frozenset({
     "VVFP Island Events Scale Stored.txt",
     # The Heathen aging rows (New Believers): which rows are ticked, read by VVFP Heathen Aging.dll at start.
     "VVFP Heathen Aging Former.txt",
-    "VVFP Heathen Aging Tribe.txt",
     "VVFP Heathen Skeletons Former.txt",
-    "VVFP Heathen Skeletons All.txt",
-    # Heathens can be selected in Island Events/Heathen-Exclusive Events: the same companion carries island events'
-    # Heathen deaths and births.
-    "VVFP Heathen Aging Events.txt",
+    # (Since v1.35.101 no row ships the Tribe, Skeletons All and Events flags: the companions still honour them, and a
+    # re-patch removes an older patcher's copies -- vv_fun_patcher.RETIRED_PATCHER_FILES; this one stands for
+    # them.)  Heathen Tribe Expansion and Evolution:
+    # read by "VVFP Heathen Aging.dll", "VVFP Heathen Life.dll" and "VVFP Heathen Mausoleum.dll" at start.
+    "VVFP Heathen Tribe Evolution.txt",
     # A New Home's The Golden Child May Be Born Female (50:50): a flag file whose presence beside the companions tells
     # "VVFP Gender Presentation.dll" to keep the sex the creator draws for a new Golden Child
     # (vvfp_gender_presentation.c).
@@ -228,6 +228,14 @@ PATCHER_SETTINGS: frozenset[str] = frozenset({
     "VVFP Tech Gain.txt",
     "VVFP Skill Success.txt",
     "VVFP Age Speed.txt",
+    # The two 0.1x-10x sliders of v1.35.101 (RUNTIME_SLIDERS), like the five above.
+    "VVFP Weather Frequency.txt",
+    "VVFP Divine Energy Gain.txt",
+    # Heathen Tribe Expansion and Evolution's Settings window (src/vv_fun_patcher.py _write_heathen_evolution_choices):
+    # the two sliders and the options, beside "VVFP Heathen Aging.dll" (native/shared/heathen_evo.h).
+    "VVFP Heathen Tribe Births.txt",
+    "VVFP Heathen Arrivals.txt",
+    "VVFP Heathen Options.txt",
 })
 
 _IN_PLACE = {key.casefold() for key in GAME_READS_IN_PLACE}

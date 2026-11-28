@@ -63,8 +63,8 @@ static const tr_patch_site TR_PATCH_SITES_VV4[] = {
 };
 
 static const tr_patch_site TR_PATCH_SITES_VV5[] = {
-    { 0x4946DDu, 0x526981FAu },
     { 0x494818u, 0x38469AFCu },
     { 0x494C60u, 0x06D2505Bu },
+    { 0x4C5F80u, 0x31516D44u },
     { 0 },
 };

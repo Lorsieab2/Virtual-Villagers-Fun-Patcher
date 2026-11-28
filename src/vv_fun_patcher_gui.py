@@ -84,6 +84,16 @@ from vv_fun_patcher import (
     RUNTIME_SLIDER_RANGE,
     RUNTIME_SLIDERS,
     UNICODE_FONT_DEFAULT_FACE,
+    HEATHEN_ARRIVALS_DEFAULT,
+    HEATHEN_ARRIVALS_OWNERS_DEFAULT,
+    HEATHEN_ARRIVALS_RANGE,
+    HEATHEN_BIRTHS_DEFAULT,
+    HEATHEN_BIRTHS_RANGE,
+    HEATHEN_EVOLUTION_ID,
+    HEATHEN_SHOW_PERCENT_DEFAULT,
+    HEATHEN_SHOW_PERCENT_RANGE,
+    migrated_fun_patch_ids,
+    set_heathen_evolution,
     conflict_ids,
     multiplier_text,
     parse_multiplier,
@@ -182,13 +192,14 @@ ISLAND_EVENT_NOTES_IDS = ["vv%d_island_event_content_notes" % game for game in r
 # No Safeguards for Island Events (and Additional Events too) ("for masochists"; the owner, 2026-11-15): off everywhere, Owner's Defaults and Select All too.
 ISLAND_EVENT_ANY_TIME_IDS = ["vv%d_island_events_any_time" % game for game in range(1, 6)]
 ISLAND_EVENT_FILTER_IDS = ["vv%d_island_event_filter_f%02d" % (game, n) for game in range(1, 6) for n in range(1, 29)]
-# Heathens can be selected in Island Events/Heathen-Exclusive Events (New Believers; the owner, 2026-11-23): off by
-# default, on in Owner's Defaults, off in Select All (every new option of this round: on in Owner's Defaults only).
-HEATHENS_IN_ISLAND_EVENTS_IDS = ["vv5_heathens_in_island_events"]
+# Heathen Tribe Expansion and Evolution (New Believers, v1.35.101; the owner, 2026-11-25: "the heathen expansion =
+# default on in owners defaults"): off by default and in Select All, on in Owner's Defaults.  It folds Heathen Tribe
+# Ages, Dies and Has Children, All Heathens Leave Skeletons and Heathens can be selected in Island Events/Heathen-
+# Exclusive Events (vv_fun_patcher.FOLDED_FUN_PATCH_IDS: a saved selection naming any of them ticks it).
+HEATHEN_EVOLUTION_IDS = [HEATHEN_EVOLUTION_ID]
 # Each game's Island Events section holds these rows (by the id after "vvN_"), in this order, and the filters below
 # them; the main list leaves them out.
-ISLAND_EVENT_SECTION_ROWS = ("more_island_events", "isola_grand_event_collection", "island_event_content_notes",
-                             "heathens_in_island_events")
+ISLAND_EVENT_SECTION_ROWS = ("more_island_events", "isola_grand_event_collection", "island_event_content_notes")
 # "More Island Events and Creator" (the owner, 2026-11-16): one row per game for every added island event, its
 # tick ticking (and unticking) these rows together; each keeps its own id, defaults and rules as a setting inside it,
 # so saved settings and installed games need no migration.  The event creator and the partner-carry setting sit
@@ -210,7 +221,23 @@ PATCH_SETTINGS_BUTTON = "Settings..."
 # guides in it (the More Island Events and Creator row has its own, _build_mie_creator).
 PATCH_SETTINGS_ROWS = {
     "unicode_font": ("_fill_unicode_font_settings", ("unicode_font",)),
+    # Heathen Tribe Expansion and Evolution (New Believers): its two sliders and two options.
+    "heathen_tribe_evolution": ("_fill_heathen_evolution_settings",
+                                ("heathen_tribe_births_multiplier", "heathen_arrivals_multiplier",
+                                 "heathen_show_percent", "heathen_keep_blue")),
 }
+# Heathen Tribe Expansion and Evolution's Settings window (_fill_heathen_evolution_settings): its words, shown in the
+# player's language (the template rows vvfp.gui/heathen_evolution.*, scripts/build_patch_text_inventory.py).
+HEATHEN_SETTINGS_INTRO = (
+    "One number each, used only while Heathen Tribe Expansion and Evolution is ticked. Patch again after a change. "
+    "A growing camp makes The Last Heathen harder to reach, or impossible.")
+HEATHEN_BIRTHS_LABEL = "0.1-10x Heathen Tribe Births:"
+HEATHEN_ARRIVALS_TICK = "New Heathens arrive"
+HEATHEN_ARRIVALS_LABEL = "0-10x New Heathen Arrivals:"
+HEATHEN_SHOW_LABEL = "Show actions (% of an idle Heathen's choices):"
+HEATHEN_KEEP_BLUE_LABEL = "Keep every new Heathen blue (no orange or red masks for arrivals and babies)"
+HEATHEN_SETTINGS_TEXTS = (HEATHEN_SETTINGS_INTRO, HEATHEN_BIRTHS_LABEL, HEATHEN_ARRIVALS_TICK, HEATHEN_ARRIVALS_LABEL,
+                          HEATHEN_SHOW_LABEL, HEATHEN_KEEP_BLUE_LABEL)
 # No Safeguards for Island Events (and Additional Events too) sits under Classic VV Difficulty in the main list (the
 # owner, 2026-11-15), with its title colour -- never ticked by it (off everywhere).
 NO_SAFEGUARDS_TAIL = "island_events_any_time"
@@ -299,11 +326,10 @@ FOG_NO_RESTRICTIONS_ID = "vv5_fog_of_doom_no_restrictions"
 DEVOTION_FAITH_ID = "vv5_devotion_builds_faith"
 # Esteemed Elders in Every Game (A New Home, The Lost Children, The Tree of Life; the owner, 2026-11-22).
 ESTEEMED_ELDERS_IDS = ["vv1_esteemed_elders", "vv2_esteemed_elders", "vv4_esteemed_elders", "vv5_esteemed_elders"]
-# The four Heathen aging rows (New Believers; the owner, 2026-11-22).
+# The Heathen aging rows kept separate (New Believers; the owner, 2026-11-22; the other two are folded into Heathen
+# Tribe Expansion and Evolution since v1.35.101).
 FORMER_VILLAGERS_AGE_ID = "vv5_former_villagers_keep_aging"
-HEATHEN_TRIBE_AGES_ID = "vv5_heathen_tribe_ages"
 FORMER_SKELETONS_ID = "vv5_former_villager_heathens_leave_skeletons"
-ALL_SKELETONS_ID = "vv5_all_heathens_leave_skeletons"
 # Max Divine Energy Continues to Increase (New Believers; the owner, 2026-11-25).
 DIVINE_ENERGY_CAP_ID = "vv5_max_divine_energy_increases"
 # What Owner's Defaults sets both sliders to (the owner, 2026-11-07: "set the sliders to 2x").
@@ -411,9 +437,9 @@ DEFAULT_OFF_FUN_PATCH_IDS = frozenset(
     # The island events' content controls (the owner, 2026-11-15): Content Notes on in Owner's
     # Defaults only; the content filters off everywhere (OWNERS_DEFAULT_OFF_FUN_PATCH_IDS too).
     + ISLAND_EVENT_NOTES_IDS + ISLAND_EVENT_FILTER_IDS + ISLAND_EVENT_ANY_TIME_IDS
-    # Heathens can be selected in Island Events/Heathen-Exclusive Events (New Believers; the owner, 2026-11-23): off
-    # here and in Select All, on in Owner's Defaults.
-    + HEATHENS_IN_ISLAND_EVENTS_IDS
+    # Heathen Tribe Expansion and Evolution (New Believers; the owner, 2026-11-25): off here and in Select All, on in
+    # Owner's Defaults.
+    + HEATHEN_EVOLUTION_IDS
     # Change Sex and Gender Presentation (all five games; the owner, 2026-11-15): every new option "ON in Owner's
     # Defaults and OFF everywhere else" -- off here and in Select All.
     + ["vv%d_gender_presentation" % game for game in range(1, 6)]
@@ -460,9 +486,9 @@ DEFAULT_OFF_FUN_PATCH_IDS = frozenset(
     + ESTEEMED_ELDERS_IDS
     # The Heathen aging rows (New Believers; the owner, 2026-11-23): Former Villagers Keep Aging Among the Heathens
     # and Former Villagers Among the Heathens Leave Skeletons off by default and in Select All, on in Owner's
-    # Defaults; Heathen Tribe Ages, Dies and Has Children off everywhere (OWNERS_DEFAULT_OFF_FUN_PATCH_IDS too);
-    # All Heathens Leave Skeletons, the skeleton rows' alternative, off through ALTERNATIVE_OFF_FUN_PATCH_IDS.
-    + [FORMER_VILLAGERS_AGE_ID, HEATHEN_TRIBE_AGES_ID, FORMER_SKELETONS_ID]
+    # Defaults.  (Heathen Tribe Ages, Dies and Has Children and All Heathens Leave Skeletons are folded into Heathen
+    # Tribe Expansion and Evolution since v1.35.101.)
+    + [FORMER_VILLAGERS_AGE_ID, FORMER_SKELETONS_ID]
     # Revive Buried/Disappeared Villagers (all five games; the owner, 2026-11-22): off by default, "ON in Owner's Defaults"
     # (100,000 tech points while the story upgrades cost tech points); Owner's Defaults ticks it like every default-off patch it does not name.
     + ["vv%d_revive_from_graves" % game for game in range(1, 6)]
@@ -515,9 +541,8 @@ OWNERS_DEFAULT_OFF_FUN_PATCH_IDS = frozenset(
     # The owner (2026-11-15): the island events' content filters are off everywhere, Owner's Defaults too, and so is
     # No Safeguards for Island Events (and Additional Events too).
     + ISLAND_EVENT_FILTER_IDS + ISLAND_EVENT_ANY_TIME_IDS
-    # The owner (2026-11-23): Heathen Tribe Ages, Dies and Has Children and All Heathens Leave Skeletons are off
-    # in Owner's Defaults too (Former Villagers Among the Heathens Leave Skeletons is ticked there).
-    + [HEATHEN_TRIBE_AGES_ID, ALL_SKELETONS_ID]
+    # (Heathen Tribe Expansion and Evolution is NOT here: the owner, 2026-11-25, "default on in owners defaults".  The
+    # rows it folds, Heathen Tribe Ages, Dies and Has Children and All Heathens Leave Skeletons, were here.)
     # (No Restrictions on Fog of Doom Conversions is NOT here: the owner, 2026-11-20, turned it on in Owner's
     # Defaults; it stays off by default and in Select All.)
 )
@@ -536,8 +561,8 @@ SELECT_ALL_OFF_FUN_PATCH_IDS = frozenset(
     # The island events' content controls (the owner, 2026-11-15): notes on in Owner's Defaults
     # only, the filters off everywhere.
     + ISLAND_EVENT_NOTES_IDS + ISLAND_EVENT_FILTER_IDS + ISLAND_EVENT_ANY_TIME_IDS
-    # Heathens can be selected in Island Events/Heathen-Exclusive Events: on in Owner's Defaults only (2026-11-23).
-    + HEATHENS_IN_ISLAND_EVENTS_IDS
+    # Heathen Tribe Expansion and Evolution: on in Owner's Defaults only (the owner, 2026-11-25).
+    + HEATHEN_EVOLUTION_IDS
     # Change Sex and Gender Presentation: on in Owner's Defaults only (the owner, 2026-11-15).
     + ["vv%d_gender_presentation" % game for game in range(1, 6)]
     # More Frequent Island Events: on in Owner's Defaults only (the owner, 2026-11-15).
@@ -555,7 +580,7 @@ SELECT_ALL_OFF_FUN_PATCH_IDS = frozenset(
     # Esteemed Elders in Every Game: on in Owner's Defaults only (the owner, 2026-11-22).
     + ESTEEMED_ELDERS_IDS
     # The Heathen aging rows (New Believers): on in Owner's Defaults only (the owner, 2026-11-22).
-    + [FORMER_VILLAGERS_AGE_ID, HEATHEN_TRIBE_AGES_ID, FORMER_SKELETONS_ID]
+    + [FORMER_VILLAGERS_AGE_ID, FORMER_SKELETONS_ID]
     # Max Divine Energy Continues to Increase: on in Owner's Defaults only (the owner, 2026-11-25).
     + [DIVINE_ENERGY_CAP_ID]
     # (Memorial Actions Can Also Occur at the Heathen Hovel is NOT here: the owner (2026-11-08), "must be ticked
@@ -575,10 +600,8 @@ del _game
 # both move "Playing in the dirt"; ticking one unticks the other.
 UNTICKING_CONFLICT_IDS["vv5_puddles_by_the_lake"] = "vv5_playing_in_the_dirt_spot"
 UNTICKING_CONFLICT_IDS["vv5_playing_in_the_dirt_spot"] = "vv5_puddles_by_the_lake"
-# New Believers (the owner, 2026-11-22): All Heathens Leave Skeletons and Former Villagers Among the Heathens Leave
-# Skeletons decide the same bodies; ticking one unticks the other.
-UNTICKING_CONFLICT_IDS[ALL_SKELETONS_ID] = FORMER_SKELETONS_ID
-UNTICKING_CONFLICT_IDS[FORMER_SKELETONS_ID] = ALL_SKELETONS_ID
+# (New Believers' All Heathens Leave Skeletons and Former Villagers Among the Heathens Leave Skeletons unticked each
+# other until v1.35.101 folded the first into Heathen Tribe Expansion and Evolution: that conflict is dropped.)
 
 # A saved selection restored with both of such a pair ticked keeps the value and unticks the key.  Before
 # 2026-11-08 Move the "Playing in the dirt" Spot and Puddle Play Moves to the Lake Shore were both on by default,
@@ -588,8 +611,11 @@ RESTORED_SELECTION_PREFERS = {"vv5_playing_in_the_dirt_spot": "vv5_puddles_by_th
 
 
 def restored_fun_selection(saved: list) -> list:
-    """A saved patch list as the window restores it: of a pair in RESTORED_SELECTION_PREFERS that are both in it,
-    only the preferred one stays."""
+    """A saved patch list as the window restores it: a folded row's old id is the row that folds it
+    (vv_fun_patcher.FOLDED_FUN_PATCH_IDS: Heathen Tribe Ages, Dies and Has Children, All Heathens Leave Skeletons and
+    Heathens can be selected in Island Events/Heathen-Exclusive Events are Heathen Tribe Expansion and Evolution);
+    then, of a pair in RESTORED_SELECTION_PREFERS that are both in it, only the preferred one stays."""
+    saved = migrated_fun_patch_ids(item for item in saved if isinstance(item, str))
     ids = set(saved)
     return [patch_id for patch_id in saved
             if not (patch_id in RESTORED_SELECTION_PREFERS and RESTORED_SELECTION_PREFERS[patch_id] in ids)]
@@ -686,6 +712,19 @@ def saved_island_frequency_multiplier(settings: dict):
     """More Frequent Island Events' multiplier a settings file holds (saved_multiplier; default 4)."""
     return saved_multiplier(settings, "island_frequency_multiplier", ISLAND_FREQUENCY_MULTIPLIER_RANGE,
                             ISLAND_FREQUENCY_MULTIPLIER_DEFAULT)
+
+
+def saved_heathen_evolution(settings: dict) -> tuple:
+    """Heathen Tribe Expansion and Evolution's settings a settings file holds: (births 0.1-10, arrivals 0-10, show
+    percent 1-100, keep blue), each its default when missing or not readable (1, 0, 25, False)."""
+    settings = settings if isinstance(settings, dict) else {}
+    births = saved_multiplier(settings, "heathen_tribe_births_multiplier", HEATHEN_BIRTHS_RANGE, HEATHEN_BIRTHS_DEFAULT)
+    arrivals = saved_multiplier(settings, "heathen_arrivals_multiplier", HEATHEN_ARRIVALS_RANGE,
+                                HEATHEN_ARRIVALS_DEFAULT)
+    show = settings.get("heathen_show_percent", HEATHEN_SHOW_PERCENT_DEFAULT)
+    if isinstance(show, bool) or not isinstance(show, int) or show not in HEATHEN_SHOW_PERCENT_RANGE:
+        show = HEATHEN_SHOW_PERCENT_DEFAULT
+    return births, arrivals, show, settings.get("heathen_keep_blue") is True
 
 
 def saved_runtime_slider_multiplier(settings: dict, key: str):
@@ -1768,6 +1807,15 @@ class App(tk.Tk):
             # companion.
             self.runtime_slider_vars = {slider.key: tk.DoubleVar(value=RUNTIME_SLIDER_DEFAULT)
                                         for slider in RUNTIME_SLIDERS}
+            # Heathen Tribe Expansion and Evolution's Settings window (New Believers, v1.35.101): the births slider
+            # (1 unless moved), the arrivals slider -- a tick "New Heathens arrive" and its number (0 = none: off in
+            # Default Patches, on at 1 in Owner's Defaults) -- the show-action percent (25) and "Keep every new
+            # Heathen blue" (off).  Made before the settings are read so the saved ones are shown.
+            self.heathen_births_var = tk.DoubleVar(value=HEATHEN_BIRTHS_DEFAULT)
+            self.heathen_arrivals_on_var = tk.BooleanVar(value=HEATHEN_ARRIVALS_DEFAULT > 0)
+            self.heathen_arrivals_var = tk.DoubleVar(value=HEATHEN_ARRIVALS_DEFAULT or HEATHEN_ARRIVALS_OWNERS_DEFAULT)
+            self.heathen_show_var = tk.IntVar(value=HEATHEN_SHOW_PERCENT_DEFAULT)
+            self.heathen_keep_blue_var = tk.BooleanVar(value=False)
             self.pair_rules: dict = {}  # Village Matchmaker's ticks, remembered
             self.tree_window: dict = {}  # the Family Tree Maker window's size and panes
             self.tree_style: dict = {}   # the Family Tree Maker's look, for the next new tree
@@ -2083,6 +2131,11 @@ class App(tk.Tk):
         # patch writes follows it however it is moved.
         # (the saved number was set for the patch when the settings were read)
         self.solidarity_var.trace_add("write", lambda *_args: self._solidarity_changed())
+        # Heathen Tribe Expansion and Evolution's settings (its Settings window): what the patch writes follows them.
+        for variable in (self.heathen_births_var, self.heathen_arrivals_on_var, self.heathen_arrivals_var,
+                         self.heathen_show_var, self.heathen_keep_blue_var):
+            variable.trace_add("write", lambda *_args: self._heathen_evolution_changed())
+        self._heathen_evolution_changed()   # the saved settings, loaded before the window was built
         # Each setting stays whole (its label, box or slider and "?" together) and goes to the next line
         # when it no longer fits; the row asks only for its widest setting, so it never widens the page.
         vv_genealogy_window.flow_row(fun_settings, natural=False)
@@ -3197,6 +3250,8 @@ class App(tk.Tk):
         """
         for patch_id, variable in self.fun_patch_vars.items():
             variable.set(default_fun_patch_selection(patch_id))
+        # Heathen Tribe Expansion and Evolution's settings as the defaults leave them: no new arrivals (decision 3).
+        App._set_heathen_evolution_defaults(self, owners=False)
         self._last_fun_selection = set()
         self._fun_patch_changed()
 
@@ -3221,6 +3276,8 @@ class App(tk.Tk):
         # The 0.1x-10x sliders at 1, the normal game (their rows are ticked there; the owner, 2026-11-17).
         for variable in getattr(self, "runtime_slider_vars", {}).values():
             variable.set(RUNTIME_SLIDER_DEFAULT)
+        # Heathen Tribe Expansion and Evolution (ticked there): births 1x, new arrivals 1x (decision 3).
+        App._set_heathen_evolution_defaults(self, owners=True)
         # Prerequisites yes, co-ticks no: Story / Cheat Upgrades must not tick its cost row back on (the owner,
         # 2026-11-07: cost row off in Owner's Defaults).
         self._last_fun_selection = set()
@@ -3455,6 +3512,13 @@ class App(tk.Tk):
             self.partner_carry_var.set(saved_partner_carry(data))
         for key, variable in getattr(self, "runtime_slider_vars", {}).items():
             variable.set(saved_runtime_slider_multiplier(data, key))
+        if hasattr(self, "heathen_births_var"):
+            births, arrivals, show, blue = saved_heathen_evolution(data)
+            self.heathen_births_var.set(births)
+            self.heathen_arrivals_on_var.set(arrivals > 0)
+            self.heathen_arrivals_var.set(arrivals if arrivals > 0 else HEATHEN_ARRIVALS_OWNERS_DEFAULT)
+            self.heathen_show_var.set(show)
+            self.heathen_keep_blue_var.set(blue)
         if hasattr(self, "solidarity_var"):
             self.solidarity_var.set(float(set_village_solidarity_strength(saved_solidarity_strength(data))))
         saved_all = data.get("all_game_folders", data.get("all_game_exes", {}))
@@ -3512,6 +3576,11 @@ class App(tk.Tk):
             "partner_carry_percent": (App._partner_carry(self) if hasattr(self, "partner_carry_var")
                                       else PARTNER_CARRY_DEFAULT),
             **{f"{slider.key}_multiplier": App._runtime_slider_number(self, slider.key) for slider in RUNTIME_SLIDERS},
+            # Heathen Tribe Expansion and Evolution's Settings window (arrivals 0: none).
+            "heathen_tribe_births_multiplier": App._heathen_births(self),
+            "heathen_arrivals_multiplier": App._heathen_arrivals(self),
+            "heathen_show_percent": App._heathen_show_percent(self),
+            "heathen_keep_blue": App._heathen_keep_blue(self),
             "village_solidarity_strength": village_solidarity_strength(),
             "fun_patches": self._selected_fun_patch_ids(),
             "pair_rules": self.pair_rules,
@@ -3586,6 +3655,110 @@ class App(tk.Tk):
     def _runtime_slider_changed(self, key: str) -> None:
         """A 0.1x-10x slider moved: the next patch writes its number beside its companion."""
         set_runtime_slider_multiplier(key, App._runtime_slider_number(self, key))
+
+    def _heathen_births(self):
+        """"0.1-10x Heathen Tribe Births": the slider's number, kept within 0.1 to 10."""
+        return App._slider_number(getattr(self, "heathen_births_var", None), HEATHEN_BIRTHS_RANGE,
+                                  HEATHEN_BIRTHS_DEFAULT)
+
+    def _heathen_arrivals(self):
+        """"0-10x New Heathen Arrivals": 0 (none) while "New Heathens arrive" is unticked, else the slider's number
+        (0.1 to 10)."""
+        try:
+            on = bool(self.heathen_arrivals_on_var.get())
+        except (tk.TclError, AttributeError):
+            on = HEATHEN_ARRIVALS_DEFAULT > 0
+        if not on:
+            return 0
+        return App._slider_number(getattr(self, "heathen_arrivals_var", None), HEATHEN_BIRTHS_RANGE,
+                                  HEATHEN_ARRIVALS_OWNERS_DEFAULT)
+
+    def _heathen_show_percent(self) -> int:
+        """The show-action percent, 1 to 100 (25 unless moved)."""
+        try:
+            value = int(self.heathen_show_var.get())
+        except (tk.TclError, ValueError, AttributeError):
+            value = HEATHEN_SHOW_PERCENT_DEFAULT
+        return value if value in HEATHEN_SHOW_PERCENT_RANGE else HEATHEN_SHOW_PERCENT_DEFAULT
+
+    def _heathen_keep_blue(self) -> bool:
+        try:
+            return bool(self.heathen_keep_blue_var.get())
+        except (tk.TclError, AttributeError):
+            return False
+
+    def _heathen_evolution_changed(self) -> None:
+        """A Heathen Tribe Expansion and Evolution setting changed: the next patch writes it beside the companion."""
+        set_heathen_evolution(births=App._heathen_births(self), arrivals=App._heathen_arrivals(self),
+                              show_percent=App._heathen_show_percent(self), keep_blue=App._heathen_keep_blue(self))
+
+    def _set_heathen_evolution_defaults(self, owners: bool) -> None:
+        """The row's settings as Default Patches (arrivals none) or Owner's Defaults (arrivals at 1) leave them:
+        births 1, show actions 25%, masks the owner's mix (decision 3)."""
+        if not hasattr(self, "heathen_births_var"):
+            return
+        self.heathen_births_var.set(HEATHEN_BIRTHS_DEFAULT)
+        self.heathen_arrivals_var.set(HEATHEN_ARRIVALS_OWNERS_DEFAULT)
+        self.heathen_arrivals_on_var.set(owners)
+        self.heathen_show_var.set(HEATHEN_SHOW_PERCENT_DEFAULT)
+        self.heathen_keep_blue_var.set(False)
+
+    def _fill_heathen_evolution_settings(self, frame) -> None:
+        """Heathen Tribe Expansion and Evolution's settings (New Believers): the births and arrivals sliders, the
+        show-action percent and "Keep every new Heathen blue", each saved at once and written beside the companions
+        at the next patch."""
+        ttk.Label(frame, text=gui_text(HEATHEN_SETTINGS_INTRO, 5), wraplength=640, justify="left").pack(
+            anchor="w", pady=(4, 6))
+        births = ttk.Frame(frame)
+        births.pack(fill="x", anchor="w", pady=2)
+        self._multiplier_slider(births, gui_text(HEATHEN_BIRTHS_LABEL, 5), self.heathen_births_var,
+                                HEATHEN_BIRTHS_RANGE, "heathen_tribe_births_multiplier")
+        arrivals = ttk.Frame(frame)
+        arrivals.pack(fill="x", anchor="w", pady=2)
+        ttk.Checkbutton(arrivals, text=gui_text(HEATHEN_ARRIVALS_TICK, 5), variable=self.heathen_arrivals_on_var,
+                        command=self._save_settings).pack(side="left", padx=(0, 8))
+        scale, box = self._multiplier_slider(arrivals, gui_text(HEATHEN_ARRIVALS_LABEL, 5), self.heathen_arrivals_var,
+                                             HEATHEN_BIRTHS_RANGE, "heathen_arrivals_multiplier")
+
+        def grey(*_args) -> None:
+            try:
+                on = bool(self.heathen_arrivals_on_var.get())
+                scale.configure(state="normal" if on else "disabled")
+                box.state(["!disabled"] if on else ["disabled"])
+            except tk.TclError:
+                pass
+
+        trace = self.heathen_arrivals_on_var.trace_add("write", grey)
+        arrivals.bind("<Destroy>", lambda event: (event.widget is arrivals) and self._forget_trace(
+            self.heathen_arrivals_on_var, trace), add="+")
+        grey()
+        show = ttk.Frame(frame)
+        show.pack(fill="x", anchor="w", pady=(6, 2))
+        getattr(show.winfo_toplevel(), "_vvfp_closers", []).append(
+            lambda: (self.heathen_show_var.set(self._heathen_show_percent()), self._save_settings()))
+        ttk.Label(show, text=gui_text(HEATHEN_SHOW_LABEL, 5)).pack(side="left", padx=(0, 4))
+        tk.Scale(show, variable=self.heathen_show_var, orient="horizontal", from_=HEATHEN_SHOW_PERCENT_RANGE[0],
+                 to=HEATHEN_SHOW_PERCENT_RANGE[-1], resolution=1, length=160, showvalue=False,
+                 command=lambda _value: self._save_settings()).pack(side="left")
+        entry = ttk.Spinbox(show, from_=HEATHEN_SHOW_PERCENT_RANGE[0], to=HEATHEN_SHOW_PERCENT_RANGE[-1],
+                            increment=1, width=5, textvariable=self.heathen_show_var, command=self._save_settings)
+        entry.pack(side="left", padx=(6, 0))
+        for sequence in ("<FocusOut>", "<Return>"):
+            entry.bind(sequence, lambda _e: (self.heathen_show_var.set(self._heathen_show_percent()),
+                                             self._save_settings()))
+        self._help_button(show, "heathen_show_percent").pack(side="left", padx=(4, 0))
+        blue = ttk.Frame(frame)
+        blue.pack(fill="x", anchor="w", pady=(6, 2))
+        ttk.Checkbutton(blue, text=gui_text(HEATHEN_KEEP_BLUE_LABEL, 5), variable=self.heathen_keep_blue_var,
+                        command=self._save_settings).pack(side="left")
+        self._help_button(blue, "heathen_keep_blue").pack(side="left", padx=(4, 0))
+
+    @staticmethod
+    def _forget_trace(variable, trace) -> None:
+        try:
+            variable.trace_remove("write", trace)
+        except (tk.TclError, ValueError):
+            pass
 
     def _island_frequency_changed(self) -> None:
         """The More Frequent Island Events slider moved: the next patch writes its number beside the companion."""
@@ -6087,10 +6260,14 @@ class App(tk.Tk):
         for kind in kinds:
             fixes = result.added.get(kind.id)
             if fixes:
-                done = (f"{sum(f.count for f in fixes)} record(s) put right" if kind.id == "contradictions"
+                done = (f"{sum(f.count for f in fixes)} record(s) put right"
+                        if kind.id in ("contradictions", "parents_sex")
                         else f"{sum(f.count for f in fixes)} record(s) removed" if getattr(kind, "removes", None)
                         else f"{sum(f.count for f in fixes)} line(s) added")
                 lines.append(f"{kind.label}: {done} in {len(fixes)} log file(s).")
+        if getattr(result, "parents", None):
+            lines.append(f"Parents put by their sex: {result.parents[0].count} villager(s), in "
+                         + ", ".join(f.name for f in result.parents) + ".")
         if getattr(result, "answered", None):
             lines.append(f"The reconciliation's questions you answered: {len(result.answered)} (remembered, and "
                          "listed in the Repairs log).")
@@ -6368,8 +6545,10 @@ class App(tk.Tk):
                 rejoined = kind.context.get("lines")
             # The Esteemed Elder title, retroactively (src/vv_log_additions.py plan_esteemed): its graves in the save.
             elders = kind.context.get("graves") if kind.id == "esteemed" else None
+            # The parents by their sex (src/vv_parents_follow_sex.py): the save's children too, not only log lines.
+            parents = kind.context.get("found") if kind.id == "parents_sex" else None
             if not kind.inserts and not getattr(kind, "removes", None) and not getattr(kind, "replaces", None) \
-                    and not unnumber and not preferred and not elders and not rejoined:
+                    and not unnumber and not preferred and not elders and not rejoined and not parents:
                 for note in kind.notes:
                     ttk.Label(frame, text=f"{kind.label}: {note}", wraplength=600,
                               justify="left", foreground="#555555").pack(anchor="w", pady=(2, 0))
@@ -6393,6 +6572,8 @@ class App(tk.Tk):
             if kind.id == "esteemed":
                 text = (f"{kind.label}: {kind.decided} record line(s)"
                         + (f", {len(elders.in_save)} grave epitaph(s)" if elders else "") + " found")
+            if parents:
+                text = f"{kind.label}: {parents} record(s) and villager(s) found"
             if kind.asked:
                 text += f", {kind.asked} question(s) for you"
             ttk.Checkbutton(frame, variable=ticks[kind.id], text=text).pack(anchor="w")

@@ -159,11 +159,12 @@ def grave_fingerprint(name: bytes, cap: int, age: int) -> int:
 
 
 def _rename_graves(buf: bytearray, game: int, renames: dict[tuple, str], ages: dict[tuple, int],
-                   result) -> list[tuple[int, bytes, bytes, int]]:
+                   result, table: tuple | None = None) -> list[tuple[int, bytes, bytes, int]]:
     """Each renamed dead villager's grave, matched by name and age at death (and looks, where the game
     keeps them on the grave): renamed in `buf`.  An unclear match is left alone and reported.  Returns
-    (place, old name, new name, age) for each grave renamed."""
-    base, slots, stride, cap, age_at, looks = GRAVES[game]
+    (place, old name, new name, age) for each grave renamed.  `table` is another grave table laid out as
+    GRAVES' entries (the Shrine to the Ancestors' file); the save's own by default."""
+    base, slots, stride, cap, age_at, looks = table or GRAVES[game]
     if len(buf) < base + slots * stride:
         return []
     graves = []
@@ -203,6 +204,60 @@ def _rename_graves(buf: bytearray, game: int, renames: dict[tuple, str], ages: d
         buf[at:at + cap] = encoded + bytes(cap - len(encoded))
         done.append((place, old, encoded, age))
     return done
+
+
+# New Believers' Shrine to the Ancestors ("VVFP Heathen Mausoleum.dll", native/shared/heathen_evo.h): the
+# Heathens' graves at the mud hut, kept per slot in Data\Heathen Mausoleum\Heathen Mausoleum - Save <S>.dat --
+# 'VHM1', version 1, game 5, count, slot (20 bytes), then `count` entries in the Roster of the Dead's own layout
+# (GRAVES[5]'s stride, name, age and looks).  Cause of Death's Graves Logged knows them as places 500-999.
+SHRINE_MAGIC = b"VHM1"
+SHRINE_HEADER = 20
+SHRINE_MAX = 500
+SHRINE_FIRST_PLACE = 500
+
+
+def _plan_shrine_graves(result, folder: Path, game: int, slot: int, renames: dict[tuple, str],
+                        ages: dict[tuple, int], save_renamed: list) -> list[tuple[int, bytes, bytes, int]]:
+    """The renamed dead villagers' graves in the Shrine to the Ancestors (the owner: data follows the villager),
+    matched by the save's graves' own rules.  A file that cannot be read, or is not a whole valid table for this
+    slot, is left as it is and reported (never replaced).  A grave whose name and age a renamed save grave also
+    had is left alone and reported: it could be either villager's.  Returns the renamed graves as Graves Logged
+    places (500 + the Shrine's place)."""
+    if game != 5:
+        return []
+    path = _data_file(folder, "Heathen Mausoleum", f"Heathen Mausoleum - Save {slot}.dat")
+    if not path.is_file():
+        return []
+    try:
+        original = path.read_bytes()
+    except OSError:
+        result.notes.append("The Shrine to the Ancestors' graves file could not be read, so its graves keep "
+                            "their names.")
+        return []
+    base, _slots, stride, cap, age_at, looks = GRAVES[5]
+    count = struct.unpack_from("<I", original, 12)[0] if len(original) >= SHRINE_HEADER else -1
+    if (len(original) < SHRINE_HEADER or original[:4] != SHRINE_MAGIC or _i32(original, 4) != 1
+            or _i32(original, 8) != 5 or _i32(original, 16) != slot or not 0 <= count <= SHRINE_MAX
+            or len(original) != SHRINE_HEADER + stride * count):
+        result.notes.append("The Shrine to the Ancestors' graves file is not one this tool can read, so its "
+                            "graves keep their names.")
+        return []
+    table = (SHRINE_HEADER, count, stride, cap, age_at, looks)
+    taken = {(old.split(b"\0", 1)[0], age) for _place, old, _new, age in save_renamed}
+    buf = bytearray(original)
+    done = []
+    for key, new in renames.items():
+        trial = bytearray(buf)
+        hits = _rename_graves(trial, game, {key: new}, ages, result, table)
+        if any((old.split(b"\0", 1)[0], age) in taken for _place, old, _new, age in hits):
+            result.notes.append(f"A grave of {key[0]} at the Shrine to the Ancestors could be more than one "
+                                "villager's, so it keeps its name.")
+            continue
+        buf = trial
+        done += hits
+    if done:
+        result.changes.append(Change(path, original, bytes(buf), "the Shrine to the Ancestors' graves"))
+    return [(SHRINE_FIRST_PLACE + place, old, new, age) for place, old, new, age in done]
 
 
 def _plan_grave_files(result, folder: Path, game: int, slot: int, renamed: list,
@@ -1500,8 +1555,12 @@ def plan_renames(folder: Path, game: int, slot: int, renames: dict[tuple, str],
         elif held[0][1] != old_title:
             title_map[old_title] = held[0][1]
     # The graves of the dead renamed (Number Duplicate Names, last names for the gone).
-    graves = _rename_graves(after, game, renames, _death_ages(folder, game, slot), result) if dead else []
+    death_ages = _death_ages(folder, game, slot) if dead else {}
+    graves = _rename_graves(after, game, renames, death_ages, result) if dead else []
     result.changes.append(Change(path, original, bytes(after), "the save"))
+    # New Believers' Shrine to the Ancestors keeps the Heathens' graves outside the save: the same rename there.
+    if dead:
+        graves = graves + _plan_shrine_graves(result, folder, game, slot, renames, death_ages, graves)
     _plan_grave_files(result, folder, game, slot, graves, _renamed_bodies(game, people, original, after, f.name_cap)
                       if dead else None)
 
@@ -1522,6 +1581,11 @@ def plan_renames(folder: Path, game: int, slot: int, renames: dict[tuple, str],
         # mothers by the same identity; version 2, the count at +12, 8-byte entries after a 20-byte header.
         _plan_u32_file(result, _data_file(folder, "Heathen Aging", f"Heathen Aging - Save {slot}.dat"),
                        b"VHA1", {2: 8}, game, 20, 0, title_map, "Heathen Aging", title_conflicts)
+        # ...and its Heathen Couples file (native/shared/heathen_evo.h section 5): the woman's and the man's
+        # identities at +0 and +4 of each 16-byte entry after a 20-byte header; version 1.
+        _plan_u32_file(result, _data_file(folder, "Heathen Couples", f"Heathen Couples - Save {slot}.dat"),
+                       b"VHC1", {1: 16}, game, 20, 0, title_map, "Heathen Couples", title_conflicts,
+                       more_fields=(4,))
     _plan_look_store(result, _data_file(folder, "Head Looks", f"Head Looks - Save {slot}.dat"), (b"VHL2", b"VHL1"),
                      game, worn_map, worn_conflicts, "the head looks")
     _plan_look_store(result, _data_file(folder, "Gender Presentation", f"Gender Presentation - Save {slot}.dat"),
@@ -1770,10 +1834,10 @@ def _split_titles_resolver(game: int, save: bytes, split: dict[int, list[tuple]]
 
 def _plan_u32_file(result: Plan, path: Path, magic: bytes, versions: dict[int, int], game: int, header: int,
                    field_at: int, mapping: dict[int, int], what: str,
-                   conflicts: dict[int, str], resolve=None) -> None:
-    """A file of `count` fixed entries whose u32 at `field_at` is an identity; `versions` gives each
-    version's entry size.  A file that is not exactly its own format of this game (magic, a known
-    version, the game at offset 8, header + count * entry bytes) is left as it is: games sharing a
+                   conflicts: dict[int, str], resolve=None, more_fields: tuple[int, ...] = ()) -> None:
+    """A file of `count` fixed entries whose u32 at `field_at` (and at each of `more_fields`) is an identity;
+    `versions` gives each version's entry size.  A file that is not exactly its own format of this game (magic, a
+    known version, the game at offset 8, header + count * entry bytes) is left as it is: games sharing a
     folder share these files' names (Codex, #553)."""
     if not path.is_file():
         return
@@ -1790,6 +1854,8 @@ def _plan_u32_file(result: Plan, path: Path, magic: bytes, versions: dict[int, i
         return
     buf = bytearray(original)
     changed = _replace_u32s(buf, header + field_at, count, entry, mapping, conflicts)
+    for more in more_fields:
+        changed += _replace_u32s(buf, header + more, count, entry, mapping, conflicts)
     for k in range(count if resolve is not None else 0):
         # Entries of an identity several villagers share, each tied to one of them.
         at = header + field_at + k * entry
@@ -2096,7 +2162,12 @@ def _plan_statistics(result: Plan, game: int, slot: int, data_dir: Path, by_name
 # The logs
 # ---------------------------------------------------------------------------
 
-PERSON_LINE = re.compile(r"^(\s+)(Name|Child|Mother|Father): (.*)$")
+# "First:" / "Second:" are the two Heathens of a "Couple formed" record (Codex, #883): each their own record,
+# with their looks nested under them like a Child's.
+PERSON_LINE = re.compile(r"^(\s+)(Name|Child|Mother|Father|First|Second): (.*)$")
+# The carrier's note of a Birth ("named as the Father") or a Conception ("named as the Mother") record.
+CARRIED_NOTE = re.compile(r"^(  Note: Carried by )(.+), who is male \(named as the (Father|Mother); (.+) is named as "
+                          r"the (Mother|Father)\)(.*)$")
 
 
 def _plan_logs(result: Plan, folder: Path, game: int, slot: int, renames: dict[tuple, str],
@@ -2160,6 +2231,26 @@ def _plan_logs(result: Plan, folder: Path, game: int, slot: int, renames: dict[t
                     ("Death", "Disappeared", "Epitaph")):
                 continue
             for k, line in enumerate(b.lines):
+                # A Birth's or Conception's "Note: Carried by <carrier>, who is male (named as the Father; <other>
+                # is named as the Mother)" (the parents follow their sex, 2026-11-27): each name follows the
+                # parent line it names, by that line's name and looks, as the person lines below do (Codex, #887).
+                c = CARRIED_NOTE.match(line)
+                if c:
+                    texts = []
+                    for name, label in ((c.group(2), c.group(3)), (c.group(4), c.group(5))):
+                        parent = additions._sub_identity(b, label)
+                        new = None
+                        if parent is not None and parent[0] == name.strip():
+                            new = renames.get(parent)
+                            if new is None and parent[1] is None and len(by_name.get(name.strip(), set())) == 1:
+                                new = next(iter(by_name[name.strip()]))
+                        texts.append(new or name)
+                    rebuilt = (f"{c.group(1)}{texts[0]}, who is male (named as the {c.group(3)}; {texts[1]} is named "
+                               f"as the {c.group(5)}){c.group(6)}")
+                    if rebuilt != line:
+                        lines[b.start + k] = rebuilt
+                        n += 1
+                    continue
                 m = PERSON_LINE.match(line)
                 if not m:
                     continue

@@ -14,7 +14,8 @@
      A New Home (writer 0x41D140)  0x43AD8C berries, 0x43AECD crops, 0x43AF3C fish, 0x43AF8E crab, 0x43AFF7 mushroom,
                                    0x43B09B the Golden Child's +150 food
      The Lost Children (0x4262B0)  0x463198 coconuts, 0x463259 crops, 0x463312 fish, 0x463364 big catch,
-                                   0x4633CD mushroom (optional: the Golden Mushroom row owns it)
+                                   0x4633CD mushroom (optional: the Golden Mushroom row owns it; then the jump
+                                   0x473E1B at the end of that row's code, below)
      The Secret City (0x4263F0)    0x434AEC fruit, 0x434B15 the chief's fruit bonus, 0x431C2A honey, 0x431C4C the
                                    chief's honey bonus, 0x458EE5 fish, 0x458FE1 crab, 0x42E079 mushroom,
                                    0x459068 the chief's food grant; the rain
@@ -53,6 +54,70 @@ static const gs_game FG_GAMES[] = {
                          { 0x46D074u, 0 }, { 0x46D75Fu, 0 }, { 0x46D7D9u, 0 }, { 0x46DB20u, 0 } } },
 };
 
+/* The Lost Children with "Super-Secret Golden Mushroom" (the owner, 2026-11-27: the slider scales its mushrooms too,
+   brown, red and golden, exactly as without that row).  That row's call at 0x4633CD goes to its own code at 0x473E05,
+   which makes a golden mushroom's food 100 and ends with `jmp 0x4262B0` at 0x473E1B -- the caller's return (0x4633D2)
+   and the amount still where the writer finds them.  So while that row's code is there, byte for byte, the mushroom's
+   site is that jump: it goes to gain_stub instead, which scales the amount and goes on into the writer.  The return
+   the writer sees is the game's own, so the Origins Food Doubler doubles the scaled amount once, as at every other
+   site.  The call at 0x4633CD (where "VVFP Golden Mushroom.dll" keeps its finds record) is not touched.  The jump is
+   written with the other sites, all of them or none; VvfpFoodGainSite(5) reports it. */
+#define FG_V2_GOLDEN_CODE 0x473E05u
+#define FG_V2_GOLDEN_JUMP 0x473E1Bu
+static const unsigned char FG_V2_GOLDEN_ROW[27] = {
+    0x8B, 0x44, 0x24, 0x20,                   /* mov eax, [esp+0x20]           the villager's index */
+    0x69, 0xC0, 0x8C, 0xE4, 0x00, 0x00,       /* imul eax, eax, 0xE48C */
+    0x83, 0x7C, 0x30, 0x44, 0x50,             /* cmp dword [eax+esi+0x44], 0x50 carrying the golden mushroom */
+    0x75, 0x05,                               /* jne the jump */
+    0xC6, 0x44, 0x24, 0x04, 0x64,             /* mov byte [esp+4], 100 */
+    0xE9, 0x90, 0x24, 0xFB, 0xFF,             /* jmp 0x4262B0 */
+};
+
+/* gs_start with The Lost Children's golden jump added to the same all-or-none write. */
+static int fg_start(int game) {
+    static vvfp_site_write w[GS_MAX_SITES];
+    static unsigned char expect[GS_MAX_SITES][5];
+    const gs_game *g = NULL;
+    int i, n = 0;
+    for (i = 0; i < (int)(sizeof FG_GAMES / sizeof FG_GAMES[0]); ++i) {
+        if (FG_GAMES[i].game == game) {
+            g = &FG_GAMES[i];
+        }
+    }
+    if (g == NULL || !ss_start(FG_CHOICE_FILE)) {
+        return 0;
+    }
+    g_gs_writer = g->writer;
+    for (i = 0; i < g->count; ++i) {               /* vvfp_call_retarget's own checks */
+        unsigned int rel = g->writer - (g->sites[i].va + 5u);
+        g_gs_chosen[i] = 0;
+        expect[i][0] = 0xE8;
+        memcpy(&expect[i][1], &rel, 4);
+        if (!vvfp_site_holds(g->sites[i].va, expect[i], 5)) {
+            if (g->sites[i].optional) {
+                continue;
+            }
+            return 0;
+        }
+        vvfp_site_branch(&w[n++], g->sites[i].va, 5, expect[i], 0xE8, (const void *)gain_stub);
+        g_gs_chosen[i] = 1;
+    }
+    g_gs_chosen[g->count] = 0;
+    if (game == 2 && vvfp_site_holds(FG_V2_GOLDEN_CODE, FG_V2_GOLDEN_ROW, (int)sizeof FG_V2_GOLDEN_ROW)) {
+        vvfp_site_branch(&w[n++], FG_V2_GOLDEN_JUMP, 5, FG_V2_GOLDEN_ROW + (FG_V2_GOLDEN_JUMP - FG_V2_GOLDEN_CODE),
+                         0xE9, (const void *)gain_stub);
+        g_gs_chosen[g->count] = 1;
+    }
+    if (n == 0 || !vvfp_install_sites(w, n)) {
+        for (i = 0; i <= g->count; ++i) {
+            g_gs_chosen[i] = 0;
+        }
+        return 0;
+    }
+    g_gs_installed = 1;
+    return 1;
+}
+
 /* 1 when installed (for the tests' emulation), else 0. */
 int __stdcall VvfpFoodGainInstalled(void) {
     return g_gs_installed;
@@ -71,7 +136,9 @@ int __stdcall VvfpFoodGainSite(int index) {
 /* Called once by VVFP More Companions.dll before WinMain. */
 void __stdcall VvfpStartup(int game, unsigned int shipped) {
     (void)shipped;
-    gs_start(FG_GAMES, (int)(sizeof FG_GAMES / sizeof FG_GAMES[0]), game, FG_CHOICE_FILE);
+    if (!g_gs_installed) {
+        fg_start(game);
+    }
 }
 
 BOOL WINAPI DllMain(HINSTANCE instance, DWORD reason, LPVOID reserved) {

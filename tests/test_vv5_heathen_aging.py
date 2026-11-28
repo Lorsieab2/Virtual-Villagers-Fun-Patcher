@@ -63,8 +63,12 @@ OLD = 1100
 
 
 class Village(Machine):
+    # The villager table (the 256 build's in tests/test_vv5_heathen_evolution.py).
+    manager, slots = MANAGER, 150
+
     def __init__(self, flags: tuple[str, ...], *, statistics_form: bool = False, cod: bool = True):
         exe = bytearray(stock_path(5).read_bytes())
+        self.edit_exe(exe)
         super().__init__(bytes(exe), DLL, present=flags)
         if statistics_form:
             # The Village Statistics rows' Oldest Villager guard (`jne` 0C -> 38 at 0x47007F), in this emulated
@@ -119,8 +123,15 @@ class Village(Machine):
         self.put32(MEDICINE, 1)
         for puzzle in range(32):                         # every puzzle unsolved unless a test solves it
             self.put32(PUZZLE_NEEDED + 4 * puzzle, 1)
+        self.before_start()
         self.installed = self.export("VvfpStartup", 5, 0)
         self.installed = self.export("VvfpHeathenAgingInstalled")
+
+    def edit_exe(self, exe: bytearray) -> None:
+        """The executable as this test runs it (a subclass may change it before it is mapped)."""
+
+    def before_start(self) -> None:
+        """Anything a subclass sets up before the companion starts."""
 
     def _documents(self, p):
         p.write(p.arg(1), b"C:\\Docs\0")
@@ -225,7 +236,7 @@ class Village(Machine):
 
     def _create(self, p):
         args = [struct.unpack("<i", p.read(p.reg("esp") + 4 + 4 * i, 4))[0] for i in range(9)]
-        for index in range(150):
+        for index in range(self.slots):
             if p.read(self.record(index) + PRESENT, 1) == b"\0":
                 break
         else:
@@ -266,7 +277,7 @@ class Village(Machine):
 
     # ---- records ------------------------------------------------------------------------------------------
     def record(self, index: int) -> int:
-        return RECORDS + index * STRIDE
+        return self.manager + 0x48 + index * STRIDE
 
     def villager(self, index: int, *, heathen: bool, age: int = 600, role: int = 0, sex: int = 0,
                  parents: bool = False, orange: int = 0, red: int = 0, name: str | None = None) -> int:
@@ -305,7 +316,7 @@ class Village(Machine):
         self.run(CREDIT_SITE, CREDIT_END)
 
     def life_tick(self) -> None:
-        self.call(LIFE_TICK, ecx=MANAGER)
+        self.call(LIFE_TICK, ecx=self.manager)
 
     def turn_heathen(self, record: int) -> None:
         self.call(TO_HEATHEN, ecx=record)
@@ -513,7 +524,7 @@ class Tribe(unittest.TestCase):
 
     def test_each_puzzle_heathen_is_replaced_in_the_same_role_while_the_puzzle_is_unsolved(self):
         stock = {12: (2, 70, -1, 400, -14), 14: (3, 90, -1, 540, -74), 15: (4, 90, -1, 540, -74),
-                 16: (0, 90, 0, 540, -74), 13: (2, 90, 0, 1000, -94), 17: (1, 70, -1, 400, -25)}
+                 16: (0, 90, -1, 540, -74), 13: (2, 90, -1, 1000, -94), 17: (1, 70, -1, 400, -25)}
         puzzles = {12: 1, 16: 5, 15: 9, 14: 13, 13: 16, 17: 17}
         for role, (skill, value, sex, age, faith) in stock.items():
             with self.subTest(role=role):
@@ -528,10 +539,30 @@ class Tribe(unittest.TestCase):
                 if role == 17:
                     carrier, cargs = v.conceived[0]
                     self.assertEqual(carrier, new, "the Heathen Mommy comes with her infant")
-                    self.assertEqual(v.cstring(cargs[3]), "Kalo", "its father an adult Heathen man")
+                    self.assertEqual(v.cstring(cargs[3]), "Kalo", "its other parent a named adult Heathen")
                     self.assertEqual(cargs[6], 1, "forced, as the stock set-up")
                     self.assertNotEqual(v.i32(new, PREGNANT), 0)
                     self.assertEqual(v.u32(TWINS), 0, "no statistics")
+
+    def test_the_new_mommys_other_parent_is_named_of_either_sex_her_family_first(self):
+        """The owner, 2026-11-25: "instead of unknown the parents should have names"; villagers are villagers
+        regardless of gender.  A living adult Heathen of either sex, never the Mommy, her own family first."""
+        cases = (
+            ((("Vaihi", 1, 400),), "Vaihi"),                                   # only a woman: she is named
+            ((("Tiny Mashudu", 1, 100), ("Kalo Peponi", 0, 400)), "Kalo Peponi"),   # never a child
+        )
+        for camp, expected in cases:
+            with self.subTest(expected=expected):
+                v = Village((TRIBE,))
+                v.unsolve(17)
+                for k, (name, sex, age) in enumerate(camp):
+                    v.villager(3 + k, heathen=True, sex=sex, name=name, age=age)
+                r = v.villager(2, heathen=True, role=17, sex=0, name="Ahi Mashudu")
+                _due_to_die(v, r)
+                v.life_tick()
+                carrier, cargs = v.conceived[0]
+                self.assertEqual(carrier, v.record(v.created[0][0]))
+                self.assertEqual(v.cstring(cargs[3]), expected)
 
     def test_a_solved_puzzles_role_is_never_made_again(self):
         v, r, _ = self._puzzle_dies(13, 16, solved=True)
@@ -571,6 +602,19 @@ class Tribe(unittest.TestCase):
 
 @unittest.skipIf(_skip(), _skip() or "")
 class Babies(unittest.TestCase):
+    def test_the_whole_tribe_shares_one_baby_in_240_units(self):
+        # The owner, 2026-11-25: "1 baby every 24 hours across the entire tribe" -- with three women who could
+        # conceive, each rolls 1 in 720, so the tribe still has about one baby in 240 units (24 h on Normal).
+        v = Village((TRIBE,))
+        v.villager(1, heathen=True, sex=0, name="Kalo")
+        for i in (2, 3, 4):
+            woman = v.villager(i, heathen=True, sex=1, name=f"Mele{i}")
+            v.put32(woman + AGE, 601)
+        v.rand_answers.extend([1, 1, 1])               # nobody conceives this unit
+        v.life_tick()
+        self.assertEqual(v.rand_calls[:3], [720, 720, 720])
+        self.assertEqual(v.conceived, [])
+
     def test_a_heathen_couple_has_a_heathen_baby_with_both_parents_recorded(self):
         v = Village((TRIBE,))
         man = v.villager(1, heathen=True, sex=0, name="Kalo")
@@ -578,9 +622,9 @@ class Babies(unittest.TestCase):
         v.put32(man + HEAD, 10)
         v.put32(woman + HEAD, 20)
         v.put32(woman + AGE, 601)
-        v.rand_answers.extend([0, 0])                  # conceive (1 in 400), pick the man
+        v.rand_answers.extend([0, 0])                  # conceive (1 in 240 x 1 woman), pick the man
         v.life_tick()
-        self.assertEqual(v.rand_calls[0], 400, "the owner (2026-11-23): 1 age unit in 400")
+        self.assertEqual(v.rand_calls[0], 240, "the owner (2026-11-25): one baby a tribe in 240 units (24 h)")
         self.assertEqual(len(v.conceived), 1)
         carrier, args = v.conceived[0]
         self.assertEqual((carrier, v.cstring(args[3]), args[6]), (woman, "Kalo", 1))
@@ -1134,13 +1178,17 @@ class AFullFile(unittest.TestCase):
         self.assertIn((_identity(v, born), 0), kept)
         self.assertLess(count, 2048, "the gone villagers' entries pruned")
 
+# The rows written by scripts/build_heathen_aging_features.py since v1.35.101: (name, flag, the companion DLL it ships).
+# "Heathen Tribe Ages, Dies and Has Children" and "All Heathens Leave Skeletons" are folded into "Heathen Tribe Expansion
+# and Evolution" (tests/test_vv5_heathen_tribe_evolution.py); this companion still honours their flags (TRIBE,
+# BONES_ALL), which the tests below use.
 ROWS = {
-    "vv5_former_villagers_keep_aging": ("Former Villagers Keep Aging Among the Heathens", FORMER, True),
-    "vv5_heathen_tribe_ages": ("Heathen Tribe Ages, Dies and Has Children", TRIBE, True),
+    "vv5_former_villagers_keep_aging": ("Former Villagers Keep Aging Among the Heathens", FORMER,
+                                        "VVFP Heathen Aging.dll"),
     "vv5_former_villager_heathens_leave_skeletons": ("Former Villagers Among the Heathens Leave Skeletons",
-                                                     BONES_FORMER, False),
-    "vv5_all_heathens_leave_skeletons": ("All Heathens Leave Skeletons", BONES_ALL, False),
+                                                     BONES_FORMER, "VVFP Heathen Mausoleum.dll"),
 }
+EVOLUTION_ID = "vv5_heathen_tribe_evolution"
 
 
 class TheRows(unittest.TestCase):
@@ -1157,13 +1205,14 @@ class TheRows(unittest.TestCase):
         self.assertIn('"VVFP Heathen Aging.dll"',
                       (ROOT / "native" / "shared" / "startup_companions_3.h").read_text(encoding="utf-8"))
         self.assertIn('"assets/heathen_aging/VVFP Heathen Aging.dll"', release)
-        for row_id, (name, flag, ships_dll) in ROWS.items():
+        for row_id, (name, flag, dll) in ROWS.items():
             with self.subTest(row_id):
                 row = json.loads((ROOT / "data" / f"{row_id}_feature.json").read_text(encoding="utf-8"))
                 self.assertEqual((row["id"], row["name"], row["game_id"]), (row_id, name, "vv5"))
                 self.assertIn(row_id, ids)
                 dests = [c["destination"] for c in row["companion_files"]]
-                self.assertEqual(dests, (["VVFP Heathen Aging.dll"] if ships_dll else []) + [flag])
+                self.assertEqual(dests, [dll, flag])
+                self.assertEqual(row["conflicts"], [], "the skeleton rows' pair is dropped (v1.35.101)")
                 self.assertIn(flag, patcher_files.PATCHER_READS)
                 self.assertIn(f'"assets/heathen_aging/{flag}"', release)
                 self.assertIn(f'"data/{row_id}_feature.json"', release)
@@ -1173,14 +1222,12 @@ class TheRows(unittest.TestCase):
                 self.assertIn(f"#### {name} (`{row_id}`)", log)
                 entry = [e for e in guide["patches"] if row_id in e.get("ids", [])]
                 self.assertEqual(len(entry), 1)
-                if not ships_dll:
+                if row_id == "vv5_former_villager_heathens_leave_skeletons":
                     self.assertIn("**Only matters with", row["description"], "the dependency, in bold")
-        bones_former = json.loads((ROOT / "data" / "vv5_former_villager_heathens_leave_skeletons_feature.json")
-                                  .read_text(encoding="utf-8"))
-        bones_all = json.loads((ROOT / "data" / "vv5_all_heathens_leave_skeletons_feature.json")
-                               .read_text(encoding="utf-8"))
-        self.assertEqual(bones_former["conflicts"], ["vv5_all_heathens_leave_skeletons"])
-        self.assertEqual(bones_all["conflicts"], ["vv5_former_villager_heathens_leave_skeletons"])
+        for gone in ("vv5_heathen_tribe_ages", "vv5_all_heathens_leave_skeletons"):
+            self.assertNotIn(gone, ids)
+            self.assertFalse((ROOT / "data" / f"{gone}_feature.json").exists())
+            self.assertNotIn(f'"data/{gone}_feature.json"', release)
 
     def test_no_other_new_believers_row_writes_a_byte_this_companion_writes(self):
         """Two companions splicing one site with all-or-none stock-byte checks: the second installs nothing (the
@@ -1189,17 +1236,24 @@ class TheRows(unittest.TestCase):
         are checked against this companion's two."""
         import subprocess
 
-        def ranges(row):
-            return [(int(d["va"], 16), int(d["va"], 16) + len(d["stock_bytes"]) // 2) for d in row.get("runtime_detours", [])]
+        def ranges(row, aging_only=False):
+            return [(int(d["va"], 16), int(d["va"], 16) + len(d["stock_bytes"]) // 2)
+                    for d in row.get("runtime_detours", [])
+                    if not aging_only or d["installed_by"].startswith("VVFP Heathen Aging.dll")]
 
-        mine = ranges(json.loads((ROOT / "data" / "vv5_heathen_tribe_ages_feature.json").read_text(encoding="utf-8")))
-        self.assertEqual(sorted(a for a, _ in mine), [0x470077, 0x472CB7])
+        evolution = json.loads((ROOT / "data" / f"{EVOLUTION_ID}_feature.json").read_text(encoding="utf-8"))
+        mine = ranges(evolution, aging_only=True)
+        # the age credit and the life tick, and (with the expansion's row) the elder walk-pace site 0x4659C5
+        self.assertEqual(sorted(a for a, _ in mine), [0x4659C5, 0x470077, 0x472CB7])
         others = {}
         for path in (ROOT / "data").glob("vv5_*_feature.json"):
-            # (Heathens can be selected in Island Events ships this very companion: its sites are these two)
-            if path.name in {f"{r}_feature.json" for r in ROWS} | {"vv5_heathens_in_island_events_feature.json"}:
+            # (the rows that ship this very companion: its sites are these two)
+            if path.name in {f"{r}_feature.json" for r in ROWS} | {f"{EVOLUTION_ID}_feature.json"}:
                 continue
             others[path.name] = ranges(json.loads(path.read_text(encoding="utf-8")))
+        # The Heathen Tribe Expansion row's other companions' sites never overlap this one's either.
+        others["Heathen Life, Heathen Mausoleum, Story"] = [
+            (a, b) for a, b in ranges(evolution) if (a, b) not in mine]
         shown = subprocess.run(["git", "show", "origin/feat/98-reverted-heathens-keep-mask-look:"
                                 "data/vv5_heathens_keep_masks_feature.json"], cwd=ROOT, capture_output=True)
         if shown.returncode == 0:
@@ -1209,6 +1263,7 @@ class TheRows(unittest.TestCase):
                 for c, d in mine:
                     with self.subTest(row=name, va=hex(a)):
                         self.assertTrue(b <= c or d <= a, f"{name} writes 0x{a:X}..0x{b:X}")
+
     def test_the_dll_exports_and_the_flag_files(self):
         try:
             import pefile
@@ -1216,7 +1271,8 @@ class TheRows(unittest.TestCase):
             self.skipTest("pefile is not installed")
         pe = pefile.PE(str(DLL))
         names = sorted(e.name.decode() for e in pe.DIRECTORY_ENTRY_EXPORT.symbols if e.name)
-        self.assertEqual(names, ["VvfpHeathenAgingAges", "VvfpHeathenAgingEventGone", "VvfpHeathenAgingEventPregnancy",
+        self.assertEqual(names, ["VvfpHeathenAgingAges", "VvfpHeathenAgingCoupleOf", "VvfpHeathenAgingEventGone",
+                                 "VvfpHeathenAgingEventPregnancy", "VvfpHeathenAgingEvolution",
                                  "VvfpHeathenAgingGrave", "VvfpHeathenAgingInstalled", "VvfpHeathenAgingVillageReset",
                                  "VvfpStartup"])
         for _, (name, flag, _) in ROWS.items():
@@ -1370,6 +1426,65 @@ class IslandEvents(unittest.TestCase):
         v.solve(25)
         self.assertEqual(v.export("VvfpHeathenAgingEventPregnancy", 5, 2, 1, 1, 0), 0)
         self.assertEqual(v.conceived, [])
+
+
+@unittest.skipIf(_skip(), _skip() or "")
+class ParentsFollowTheirSex(unittest.TestCase):
+    """The owner, 2026-11-27: a man who carried a woman's baby is its Father and she its Mother, each with their own
+    name, head and body; two of one sex keep the carrier as the Mother (tests/test_parents_follow_sex.py)."""
+
+    def _born(self, carrier_sex: int, other_sex: int, *, carried_export: bool = False):
+        v = Village((EVENTS,))
+        if carried_export:
+            stub = v.alloc(0x10)
+            carried: list[list[int]] = []
+
+            def _carried(p):
+                carried.append([p.arg(i) for i in range(13)])
+                return 1, 52
+            v.stub(stub, _carried)
+            v.parentage_exports["WriteParentageBirthCarried"] = stub
+            v.carried = carried
+        carrier = v.villager(1, heathen=True, sex=carrier_sex, name="Ahi Mashudu")
+        other = v.villager(2, heathen=True, sex=other_sex, name="Vaihi Salongo")
+        v.put32(carrier + HEAD, 5)
+        v.put32(carrier + BODY, 6)
+        v.put32(other + HEAD, 8)
+        v.put32(other + BODY, 3)
+        v.rand_answers.extend([0, 0, 1])
+        self.assertEqual(v.export("VvfpHeathenAgingEventPregnancy", 5, 1, 2, 1, 1), 1, "born at once (nursing)")
+        self.assertEqual(len(v.created), 1)
+        return v, v.record(v.created[0][0])
+
+    def test_a_man_who_carried_a_womans_baby_is_its_father(self):
+        v, baby = self._born(0, 1)
+        self.assertEqual((v.cstring(baby + MOTHER_NAME), v.i32(baby, MOTHER_HEAD), v.i32(baby, MOTHER_BODY)),
+                         ("Vaihi Salongo", 8, 3), "the woman is the Mother, with her own looks")
+        self.assertEqual((v.cstring(baby + FATHER_NAME), v.i32(baby, FATHER_HEAD), v.i32(baby, FATHER_BODY)),
+                         ("Ahi Mashudu", 5, 6), "the man who carried is the Father, with his own looks")
+        self.assertEqual(len(v.births), 1, "an earlier Parentage Export (no WriteParentageBirthCarried): its record")
+
+    def test_the_birth_record_says_who_carried(self):
+        v, baby = self._born(0, 1, carried_export=True)
+        self.assertEqual(v.births, [], "the newer export is asked first")
+        self.assertEqual(len(v.carried), 1)
+        args = v.carried[0]
+        self.assertEqual((args[0], args[10], args[11]), (5, baby, 1))
+        self.assertEqual(v.cstring(args[12]), "Ahi Mashudu", "the carrier, now the Father")
+
+    def test_two_of_one_sex_keep_the_carrier_as_the_mother(self):
+        for sex in (0, 1):
+            with self.subTest(sex=sex):
+                v, baby = self._born(sex, sex, carried_export=True)
+                self.assertEqual((v.cstring(baby + MOTHER_NAME), v.i32(baby, MOTHER_HEAD), v.i32(baby, MOTHER_BODY)),
+                                 ("Ahi Mashudu", 5, 6))
+                self.assertEqual((v.cstring(baby + FATHER_NAME), v.i32(baby, FATHER_HEAD)), ("Vaihi Salongo", 8))
+                self.assertEqual(v.carried[0][12], 0, "nobody named as carrying for the Father")
+
+    def test_a_woman_who_carried_is_the_mother_as_ever(self):
+        v, baby = self._born(1, 0)
+        self.assertEqual((v.cstring(baby + MOTHER_NAME), v.cstring(baby + FATHER_NAME)),
+                         ("Ahi Mashudu", "Vaihi Salongo"))
 
 
 if __name__ == "__main__":

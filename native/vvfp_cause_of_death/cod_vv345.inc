@@ -23,6 +23,15 @@
    The record is written at the second; a burial whose writer found no free
    entry gets "no grave (the Roster of the Dead was full)".
 
+   NEW BELIEVERS' MUD HUT ("VVFP Heathen Mausoleum.dll", heathen_mausoleum.h):
+   a Heathen's grave is written by the same writer into the Heathens' own
+   table, so the entry is read from the table the writer was called on (its
+   saved `this`, [esp+8] at 0x464E51), and a grave there is named "the
+   Shrine to the Ancestors (<the skill line>)" -- the Heathen Mausoleum's
+   in-game name (the owner, 2026-11-26), in either wording; a Heathen whose
+   burial found that table full gets "no grave (the Shrine to the Ancestors
+   was full)".  An epitaph edited on that screen names the same grave.
+
    THE UNBURIED BODY.  After 240 minutes the game removes a body nobody
    buried:
        VV3 0x45F437  the `div` whose quotient (the minutes) decides it: the
@@ -30,6 +39,7 @@
                      0xF10
        VV4 0x4664B4  `lea edi, [esi-0x1cc7]`, reached only once it is due
        VV5 0x46FF12  the store itself, esi = the record */
+#include "heathen_mausoleum.h"
 
 struct v345_layout {
     unsigned int roster;         /* the Roster of the Dead's first entry */
@@ -100,25 +110,54 @@ static unsigned int v345_fingerprint(const unsigned char *entry) {
     return cod_fingerprint(entry, v345_name_capacity(), *(const int *)(entry + V345[g_game].e_age));
 }
 
-/* What the writer's exit reported: the entry it wrote and for whom. */
+/* What the writer's exit reported: the entry it wrote and for whom, and (New
+   Believers) the table it wrote it in -- the Roster of the Dead, or the
+   Heathens' own at the mud hut. */
 static const unsigned char *written_record;
 static int written_slot = -1;
+static unsigned int written_table;
 
 static void v345_written(int site, const unsigned int *regs) {
     (void)site;
+    written_table = 0;
     if (g_game == 3) {
         written_record = (const unsigned char *)(uintptr_t)regs[R_EBP];
         written_slot = (int)regs[R_EDI];
     } else {
         written_record = (const unsigned char *)(uintptr_t)reg_stack(regs, 0x10);
         written_slot = (int)regs[R_EBP];
+        if (g_game == 5) {
+            written_table = reg_stack(regs, 8);
+        }
+    }
+}
+
+/* The entry the writer reported: in the table it wrote (New Believers), else the Roster of the Dead. */
+static const unsigned char *v345_written_entry(void) {
+    if (g_game == 5 && written_table != 0u && written_table != V345[5].roster) {
+        if (written_slot < 0 || written_slot >= V345_ENTRIES) {
+            return NULL;
+        }
+        return (const unsigned char *)(uintptr_t)(written_table + (unsigned int)written_slot * V345[5].entry_stride);
+    }
+    return v345_entry(written_slot);
+}
+
+/* The grave's words (the skill line): "the mud hut memorial (...)" for a Heathen's grave there. */
+static void v345_grave_words(const unsigned char *entry, char *title, int size) {
+    char line[64];
+    v345_title(entry, line);
+    if (g_game == 5 && hm_is_heathen_grave(entry)) {
+        wsprintfA(title, "%s (%s)", HM_GRAVE_PREFIX, line);
+    } else {
+        lstrcpynA(title, line, size);
     }
 }
 
 static void v345_buried(int site, const unsigned int *regs) {
     const unsigned char *record = (const unsigned char *)(uintptr_t)regs[g_game == 3 ? R_EDI : R_ESI];
     const unsigned char *entry = NULL;
-    char title[64];
+    char title[96];
     char epitaph[64];
     int index = cod_index_of(record);
     (void)site;
@@ -129,15 +168,18 @@ static void v345_buried(int site, const unsigned int *regs) {
     COD_COUNT(burials);
     roster_departed(index, record);
     if (written_record == record) {
-        entry = v345_entry(written_slot);
+        entry = v345_written_entry();
     }
     written_record = NULL;
     if (entry == NULL) {
+        /* New Believers: a Heathen's burial went to the mud hut's table (the faction at death decides). */
+        int heathen = g_game == 5 && record[REC[5].heathen] != 0 && hm_installed();
         cod_log_death(record, cie_taken(record, *(const int *)(record + V345[g_game].cause)),
-                      "no grave (the Roster of the Dead was full)", NULL);
+                      !heathen ? "no grave (the Roster of the Dead was full)"
+                      : HM_GRAVE_FULL, NULL);
         return;
     }
-    v345_title(entry, title);
+    v345_grave_words(entry, title, (int)sizeof title);
     if (g_game != 3) {
         cod_printable(epitaph, sizeof epitaph, (const char *)entry + V345[g_game].e_epitaph, EPITAPH_TEXT);
     } else if (written_slot < 50) {

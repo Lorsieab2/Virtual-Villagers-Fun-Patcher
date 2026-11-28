@@ -254,6 +254,7 @@ LOG_PAIRS = {
     "no grave (died among the Heathens: nothing was left)": "no grave (died among the Isolans: nothing was left)",
     "Replaced a Heathen who died of old age": "Replaced an Isolan who died of old age",
     "Replaced a Heathen lost in an island event": "Replaced an Isolan lost in an island event",
+    "Replaced a Heathen child who grew up": "Replaced an Isolan child who grew up",
     "Heathens Converted": "Isolans Converted",
     "Former Heathen (blue mask)": "Former Isolan (blue mask)",
     "Former Heathen (orange mask)": "Former Isolan (orange mask)",
@@ -308,7 +309,10 @@ class TheLogWords(unittest.TestCase):
             "statistics_export/statistics_export.c": 'fprintf(file, "%s: %d\\n", vv5_word_converted_row(),',
             "shared/special_title.h": "return vv5_role_title(role);",
             "vvfp_island_events/vvfp_island_events.c": '"  %s: %s -> %s\\n", log_label(f), a, b);',
-            "vvfp_story_upgrades/story_revive.inc": "game == 5 && vv5_puzzle_role_title(p->special)",
+            # Revive reads a puzzle Heathen's role from their title in either wording (the owner, 2026-11-26:
+            # puzzle Heathens come back in their role, so the old refusal is gone).
+            "vvfp_story_upgrades/story_revive.inc":
+                "lstrcmpA(title, VV5_ROLE_TITLES_HEATHEN[k]) == 0 || lstrcmpA(title, VV5_ROLE_TITLES_ISOLAN[k]) == 0",
         }
         for rel, site in checks.items():
             with self.subTest(writer=rel):
@@ -372,7 +376,7 @@ class EveryReaderTakesBoth(unittest.TestCase):
                 ("vv5_heathen_masks_restore.py", 'mask = TITLE_MASK.get(heathen_form(b.value("Special villager") or ""))'),
                 ("vv_graves.py", 'record_title = heathen_form(record_title or "")'),
                 ("vv_game_mechanics_counts.py", "rows[heathen_form(m.group(1))] ="),
-                ("vv_log_additions.py", '(converted if (b.value("How") or "").strip() in CONVERTED_HOWS else believer)'),
+                ("vv_log_additions.py", '(converted if (b.value("How") or "").strip() in CONVERTED_HOWS else believer).add(b.identity)'),
                 ("vv_log_additions.py", 'add(b.identity, 1 if (b.value("How") or "").strip() in CONVERTED_HOWS else 0)'),
                 ("vv_genealogy.py", 'if (b.value("How") or "").strip() in CONVERTED_HOWS:'),
                 ("vv_genealogy.py", "if how and how not in CONVERTED_HOWS and")):

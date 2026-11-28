@@ -352,6 +352,21 @@ static void notify_heathen_aging(int game, int slot) {
     }
 }
 
+/* The Heathens' graves at the mud hut (New Believers, "VVFP Heathen Mausoleum.dll"): the graves it keeps in memory
+ * for the slot being erased are dropped BEFORE the slot's folder (its Heathen Mausoleum file with it) is deleted
+ * below, so none of them is written back into the new village at its first save.  Only when already loaded. */
+static void notify_heathen_mausoleum(int game, int slot) {
+    HMODULE mausoleum = GetModuleHandleA("VVFP Heathen Mausoleum.dll");
+    story_village_reset_fn reset;
+    if (mausoleum == NULL) {
+        return;
+    }
+    reset = (story_village_reset_fn)(void *)GetProcAddress(mausoleum, "VvfpHeathenMausoleumVillageReset");
+    if (reset != NULL) {
+        reset(game, slot);
+    }
+}
+
 /* The Origins companion: a Barrel of Babies or Island Event bought and not
  * delivered yet is held in the executable's own memory (A New Home 0x48D700,
  * The Lost Children 0x49C700, The Secret City 0x6E0050 / 0x6E0058, The Tree
@@ -407,6 +422,7 @@ __declspec(dllexport) int __stdcall ResetDeletedTribe(int game, int slot) {
     notify_village_solidarity(game, slot);
     notify_heathens_keep_masks(game, slot);
     notify_heathen_aging(game, slot);
+    notify_heathen_mausoleum(game, slot);
     /* The village in the slot's own save, which both hooks reach before the
      * game removes or overwrites it (see vv_saved_village_header). The
      * reserve is the reader's own "\\*<slot>.ldw" filter; it bounds each full

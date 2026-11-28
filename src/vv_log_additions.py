@@ -79,6 +79,9 @@ CHECKED = {
                   "they died (Checked Skill Preferences are listed as Jobs on Graves), where the save still holds it; A New Home's Golden Child: \"Golden Child\", and the child "
                   "epitaph his grave holds where his record has none",
     "esteemed": "the records with skills and no Special villager line, and each grave against its villager's record still in the save, for three or more skills at the game's Master level (Esteemed Elders in Every Game)",
+    # src/vv_parents_follow_sex.py CHECKED, word for word (the owner, 2026-11-27).
+    "parents_sex": "the parents of every child in the save and the Birth, History, Population and Unaccounted "
+                   "records, against the sex the save and the logs record for each parent, and the player's answers",
 }
 ADDED = {"sex": "Sex added", "special": "Special villager added", "custom": "Custom title added",
          "mask": "Mask added", "born_as": "Born as added", "golden": "Golden Child's Birth added",
@@ -93,6 +96,7 @@ ADDED = {"sex": "Sex added", "special": "Special villager added", "custom": "Cus
          "misfiled": "Record moved to its own save's log",
          "apprentice": "Grave line rewritten as the game draws it",
          "esteemed": "Esteemed Elder title given",
+         "parents_sex": "Parents put by their sex",
          "reconcile": "Answered"}
 REMOVE_IT = "Remove"
 KEEP_IT = "Keep it"
@@ -660,7 +664,7 @@ def _who_at(lines: list[str], at: int) -> tuple:
     start = at
     label = "Name"
     for k in range(at, max(-1, at - 12), -1):
-        m = re.match(r"^\s*(Name|Child|Mother|Father): (.*)$", lines[k])
+        m = re.match(r"^\s*(Name|Child|Mother|Father|First|Second): (.*)$", lines[k])
         if m:
             label, name, start = m.group(1), m.group(2).strip(), k
             break
@@ -712,10 +716,10 @@ def plan_born_as(folder: Path, game: int, slot: int) -> Kind:
             if not is_birth(b.heading):
                 k += 1
                 continue
-            mother = _sub_identity(b, "Mother")
+            mother = birth_carrier(b)           # who carried: the Conception's Mother
             group = [b]
             while k + len(group) < len(all_blocks) and is_birth(all_blocks[k + len(group)].heading) \
-                    and _sub_identity(all_blocks[k + len(group)], "Mother") == mother \
+                    and birth_carrier(all_blocks[k + len(group)]) == mother \
                     and len(group) < 3:
                 group.append(all_blocks[k + len(group)])
             k += len(group)
@@ -804,7 +808,7 @@ def plan_golden(folder: Path, game: int, slot: int) -> Kind:
                 if mother and father:
                     open_ = [o for o in open_ if o[0] != mother] + [(mother, father)]
             elif is_birth(c.heading) or c.heading == LOST_HEADING:
-                mother = _sub_identity(c, "Mother")
+                mother = birth_carrier(c) if is_birth(c.heading) else _sub_identity(c, "Mother")
                 open_ = [o for o in open_ if o[0] != mother]
         if not open_:
             kind.notes.append(f"{name}, the Golden Child: no pregnancy in the logs could be theirs; nothing added.")
@@ -874,6 +878,26 @@ def _sub_identity(b: Block, label: str) -> tuple | None:
             else:
                 body = int(m.group(2))
     return (name, head, body)
+
+
+# A Birth record whose Father carried the baby (the parents follow their sex, the owner 2026-11-27:
+# native/parentage_export CARRIED_BY_FATHER_FORMAT, src/vv_parents_follow_sex.py): the carrier -- whose Conception
+# names them as its Mother -- is named here.
+CARRIED_BY_FATHER = re.compile(r"^  Note: Carried by (.+), who is male \(named as the Father;")
+
+
+def birth_carrier(b: Block) -> tuple | None:
+    """(name, head, body) of the villager who carried a Birth record's baby: its Father when its note says the
+    Father carried it, else its Mother (every game records the carrier as the Mother).
+
+    The note is written only when the Father carried (native/parentage_export parents_follow_sex,
+    src/vv_parents_follow_sex.py), so it means the Father whatever name it gives: a rename that left the note's
+    name behind (an older patcher's rename, a hand edit) never turns the carrier back into the Mother -- the
+    Father's own line, its name and looks, is who carried (Codex, #887)."""
+    father = _sub_identity(b, "Father")
+    if father is not None and any(CARRIED_BY_FATHER.match(line) for line in b.lines):
+        return father
+    return _sub_identity(b, "Mother")
 
 
 def _birth_anchor(b: Block) -> int:
@@ -959,7 +983,8 @@ def plan_lost(folder: Path, game: int, slot: int) -> Kind:
         every += [b for b in blocks(path) if b.of(slot, game, villages) and not b.not_kept]
     last: dict[tuple, Block | None] = {}           # mother -> her last Conception, None once closed
     for b in every:
-        mother = _sub_identity(b, "Mother")
+        # A Birth closes its carrier's pregnancy: its Father when he carried (birth_carrier).
+        mother = birth_carrier(b) if is_birth(b.heading) else _sub_identity(b, "Mother")
         if mother is None:
             continue
         if b.heading.startswith("Conception"):
@@ -1136,7 +1161,7 @@ HEATHEN_ROLES = ("Heathen Doctor", "Heathen Chief", "Heathen Master Scientist", 
 CONVERTED = "Converted from the Heathens"
 # With Guardians of Isola Rewrite the companions write "Converted from the Isolans", the Former Isolan titles and the
 # rewrite's own puzzle titles (the owner, 2026-11-23): every reader takes both (vv_isolan_words), as LEFT_RECORDS.
-from vv_isolan_words import CONVERTED_HOWS, heathen_form   # Heathen / Guardians of Isola's Isolan words  # noqa: E402
+from vv_isolan_words import CONVERTED_HOWS, heathen_form, is_heathen_arrival   # both wordings  # noqa: E402
 # A Birth record's heading is read by the shared scripts/vvfp_consistency_check.py is_birth_heading
 # ("Birth <n>" or an older log's plain "Birth"); the Arrived and Disappeared records' headings,
 # numbered or not, the same way.
@@ -1175,6 +1200,14 @@ def is_heathen_record(b) -> bool:
     return is_heathen_faction(b.value("Faction"))
 
 
+def _came_as_heathen(b) -> bool:
+    """Whether an Arrived record is a Heathen's coming to the camp -- "VVFP Heathen Aging.dll"'s replacements and,
+    with Heathen Tribe Expansion and Evolution, the new arrivals ("Arrived at the Heathen camp [with N other(s)]",
+    either wording) -- by its Faction line or its "How:".  Such a Heathen never came as a believer, so nothing of
+    theirs asks for a "Left the tribe" record or a believer's faction."""
+    return is_heathen_record(b) or is_heathen_arrival(b.value("How"))
+
+
 def _faction_of_title(title: str | None) -> str | None:
     """What a record's own Special villager line says of its faction then: a Heathen role title is
     only ever a current Heathen's, a former Heathen's titles only a believer's
@@ -1199,10 +1232,13 @@ def _faction_events(folder: Path, game: int, slot: int) -> tuple[set, set, set]:
             if not b.of(slot, game, villages):
                 continue
             if ARRIVED_HEADING.match(b.heading):
+                if _came_as_heathen(b):
+                    continue                  # a Heathen who joined the camp: no side to change from
                 (converted if (b.value("How") or "").strip() in CONVERTED_HOWS else believer).add(b.identity)
             elif DISAPPEARED_HEADING.match(b.heading) and b.value("What happened") in LEFT_RECORDS:
                 left.add(b.identity)
-            elif checker.is_birth_heading(b.heading) and not b.not_kept:   # src/vv_not_kept.py
+            elif (checker.is_birth_heading(b.heading) and not b.not_kept   # src/vv_not_kept.py
+                  and not is_heathen_record(b)):                           # a Heathen baby: born a Heathen
                 child = _sub_identity(b, "Child")
                 if child:
                     believer.add(child)
@@ -1285,9 +1321,11 @@ def _side_counts(folder: Path, game: int, slot: int, villages: set[str] | None,
             if not b.of(slot, game, villages):
                 continue
             if ARRIVED_HEADING.match(b.heading):
+                if _came_as_heathen(b):
+                    continue                      # joined the Heathens' camp: never came as a believer
                 add(b.identity, 1 if (b.value("How") or "").strip() in CONVERTED_HOWS else 0)
             elif checker.is_birth_heading(b.heading):
-                if not b.not_kept:                # never in the saved village (src/vv_not_kept.py)
+                if not b.not_kept and not is_heathen_record(b):   # a Heathen baby was never a believer
                     add(_sub_identity(b, "Child"), 0)
             elif DISAPPEARED_HEADING.match(b.heading):
                 what = b.value("What happened")
@@ -1965,6 +2003,10 @@ def plan(folder: Path, game: int, slot: int, game_folders: list[Path] | None = N
         plan_apprentice(folder, game, slot, game_folders),
         plan_esteemed(folder, game, slot, people, current, game_folders),
     ]
+    # The parents by their sex (the owner, 2026-11-27; src/vv_parents_follow_sex.py): a child recorded with a man
+    # as its Mother and a woman as its Father, the way every game records who carried.
+    import vv_parents_follow_sex
+    kinds.append(vv_parents_follow_sex.plan_kind(folder, game, slot))
     # New Believers: the mask a villager wore when they rejoined the tribe, given back once (the owner,
     # 2026-11-22; src/vv5_rejoined_masks.py) -- listed here, so the player sees who before approving.
     if game == 5:

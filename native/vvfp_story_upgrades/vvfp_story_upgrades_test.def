@@ -97,6 +97,7 @@ EXPORTS
     VvfpStoryStats DATA
     VvfpStoryOutcomeStats DATA
     VvfpStoryCustomTitle=_VvfpStoryCustomTitle@16
+    VvfpStorySetCustomTitle=_VvfpStorySetCustomTitle@12
     VvfpStoryAppearanceChanged=_VvfpStoryAppearanceChanged@16
     VvfpStoryTimeSkipNoticeShown=_VvfpStoryTimeSkipNoticeShown@4
     VvfpStoryCustomState=_VvfpStoryCustomState@4
@@ -163,7 +164,6 @@ EXPORTS
     VvfpStoryProbeGraphVv1Parent=_VvfpStoryProbeGraphVv1Parent@20
     VvfpStoryProbeGraphHeadLook=_VvfpStoryProbeGraphHeadLook@12
     VvfpStoryProbeGraphPresentation=_VvfpStoryProbeGraphPresentation@12
-    VvfpStoryProbeGraphBornMale=_VvfpStoryProbeGraphBornMale@4
     VvfpStoryProbeGraphNoDeliver=_VvfpStoryProbeGraphNoDeliver@4
     VvfpStoryProbeGraphPresented=_VvfpStoryProbeGraphPresented@4
     VvfpStoryProbeGraphLateAt=_VvfpStoryProbeGraphLateAt@4
@@ -313,6 +313,7 @@ EXPORTS
     VvfpStoryStats DATA
     VvfpStoryOutcomeStats DATA
     VvfpStoryCustomTitle=_VvfpStoryCustomTitle@16
+    VvfpStorySetCustomTitle=_VvfpStorySetCustomTitle@12
     VvfpStoryAppearanceChanged=_VvfpStoryAppearanceChanged@16
     VvfpStoryTimeSkipNoticeShown=_VvfpStoryTimeSkipNoticeShown@4
     VvfpStoryCustomState=_VvfpStoryCustomState@4
@@ -379,7 +380,6 @@ EXPORTS
     VvfpStoryProbeGraphVv1Parent=_VvfpStoryProbeGraphVv1Parent@20
     VvfpStoryProbeGraphHeadLook=_VvfpStoryProbeGraphHeadLook@12
     VvfpStoryProbeGraphPresentation=_VvfpStoryProbeGraphPresentation@12
-    VvfpStoryProbeGraphBornMale=_VvfpStoryProbeGraphBornMale@4
     VvfpStoryProbeGraphNoDeliver=_VvfpStoryProbeGraphNoDeliver@4
     VvfpStoryProbeGraphPresented=_VvfpStoryProbeGraphPresented@4
     VvfpStoryProbeGraphLateAt=_VvfpStoryProbeGraphLateAt@4
@@ -430,6 +430,11 @@ EXPORTS
     VvfpStoryProbeHeathenAging=_VvfpStoryProbeHeathenAging@12
     VvfpStoryProbeReviveLoadShared=_VvfpStoryProbeReviveLoadShared@20
     VvfpStoryProbeHeathenEvents=_VvfpStoryProbeHeathenEvents@8
+    VvfpStoryProbeReviveSnapshotFile=_VvfpStoryProbeReviveSnapshotFile@8
+    VvfpStoryProbeReviveCapture=_VvfpStoryProbeReviveCapture@32
+    VvfpStoryProbeReviveSnapshotOf=_VvfpStoryProbeReviveSnapshotOf@4
+    VvfpStoryProbeReviveRestored=_VvfpStoryProbeReviveRestored@0
+    VvfpStoryProbeReviveRole=_VvfpStoryProbeReviveRole@0
     VvfpStoryProbeSetOverride=_VvfpStoryProbeSetOverride@4
     VvfpStoryProbeOverridePossible=_VvfpStoryProbeOverridePossible@12
     VvfpStoryProbeOverrideEntry=_VvfpStoryProbeOverrideEntry@12
@@ -437,3 +442,4 @@ EXPORTS
     VvfpStoryProbeChooserWhy=_VvfpStoryProbeChooserWhy@12
     VvfpStoryProbeMoreOverride=_VvfpStoryProbeMoreOverride@4
     VvfpStoryProbeOverrideArmed=_VvfpStoryProbeOverrideArmed@0
+    VvfpStoryProbeReviveMissed=_VvfpStoryProbeReviveMissed@0

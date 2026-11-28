@@ -74,7 +74,7 @@ PINS = (
     ("item", "Fruit", "C", "CCC"),
     ("item", "Honey", "C", ""),
     ("item", "Fish and the crab", "C", ""),
-    ("item", "Mushrooms", "E", "ECCC"),
+    ("item", "Mushrooms", "E", "ECCCC"),
     ("item", "Collectibles", "C", "CC"),
     ("item", "Turtle Shell Collection", "C", "C"),
     ("item", "Coral Collection", "C", "C"),

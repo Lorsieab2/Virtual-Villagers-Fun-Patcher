@@ -1,0 +1,4 @@
+LIBRARY "VVFP Exact Pickups"
+EXPORTS
+    VvfpStartup=_VvfpStartup@8
+    VvfpExactPickupsInstalled=_VvfpExactPickupsInstalled@0

@@ -280,17 +280,6 @@
       ]
     },
     {
-      "ids": ["vv5_heathens_in_island_events"],
-      "guide": [
-        "New Believers. Off by default; Owner's Defaults ticks it. Select All does not tick it. In the Island Events section.",
-        "Ordinary Heathens can be chosen for the new island events' roles that allow them, and Heathen-Exclusive Events can happen.",
-        "A chief, the Retired Chief and the puzzles' Heathens are never chosen.",
-        "When only Heathens are in an event, food, tech points, buildings, goods and research happen to the Heathens' village and change nothing in yours.",
-        "Those lines end \"(no effect)\". Heathens never count in the Village Statistics.",
-        "Needs Story / Cheat Upgrades. The game's own island events are unchanged. Not yet tested in play."
-      ]
-    },
-    {
       "ids": ["vv1_island_events_any_time", "vv2_island_events_any_time", "vv3_island_events_any_time", "vv4_island_events_any_time", "vv5_island_events_any_time"],
       "guide": [
         "Off everywhere, Owner's Defaults too; Select All does not tick it. For masochists. In each game's patch list, right under Classic VV Difficulty where the game has it.",
@@ -543,6 +532,8 @@
         "On the Villager Details screen, a villager's name is only ever saved back to that villager, even when the arrows are clicked quickly; a name you type is still kept.",
         "Healers keep learning Healing while the game is closed (and during Time Warp), as they do while you play.",
         "The game's own island events never pick the Golden Child for an outcome that could kill him or make him vanish; Pick Island Event and Custom Island Event still can.",
+        "A maximized or full screen game no longer comes back from the taskbar with a still picture, and in full screen or a bigger window the mouse clicks exactly where the pointer is.",
+        "Several children dropped on one mushroom or collectible each take only the one they were dropped on; no other item on the island vanishes.",
         "Nothing to click. On by default."
       ]
     },
@@ -556,6 +547,8 @@
         "On the Villager Details screen, a villager's name is only ever saved back to that villager; a name you type is still kept.",
         "Healers keep learning Healing while the game is closed (and during Time Warp), as they do while you play.",
         "The Overview Map's fire flickers like the village's fire instead of showing a still yellow blob.",
+        "A maximized or full screen game no longer comes back from the taskbar with a still picture, and in full screen or a bigger window the mouse clicks exactly where the pointer is.",
+        "Several children dropped on one mushroom or collectible each take only the one they were dropped on; no other item on the island vanishes.",
         "The fish and the field's protection from birds never go below 0. Nothing to click. On by default."
       ]
     },
@@ -569,6 +562,8 @@
         "On the Villager Details screen, a villager's name is only ever saved back to that villager; a name you type is still kept.",
         "After a Time Warp or time away, builders now really build started population huts. A raindrop of no length can no longer crash the game.",
         "The hospital tables' broken legs are fixed (art by Lorsieab2). Unpausing at another speed gives the fire that speed's length.",
+        "A maximized or full screen game no longer comes back from the taskbar with a still picture, and in full screen or a bigger window the mouse clicks exactly where the pointer is.",
+        "Several children dropped on one mushroom or collectible each take only the one they were dropped on; no other item on the island vanishes.",
         "The Overview Map's water fits its riverbeds. Keep it on with 256 Villagers (Experimental). On by default."
       ]
     },
@@ -582,6 +577,8 @@
         "Unpausing at another speed gives the Fire Pit that speed's length. Nursery School lessons no longer always pick Building on a tie.",
         "Rain can no longer crash the game, and the Overview Map's water (rivers, waterfalls and their animations) lines up with its riverbeds.",
         "After The Frog Rescue, frogs leap all along the river's blue water around the island, never on grass or the ladder, as often as in the original game. On by default.",
+        "A maximized or full screen game no longer comes back from the taskbar with a still picture, and in full screen or a bigger window the mouse clicks exactly where the pointer is.",
+        "Several children dropped on one mushroom or collectible each take only the one they were dropped on; no other item on the island vanishes.",
         "No cutting tool is used up on an empty bush (with Cloth Sacks, no sack on an empty fruit tree). Cutting-tool berries count for The Grand Feast."
       ]
     },
@@ -1189,41 +1186,35 @@
         "their age goes up, their hair greys at the usual age, and they can die of old age by the believers' own rule.",
         "They still never eat, starve or fall sick. The camp's own Heathens and the puzzle Heathens do not age with this patch.",
         "A former villager who dies is not replaced, so leaving your tribe never grows the camp.",
-        "What is left is decided by All Heathens Leave Skeletons or Former Villagers Among the Heathens Leave Skeletons;",
+        "What is left is decided by Heathen Tribe Expansion and Evolution or Former Villagers Among the Heathens Leave Skeletons;",
         "with neither, they disappear from the camp, no grave. Deaths are logged; Heathens never count in the Village Statistics.",
         "Villagers who left before this patch are recognised by the parents on their record."
       ]
     },
     {
-      "ids": ["vv5_heathen_tribe_ages"],
+      "ids": ["vv5_heathen_tribe_evolution"],
       "guide": [
-        "Off by default, in Owner's Defaults and in Select All (Select All does not tick it). Nothing to click: it works on its own.",
-        "Every Heathen ages and can die of old age by the believers' own rule: the camp's Heathens, villagers who left you,",
-        "and the puzzle Heathens too (the Heathen Doctor, the Heathen Chief, the three Masters and the Heathen Mommy).",
-        "A camp Heathen who dies is replaced at once; a puzzle Heathen whose puzzle is not solved is replaced in the same role,",
-        "set up as the game sets that role up, so every puzzle can still be solved. A solved puzzle's Heathen never comes back.",
-        "Heathen couples now and then have children (about once in 20 years for each woman from 14 to 45), only while room is",
-        "left for your own village's babies. Villagers who left you are not replaced; after The Last Heathen, or with none alive, no new Heathens.",
-        "With Former Villagers Keep Aging Among the Heathens also ticked, nobody ages twice. Heathens never count in statistics.",
-        "Not yet seen in a running game."
-      ]
-    },
-    {
-      "ids": ["vv5_all_heathens_leave_skeletons"],
-      "guide": [
-        "Off by default, in Owner's Defaults and in Select All (Select All does not tick it). Only matters with a Heathen aging patch ticked:",
-        "Former Villagers Keep Aging Among the Heathens or Heathen Tribe Ages, Dies and Has Children.",
-        "Every Heathen who dies of old age leaves a skeleton; your believers bury it with Burying the dead (once The Buried",
-        "Mausoleum is solved), which gives a normal grave. Cannot be ticked with Former Villagers Among the Heathens Leave Skeletons."
+        "New Believers. Off by default; Owner's Defaults ticks it, with new arrivals at 1x. Select All does not tick it. Settings... holds the sliders.",
+        "A growing camp makes The Last Heathen harder to reach, or impossible: it is solved only when no Heathen is left.",
+        "Every Heathen ages and can die of old age; an unsolved puzzle's Heathen is replaced at once. Heathens pair for life (either sex, never kin).",
+        "Babies: about one for the tribe every 24 real hours on Normal at 1x (0.1-10x Heathen Tribe Births), also after The Last Heathen.",
+        "New Heathens arrive (0-10x New Heathen Arrivals; none unless set): at 1x about every 48 real hours, one to four, mostly blue-masked.",
+        "A new Chief or Master follows a dead one after the puzzle. Elders retire to the encampment; a younger one takes the role (never the Chief's).",
+        "Heathens fall sick and Heathen doctors heal them (never fatal; never in People Cured). A grown camp child is replaced at once (the Rascal too).",
+        "Idle adults sometimes harvest (taking nothing), visit buildings, eat for show or pray at the mud hut. Skills grow by practice.",
+        "Heathens bury their dead at the mud hut: click it to see the Shrine to the Ancestors. Heathens never count in the Village Statistics.",
+        "It replaces Heathen Tribe Ages, Dies and Has Children, All Heathens Leave Skeletons and Heathens in island events (an old selection ticks it).",
+        "Island events need Story / Cheat Upgrades; Heathen-Exclusive Events the Isola Grand Event Collection too. Not yet seen in a running game."
       ]
     },
     {
       "ids": ["vv5_former_villager_heathens_leave_skeletons"],
       "guide": [
         "Off by default and in Select All (Select All does not tick it); on in Owner's Defaults only.",
-        "Only matters with Former Villagers Keep Aging Among the Heathens or Heathen Tribe Ages, Dies and Has Children ticked.",
-        "Only villagers who had left your tribe leave a skeleton when they die among the Heathens; your believers bury it",
-        "(once The Buried Mausoleum is solved). Other Heathens leave nothing. Cannot be ticked with All Heathens Leave Skeletons."
+        "Only matters with Former Villagers Keep Aging Among the Heathens or Heathen Tribe Expansion and Evolution ticked.",
+        "Only villagers who had left your tribe leave a skeleton when they die among the Heathens. Heathens bury it at the mud hut",
+        "(believers do, once The Buried Mausoleum is solved, when no Heathen can): click the hut to see the Shrine to the Ancestors.",
+        "Other Heathens leave nothing. With Heathen Tribe Expansion and Evolution ticked every Heathen leaves one anyway."
       ]
     },
     {
@@ -1345,7 +1336,7 @@
       "guide": [
         "Adds Revive Buried/Disappeared Villagers to the Tech upgrades: 100,000 tech points, free when upgrades are free.",
         "It lists the village's buried and vanished villagers with what the logs and graves say about them.",
-        "The one you pick comes back as the same person, aged 5, and their grave is removed.",
+        "The one you pick comes back as the same person, aged 5, and their grave is removed.", "Every detail is kept when a villager dies: looks, family, skills, likes, titles and more.", "New Believers' puzzle Heathens come back in their role, or as ordinary Heathens if it is taken.",
         "Not possible while the village is full; nothing is spent then. You can buy it again and again.",
         "The list comes from the Deaths log: tick Write Births and Conceptions Log and Show Cause of Death.",
         "Off by default; on in Owner's Defaults. Needs Story / Cheat Upgrades; ticking this ticks it for you."
@@ -1400,15 +1391,16 @@
     {
       "ids": ["vv5_fix_vanilla_bugs"],
       "guide": [
-        "Fixes a bug in the original game: every name in the male and female lists can now be given to a new villager (Ago, Yapili, Aipi and Zucca never could be).",
-        "Villagers already named keep their names. A \"%\" in a name can no longer crash the game, and the game's text boxes no longer accept a typed \"%\".",
-        "On the Villager Details screen, a villager's name is only ever saved back to that villager; a name you type is still kept.",
+        "Fixes original-game bugs: every name in the male and female lists can now be given to a new villager (Ago, Yapili, Aipi and Zucca never could be).",
+        "Villagers already named keep their names. A \"%\" in a name can no longer crash the game, and text boxes refuse a typed \"%\".",
+        "On the Details screen, a villager's name is only ever saved back to that villager; a name you type is still kept.",
         "Rain can no longer crash the game: a raindrop of no length is drawn as a dot. An unfinished Nursery School says \"foundation\" until building starts.",
         "Clicking the finished Clothing Hut no longer says \"Construction 100% completed\" (the other finished buildings never did).",
         "A villager held over The Blind Totem now says a line, like the other totems, and so does the fixed-up mud hut once The Last Heathen is converted.",
         "Nursery School lessons no longer nearly always go to Devotion (a tie is broken at random). The Last Heathen's hovel fits the map (art by Lorsieab2).",
         "The Puzzles screen shows how many hours The Hungry Totem took (it always said 0); a village that already solved it shows its real time too.",
-        "The Defector is always a Heathen of 14 or more, like the envoy in Outreach? (the original game could pick a Heathen child).",
+        "The Defector is always a Heathen of 14 or more, like Outreach?'s envoy (the game could pick a child). Children dropped on one item take only that one; nothing else vanishes.",
+        "A maximized or full screen game no longer comes back from the taskbar with a still picture, and in full screen or a bigger window the mouse clicks exactly where the pointer is.",
         "Polishing the Tribute Statue now gives 1 Divine Energy each time, as the game's tip says (never above the cap); it still trains Building. Nothing to click. On by default."
       ]
     },
@@ -1574,6 +1566,10 @@
   },
   "controls": {
     "partner_carry_percent": {"title": "A man may carry the baby by chance", "guide": ["In a couple's pregnancy of a new island event that allows it, how often the man carries the baby instead: 0 to 100 percent, 10 unless moved.", "Drag the slider or type the number. 0: never by chance; an event's own reason, or a choice the player makes, still can.", "He must be 18 or older and not expecting already; otherwise the woman carries as usual. Owner's Defaults: 10. Not yet tested in play."]},
+    "heathen_tribe_births_multiplier": {"title": "0.1-10x Heathen Tribe Births", "guide": ["Heathen Tribe Expansion and Evolution (New Believers): how often the Heathen tribe has babies.", "At 1 about one baby for the whole tribe every 24 real hours on Normal speed (12 on Fast, 40 on Slow); 10 is ten times as often, -10 a tenth.", "Only women in a couple with a man have babies. 1 unless moved, Owner's Defaults too. Patch again after a change.", "A growing camp makes The Last Heathen harder to reach, or impossible."]},
+    "heathen_arrivals_multiplier": {"title": "0-10x New Heathen Arrivals", "guide": ["Heathen Tribe Expansion and Evolution (New Believers): new Heathens join the camp from elsewhere. Untick New Heathens arrive for none (0).", "At 1 about one arrival every 48 real hours on Normal speed: one to four Heathens, sometimes a couple with up to two children.", "10 is ten times as often, -10 a tenth. Arrivals keep coming after The Last Heathen. Off in Default Patches; 1 in Owner's Defaults.", "A growing camp makes The Last Heathen harder to reach, or impossible. Patch again after a change."]},
+    "heathen_show_percent": {"title": "Show actions", "guide": ["Heathen Tribe Expansion and Evolution (New Believers): of an idle adult Heathen's choices, the percent that are a show action:", "a harvest that takes nothing, a visit to a building, a show meal or praying at the mud hut. The rest are the game's own Heathen life.", "1 to 100, 25 unless moved (about 1 choice in 4). None of it changes anything of your believers'. Patch again after a change."]},
+    "heathen_keep_blue": {"title": "Keep every new Heathen blue", "guide": ["Heathen Tribe Expansion and Evolution (New Believers): every new arrival and every Heathen baby wears the blue mask.", "Unticked (the default), they are 90% blue, 7% orange and 3% red; the mask colour changes how a Heathen acts (red ones chase and scare).", "The puzzles' Heathens keep their own masks. Patch again after a change."]},
     "more_island_events_and_creator": {"title": "More Island Events and Creator", "guide": ["One tick for every island event the patcher adds: More Island Events and the Isola Grand Event Collection.", "Ticking it ticks both, with Story / Cheat Upgrades and Scrolling Popups; unticking it unticks both.", "Each can still be ticked on its own. Owner's Defaults, Select All and Classic VV Difficulty tick the whole row.", "Its Settings... button opens its own window: the partner-carry percent, the Custom Island Event Library, the content filters and Player Events."]},
     "island_event_content_filters": {
       "title": "Content Filters",
@@ -1594,8 +1590,8 @@
         "0.1-10x Tech Cost (all five games), Classic VV Difficulty, Change Sex and Gender Presentation, More Frequent Island Events,",
         "The Golden Child May Be Born Female (50:50), One-Time Collectibles Appear Again, Village Solidarity, Esteemed Elders in Every Game,",
         "Fog of Doom Lets Red and Orange Heathens Listen, No Restrictions on Fog of Doom Conversions, Former Villagers Keep Aging Among the Heathens,",
-        "Heathen Tribe Ages, Dies and Has Children, All Heathens Leave Skeletons, Former Villagers Among the Heathens Leave Skeletons, Max Divine Energy Continues to Increase,",
-        "the 0.1-10x sliders and the island event controls (Content Notes, every Content Filter, No Safeguards, Heathens in island events) are not ticked either."
+        "Heathen Tribe Expansion and Evolution, Former Villagers Among the Heathens Leave Skeletons, Max Divine Energy Continues to Increase,",
+        "the 0.1-10x sliders and the island event controls (Content Notes, every Content Filter, No Safeguards) are not ticked either."
       ]
     },
     "default_patches": {
@@ -1610,7 +1606,7 @@
         "Scrolling Popups, More Island Events, Isola Grand Event Collection, Every Island Event Can Happen, both Island Events Scale patches, One-Time Collectibles Appear Again,",
         "the 0.1-10x sliders and the island event controls. Respecting the Legacy of Isola, Heathens Keep Their Masks When Converted, Memorial Actions Can Also Occur at the Heathen Hovel,",
         "Shrine to the Ancestors, both Fog of Doom patches, Practicing Devotion Builds Faith and Divine Energy, Esteemed Elders in Every Game,",
-        "the four Heathen aging patches, Revive Buried/Disappeared Villagers, Max Divine Energy Continues to Increase."
+        "the three Heathen aging patches, Revive Buried/Disappeared Villagers, Max Divine Energy Continues to Increase."
       ]
     },
     "owners_defaults": {
@@ -1621,7 +1617,7 @@
         "Use Unicode Font (overrides in-game fonts) is off too: Render Unicode with In-Game Fonts is ticked instead.",
         "Move the \"Playing in the dirt\" Spot is off too: Puddle Play Moves to the Lake Shore is ticked instead.",
         "Yellow Breadfruit Refills Partially Every Time is off too.",
-        "Heathen Tribe Ages, Dies and Has Children and All Heathens Leave Skeletons are off too.",
+        "Heathen Tribe Expansion and Evolution is ticked, with New Heathen Arrivals at 1x.",
         "That includes Story / Cheat Upgrades, Respecting the Legacy of Isola and 256 Villagers (Experimental), which uses its own save folder.",
         "It ticks the harder-game patches too, Classic VV Difficulty and 0.1-10x Tech Cost included, and sets both sliders to 2.",
         "Story / Cheat Upgrades cost Tech Points is off here (the upgrades are free). So is Island Events Scale With Stored Food and Tech Points.",
@@ -1898,6 +1894,7 @@
         "Tick what to do, then Repair (backed up first). Reset corrupted skill values, old \"?\" names, children's \"Apprentice\" Job lines.",
         "New Believers: Catch up Heathen ages adds the time each villager spent among the Heathens to their age (the list is shown first).",
         "Older records get the Sex, Special villager, Custom title, Mask and Twin / Triplet lines they lack; you are asked what files cannot tell.",
+        "Parents by their sex: a child listed with a man as its Mother and a woman as its Father gets her as the Mother and him as the Father.",
         "Give villagers last names (Choose...): village rule, own rule or Random; in the game and every log.",
         "Number duplicate names: Soda I, Soda II..., oldest first (order of appearance), in game and logs.",
         "Fix grave information (Choose...): where a grave and its records differ, pick the value, or edit a grave.",
