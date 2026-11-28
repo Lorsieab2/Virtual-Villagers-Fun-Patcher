@@ -1211,7 +1211,9 @@ class Finds(_Base):
             self.assertEqual(len(carried), 1)
             self.assertIn(carried[0], items)
             types = [s[0] for s in steps]
-            self.assertEqual(types[-1], 0x13, "set down")
+            # Never the game's drop step (0x13): with "Collectibles Stay Collected" its release listener credits an
+            # item anywhere (Codex, PR #899).  The set-down is a pose; the carry is cleared by a plain write.
+            self.assertNotIn(0x13, types, "never the game's drop step")
             walks = self.walks(steps)
             self.assertTrue(_inside(self.areas[CAMP], walks[-1][1], walks[-1][2]), "at the encampment")
             self.assertFalse(any(_inside(self.areas[a], walks[-1][1], walks[-1][2]) for a in (5, 0x0D, 0x36)),

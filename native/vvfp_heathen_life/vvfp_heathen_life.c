@@ -1172,7 +1172,10 @@ static int look_find(unsigned char *record, int area) {
     animate(record, 0x0B);
     pose(record, G_POSE_4, 2);
     sound_end(record);
-    drop(record);
+    /* NO drop step: the game's drop (0x474DE0) hands the carried item to its release listener, and with "Collectibles
+       Stay Collected" that listener credits an item anywhere, not only in its delivery areas -- a pretend find would
+       become a real one (Codex, PR #899).  The set-down pose above is the look; the carry is cleared without any
+       dispatch (R_CARRY = -1) by clear_flavour() when the queue ends and the picker is next called. */
     start(record);
     return item;
 }
@@ -1736,11 +1739,16 @@ static void clear_flavour(unsigned char *record, int index) {
 static int __cdecl pick(unsigned char *record) {
     __try {
         int index = rec_index(record), may_go_out, overdue, since;
-        if (index < 0 || !heathen(record) || !ordinary(record) || raining()) {
+        if (index < 0 || !heathen(record) || !ordinary(record)) {
+            return 0;
+        }
+        /* A pretend find ends here, before anything else (rain included) can hand the record to the stock AI with
+           the carried sprite still set. */
+        clear_flavour(record, index);
+        if (raining()) {
             return 0;
         }
         g_out[index] = 0;                                 /* whatever it was out on has ended */
-        clear_flavour(record, index);
         if (record[R_SICK] != 0) {
             look_sick(record);
             return 1;
