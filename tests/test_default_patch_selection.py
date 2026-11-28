@@ -202,6 +202,8 @@ class DefaultPatchSelectionTests(unittest.TestCase):
                   # Fog of Doom Lets Red and Orange Heathens Listen and No Restrictions on Fog of Doom Conversions (New
                   # Believers, new 2026-11-19).
                   or p in ("vv5_fog_of_doom_every_heathen_listens", "vv5_fog_of_doom_no_restrictions")
+                  # Skin Tones (new 2026-11-28: in no defaults until the owner decides).
+                  or p.endswith("_skin_tones")
                   # Practicing Devotion Builds Faith and Divine Energy (New Believers, new 2026-11-21: off by
                   # default, on in Owner's Defaults and Select All).
                   or p == "vv5_devotion_builds_faith"
@@ -510,6 +512,8 @@ class DefaultPatchSelectionTests(unittest.TestCase):
         held_back |= {"vv5_former_villagers_keep_aging", "vv5_former_villager_heathens_leave_skeletons"}
         # ...and Max Divine Energy Continues to Increase (the owner, 2026-11-25: on in Owner's Defaults only).
         held_back |= {"vv5_max_divine_energy_increases"}
+        # ...and Skin Tones (in no defaults until the owner decides).
+        held_back |= {f"vv{n}_skin_tones" for n in (3, 4, 5)}
         self.assertEqual(set(SELECT_ALL_OFF_FUN_PATCH_IDS), held_back)
         ids = fun_patch_ids()
         self.assertTrue(held_back <= ids)

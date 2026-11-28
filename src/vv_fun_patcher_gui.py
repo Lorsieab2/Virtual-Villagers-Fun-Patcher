@@ -322,6 +322,9 @@ def island_event_advisory(patch_id: str) -> tuple[str, bool] | None:
 # Fog of Doom Lets Red and Orange Heathens Listen and its modifier No Restrictions on Fog of Doom Conversions (New Believers).
 FOG_LISTENING_ID = "vv5_fog_of_doom_every_heathen_listens"
 FOG_NO_RESTRICTIONS_ID = "vv5_fog_of_doom_no_restrictions"
+# Skin Tones (The Secret City, The Tree of Life, New Believers so far): off in every set of defaults until the owner
+# decides (the owner's task, 2026-11-26: "Don't add the row to Owner's Defaults or any defaults").
+SKIN_TONES_IDS = ["vv%d_skin_tones" % game for game in (3, 4, 5)]
 # Practicing Devotion Builds Faith and Divine Energy (New Believers).
 DEVOTION_FAITH_ID = "vv5_devotion_builds_faith"
 # Esteemed Elders in Every Game (A New Home, The Lost Children, The Tree of Life; the owner, 2026-11-22).
@@ -478,6 +481,8 @@ DEFAULT_OFF_FUN_PATCH_IDS = frozenset(
     # Defaults and OFF everywhere else" -- off here and in Select All.  Its modifier No Restrictions on Fog of Doom
     # Conversions is off by default and in Select All, on in Owner's Defaults (the owner, 2026-11-20).
     + [FOG_LISTENING_ID, FOG_NO_RESTRICTIONS_ID]
+    # Skin Tones: in no defaults until the owner decides.
+    + SKIN_TONES_IDS
     # Practicing Devotion Builds Faith and Divine Energy (New Believers; the owner, 2026-11-21): a new option that hands
     # the player Faith and Divine Energy, so off here; on in Owner's Defaults and, as a normal row, in Select All.
     + [DEVOTION_FAITH_ID]
@@ -545,6 +550,8 @@ OWNERS_DEFAULT_OFF_FUN_PATCH_IDS = frozenset(
     # rows it folds, Heathen Tribe Ages, Dies and Has Children and All Heathens Leave Skeletons, were here.)
     # (No Restrictions on Fog of Doom Conversions is NOT here: the owner, 2026-11-20, turned it on in Owner's
     # Defaults; it stays off by default and in Select All.)
+    # Skin Tones: in no defaults until the owner decides.
+    + SKIN_TONES_IDS
 )
 
 # Patches even Select All Patches leaves OFF, by exact id.  The owner: Select
@@ -579,6 +586,8 @@ SELECT_ALL_OFF_FUN_PATCH_IDS = frozenset(
     + [FOG_LISTENING_ID, FOG_NO_RESTRICTIONS_ID]
     # Esteemed Elders in Every Game: on in Owner's Defaults only (the owner, 2026-11-22).
     + ESTEEMED_ELDERS_IDS
+    # Skin Tones: in no defaults until the owner decides.
+    + SKIN_TONES_IDS
     # The Heathen aging rows (New Believers): on in Owner's Defaults only (the owner, 2026-11-22).
     + [FORMER_VILLAGERS_AGE_ID, FORMER_SKELETONS_ID]
     # Max Divine Energy Continues to Increase: on in Owner's Defaults only (the owner, 2026-11-25).

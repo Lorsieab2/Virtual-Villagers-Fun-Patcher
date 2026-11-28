@@ -73,6 +73,10 @@ static const char *const VVFP_STARTUP_COMPANIONS_3[] = {
        v1.35.101): the Shrine to the Ancestors, the Heathens' own graves at the mud hut (the owner, 2026-11-26).
        Bit 22. */
     "VVFP Heathen Mausoleum.dll",
+    /* Skin Tones (The Secret City, The Tree of Life, New Believers so far): each villager's skin tone, kept, handed
+       down by the head rule and drawn from that tone's copy of the head and body sheets (the owner, 2026-11-26).
+       Bit 23. */
+    "VVFP Skin Tones.dll",
     /* APPEND ONLY (see above). */
 };
 #define VVFP_STARTUP_COMPANION_COUNT_3 \

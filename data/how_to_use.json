@@ -1116,6 +1116,19 @@
       ]
     },
     {
+      "ids": ["vv3_skin_tones", "vv4_skin_tones", "vv5_skin_tones"],
+      "guide": [
+        "Off by default and in Owner's Defaults; Select All does not tick it. Tick it yourself.",
+        "Every villager gets one of ten skin tones and is drawn with it. Babies inherit it as they inherit heads:",
+        "about 19 in 20 get a tone between their parents' (the average, give or take one step); twins copy the first baby.",
+        "Now and then (about 1 baby in 20) a baby's skin tone is quite different from both parents', just as in real life,",
+        "where a family may carry genes from an ancestor long ago. This is only for fun and variety;",
+        "no real-life offense or controversy is intended.",
+        "Patching makes the tones from your own game's pictures: it adds files to the patched game's Images folder and takes a few minutes the first time.",
+        "Choosing a tone in Change Appearance is not there yet. Not yet seen in a running game."
+      ]
+    },
+    {
       "ids": ["vv5_fog_of_doom_every_heathen_listens"],
       "guide": [
         "Off by default; on in Owner's Defaults; Select All does not tick it. Cast the Fog of Doom God Power first.",
@@ -1590,7 +1603,7 @@
         "0.1-10x Tech Cost (all five games), Classic VV Difficulty, Change Sex and Gender Presentation, More Frequent Island Events,",
         "The Golden Child May Be Born Female (50:50), One-Time Collectibles Appear Again, Village Solidarity, Esteemed Elders in Every Game,",
         "Fog of Doom Lets Red and Orange Heathens Listen, No Restrictions on Fog of Doom Conversions, Former Villagers Keep Aging Among the Heathens,",
-        "Heathen Tribe Expansion and Evolution, Former Villagers Among the Heathens Leave Skeletons, Max Divine Energy Continues to Increase,",
+        "Heathen Tribe Expansion and Evolution, Former Villagers Among the Heathens Leave Skeletons, Max Divine Energy Continues to Increase, Skin Tones,",
         "the 0.1-10x sliders and the island event controls (Content Notes, every Content Filter, No Safeguards) are not ticked either."
       ]
     },
@@ -1606,7 +1619,7 @@
         "Scrolling Popups, More Island Events, Isola Grand Event Collection, Every Island Event Can Happen, both Island Events Scale patches, One-Time Collectibles Appear Again,",
         "the 0.1-10x sliders and the island event controls. Respecting the Legacy of Isola, Heathens Keep Their Masks When Converted, Memorial Actions Can Also Occur at the Heathen Hovel,",
         "Shrine to the Ancestors, both Fog of Doom patches, Practicing Devotion Builds Faith and Divine Energy, Esteemed Elders in Every Game,",
-        "the three Heathen aging patches, Revive Buried/Disappeared Villagers, Max Divine Energy Continues to Increase."
+        "the three Heathen aging patches, Revive Buried/Disappeared Villagers, Max Divine Energy Continues to Increase, Skin Tones."
       ]
     },
     "owners_defaults": {
@@ -1616,7 +1629,7 @@
         "and except All Fruit Trees Refill at the Same Time: Fruit Trees Take Turns Refilling is ticked instead.",
         "Use Unicode Font (overrides in-game fonts) is off too: Render Unicode with In-Game Fonts is ticked instead.",
         "Move the \"Playing in the dirt\" Spot is off too: Puddle Play Moves to the Lake Shore is ticked instead.",
-        "Yellow Breadfruit Refills Partially Every Time is off too.",
+        "Yellow Breadfruit Refills Partially Every Time is off too. So is Skin Tones.",
         "Heathen Tribe Expansion and Evolution is ticked, with New Heathen Arrivals at 1x.",
         "That includes Story / Cheat Upgrades, Respecting the Legacy of Isola and 256 Villagers (Experimental), which uses its own save folder.",
         "It ticks the harder-game patches too, Classic VV Difficulty and 0.1-10x Tech Cost included, and sets both sliders to 2.",

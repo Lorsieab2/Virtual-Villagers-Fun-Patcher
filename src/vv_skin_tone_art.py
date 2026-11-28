@@ -518,3 +518,78 @@ def write_tone_sheets(game: int, images: Path, out: Path, edits=None, tones=None
         if report is not None:
             report(spec["name"])
     return written
+
+
+# ---- at patch time (vv_fun_patcher._write_skin_tone_sheets) --------------------------------------------------
+STAMP = "vvfp-skin-tones.json"      # in Images: what the sheets there were made from, so a second patch is quick
+MAKER = 2                           # raised whenever the sheets this file makes change
+PREFIX = "vvfp_skin_"               # every file this makes (installed_name); no game has a file named so
+
+
+def _sha256(path: Path) -> str:
+    import hashlib
+    return hashlib.sha256(Path(path).read_bytes()).hexdigest()
+
+
+def _made_from(game: int, images: Path, edits) -> dict:
+    """What decides a game's tone sheets: this maker, the player's own sheets, and the owner's shipped marking."""
+    sources = {}
+    for spec in sheets_of(game):
+        source = _find(images, spec["name"])
+        if source is not None:
+            sources[spec["name"]] = _sha256(source)
+    marks = {}
+    for folder in edits:
+        if Path(folder).is_dir():
+            for path in sorted(Path(folder).rglob("*.png")):
+                marks[path.relative_to(folder).as_posix()] = _sha256(path)
+    return {"maker": MAKER, "game": game, "sheets": sources, "marking": marks}
+
+
+def install(game: int, images: Path, edits=None) -> list[str]:
+    """The tone sheets of `game` in its Images folder, made from the pictures there.  When the sheets already
+    there were made from the same pictures by the same maker (the stamp), nothing is done.  Returns the names
+    made (none when they were up to date).  The game's own pictures are only read."""
+    import json
+    images = Path(images)
+    if edits is None:
+        edits = [OWNER_EDITS / f"vv{game}"]
+    made_from = _made_from(game, images, edits)
+    stamp = images / STAMP
+    if stamp.is_file():
+        try:
+            was = json.loads(stamp.read_text(encoding="utf-8"))
+        except ValueError:
+            was = {}
+        if ({key: was.get(key) for key in made_from} == made_from
+                and all((images / name).is_file() for name in was.get("files", []))):
+            return []
+    remove(images)
+    written = write_tone_sheets(game, images, images, edits=edits)
+    stamp.write_text(json.dumps(dict(made_from, files=sorted(written)), indent=1), encoding="utf-8")
+    return written
+
+
+def remove(images: Path) -> list[str]:
+    """Take a game's tone sheets out of its Images folder: the files the stamp lists and every file with the
+    sheets' own prefix -- names no game has.  Returns the names removed."""
+    import json
+    images = Path(images)
+    stamp = images / STAMP
+    names = set()
+    if stamp.is_file():
+        try:
+            names = {str(name) for name in json.loads(stamp.read_text(encoding="utf-8")).get("files", [])}
+        except ValueError:
+            names = set()
+    if images.is_dir():
+        names |= {path.name for path in images.iterdir() if path.name.lower().startswith(PREFIX)}
+    removed = []
+    for name in sorted(names):
+        path = images / Path(name).name
+        if path.is_file() and path.name.lower().startswith(PREFIX):
+            path.unlink()
+            removed.append(path.name)
+    if stamp.is_file():
+        stamp.unlink()
+    return removed

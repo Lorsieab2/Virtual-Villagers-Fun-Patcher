@@ -155,6 +155,10 @@ FILES = [
     # Fog of Doom Lets Red and Orange Heathens Listen (New Believers): the companion, and No Restrictions on Fog of Doom
     # Conversions' flag file.
     "assets/fog_listening/VVFP Fog Listening.dll",
+    # Skin Tones (The Secret City, The Tree of Life, New Believers so far): the companion, and the owner's marking
+    # of the skin (white marks only, pinned by its manifest; tests/test_skin_tone_owner_edits.py).
+    "assets/skin_tones/VVFP Skin Tones.dll",
+    "assets/skin_tones/owner_edits/manifest.json",
     "assets/fog_listening/VVFP Fog Listening No Restrictions.txt",
     # Practicing Devotion Builds Faith and Divine Energy (New Believers): the companion.
     "assets/devotion_faith/VVFP Devotion Faith.dll",
@@ -381,6 +385,10 @@ FILES = [
     "data/vv5_heathens_keep_masks_feature.json",
     # Fog of Doom Lets Red and Orange Heathens Listen and No Restrictions on Fog of Doom Conversions (New Believers).
     "data/vv5_fog_of_doom_every_heathen_listens_feature.json",
+    # Skin Tones (scripts/build_skin_tones_feature.py).
+    "data/vv3_skin_tones_feature.json",
+    "data/vv4_skin_tones_feature.json",
+    "data/vv5_skin_tones_feature.json",
     "data/vv5_fog_of_doom_no_restrictions_feature.json",
     # Practicing Devotion Builds Faith and Divine Energy (New Believers).
     "data/vv5_devotion_builds_faith_feature.json",
@@ -796,6 +804,9 @@ FILES = [
     "docs/crash-dump-findings.md",
     "docs/transparency-log.md",
     "src/vv_fun_patcher.py",
+    # Skin Tones: the tone table and file, and the maker of the tones' sheets at patch time (Pillow only).
+    "src/vv_skin_tones.py",
+    "src/vv_skin_tone_art.py",
     "src/vv_fun_patcher_gui.py",
     # The "Virtual Villagers Fun Patcher Files" folder; vv_fun_patcher imports
     # it at the top, so the patcher cannot start without it.

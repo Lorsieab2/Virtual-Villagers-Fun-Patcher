@@ -1,0 +1,46 @@
+{
+  "id": "vv3_skin_tones",
+  "enabled": true,
+  "catalog_enabled": true,
+  "catalog_hidden": false,
+  "game_id": "vv3",
+  "name": "Skin Tones",
+  "description": "Gives every villager one of ten skin tones (Porcelain, Fair, Light golden, Light olive, Copper, Warm brown, Medium brown, Deep brown, Dark, Ebony) and draws them with it in the village, on Villager Details and in island event pictures. **Babies inherit their tone the way they inherit their heads** (the owner, 2026-11-28: \"like head inheritance\"): about 19 babies in 20 get a tone between the two parents' tones (their average, give or take one step); twins and triplets copy the first baby; with only one parent known, that parent's tone counts for both. Now and then (about 1 baby in 20) a baby's skin tone is quite different from both parents', just as in real life, where a family may carry genes from an ancestor long ago. This is only for fun and variety; no real-life offense or controversy is intended. Founders and arrivals get any tone, and so does everyone already in a village the first time it is loaded with this patch. The tone a baby will have is decided from the parents named in its record. The tones are made when you patch, from your own game's pictures: ten copies of each head and body sheet are added to the patched game's Images folder (files named vvfp_skin_...), which takes a few minutes the first time. The game's own pictures are never changed, hair, eyes, clothes and masks keep the game's own colours, and patching without this patch leaves the copies out. Each villager's tone is kept in the save's own Skin Tones file and follows them through deaths, reloads and renames; Back Up Saves copies it and Start Over clears it. **Not there yet:** choosing a tone in Change Appearance; and the memorial list's figures, the parents' small figures on Villager Details and the baby a parent holds keep the game's own art. **Off by default, in Owner's Defaults and in Select All.** **Works the same with every other patch and in every population mode.** **Not yet seen in a running game** (checked by emulation of each game's own draw code). The companion is \"VVFP Skin Tones.dll\", started by VVFP More Companions.dll; nothing is written into a save or a villager record.",
+  "output_tag": "Skin Tones",
+  "dependencies": [],
+  "behavior_changes": [
+    "\"VVFP Skin Tones.dll\" keeps one tone (1..10, or 15: the game's own art chosen) and one birth tone for every held villager in \"Virtual Villagers Fun Patcher\\Save <S>\\Data\\Skin Tones\\Skin Tones - Save <S>.dat\" (the Head Looks' store, magic 'VST2', two bytes a villager), following each villager by identity.",
+    "Whenever the village on screen is known, every held villager with no tone is given one, the oldest first: with a parent named in the record, the games' head rule on the tone numbers (rand(100) >= 5 and a parent known: (father + mother) / 2 + rand(3) - 1, kept within 1..10; else any tone), a missing parent counting as the other; a second baby of the same pregnancy copies the first; anyone else any tone. Every roll is the companion's own generator: the game's rand() sequence is not disturbed.",
+    "At each site below the sheet about to be drawn from is changed to the villager's tone's copy of it (\"vvfp_skin_<NN>_<the game's own file name>\" in Images), loaded the first time it is needed and only when every file of it is there; otherwise the game's own sheet is drawn.",
+    "At patch time the patcher makes those copies from the pictures in the patched game's own Images folder (src/vv_skin_tone_art.py): each skin pixel takes the tone's hue and its own shading; every pixel outside the skin is byte for byte the game's. \"vvfp-skin-tones.json\" there records what they were made from, so patching again does not make them again."
+  ],
+  "explicit_non_changes": [
+    "No executable byte is patched: the companion splices its sites at run time, only after verifying every one holds its stock bytes; all are written or none (a different build installs none, and then every villager is drawn with the game's own art).",
+    "No picture of the game is changed or replaced, and none is shipped: only new files are added.",
+    "The villager record and the save are never written. Nothing depends on a villager's sex.",
+    "Masks, skeletons and every sheet that is not a villager's head or body sheet are never changed."
+  ],
+  "evidence_status": "each game's draw routines read statically; the splices emulated on the stock executables in tests/test_skin_tone_draws.py and the inheritance in tests/test_skin_tones.py; runtime/player confirmation pending",
+  "companion_files": [
+    {
+      "source": "assets/skin_tones/VVFP Skin Tones.dll",
+      "destination": "VVFP Skin Tones.dll",
+      "sha256": "839E97EBD056E44B2F69DFA09AB1F3ADFE4B44D98308CFA197BDB1A74E27C879"
+    }
+  ],
+  "patches": [],
+  "runtime_detours": [
+    {
+      "va": "0x42E5E0",
+      "stock_bytes": "DB44240853",
+      "routine": "the entry of the village's draw of a villager's head or body (the sheet is its first argument)",
+      "installed_by": "VVFP Skin Tones.dll, VvfpStartup (started by VVFP More Companions.dll, third word)"
+    },
+    {
+      "va": "0x409FB0",
+      "stock_bytes": "8B09E9E9F3FFFF",
+      "routine": "the entry of the draw thunk the Villager Details portrait and an island event's figure call (the sheet is its first argument)",
+      "installed_by": "VVFP Skin Tones.dll, VvfpStartup (started by VVFP More Companions.dll, third word)"
+    }
+  ]
+}

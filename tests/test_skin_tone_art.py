@@ -16,6 +16,7 @@ from __future__ import annotations
 import sys
 import tempfile
 import unittest
+import unittest.mock
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -175,6 +176,52 @@ class Files(unittest.TestCase):
         with Image.open(root / "out" / "vvfp_skin_05_male_heads.png") as made:
             got = list(made.convert("RGBA").getdata())
         self.assertEqual(got, art.recolour(sheet, art.skin_mask(sheet, True), tones.TONE_TABLE[4]))
+
+    def test_at_patch_time_the_sheets_are_made_once_and_taken_out_with_the_row(self):
+        """vv_fun_patcher._write_skin_tone_sheets: made in the patched game's own Images folder from the pictures
+        there; a second patch finds them made; without the row they are taken out; the game's own are never touched."""
+        root, images, _sheet = self.game()
+        (images / "other.png").write_bytes(b"the game's own")
+        before = (images / "male_heads.png").read_bytes()
+        names = [f"vvfp_skin_{n:02d}_male_heads.png" for n in range(1, 11)]
+        self.assertEqual(art.install(1, images, edits=[]), names)
+        self.assertEqual(sorted(p.name for p in images.iterdir()), sorted(names + ["male_heads.png", "other.png", art.STAMP]))
+        made = {name: (images / name).read_bytes() for name in names}
+        self.assertEqual(art.install(1, images, edits=[]), [], "already made from these pictures: nothing to do")
+        (images / names[3]).unlink()
+        self.assertEqual(art.install(1, images, edits=[]), names, "one is missing: all made again")
+        self.assertEqual({name: (images / name).read_bytes() for name in names}, made)
+        with Image.open(images / "male_heads.png") as opened:      # the player's own picture changed (another mod)
+            changed = opened.convert("RGBA")
+        changed.putpixel((15, 22), (200, 150, 110, 255))
+        changed.save(images / "male_heads.png")
+        self.assertEqual(art.install(1, images, edits=[]), names, "made again from the new picture")
+        (images / "male_heads.png").write_bytes(before)
+        self.assertEqual(sorted(art.remove(images)), names)
+        self.assertEqual(sorted(p.name for p in images.iterdir()), ["male_heads.png", "other.png"])
+        self.assertEqual((images / "male_heads.png").read_bytes(), before)
+        self.assertEqual(art.remove(images), [])
+
+    def test_the_patcher_makes_them_with_the_row_and_takes_them_out_without_it(self):
+        import types
+        import vv_fun_patcher as patcher
+        root, images, _sheet = self.game()
+        row = types.SimpleNamespace(id="vv3_skin_tones", raw={})
+        other = types.SimpleNamespace(id="vv3_game_log", raw={})
+        calls = []
+        with unittest.mock.patch.object(art, "install", lambda game, folder: calls.append((game, folder)) or ["a.png"]):
+            patcher._write_skin_tone_sheets(root, [other, row])
+        self.assertEqual(calls, [(3, root / "Images")])
+        self.assertIn("Made 1 skin tone pictures", patcher.SKIN_TONE_REPORTS[3])
+        (images / "vvfp_skin_04_male_heads.png").write_bytes(b"left by an earlier patch")
+        patcher._write_skin_tone_sheets(root, [other])
+        self.assertEqual(sorted(p.name for p in images.iterdir()), ["male_heads.png"], "not ticked: taken out")
+
+        def broken(_game, _folder):
+            raise OSError("disk full")
+        with unittest.mock.patch.object(art, "install", broken):
+            patcher._write_skin_tone_sheets(root, [row])            # never fails the patch
+        self.assertIn("could not be made (disk full)", patcher.SKIN_TONE_REPORTS[3])
 
     def test_the_owners_marking_of_the_skin_wins(self):
         root, images, sheet = self.game()
