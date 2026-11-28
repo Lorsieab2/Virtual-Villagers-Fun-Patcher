@@ -313,10 +313,46 @@ def _skip() -> str | None:
     return None
 
 
-TEXT_NONI, TEXT_CROPS, TEXT_FISH = "T232", "T233", "T106"
-TEXT_POOLS, TEXT_STATUE, TEXT_LAB, TEXT_NURSERY, TEXT_WAITING = "T18A", "T16E", "T163", "T35", "T192"
-TEXT_SICK, TEXT_HEALING, TEXT_EATING, TEXT_PRAISING = "T157", "T194", "T4C4", "T155"
+# Each look's Details text as it starts (where the Heathen is going; the patcher's own labels, English with no
+# translation chosen), and the texts its text steps (type 6, 0x474270) change it to, in order.
+TEXT_NONI, TEXT_CROPS, TEXT_FISH = "Going to the noni bushes", "Going to the farm plots", "Going fishing at the lake"
+TEXT_POOLS, TEXT_STATUE, TEXT_LAB = "Going to the pools", "Going to the statue", "Going to the lab"
+TEXT_LOVE, TEXT_CLOTHING = "Going to the love shack", "Going to the clothing hut"
+TEXT_NURSERY = "T35"                                        # the game's own "Going to play in the nursery"
+TEXT_SICK, TEXT_EATING, TEXT_PRAISING = "Going home to the camp, sick", "Going to eat at the camp", "Going to the mud hut"
+TEXT_WAITING = "Waiting for the healer"
+BACK = "Going back to the camp"
+THEN = {
+    TEXT_NONI: ["Practising Farming at the noni bushes", "Bringing noni home to the camp",
+                "Dropping off noni at the camp"],
+    TEXT_CROPS: ["Practising Farming at the farm plots", "Bringing crops home to the camp",
+                 "Dropping off crops at the camp"],
+    TEXT_FISH: ["Practising Farming at the lake", "Bringing a fish home to the camp",
+                "Dropping off a fish at the camp"],
+    TEXT_POOLS: ["Relaxing by the pools", BACK],
+    TEXT_STATUE: ["Practising Devotion at the statue", BACK],
+    TEXT_LAB: ["Practising Research at the lab", BACK],
+    TEXT_LOVE: ["Waiting at the love shack", BACK],
+    TEXT_CLOTHING: ["Looking at the clothes", BACK],
+    TEXT_NURSERY: ["Playing in the nursery", BACK],
+    TEXT_SICK: ["Resting at the camp, sick"],
+    TEXT_EATING: ["Eating at the camp"],
+    TEXT_PRAISING: ["Practising Devotion at the mud hut", BACK],
+}
+DOORS = {TEXT_LOVE, TEXT_CLOTHING}
 HARVESTS = {TEXT_NONI: (2, NONI_AREA, 0), TEXT_CROPS: (5, CROP_AREA, 0), TEXT_FISH: (10, LAKE, 0x38)}
+TEXT_STEP = 6
+LONGEST_STOCK_DETAILS = 37          # "Talking "mommy to mommy" with heathen" (0x268), the game's longest
+
+
+def said(steps: list) -> list[str]:
+    """The texts of a queue's text steps (type 6: the text at the step's +0x28), in order."""
+    out = []
+    for s in steps:
+        if s[0] == TEXT_STEP:
+            raw = struct.pack("<22I", *s)[0x28:0x28 + 0x27]
+            out.append(raw.split(b"\0", 1)[0].decode("cp1252"))
+    return out
 
 
 def _inside(box: tuple[int, int, int, int], x: int, y: int) -> bool:
@@ -503,7 +539,8 @@ class Doctors(_Base):
         camp, patient, doctor, puzzle, believer = self._camp()
         untouched = (camp.read(puzzle, STRIDE), camp.read(believer, STRIDE))
         camp.unit(patient)
-        self.assertEqual(camp.cstring(doctor + DOING), TEXT_HEALING)
+        self.assertEqual(camp.cstring(doctor + DOING), "Going to heal V5")
+        self.assertEqual(said(camp.steps(doctor)), ["Practising Healing on V5", BACK])
         self.assertEqual(camp.cstring(patient + DOING), TEXT_WAITING)
         first = self.walks(camp.steps(doctor))[0]
         self.assertEqual(first, (0x96, 1950, 1610), "the believers' healer walk: the patient's spot +10 down")
@@ -615,9 +652,11 @@ class Facilities(_Base):
                 else:
                     self.assertTrue(_inside(self.areas[area], walks[0][1], walks[0][2]), text)
                 self.assertTrue(_inside(self.areas[CAMP], walks[-1][1], walks[-1][2]), "back to the encampment")
-            elif text == TEXT_WAITING:                      # the Love Shack's or the Clothing Hut's door
-                self.assertLessEqual(types, {3, 4, 0x0B}, "no embrace, no clothes")
-                waiting_sites.add((walks[0][2] // 8 - 1200 // 8) // 8)
+            elif text in DOORS:                             # the Love Shack's or the Clothing Hut's door
+                self.assertLessEqual(types, {3, 4, 0x0B, TEXT_STEP}, "no embrace, no clothes")
+                row = (walks[0][2] // 8 - 1200 // 8) // 8
+                self.assertEqual(row, 4 if text == TEXT_LOVE else 3, text)
+                waiting_sites.add(row)
             self.assertNotEqual(text, TEXT_NURSERY, "adults never go to the nursery")
             if not want and waiting_sites == {3, 4}:
                 break
@@ -628,7 +667,7 @@ class Facilities(_Base):
         camp = Camp(options="show_percent=100\n")
         r = camp.villager(3)
         seen = {text for text, _ in self.picks(camp, r, 80)}
-        self.assertFalse(seen & {TEXT_STATUE, TEXT_NURSERY, TEXT_WAITING})
+        self.assertFalse(seen & ({TEXT_STATUE, TEXT_NURSERY} | DOORS))
         self.assertTrue({TEXT_POOLS, TEXT_LAB, TEXT_EATING, TEXT_PRAISING} <= seen)
 
     def test_children_puzzle_heathens_and_believers_keep_the_stock_ai(self):
@@ -665,7 +704,7 @@ class AgeBands(_Base):
         for text, steps in self.picks(camp, record, count):
             texts.add(text)
             walks = self.walks(steps)
-            if text == TEXT_WAITING:
+            if text in DOORS:
                 door_rows.add((walks[0][2] // 8 - 1200 // 8) // 8)
         return texts, door_rows
 
@@ -794,6 +833,87 @@ class Skills(_Base):
         for _ in range(400):
             camp.unit(r)
         self.assertEqual([camp.skill(r, k) for k in range(6)], [10.0, 20.0, 100.0, 30.0, 40.0, 50.0])
+
+
+@unittest.skipIf(_skip(), _skip() or "")
+class Labels(_Base):
+    """The owner (2026-11-27): "please change them to describe where they are going and what they are doing", then
+    "and practicing skills too".  Each look starts with where the Heathen is going; the game's own text step (type
+    6, 0x474270) changes it, right after the walk, to what they do there ("Practising <skill> at <place>" where a
+    skill is practised), and again on the way back."""
+
+    def _camp(self) -> Camp:
+        camp = Camp(options="show_percent=100\n")
+        for puzzle in (2, 5, 10, 14):
+            camp.solve(puzzle)
+        camp.build(4, 23, 0x11)
+        camp.build(3, 22, 0x10)
+        camp.stamp(0x22, 6)
+        camp.teacher = 1
+        return camp
+
+    def _check(self, text: str, steps: list) -> None:
+        self.assertIn(text, THEN, text)
+        self.assertEqual(said(steps), THEN[text], text)
+        types = [s[0] for s in steps]
+        first_walk = types.index(4)
+        self.assertEqual(types[first_walk + 1], TEXT_STEP, f"{text}: the 'there' text right after the walk")
+        last = len(types) - 1 - types[::-1].index(TEXT_STEP)
+        if THEN[text][-1] == BACK:
+            self.assertEqual(types[last + 1], 4, f"{text}: the way-back text right before the walk back")
+        if text in HARVESTS:
+            self.assertEqual(types[last - 1], 4, f"{text}: dropping off right after the walk to the encampment")
+            self.assertEqual(types[last - 2], TEXT_STEP, f"{text}: bringing it home right before that walk")
+            self.assertEqual(types[-1], 0x13, f"{text}: the drop step last")
+
+    def test_every_adult_look_says_where_and_what(self):
+        camp = self._camp()
+        r = camp.villager(3, age=600)
+        wanted = set(THEN) - {TEXT_NURSERY, TEXT_SICK}
+        for text, steps in self.picks(camp, r, 400):
+            self._check(text, steps)
+            wanted.discard(text)
+            if not wanted:
+                break
+        self.assertEqual(wanted, set())
+
+    def test_the_childs_nursery_play_and_the_sick_look(self):
+        camp = self._camp()
+        child = camp.villager(3, age=200)
+        (text, steps), = self.picks(camp, child, 1)
+        self.assertEqual(text, TEXT_NURSERY)
+        self._check(text, steps)
+        sick = camp.villager(4)
+        camp.write(sick + SICK, b"\x01")
+        (text, steps), = self.picks(camp, sick, 1)
+        self.assertEqual(text, TEXT_SICK)
+        self._check(text, steps)
+
+    def test_a_long_patient_name_keeps_the_doctors_lines_whole(self):
+        for name, going in ((b"Kalahuna Moonwhisperers", "Going to heal Kalahuna Moonwhisperers"),
+                            (b"Kalahuna Moonwhisperer X", "Going to heal someone sick")):   # 23, 24 characters
+            with self.subTest(name=name):
+                camp = Camp()
+                patient = camp.villager(5)
+                camp.write(patient + NAME, name + b"\0")
+                camp.write(patient + SICK, b"\x01")
+                doctor = camp.villager(6, role=4, skills=(0, 0, 50, 0, 0, 0))
+                camp.unit(patient)
+                self.assertEqual(camp.cstring(doctor + DOING), going)
+                self.assertEqual(said(camp.steps(doctor)), ["Practising Healing on the sick", BACK],
+                                 "too long with the name: the line without it, never cut")
+
+    def test_every_label_fits_like_the_games_own(self):
+        import re
+        text = SOURCE.read_text(encoding="utf-8")
+        labels = re.findall(r'vvfp_trf?\("vvfp\.heathen_life/[^"]+", "([^"]+)"', text)
+        self.assertEqual(len(labels), 35)
+        for english in labels:
+            shown = english.replace("%s", "")
+            self.assertLessEqual(len(shown), LONGEST_STOCK_DETAILS, english)
+            self.assertNotIn("Waiting for someone", english)
+        self.assertIn("#define LABEL_LONGEST 37", text)
+        self.assertIn("R_DOING_CAP", text)
 
 
 if __name__ == "__main__":

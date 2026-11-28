@@ -192,8 +192,9 @@ def description() -> str:
         "the encampment, not the granary; visiting the pools, the Believer Idol, the science lab, the farm plots, "
         "and the Love Shack and Clothing Hut doors once built (no embrace, no clothes); a show meal; devotion at the "
         "mud hut. Heathens do only what believers of their age do: children play in the nursery while someone "
-        "teaches there, and the Love Shack only at the couples' ages. None of it changes anything of your "
-        "believers'. "
+        "teaches there, and the Love Shack only at the couples' ages. A Heathen's Details text says where they are "
+        "going and then what they do there (\"Going to the lab\", then \"Practising Research at the lab\"). None of "
+        "it changes anything of your believers'. "
         "SKILLS grow by practice as believers' do, Devotion included (no tech bonus, no trophies); a Heathen keeps "
         "them on joining your tribe. "
         "THE SHRINE TO THE ANCESTORS: every Heathen who dies leaves a skeleton. Heathens carry their own dead to the "
@@ -282,7 +283,8 @@ EVOLUTION_CHANGES = [
     "fish once their puzzles (2, 5, 10) are solved, carried to the encampment; the pools, the Believer Idol once "
     "carved, the science lab, the Love Shack (the couples' ages, no embrace) and the Clothing Hut (no clothes) "
     "doors once built; a show meal (no food taken); devotion at the mud hut; a child's nursery play while someone "
-    "teaches at the nursery school.",
+    "teaches at the nursery school. Each sets the Details text to where the Heathen is going and, by the game's own "
+    "text step 0x474270 when the walk ends, to what they do there (the patcher's own translatable labels).",
     "People Cured: the drag-a-healer cure's +1 is skipped for a Heathen patient (the Village Statistics row's own "
     "technique; with that row applied its detours are left alone).",
     "Logs: every forced Heathen conception gets its Conception record (WriteParentageRecordWithFather); a couple a "
