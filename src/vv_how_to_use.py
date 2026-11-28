@@ -29,7 +29,8 @@ GUIDES_PATH = ROOT / "data" / "how_to_use.json"
 # 10 since 2026-11-22: the four Heathen aging patches and Revive Buried/Disappeared Villagers joined the Default Patches guide (never drop text).
 # 11 since 2026-11-26: New Believers' Fix Vanilla Bugs guide's eleventh line (the frozen picture after full screen or a
 # maximized window comes back; never drop text).
-MAX_LINES = 11
+# 14 since 2026-11-28: the owner's own warning at the top of the Owner's Defaults guide (never drop text).
+MAX_LINES = 14
 MAX_LINE_CHARS = 180
 # 1,000 since 2026-11-11: the Default Patches guide must name every default-off patch, and the list grew past 900;
 # 1,100 since 2026-11-12, when the two Island Events Scale patches joined that list; 1,150 since 2026-11-12, when
@@ -45,6 +46,20 @@ MAX_LINE_CHARS = 180
 MAX_GUIDE_CHARS = 1600
 
 
+# A guide line that starts with this is shown in red and bold (the owner, 2026-11-28: the Owner's Defaults warning
+# "Not recommended for new players!"); the marker itself is never shown.
+WARNING_PREFIX = "!! "
+
+
+def is_warning(line: str) -> bool:
+    return line.startswith(WARNING_PREFIX)
+
+
+def plain(line: str) -> str:
+    """The line as shown, without the red-and-bold marker."""
+    return line[len(WARNING_PREFIX):] if is_warning(line) else line
+
+
 @dataclass(frozen=True)
 class Guide:
     title: str
@@ -52,7 +67,7 @@ class Guide:
 
     @property
     def text(self) -> str:
-        return "\n\n".join(self.lines)
+        return "\n\n".join(plain(line) for line in self.lines)
 
 
 def patch_key(patch_id: str) -> str:

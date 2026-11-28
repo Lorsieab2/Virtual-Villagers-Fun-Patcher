@@ -1612,6 +1612,10 @@
     "owners_defaults": {
       "title": "Owner's Defaults",
       "guide": [
+        "This setting modifies the games to be generally harder, more expanded and different from the vanilla games. AKA: the preferred way the patcher creator likes to play.",
+        "!! Not recommended for new players!",
+        "Get ready to backup saves and double-collect mushrooms/collectibles a lot. I hope you have a good understanding of the game's mechanics. You will need them to survive.",
+        "-Lorsieab2, the Creator of the Patcher",
         "Ticks the patcher owner's own choice: every patch except Learning Skills Never Fails,",
         "and except All Fruit Trees Refill at the Same Time: Fruit Trees Take Turns Refilling is ticked instead.",
         "Use Unicode Font (overrides in-game fonts) is off too: Render Unicode with In-Game Fonts is ticked instead.",
