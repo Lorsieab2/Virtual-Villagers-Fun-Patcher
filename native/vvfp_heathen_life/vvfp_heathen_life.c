@@ -75,7 +75,8 @@
         facilities (decision 10), a walk, two gestures and a wait, then back to the encampment:
           the spa         the pools, area 0x7C (0x45C000's walk; its payoff step 0x16, the soak, left out);
           the statue      the Believer Idol, once carved (project 14), area 0x45 (where the believers show a baby
-                          "the statue", 0x462430); Devotion practised;
+                          "the statue", 0x462430); Devotion practised; while carved to stage 1 or 2 (+8 of the
+                          statue 0x51D950), one visit in two is the believers' Confused look (section 5);
           the science lab area 0x0E (0x45A890's walk); Research practised;
           the Love Shack  once built (project 23), its walk area (+0x14, 0x11), waiting at its door: no
                           embrace step (0x474CE0) and no conception; only at the couples' ages (18 to 49: the
@@ -117,17 +118,59 @@
       line (text 0x35).  Role practice (1 unit in 20) has no action of its own, so it shows no text: the Heathen
       goes on with the stock Heathen AI's action and its own line.
 
+   5. THE HEATHENS ACT LIKE BELIEVERS (the owner, 2026-11-27: "talk to each other and do practically almost every
+      action believers do. they are humans too!", look-only; 2026-11-28: "the villagers should be able to take
+      primary control of the village after puzzles get completed. heathens shouldn't all en-masse do a single
+      action or stay in the encampment all the time. just occasional walking and doing stuff per heathen").
+        More looks, each the believers' own steps for it (walk, poses 0x4749C0 / 0x474970 / 0x474B00 / 0x474BA0 /
+        0x474C40 / 0x474AB0, gestures, sounds 0x475160 and their stop 0x4751D0, effects 0x474F50) with this
+        companion's numbers and never a skill-check or payoff step: the science lab with the believers' research
+        poses (0x45A890), the Believer Idol with their honoring (0x45CB70); the adult chooser's leisure 0x46A3C0 --
+        cooling feet in the stream (0x459110), washing in it (0x455B50), relaxing (0x459790), watching the clouds
+        (0x462C00), the lake once The Lake is solved (0x457E00), the waterfall (0x45C960), dancing (0x4575D0),
+        bathing (0x455CA0); a chat (0x4598A0's partner pose and talk) with an idle Heathen at the encampment or an
+        idle believer (one meditating, thinking, staring, relaxing, unsure, watching the clouds, reflecting or
+        wandering, carrying nothing, not held, not sick: never one at work, carrying or dropped by the player) --
+        neither's Faith or anything else changes; a child's find (0x45BAB0 / 0x45BBF0's pick-up): a mushroom (0x80,
+        rare 0x81, golden 0x82) or a collectible (science items 0x50..0x67, relics 0x68..0x7F) carried from where
+        the believer children look (areas 0x4C, 0x51) to the encampment and set down there -- only its carry id:
+        nothing is taken off the map, counted or made (the drop handler 0x4146B0 counts only at the granary, the
+        lab's area 0x0D or area 0x36, never the encampment; a find cut short is taken away by a plain write of
+        +0x1D0C, never the drop step).
+        THE PACE.  Outings (anything that leaves the encampment) are each Heathen's own: after one, that Heathen
+        waits a cool-down of life units (busyness Quiet 30, Normal 15, Lively 8), its first one staggered at
+        random; at most away_cap() Heathens are out at once -- about the square root of the tribe's ordinary
+        Heathens x 0.4 / 0.75 / 1.1, at least 1 (50 Heathens: 3 / 6 / 8) -- and at most 1 / 2 / 3 on one action;
+        one who has not been out for 4 cool-downs goes on their next idle moment (never stuck at the
+        encampment).  The believers are primary: no Heathen goes to a place while a believer stands in its walk
+        area.  The options file's busyness, away_max, same_action_max and outing_cooldown set these.
+        TRAINING (the owner, 2026-11-27: "the untrained heathens should be allowed to choose a skill and practice
+        it and eventually master them (same rate as believers, always evenly-distributed)").  An ordinary adult
+        Heathen with every skill below 20 (the Details screen's "Untrained", 0x41C680) chooses the unmastered skill
+        the fewest Heathens are training (ties at random), practises it on half their show actions (Research at
+        the lab, Farming at the farm plots, Devotion at the mud hut, else at the encampment with the believers'
+        work look) by the believers' own check (section 1), and on mastering it (100) chooses the next.  The
+        choices are kept per save slot by identity in "...\Save <S>\Data\Heathen Training\Heathen Training - Save
+        <S>.dat" (native/shared/sidecar_io.h; the slot from the game's save manager, game_save_slot.h).
+        MASKS.  A chase (orange) or a fright (red) is the game's own encounter 0x46E2E0, started by nearness
+        (0x471C50, 0x471F70) whatever a Heathen is doing: nothing here stops it, and a Heathen chasing (behaviour
+        0x14) or a believer running (0x15, 0x16) is never stopped for a sick look, a doctor's visit or a chat.
+
    NOT LOGGED.  The believers' logs have no sickness, recovery or skill records, so none are written for Heathens.
    Nothing depends on a Heathen's sex.
 
-   SAFETY.  Three splices (0x46F0BA, 8 bytes; 0x468C3C, 8; 0x468D4D, 7 -- the last two only when the Statistics
-   row's are not there), stock bytes checked first, all or none (native/shared/install_sites.h).  Every step
-   of ours runs under structured exception handling; a fault leaves the stock behaviour.  No debug output, no file
-   written; the only text shown is the Details text of section 4. */
+   SAFETY.  Five splices (0x46F0BA, 8 bytes; the carry setter's two listener calls 0x466434 and 0x466464, 5 each,
+   so a pretend find never reaches a pick-up or release listener; 0x468C3C, 8; 0x468D4D, 7 -- the last two only when
+   the Statistics row's are not there), stock bytes checked first, all or none (native/shared/install_sites.h).  Every step
+   of ours runs under structured exception handling; a fault leaves the stock behaviour.  No debug output; the only
+   file written is section 5's training file, and the only text shown is the Details text of section 4. */
 #include <windows.h>
+#include <shlobj.h>
 #include <string.h>
 #include "../shared/install_sites.h"
 #include "../shared/patcher_files.h"
+#include "../shared/sidecar_io.h"
+#include "../shared/game_save_slot.h"
 #include "../shared/vv5_villager_table.h"
 #include "../shared/custom_titles.h"
 #include "../shared/heathen_evo.h"
@@ -152,6 +195,7 @@
 #define R_BEHAVIOUR 0x1D10u
 #define R_DOING 0x1D14u          /* the Details text, 0x27 bytes (0x47D7C0's count) */
 #define R_DOING_CAP 0x27u
+#define R_CARRY 0x1D0Cu          /* the carried item, -1 none (0x466420) */
 #define R_LIKES 0x1F5Cu
 #define R_DISLIKES 0x1F68u
 #define R_PREF_SLOTS 3u
@@ -195,6 +239,21 @@
 #define G_DROP 0x474DE0u               /* ret */
 #define G_ANIM 0x475160u               /* (animation, float speed, count); ret 0xC */
 #define G_POSITION 0x466350u           /* (int out[2]) -> out; ret 4 */
+/* More of the game's step adders (section 5), each (n) ret 4 unless noted; each step only sets a pose of the
+   villager's animator (+0x1C78, 0x4510E0) when the queue's start 0x473590 reaches it, or plays or stops a sound or
+   shows an effect from the step runner 0x473B30 -- never a store, a skill or a building. */
+#define G_POSE_TALK 0x4749C0u          /* type 0x23: pose 5 (0x4656C0), the believers' talking pose */
+#define G_POSE_4 0x474970u             /* type 0x0F: pose 4 (0x465690) */
+#define G_POSE_10 0x474B00u            /* type 0x27: pose 0x10 (0x465780) */
+#define G_POSE_29 0x474BA0u            /* type 0x29 (watching the clouds, 0x462C45) */
+#define G_POSE_2E 0x474C40u            /* type 0x2E (0x465B40) */
+#define G_POSE_26 0x474AB0u            /* type 0x26 */
+#define G_SOUND_END 0x4751D0u          /* type 0x1C, (): stops the sound a 0x475160 step played (0x44C0A0) */
+#define G_EFFECT 0x474F50u             /* type 0x16, (a, b, c); ret 0xC: an effect at the villager (0x41D460) */
+#define G_GESTURE_AT 0x474370u         /* type 3, (count, 0, frame, frame); ret 0x10: Confused's head shakes (0x4594CA) */
+#define G_STATUE 0x51D950u             /* the statue object: its stage at +8 (0x4271C0); 1 or 2 carved, waiting for
+                                          technology (0x46CDC6, the believers' Honoring offer) */
+#define STATUE_STAGE 0x08u
 #define G_TEXT_STEP 0x474270u          /* (const char *text); ret 4: a step of type 6 holding the text (copied, 0x27
                                           bytes, into the step's +0x28); when the queue reaches it the queue's start
                                           0x473590 copies it into the Details text +0x1D14 (0x473743) -- the game's
@@ -291,8 +350,19 @@ static unsigned int g_practice_who[256];
 
 /* The walk areas the live map has cells for (looked at most every 2 s). */
 static unsigned char g_area_seen[2048 / 8];
+static short g_area_box[G_AREA_BOXES][4];   /* each walk area's cells' box in pixels (x0, y0, x1, y1) */
 static DWORD g_areas_at;
 static int g_areas_known;
+
+/* Section 5: the outings.  By the record: the action it is out on (+1; 0 none) and whose; the life units it has
+   lived (a counter of ours) and the unit its last outing began. */
+static int g_out[256];
+static unsigned int g_out_who[256];
+static int g_away[256];                /* 1 while that outing leaves the encampment */
+static int g_units[256];
+static int g_last_out[256];
+static unsigned int g_paced_who[256];  /* whose counters these are (a reused record starts afresh) */
+static int g_busyness = 2;             /* 1 Quiet, 2 Normal, 3 Lively (the options file's busyness) */
 
 static int visiting(int index);
 
@@ -445,7 +515,20 @@ enum {
     L_NONI_GO, L_NONI_AT, L_NONI_CARRY, L_NONI_DROP, L_CROPS_GO, L_CROPS_AT, L_CROPS_CARRY, L_CROPS_DROP,
     L_FISH_GO, L_FISH_AT, L_FISH_CARRY, L_FISH_DROP,
     L_POOLS_GO, L_POOLS_AT, L_STATUE_GO, L_STATUE_AT, L_LAB_GO, L_LAB_AT, L_LOVE_GO, L_LOVE_AT,
-    L_CLOTHING_GO, L_CLOTHING_AT, L_MEAL_GO, L_MEAL_AT, L_MUD_HUT_GO, L_MUD_HUT_AT, L_NURSERY_AT
+    L_CLOTHING_GO, L_CLOTHING_AT, L_MEAL_GO, L_MEAL_AT, L_MUD_HUT_GO, L_MUD_HUT_AT, L_NURSERY_AT,
+    /* section 5: the believers' own leisure, the chats, practice at the encampment, the children's finds */
+    L_CHAT_GO_ANY, L_CHAT_AT_ANY, L_FEET_GO, L_FEET_AT, L_WASH_GO, L_WASH_AT, L_RELAX_GO, L_RELAX_AT,
+    L_CLOUDS_GO, L_CLOUDS_AT, L_LAKE_GO, L_LAKE_AT, L_FALLS_GO, L_FALLS_AT, L_DANCE_GO, L_DANCE_AT,
+    L_BATH_GO, L_BATH_AT,
+    L_TRAIN_GO_FARMING, L_TRAIN_AT_FARMING, L_TRAIN_GO_PARENTING, L_TRAIN_AT_PARENTING,
+    L_TRAIN_GO_HEALING, L_TRAIN_AT_HEALING, L_TRAIN_GO_RESEARCH, L_TRAIN_AT_RESEARCH,
+    L_TRAIN_GO_BUILDING, L_TRAIN_AT_BUILDING,
+    L_FIND_GO_MUSHROOMS, L_FIND_GO_COLLECTIBLES,
+    L_FIND_MUSHROOM, L_FIND_MUSHROOM_CARRY, L_FIND_MUSHROOM_DROP,
+    L_FIND_RARE, L_FIND_RARE_CARRY, L_FIND_RARE_DROP,
+    L_FIND_GOLDEN, L_FIND_GOLDEN_CARRY, L_FIND_GOLDEN_DROP,
+    L_FIND_LAB, L_FIND_LAB_CARRY, L_FIND_LAB_DROP,
+    L_FIND_RELIC, L_FIND_RELIC_CARRY, L_FIND_RELIC_DROP, L_STATUE_CONFUSED
 };
 
 /* Each label in the player's language (Translations: native/shared/vvfp_translate.h), at most the Details text's
@@ -484,8 +567,74 @@ static const char *label(int which) {
     case L_MEAL_AT: return vvfp_tr("vvfp.heathen_life/vvfp_heathen_life.label.meal_at", "Eating at the camp", R_DOING_CAP);
     case L_MUD_HUT_GO: return vvfp_tr("vvfp.heathen_life/vvfp_heathen_life.label.mud_hut_go", "Going to the mud hut", R_DOING_CAP);
     case L_MUD_HUT_AT: return vvfp_tr("vvfp.heathen_life/vvfp_heathen_life.label.mud_hut_at", "Practising Devotion at the mud hut", R_DOING_CAP);
-    default: return vvfp_tr("vvfp.heathen_life/vvfp_heathen_life.label.nursery_at", "Playing in the nursery", R_DOING_CAP);
+    case L_NURSERY_AT: return vvfp_tr("vvfp.heathen_life/vvfp_heathen_life.label.nursery_at", "Playing in the nursery", R_DOING_CAP);
+    case L_CHAT_GO_ANY: return vvfp_tr("vvfp.heathen_life/vvfp_heathen_life.label.chat_go_any", "Going to chat with someone", R_DOING_CAP);
+    case L_CHAT_AT_ANY: return vvfp_tr("vvfp.heathen_life/vvfp_heathen_life.label.chat_at_any", "Chatting with a neighbour", R_DOING_CAP);
+    case L_FEET_GO: return vvfp_tr("vvfp.heathen_life/vvfp_heathen_life.label.feet_go", "Going to the stream", R_DOING_CAP);
+    case L_FEET_AT: return vvfp_tr("vvfp.heathen_life/vvfp_heathen_life.label.feet_at", "Cooling their feet in the stream", R_DOING_CAP);
+    case L_WASH_GO: return vvfp_tr("vvfp.heathen_life/vvfp_heathen_life.label.wash_go", "Going to wash in the stream", R_DOING_CAP);
+    case L_WASH_AT: return vvfp_tr("vvfp.heathen_life/vvfp_heathen_life.label.wash_at", "Washing in the stream", R_DOING_CAP);
+    case L_RELAX_GO: return vvfp_tr("vvfp.heathen_life/vvfp_heathen_life.label.relax_go", "Going off to relax", R_DOING_CAP);
+    case L_RELAX_AT: return vvfp_tr("vvfp.heathen_life/vvfp_heathen_life.label.relax_at", "Relaxing for a while", R_DOING_CAP);
+    case L_CLOUDS_GO: return vvfp_tr("vvfp.heathen_life/vvfp_heathen_life.label.clouds_go", "Going to watch the clouds", R_DOING_CAP);
+    case L_CLOUDS_AT: return vvfp_tr("vvfp.heathen_life/vvfp_heathen_life.label.clouds_at", "Watching the clouds go by", R_DOING_CAP);
+    case L_LAKE_GO: return vvfp_tr("vvfp.heathen_life/vvfp_heathen_life.label.lake_go", "Going to the lake", R_DOING_CAP);
+    case L_LAKE_AT: return vvfp_tr("vvfp.heathen_life/vvfp_heathen_life.label.lake_at", "Relaxing by the lake", R_DOING_CAP);
+    case L_FALLS_GO: return vvfp_tr("vvfp.heathen_life/vvfp_heathen_life.label.falls_go", "Going to the waterfall", R_DOING_CAP);
+    case L_FALLS_AT: return vvfp_tr("vvfp.heathen_life/vvfp_heathen_life.label.falls_at", "Admiring the waterfall", R_DOING_CAP);
+    case L_DANCE_GO: return vvfp_tr("vvfp.heathen_life/vvfp_heathen_life.label.dance_go", "Going off to dance", R_DOING_CAP);
+    case L_DANCE_AT: return vvfp_tr("vvfp.heathen_life/vvfp_heathen_life.label.dance_at", "Dancing for fun", R_DOING_CAP);
+    case L_BATH_GO: return vvfp_tr("vvfp.heathen_life/vvfp_heathen_life.label.bath_go", "Going to bathe", R_DOING_CAP);
+    case L_BATH_AT: return vvfp_tr("vvfp.heathen_life/vvfp_heathen_life.label.bath_at", "Having a bath", R_DOING_CAP);
+    case L_TRAIN_GO_FARMING: return vvfp_tr("vvfp.heathen_life/vvfp_heathen_life.label.train_go_farming", "Going to practise Farming", R_DOING_CAP);
+    case L_TRAIN_AT_FARMING: return vvfp_tr("vvfp.heathen_life/vvfp_heathen_life.label.train_at_farming", "Practising Farming at the camp", R_DOING_CAP);
+    case L_TRAIN_GO_PARENTING: return vvfp_tr("vvfp.heathen_life/vvfp_heathen_life.label.train_go_parenting", "Going to practise Parenting", R_DOING_CAP);
+    case L_TRAIN_AT_PARENTING: return vvfp_tr("vvfp.heathen_life/vvfp_heathen_life.label.train_at_parenting", "Practising Parenting at the camp", R_DOING_CAP);
+    case L_TRAIN_GO_HEALING: return vvfp_tr("vvfp.heathen_life/vvfp_heathen_life.label.train_go_healing", "Going to practise Healing", R_DOING_CAP);
+    case L_TRAIN_AT_HEALING: return vvfp_tr("vvfp.heathen_life/vvfp_heathen_life.label.train_at_healing", "Practising Healing at the camp", R_DOING_CAP);
+    case L_TRAIN_GO_RESEARCH: return vvfp_tr("vvfp.heathen_life/vvfp_heathen_life.label.train_go_research", "Going to practise Research", R_DOING_CAP);
+    case L_TRAIN_AT_RESEARCH: return vvfp_tr("vvfp.heathen_life/vvfp_heathen_life.label.train_at_research", "Practising Research at the camp", R_DOING_CAP);
+    case L_TRAIN_GO_BUILDING: return vvfp_tr("vvfp.heathen_life/vvfp_heathen_life.label.train_go_building", "Going to practise Building", R_DOING_CAP);
+    case L_TRAIN_AT_BUILDING: return vvfp_tr("vvfp.heathen_life/vvfp_heathen_life.label.train_at_building", "Practising Building at the camp", R_DOING_CAP);
+    case L_FIND_GO_MUSHROOMS: return vvfp_tr("vvfp.heathen_life/vvfp_heathen_life.label.find_go_mushrooms", "Going to look for mushrooms", R_DOING_CAP);
+    case L_FIND_GO_COLLECTIBLES: return vvfp_tr("vvfp.heathen_life/vvfp_heathen_life.label.find_go_collectibles", "Going to look for collectibles", R_DOING_CAP);
+    case L_FIND_MUSHROOM: return vvfp_tr("vvfp.heathen_life/vvfp_heathen_life.label.find_mushroom", "Picking up a mushroom", R_DOING_CAP);
+    case L_FIND_MUSHROOM_CARRY: return vvfp_tr("vvfp.heathen_life/vvfp_heathen_life.label.find_mushroom_carry", "Bringing a mushroom to camp", R_DOING_CAP);
+    case L_FIND_MUSHROOM_DROP: return vvfp_tr("vvfp.heathen_life/vvfp_heathen_life.label.find_mushroom_drop", "Dropping off a mushroom", R_DOING_CAP);
+    case L_FIND_RARE: return vvfp_tr("vvfp.heathen_life/vvfp_heathen_life.label.find_rare", "Picking up a rare mushroom", R_DOING_CAP);
+    case L_FIND_RARE_CARRY: return vvfp_tr("vvfp.heathen_life/vvfp_heathen_life.label.find_rare_carry", "Bringing a rare mushroom to camp", R_DOING_CAP);
+    case L_FIND_RARE_DROP: return vvfp_tr("vvfp.heathen_life/vvfp_heathen_life.label.find_rare_drop", "Dropping off a rare mushroom", R_DOING_CAP);
+    case L_FIND_GOLDEN: return vvfp_tr("vvfp.heathen_life/vvfp_heathen_life.label.find_golden", "Picking up a golden mushroom", R_DOING_CAP);
+    case L_FIND_GOLDEN_CARRY: return vvfp_tr("vvfp.heathen_life/vvfp_heathen_life.label.find_golden_carry", "Bringing a golden mushroom to camp", R_DOING_CAP);
+    case L_FIND_GOLDEN_DROP: return vvfp_tr("vvfp.heathen_life/vvfp_heathen_life.label.find_golden_drop", "Dropping off a golden mushroom", R_DOING_CAP);
+    case L_FIND_LAB: return vvfp_tr("vvfp.heathen_life/vvfp_heathen_life.label.find_lab", "Picking up lab equipment", R_DOING_CAP);
+    case L_FIND_LAB_CARRY: return vvfp_tr("vvfp.heathen_life/vvfp_heathen_life.label.find_lab_carry", "Bringing lab equipment to camp", R_DOING_CAP);
+    case L_FIND_LAB_DROP: return vvfp_tr("vvfp.heathen_life/vvfp_heathen_life.label.find_lab_drop", "Dropping off lab equipment", R_DOING_CAP);
+    case L_FIND_RELIC: return vvfp_tr("vvfp.heathen_life/vvfp_heathen_life.label.find_relic", "Picking up a relic", R_DOING_CAP);
+    case L_FIND_RELIC_CARRY: return vvfp_tr("vvfp.heathen_life/vvfp_heathen_life.label.find_relic_carry", "Bringing a relic to camp", R_DOING_CAP);
+    case L_FIND_RELIC_DROP: return vvfp_tr("vvfp.heathen_life/vvfp_heathen_life.label.find_relic_drop", "Dropping off a relic", R_DOING_CAP);
+    default: return vvfp_tr("vvfp.heathen_life/vvfp_heathen_life.label.statue_confused", "Confused at the unfinished statue", R_DOING_CAP);
     }
+}
+
+static int with_name(const char *format, const unsigned char *record, char *out);
+static const char *kept_label(const char *got, const char *filled, char *out);
+
+/* The chat's two labels, naming the other villager when it fits. */
+static const char *chat_label(int going, const unsigned char *other, char *out) {
+    char filled[R_DOING_CAP];
+    if (going) {
+        if (with_name("Going to chat with %s", other, filled)) {
+            return kept_label(vvfp_trf("vvfp.heathen_life/vvfp_heathen_life.label.chat_go", "Going to chat with %s",
+                                       filled, out, R_DOING_CAP), filled, out);
+        }
+        return label(L_CHAT_GO_ANY);
+    }
+    if (with_name("Chatting with %s", other, filled)) {
+        return kept_label(vvfp_trf("vvfp.heathen_life/vvfp_heathen_life.label.chat_at", "Chatting with %s", filled,
+                                   out, R_DOING_CAP), filled, out);
+    }
+    return label(L_CHAT_AT_ANY);
 }
 
 /* `format`'s one %s filled with the record's name into `out` (R_DOING_CAP bytes); 0 when the English would be
@@ -553,7 +702,27 @@ static void put_doing(unsigned char *record, const char *words) {
     record[R_DOING + i] = 0;
 }
 
+/* A child's find (look_find) is a picture: the item it carries is in g_flavour_item[index] from the moment the look
+   is queued until it ends.  A carried sprite of ours still shown when the look was cut short is taken away by a plain
+   write: no drop step, so the game's release listeners (0x4137C0 -> 0x4146B0, which credits a collectible -- anywhere
+   with "Collectibles Stay Collected") never see it.  The carry setter's two listener calls are guarded too (the
+   splices at 0x466434 and 0x466464, below), so neither the game's own stop (0x473440 -> 0x466420(-1)) nor the carry
+   step itself (0x466420(item) -> 0x413750 -> vf0 0x413DC0, which takes the nearest real item of that kind off the
+   map) ever reaches a listener with a pretend find. */
+static int g_flavour_item[256];
+
+static void clear_flavour(unsigned char *record, int index) {
+    if (g_flavour_item[index] != 0 && i32(record, R_CARRY) == g_flavour_item[index]) {
+        *(int *)(record + R_CARRY) = -1;
+    }
+    g_flavour_item[index] = 0;
+}
+
 static void begin_with(unsigned char *record, const char *words) {
+    int index = rec_index(record);
+    if (index >= 0) {
+        clear_flavour(record, index);                     /* before the stop: a pretend find is never released */
+    }
     ((tc0_fn)(UINT_PTR)G_STOP)(record, NULL);
     *(int *)(record + R_BEHAVIOUR) = CAMP_WANDER;
     put_doing(record, words);
@@ -723,6 +892,19 @@ static void look_at_map(void) {
     memset(g_area_seen, 0, sizeof g_area_seen);
     for (i = 0; i < G_MAP_CELLS; ++i) {
         unsigned int area = (cells[i] >> 4) & 0x7FFu;
+        short x = (short)((i % 320u) * 8u), y = (short)((i / 320u) * 8u);
+        if (area < G_AREA_BOXES) {
+            short *box = g_area_box[area];
+            if (!((g_area_seen[area >> 3] >> (area & 7u)) & 1u)) {
+                box[0] = box[2] = x;
+                box[1] = box[3] = y;
+            } else {
+                box[0] = x < box[0] ? x : box[0];
+                box[1] = y < box[1] ? y : box[1];
+                box[2] = x > box[2] ? x : box[2];
+                box[3] = y > box[3] ? y : box[3];
+            }
+        }
         g_area_seen[area >> 3] |= (unsigned char)(1u << (area & 7u));
     }
     g_areas_at = now;
@@ -752,9 +934,6 @@ static int building_area(int site) {
     return area;
 }
 
-enum { SHOW_NONI, SHOW_CROPS, SHOW_FISH, SHOW_POOLS, SHOW_STATUE, SHOW_LAB, SHOW_LOVE, SHOW_CLOTHING,
-       SHOW_MEAL, SHOW_DEVOTION, SHOW_COUNT };
-
 static void plan_practice(unsigned char *record, int which) {
     int index = rec_index(record);
     if (index >= 0) {
@@ -763,58 +942,823 @@ static void plan_practice(unsigned char *record, int which) {
     }
 }
 
-/* An adult's show action (the age rules: see the header's AGE RULES; the caller has checked the adult test). */
-static int show(unsigned char *record) {
-    int open[SHOW_COUNT], areas[SHOW_COUNT], count = 0, choice, area, age = i32(record, R_AGE);
-    if (elder(record)) {
-        /* An elder has retired to the encampment ("VVFP Heathen Aging.dll"; the owner, 2026-11-26: they "go to the
-           encampment where younger ones will take their place"): only what is done there -- a meal, devotion at
-           the mud hut. */
-        if (rnd(2) == 0) {
-            look_meal(record);
-        } else {
-            look_devotion(record);
-            plan_practice(record, SKILL_DEVOTION);
+/* ---- section 5: more of the believers' looks ------------------------------------------------------------- */
+
+static void pose(unsigned char *record, unsigned int adder, int n) {
+    ((tc1_fn)(UINT_PTR)adder)(record, NULL, n);
+}
+
+static void sound_end(unsigned char *record) {
+    ((tc0_fn)(UINT_PTR)G_SOUND_END)(record, NULL);
+}
+
+static void effect(unsigned char *record, int a, int b, int c) {
+    ((tc3_fn)(UINT_PTR)G_EFFECT)(record, NULL, a, b, c);
+}
+
+/* The science lab: the believers' research poses and sounds (0x45A890's first branch: the talking pose, pose
+   0x2E, the sound 1 and its effect, pose 0x26) without its payoff step; Research practised. */
+static void look_lab(unsigned char *record, int area) {
+    begin(record, L_LAB_GO);
+    walk_area(record, area, 0x64);
+    then(record, L_LAB_AT);
+    pose(record, G_POSE_TALK, 3);
+    pose(record, G_POSE_2E, rnd(4) + 1);
+    animate(record, 1);
+    effect(record, 7, -10, -20);
+    pose(record, G_POSE_26, rnd(4) + 1);
+    sound_end(record);
+    then(record, L_BACK);
+    walk_area(record, A_CAMP, 0x64);
+    start(record);
+}
+
+static int statue_stage(void) {
+    return *(const volatile int *)(UINT_PTR)(G_STATUE + STATUE_STAGE);
+}
+
+/* 1 while the statue is carved to its first or second stage, its next one waiting for technology. */
+static int statue_unfinished(void) {
+    int stage = statue_stage();
+    return !puzzle_done(P_IDOL) && (stage == 1 || stage == 2);
+}
+
+/* The Believer Idol: the believers' honoring (0x45CB70: pose 4 and gestures of animation 2, pose 0x2E, the talking
+   pose) without its skill check and payoff; Devotion practised (the caller plans it).  While the statue is
+   unfinished (stage 1 or 2), as for a believer dropped there with "Villagers Dropped on an Unfinished Statue May
+   Honor" (the owner, 2026-11-27: "same skill practice rules apply to heathens with the heathen expansion patch
+   too"): one visit in two, of this companion's numbers, is the believers' Confused look instead (behaviour 0x1F,
+   0x459480: its head shakes 0x474370 and gestures; its tip, voice and message left out) -- 0 returned, nothing
+   practised. */
+static int look_statue(unsigned char *record, int area) {
+    begin(record, L_STATUE_GO);
+    walk_area(record, area, 0x64);
+    if (statue_unfinished() && rnd(2) == 0) {
+        then(record, L_STATUE_CONFUSED);
+        ((tc4_fn)(UINT_PTR)G_GESTURE_AT)(record, NULL, 1, 0, rnd(4), rnd(4));
+        ((tc4_fn)(UINT_PTR)G_GESTURE_AT)(record, NULL, 1, 0, rnd(4), rnd(4));
+        ((tc4_fn)(UINT_PTR)G_GESTURE_AT)(record, NULL, 1, 0, rnd(4), rnd(4));
+        gesture(record, 1, rnd(2));
+        then(record, L_BACK);
+        walk_area(record, A_CAMP, 0x64);
+        start(record);
+        return 0;
+    }
+    then(record, L_STATUE_AT);
+    pose(record, G_POSE_4, rnd(4) + 1);
+    gesture(record, rnd(2) + 2, 2);
+    pose(record, G_POSE_4, rnd(4) + 1);
+    gesture(record, rnd(2) + 2, 2);
+    pose(record, G_POSE_2E, 2);
+    pose(record, G_POSE_TALK, 3);
+    then(record, L_BACK);
+    walk_area(record, A_CAMP, 0x64);
+    start(record);
+    return 1;
+}
+
+/* The believers' own leisure (the adult chooser 0x46A3C0's), each the script's walk and poses with this companion's
+   numbers; `kind` the first of its two labels. */
+enum { LEISURE_FEET, LEISURE_WASH, LEISURE_RELAX, LEISURE_CLOUDS, LEISURE_LAKE, LEISURE_FALLS, LEISURE_DANCE,
+       LEISURE_BATH, LEISURE_COUNT };
+static const struct { int going, area; } LEISURE[LEISURE_COUNT] = {
+    { L_FEET_GO, 0x73 },               /* 0x459110 Cooling feet in the stream */
+    { L_WASH_GO, 0x73 },               /* 0x455B50 Washing up in the stream */
+    { L_RELAX_GO, 0x75 },              /* 0x459790 Relaxing */
+    { L_CLOUDS_GO, 0x75 },             /* 0x462C00 Watching the clouds */
+    { L_LAKE_GO, 0x74 },               /* 0x457E00 Enjoying the lake (The Lake solved, as 0x46AAAE asks) */
+    { L_FALLS_GO, 0x7E },              /* 0x45C960 Enjoying the waterfall */
+    { L_DANCE_GO, 0x76 },              /* 0x4575D0 Dancing */
+    { L_BATH_GO, 0x37 },               /* 0x455CA0 Bathing */
+};
+
+static void look_leisure(unsigned char *record, int kind) {
+    begin(record, LEISURE[kind].going);
+    walk_area(record, LEISURE[kind].area, 0x64);
+    then(record, LEISURE[kind].going + 1);
+    switch (kind) {
+    case LEISURE_FEET:                                    /* the splash 0x59, gestures, pose 4 */
+        animate(record, 0x59);
+        sound_end(record);
+        gesture(record, 1, 0);
+        animate(record, 0x59);
+        pose(record, G_POSE_4, 3);
+        sound_end(record);
+        gesture(record, 1, 0);
+        break;
+    case LEISURE_WASH:                                    /* pose 4, the splash, pose 0x2E, the splash 0x72 */
+        pose(record, G_POSE_4, 1);
+        animate(record, 0x59);
+        pose(record, G_POSE_2E, rnd(3) + 1);
+        animate(record, 0x72);
+        gesture(record, 1, 0);
+        pose(record, G_POSE_10, 3);
+        sound_end(record);
+        break;
+    case LEISURE_RELAX:                                   /* gestures of animations 2 and 9 */
+        gesture(record, rnd(20) + 5, 2);
+        gesture(record, rnd(20) + 5, 9);
+        break;
+    case LEISURE_CLOUDS:
+        pose(record, G_POSE_29, rnd(30) + 5);
+        break;
+    case LEISURE_LAKE:
+        pose(record, G_POSE_4, 2);
+        gesture(record, rnd(30) + 5, 9);
+        break;
+    case LEISURE_FALLS:
+        gesture(record, rnd(10) + 5, 9);
+        wait_for(record, rnd(3) + 2);
+        break;
+    case LEISURE_DANCE:                                   /* the talking pose (dancing), its sound stopped */
+        pose(record, G_POSE_TALK, rnd(10) + 3);
+        sound_end(record);
+        break;
+    default:                                              /* bathing: pose 0x10, the splash effect, gestures */
+        pose(record, G_POSE_10, rnd(4) + 1);
+        effect(record, 7, -10, 10);
+        gesture(record, rnd(4) + 1, 0);
+        effect(record, 7, -10, 10);
+        break;
+    }
+    then(record, L_BACK);
+    walk_area(record, A_CAMP, 0x64);
+    start(record);
+}
+
+/* Practice at the encampment (section 5's training): each skill's believers' work look, without its payoff. */
+static void look_training(unsigned char *record, int which) {
+    static const int going[6] = { L_TRAIN_GO_FARMING, L_TRAIN_GO_PARENTING, L_TRAIN_GO_HEALING, L_TRAIN_GO_RESEARCH,
+                                  L_TRAIN_GO_BUILDING, L_TRAIN_GO_FARMING };
+    begin(record, going[which]);
+    walk_area(record, A_CAMP, 0x64);
+    then(record, going[which] + 1);
+    switch (which) {
+    case SKILL_FARMING:                                   /* 0x457C80's tending gestures (animation 0xF) */
+        gesture(record, 1, 0xF);
+        wait_for(record, 3);
+        gesture(record, 1, 0xF);
+        break;
+    case SKILL_PARENTING:                                 /* 0x456190: the sound 0, gestures of animation 2 */
+        animate(record, 0);
+        gesture(record, rnd(5) + 2, 2);
+        gesture(record, rnd(7) + 2, 2);
+        sound_end(record);
+        break;
+    case SKILL_HEALING:                                   /* 0x45D060: the sound 0x11, waits and gestures */
+        animate(record, 0x11);
+        wait_for(record, 3);
+        gesture(record, 1, 1);
+        wait_for(record, 3);
+        gesture(record, 1, 1);
+        break;
+    case SKILL_RESEARCH:                                  /* 0x45A890's poses and sound */
+        pose(record, G_POSE_TALK, 3);
+        pose(record, G_POSE_2E, rnd(4) + 1);
+        animate(record, 1);
+        effect(record, 7, -10, -20);
+        sound_end(record);
+        break;
+    default:                                              /* building: 0x463C00's hammering 0x86 and swing; its lumber
+                                                             (carry 4) left out: its drop handler is not proven harmless */
+        animate(record, 0x86);
+        wait_for(record, rnd(3) + 2);
+        gesture(record, 1, 1);
+        animate(record, 0x1C);
+        wait_for(record, rnd(3) + 2);
+        gesture(record, 1, 1);
+        sound_end(record);
+        break;
+    }
+    start(record);
+}
+
+/* A chat (0x4598A0): the partner stops and takes the listening pose (gesture 0x1E of animation 0x10), the Heathen
+   walks up to them (+0x14, +0x4B, distance 150) and talks (gesture 4 of animation 0xF), waits, and goes back to
+   the encampment when the partner was a believer.  Neither's Faith, skills or anything else changes. */
+static void look_chat(unsigned char *record, unsigned char *partner, int believer) {
+    int spot[2];
+    char words[R_DOING_CAP], heard[R_DOING_CAP];
+    int *at = ((position_fn)(UINT_PTR)G_POSITION)(partner, NULL, spot);
+    int x = at[0], y = at[1];
+    ((tc0_fn)(UINT_PTR)G_STOP)(partner, NULL);
+    if (!believer) {
+        *(int *)(partner + R_BEHAVIOUR) = CAMP_WANDER;
+    }
+    put_doing(partner, chat_label(0, record, heard));
+    gesture(partner, 0x1E, 0x10);
+    start(partner);
+    begin_with(record, chat_label(1, partner, words));
+    walk_point(record, x + 0x14, y + 0x4B, 0x96);
+    then_say(record, chat_label(0, partner, words));
+    wait_for(record, rnd(5) + 4);
+    gesture(record, 4, 0xF);
+    wait_for(record, rnd(5) + 4);
+    if (believer) {
+        then(record, L_BACK);
+        walk_area(record, A_CAMP, 0x64);
+    }
+    start(record);
+}
+
+/* A child's find (the believer children's pick-up, 0x45BAB0 / 0x45BBF0: pose 4, the pick-up sound 0x18, carry the
+   item): a mushroom or a collectible of any kind, carried to the encampment and set down there.
+   FLAVOUR ONLY: nothing is taken off the map, nothing is counted or collected, nothing is made.  The carry step
+   (0x474D80 -> 0x466420) would ask the pick-up listeners (0x413750 -> vf0 0x413DC0, which removes the nearest item of
+   that kind within 1,000 pixels); the guard at 0x466434 (pretend_pickup) answers "yes" for it without asking. */
+#define ITEM_LAB_FIRST 0x50            /* 0x50..0x67 science items (0x45BC5D), 0x68..0x7F relics (0x45BC44) */
+#define ITEM_RELIC_FIRST 0x68
+#define ITEM_MUSHROOM 0x80             /* 0x80 a mushroom, 0x81 a rare one, 0x82 the golden mushroom (0x4136E6) */
+static int look_find(unsigned char *record, int area) {
+    int kind = rnd(5), item, going, first;
+    switch (kind) {
+    case 0: item = ITEM_MUSHROOM; first = L_FIND_MUSHROOM; break;
+    case 1: item = ITEM_MUSHROOM + 1; first = L_FIND_RARE; break;
+    case 2: item = ITEM_MUSHROOM + 2; first = L_FIND_GOLDEN; break;
+    case 3: item = ITEM_LAB_FIRST + rnd(ITEM_RELIC_FIRST - ITEM_LAB_FIRST); first = L_FIND_LAB; break;
+    default: item = ITEM_RELIC_FIRST + rnd(ITEM_MUSHROOM - ITEM_RELIC_FIRST); first = L_FIND_RELIC; break;
+    }
+    going = kind <= 2 ? L_FIND_GO_MUSHROOMS : L_FIND_GO_COLLECTIBLES;
+    begin(record, going);
+    walk_area(record, area, 0x64);
+    then(record, first);
+    pose(record, G_POSE_4, rnd(3) + 1);                  /* (the believers' carry(-1) first is left out: it would
+                                                             hand a real carried item to its drop handler) */
+    pose(record, G_POSE_4, 1);
+    animate(record, 0x18);
+    carry(record, item);
+    sound_end(record);
+    then(record, first + 1);
+    walk_area(record, A_CAMP, 0x64);
+    then(record, first + 2);
+    animate(record, 0x0B);
+    pose(record, G_POSE_4, 2);
+    sound_end(record);
+    /* NO drop step: the game's drop (0x474DE0) hands the carried item to its release listener, and with "Collectibles
+       Stay Collected" that listener credits an item anywhere, not only in its delivery areas -- a pretend find would
+       become a real one (Codex, PR #899).  The set-down pose above is the look; the carry is cleared without any
+       dispatch (R_CARRY = -1) by clear_flavour() when the queue ends and the picker is next called. */
+    start(record);
+    return item;
+}
+
+/* ---- section 5: training (the owner, 2026-11-27: "the untrained heathens should be allowed to choose a skill
+   and practice it and eventually master them (same rate as believers, always evenly-distributed)") ---------- */
+
+#define TRAINED 20                     /* the Details screen's first level above "Untrained" (0x41C680: 20) */
+#define TR_MAGIC 0x31534856u           /* 'VHS1' ('VHT1' is the Heathen Tribe file's, PR #896) */
+#define TR_VERSION 1u
+#define TR_HEADER 20u
+#define TR_MAX 256
+#define TR_WRITE_MS 1000u
+#define TR_RESERVE ((int)sizeof(".unreadable-4294967295-999"))
+static struct { unsigned int identity, skill; } g_train[TR_MAX];
+static int g_train_count;
+static int g_train_slot;
+static int g_train_blocked;
+static int g_train_dirty;
+static DWORD g_train_synced_at;
+static vv_sidecar_gate g_train_gate;
+static unsigned int g_train_buffer[(TR_HEADER + TR_MAX * 8u) / 4u + 1u];
+
+/* <Documents>\LDW\<exe>\Virtual Villagers Fun Patcher\Save <S>\Data\Heathen Training\Heathen Training - Save <S>.dat
+   (the layout "VVFP Heathen Aging.dll" uses for its files). */
+static int train_path(int slot, char *out, int make) {
+    char docs[MAX_PATH], exe[MAX_PATH], part[64];
+    static const char *const levels[5] = { "\\Virtual Villagers Fun Patcher", "\\Save %d", "\\Data",
+                                           "\\Heathen Training", NULL };
+    char *base = exe, *p, *dot = NULL;
+    DWORD n;
+    int i;
+    if (slot < 1 || slot > 5 || !SHGetSpecialFolderPathA(NULL, docs, CSIDL_PERSONAL, FALSE)) {
+        return 0;
+    }
+    n = GetModuleFileNameA(NULL, exe, MAX_PATH);
+    if (n == 0 || n >= MAX_PATH) {
+        return 0;
+    }
+    for (p = exe; *p != '\0'; ++p) {
+        if (*p == '\\') {
+            base = p + 1;
+            dot = NULL;
+        } else if (*p == '.') {
+            dot = p;
         }
+    }
+    if (dot != NULL) {
+        *dot = '\0';
+    }
+    if (base[0] == '\0' || lstrlenA(docs) + lstrlenA(base) + 160 >= MAX_PATH - TR_RESERVE) {
+        return 0;
+    }
+    wsprintfA(out, "%s\\LDW\\%s", docs, base);
+    for (i = 0; levels[i] != NULL; ++i) {
+        wsprintfA(part, levels[i], slot);
+        lstrcatA(out, part);
+        if (make) {
+            CreateDirectoryA(out, NULL);
+        }
+    }
+    wsprintfA(part, "\\Heathen Training - Save %d.dat", slot);
+    lstrcatA(out, part);
+    return 1;
+}
+
+static int valid_training(const unsigned char *data, DWORD len, void *ctx) {
+    const unsigned int *u = (const unsigned int *)data;
+    unsigned int count, i;
+    if (len < TR_HEADER || u[0] != TR_MAGIC || u[1] != TR_VERSION || u[2] != (unsigned int)HL_GAME
+        || u[4] != (unsigned int)*(const int *)ctx) {
+        return 0;
+    }
+    count = u[3];
+    if (count > TR_MAX || len != TR_HEADER + count * 8u) {
+        return 0;
+    }
+    for (i = 0; i < count; ++i) {
+        if (u[5 + i * 2] == 0u || u[6 + i * 2] > (unsigned int)SKILL_DEVOTION) {
+            return 0;
+        }
+    }
+    return 1;
+}
+
+static void train_read(int slot) {
+    char path[MAX_PATH];
+    DWORD got = 0;
+    int status;
+    g_train_count = 0;
+    g_train_dirty = 0;
+    vv_sidecar_gate_bind(&g_train_gate, slot);
+    g_train_blocked = 0;
+    if (!train_path(slot, path, 0)) {
+        vv_sidecar_gate_block(&g_train_gate);
+        g_train_blocked = 1;
+        return;
+    }
+    status = vv_sidecar_load(&g_train_gate, path, (unsigned char *)g_train_buffer, sizeof g_train_buffer, &got,
+                             valid_training, &slot);
+    g_train_blocked = status == VV_SIDECAR_LOAD_BLOCKED;
+    if (status == VV_SIDECAR_LOAD_VALID) {
+        g_train_count = (int)g_train_buffer[3];
+        memcpy(g_train, g_train_buffer + 5, 8u * (size_t)g_train_count);
+    }
+    g_train_synced_at = GetTickCount() - TR_WRITE_MS;
+}
+
+static int train_find(unsigned int who) {
+    int i;
+    for (i = 0; i < g_train_count; ++i) {
+        if (g_train[i].identity == who) {
+            return i;
+        }
+    }
+    return -1;
+}
+
+static void train_drop_at(int at) {
+    memmove(&g_train[at], &g_train[at + 1], sizeof g_train[0] * (size_t)(g_train_count - at - 1));
+    --g_train_count;
+    g_train_dirty = 1;
+}
+
+/* Entries of identities no living Heathen holds now (dead, gone, joined the tribe) are dropped before a write. */
+static void train_prune(void) {
+    int k;
+    for (k = g_train_count; k-- > 0;) {
+        unsigned int i;
+        int alive = 0;
+        for (i = 0; i < g_slots && !alive; ++i) {
+            const unsigned char *r = rec_at((int)i);
+            alive = heathen(r) && identity(r) == g_train[k].identity;
+        }
+        if (!alive) {
+            train_drop_at(k);
+        }
+    }
+}
+
+/* `pruned`: drop the entries no living Heathen holds -- only while the villager table is this slot's own village.
+   On a switch of save slot the table already holds the NEW village, so the last slot's table is written as it is,
+   unpruned and without waiting for the write throttle, or its choices would be lost (Codex, PR #899). */
+static void train_write_as(int pruned, int now) {
+    unsigned int header[5];
+    const void *parts[2];
+    DWORD sizes[2];
+    char path[MAX_PATH];
+    if (!g_train_dirty || g_train_slot == 0 || g_train_blocked || !vv_sidecar_gate_ready(&g_train_gate, g_train_slot)
+        || (!now && GetTickCount() - g_train_synced_at < TR_WRITE_MS) || !train_path(g_train_slot, path, 1)) {
+        return;
+    }
+    if (pruned) {
+        train_prune();
+    }
+    g_train_synced_at = GetTickCount();
+    header[0] = TR_MAGIC;
+    header[1] = TR_VERSION;
+    header[2] = (unsigned int)HL_GAME;
+    header[3] = (unsigned int)g_train_count;
+    header[4] = (unsigned int)g_train_slot;
+    parts[0] = header;
+    sizes[0] = sizeof header;
+    parts[1] = g_train;
+    sizes[1] = (DWORD)(8u * (size_t)g_train_count);
+    if (vv_sidecar_publish(&g_train_gate, path, parts, sizes, g_train_count > 0 ? 2 : 1)) {
+        g_train_dirty = 0;
+    }
+}
+
+static void train_write(void) {
+    train_write_as(1, 0);
+}
+
+/* The game's save slot now (its save manager's field): a new slot writes the last one's file first (unpruned: the
+   table is the new village's) and reads its own; a read that found the file locked is tried again once the gate's
+   throttle lets it (Codex, PR #899), as the other sidecar readers do; then the file is kept up to date. */
+static void train_sync(void) {
+    int slot = vv_game_save_slot(HL_GAME);
+    if (slot != g_train_slot) {
+        train_write_as(0, 1);
+        g_train_slot = slot;
+        g_train_count = 0;
+        if (slot != 0) {
+            train_read(slot);
+        }
+    } else if (slot != 0 && g_train_blocked && !vv_sidecar_gate_throttled(&g_train_gate)) {
+        train_read(slot);
+    }
+    train_write();
+}
+
+/* "Always evenly-distributed": the unmastered skill of the record's that the fewest living Heathens are training,
+   ties at random; -1 when every skill is mastered. */
+static int train_choose(const unsigned char *record) {
+    int counts[6] = { 0, 0, 0, 0, 0, 0 }, best = -1, ties = 0, k, i;
+    for (i = 0; i < g_train_count; ++i) {
+        counts[g_train[i].skill] += 1;
+    }
+    for (k = 0; k < 6; ++k) {
+        if (skill(record, k) >= 100.0f) {
+            continue;
+        }
+        if (best < 0 || counts[k] < counts[best]) {
+            best = k;
+            ties = 1;
+        } else if (counts[k] == counts[best] && rnd(++ties) == 0) {
+            best = k;
+        }
+    }
+    return best;
+}
+
+static int untrained(const unsigned char *record) {
+    int k;
+    for (k = 0; k < 6; ++k) {
+        if (skill(record, k) >= (float)TRAINED) {
+            return 0;
+        }
+    }
+    return 1;
+}
+
+/* At each unit of an ordinary adult Heathen who is not sick: an untrained one chooses a skill; one who has mastered
+   theirs chooses the next; one with every skill mastered is done. */
+static void train_update(const unsigned char *record) {
+    unsigned int who = identity(record);
+    int at = train_find(who), next;
+    if (g_train_slot == 0 || g_train_blocked) {
+        return;                                           /* no file to keep it in: nobody chooses */
+    }
+    if (at >= 0 && skill(record, (int)g_train[at].skill) < 100.0f) {
+        return;
+    }
+    if (at < 0 && !untrained(record)) {
+        return;
+    }
+    if (at >= 0) {
+        train_drop_at(at);
+    }
+    next = train_choose(record);
+    if (next >= 0 && g_train_count < TR_MAX) {
+        g_train[g_train_count].identity = who;
+        g_train[g_train_count].skill = (unsigned int)next;
+        ++g_train_count;
+        g_train_dirty = 1;
+    }
+}
+
+/* The skill the record is training, or -1. */
+static int training(const unsigned char *record) {
+    int at = train_find(identity(record));
+    return at >= 0 ? (int)g_train[at].skill : -1;
+}
+
+/* ---- section 5: the pace (the owner, 2026-11-28: "heathens shouldn't all en-masse do a single action or stay in
+   the encampment all the time. just occasional walking and doing stuff per heathen") ------------------------- */
+
+enum { ACT_NONE, ACT_NONI, ACT_CROPS, ACT_FISH, ACT_POOLS, ACT_STATUE, ACT_LAB, ACT_LOVE, ACT_CLOTHING, ACT_MEAL,
+       ACT_MUD_HUT, ACT_CHAT, ACT_CHAT_BELIEVER, ACT_LEISURE, ACT_TRAINING = ACT_LEISURE + LEISURE_COUNT,
+       ACT_FIND, ACT_NURSERY, ACT_COUNT };
+
+static int g_option_away_max, g_option_same_max, g_option_cooldown;
+
+static int isqrt(int n) {
+    int r = 0;
+    while ((r + 1) * (r + 1) <= n) {
+        ++r;
+    }
+    return r;
+}
+
+/* How many Heathens may be away from the encampment at once: about the square root of the tribe's ordinary
+   Heathens, x 0.4 (Quiet), 0.75 (Normal), 1.1 (Lively), at least 1 -- 50 Heathens: 3, 6, 8; 10: 2, 3, 4. */
+static int away_cap(int tribe) {
+    static const int tenths_of_root[4] = { 0, 40, 75, 110 };
+    int root100 = isqrt(tribe * 10000), cap;
+    if (g_option_away_max > 0) {
+        return g_option_away_max;
+    }
+    cap = (root100 * tenths_of_root[g_busyness] + 9999) / 10000;
+    return cap < 1 ? 1 : cap;
+}
+
+static int same_cap(void) {
+    return g_option_same_max > 0 ? g_option_same_max : g_busyness;   /* 1, 2, 3 */
+}
+
+/* Life units between one Heathen's outings: 30 (Quiet), 15 (Normal), 8 (Lively) -- about 3, 1.5 and 0.8 hours
+   of game time (1 in 240 a unit is about once a day). */
+static int cooldown(void) {
+    static const int units[4] = { 0, 30, 15, 8 };
+    return g_option_cooldown > 0 ? g_option_cooldown : units[g_busyness];
+}
+
+/* A Heathen first seen (or a record reused) starts its own count, as if its last outing were a random part of a
+   cool-down ago: the tribe's first outings are staggered, never all at once. */
+static void paced(const unsigned char *record, int index) {
+    unsigned int who = identity(record);
+    if (g_paced_who[index] != who) {
+        g_paced_who[index] = who;
+        g_units[index] = 0;
+        g_last_out[index] = -rnd(cooldown());
+        g_out[index] = 0;
+    }
+}
+
+static int out_on(int index) {
+    const unsigned char *r = rec_at(index);
+    if (g_out[index] == 0 || !living(r) || identity(r) != g_out_who[index]) {
+        return ACT_NONE;
+    }
+    return g_out[index];
+}
+
+static void tally(int *tribe, int *away, int *same, int action) {
+    unsigned int i;
+    *tribe = *away = *same = 0;
+    for (i = 0; i < g_slots; ++i) {
+        const unsigned char *r = rec_at((int)i);
+        int doing;
+        if (!heathen(r) || !ordinary(r)) {
+            continue;
+        }
+        ++*tribe;
+        doing = out_on((int)i);
+        if (doing != ACT_NONE) {
+            *away += g_away[i];
+            *same += doing == action;
+        }
+    }
+}
+
+/* 1 when same_cap() Heathens are already on `action`. */
+static int full(int action) {
+    int tribe, away, same;
+    tally(&tribe, &away, &same, action);
+    return same >= same_cap();
+}
+
+static void went_out(unsigned char *record, int action, int away) {
+    int index = rec_index(record);
+    if (index >= 0) {
+        g_out[index] = action;
+        g_out_who[index] = identity(record);
+        g_away[index] = away;
+        if (away) {
+            g_last_out[index] = g_units[index];
+        }
+    }
+}
+
+/* "The believers are primary": a place is in use while any believer stands in its walk area (its cells' box, 24
+   px around); a Heathen then goes somewhere else. */
+static int in_use(int area) {
+    unsigned int i;
+    const short *box;
+    if (!area_drawn(area)) {
         return 1;
     }
-    if (puzzle_done(P_FENCE)) { open[count] = SHOW_NONI; areas[count++] = A_NONI; }
-    if (puzzle_done(P_FARM)) { open[count] = SHOW_CROPS; areas[count++] = A_CROPS; }
-    if (puzzle_done(P_LAKE)) { open[count] = SHOW_FISH; areas[count++] = A_LAKE; }
-    if (area_drawn(A_POOLS)) { open[count] = SHOW_POOLS; areas[count++] = A_POOLS; }
-    if (puzzle_done(P_IDOL) && area_drawn(A_STATUE)) { open[count] = SHOW_STATUE; areas[count++] = A_STATUE; }
-    if (area_drawn(A_LAB)) { open[count] = SHOW_LAB; areas[count++] = A_LAB; }
-    if (age >= LOVE_FIRST && age < LOVE_LAST && (area = building_area(SITE_LOVE)) != 0) {
-        open[count] = SHOW_LOVE;
-        areas[count++] = area;
+    box = g_area_box[area];
+    for (i = 0; i < g_slots; ++i) {
+        unsigned char *r = rec_at((int)i);
+        int spot[2], *at;
+        if (r[R_FACTION] != 0 || !living(r)) {
+            continue;
+        }
+        at = ((position_fn)(UINT_PTR)G_POSITION)(r, NULL, spot);
+        if (at[0] >= box[0] - 24 && at[0] <= box[2] + 32 && at[1] >= box[1] - 24 && at[1] <= box[3] + 32) {
+            return 1;
+        }
     }
-    if ((area = building_area(SITE_CLOTHING)) != 0) { open[count] = SHOW_CLOTHING; areas[count++] = area; }
-    open[count] = SHOW_MEAL; areas[count++] = A_CAMP;
-    open[count] = SHOW_DEVOTION; areas[count++] = A_CAMP;
+    return 0;
+}
+
+/* A chase or a fright in progress, or the Heathens' own mask encounter (0x46E2E0: behaviour 0x14 chasing, 0xE5 its
+   own exclusion; a believer runs with 0x15 / 0x16): never stopped by anything of ours. */
+static int in_encounter(const unsigned char *record) {
+    int b = i32(record, R_BEHAVIOUR);
+    return b == 0x14 || b == 0x15 || b == 0x16 || b == 0xE5;
+}
+
+/* The believers' idle leisure (meditating, thinking, staring, relaxing, unsure, watching the clouds, reflecting,
+   wandering): only a believer doing one of these, carrying nothing, not held, not sick, an adult, is asked to
+   chat -- never one at work, carrying or dropped by the player. */
+static int idle_believer(const unsigned char *r) {
+    static const int idle[] = { 0x0B, 0x0C, 0x0E, 0x13, 0x48, 0x86, 0x1D, 0x37 };
+    int b, k;
+    if (r[R_FACTION] != 0 || !living(r) || r[R_HELD] != 0 || r[R_SICK] != 0 || i32(r, R_AGE) < ADULT
+        || i32(r, R_CARRY) != -1) {
+        return 0;
+    }
+    b = i32(r, R_BEHAVIOUR);
+    for (k = 0; k < (int)(sizeof idle / sizeof idle[0]); ++k) {
+        if (b == idle[k]) {
+            return 1;
+        }
+    }
+    return 0;
+}
+
+static DWORD g_chatted_at[256];        /* a believer asked to chat: not asked again for 30 s */
+
+static unsigned char *chat_partner(const unsigned char *record, int believer) {
+    int count = 0, i;
+    unsigned char *chosen = NULL;
+    DWORD now = GetTickCount();
+    for (i = 0; i < (int)g_slots; ++i) {
+        unsigned char *r = rec_at(i);
+        if (r == record) {
+            continue;
+        }
+        if (believer) {
+            if (!idle_believer(r) || (g_chatted_at[i] != 0 && now - g_chatted_at[i] < 30000u)) {
+                continue;
+            }
+        } else if (!heathen(r) || !ordinary(r) || i32(r, R_AGE) < ADULT || r[R_SICK] != 0 || r[R_HELD] != 0
+                   || in_encounter(r) || i32(r, R_BEHAVIOUR) != CAMP_WANDER || out_on(i) != ACT_NONE
+                   || visiting(i)) {
+            continue;
+        }
+        if (rnd(++count) == 0) {
+            chosen = r;
+        }
+    }
+    if (chosen != NULL && believer) {
+        g_chatted_at[rec_index(chosen)] = now;
+    }
+    return chosen;
+}
+
+/* An adult's show action (the age rules: see the header's AGE RULES; the caller has checked the adult test).  Each
+   choice open to the Heathen is weighed against the pace (section 5): an outing (anything that leaves the
+   encampment) only while fewer than away_cap() are out and the Heathen's own cool-down has passed, no more than
+   same_cap() on one action, and never to a place a believer is using. */
+static int show(unsigned char *record, int may_go_out) {
+    int open[ACT_COUNT], areas[ACT_COUNT], count = 0, choice, area, age = i32(record, R_AGE), k;
+    int tribe, away, same, trains = training(record);
+    unsigned char *partner;
+    int old = elder(record);
+    tally(&tribe, &away, &same, ACT_NONE);
+    if (away >= away_cap(tribe)) {
+        may_go_out = 0;
+    }
+    if (old) {
+        /* An elder has retired to the encampment ("VVFP Heathen Aging.dll"; the owner, 2026-11-26: they "go to the
+           encampment where younger ones will take their place"): only what is done there. */
+        may_go_out = 0;
+    }
+#define OFFER(action, where) do { int s_, a_, t_; tally(&t_, &a_, &s_, (action)); \
+        if (s_ < same_cap()) { open[count] = (action); areas[count++] = (where); } } while (0)
+    if (trains >= 0 && rnd(2) == 0) {
+        /* A Heathen training a skill practises it on half their show actions, where believers practise it (each
+           place under the same caps as any other show action). */
+        int done = 1;
+        if (trains == SKILL_RESEARCH && may_go_out && area_drawn(A_LAB) && !in_use(A_LAB) && !full(ACT_LAB)) {
+            look_lab(record, A_LAB);
+            went_out(record, ACT_LAB, 1);
+        } else if (trains == SKILL_DEVOTION && !full(ACT_MUD_HUT)) {
+            look_devotion(record);
+            went_out(record, ACT_MUD_HUT, 0);
+        } else if (trains == SKILL_FARMING && may_go_out && puzzle_done(P_FARM) && !in_use(A_CROPS)
+                   && !full(ACT_CROPS)) {
+            look_harvest(record, L_CROPS_GO, A_CROPS, 0, 0);
+            went_out(record, ACT_CROPS, 1);
+        } else if (trains != SKILL_DEVOTION && !full(ACT_TRAINING)) {
+            look_training(record, trains);
+            went_out(record, ACT_TRAINING, 0);
+        } else {
+            done = 0;                                     /* every place full: an ordinary show action */
+        }
+        if (done) {
+            plan_practice(record, trains);
+            return 1;
+        }
+    }
+    if (may_go_out) {
+        if (puzzle_done(P_FENCE) && !in_use(A_NONI)) OFFER(ACT_NONI, A_NONI);
+        if (puzzle_done(P_FARM) && !in_use(A_CROPS)) OFFER(ACT_CROPS, A_CROPS);
+        if (puzzle_done(P_LAKE) && !in_use(A_LAKE)) OFFER(ACT_FISH, A_LAKE);
+        if (area_drawn(A_POOLS) && !in_use(A_POOLS)) OFFER(ACT_POOLS, A_POOLS);
+        if ((puzzle_done(P_IDOL) || statue_unfinished()) && area_drawn(A_STATUE) && !in_use(A_STATUE)) {
+            OFFER(ACT_STATUE, A_STATUE);
+        }
+        if (area_drawn(A_LAB) && !in_use(A_LAB)) OFFER(ACT_LAB, A_LAB);
+        if (age >= LOVE_FIRST && age < LOVE_LAST && (area = building_area(SITE_LOVE)) != 0 && !in_use(area)) {
+            OFFER(ACT_LOVE, area);
+        }
+        if ((area = building_area(SITE_CLOTHING)) != 0 && !in_use(area)) OFFER(ACT_CLOTHING, area);
+        for (k = 0; k < LEISURE_COUNT; ++k) {
+            if ((k != LEISURE_LAKE || puzzle_done(P_LAKE)) && !in_use(LEISURE[k].area)) {
+                OFFER(ACT_LEISURE + k, LEISURE[k].area);
+            }
+        }
+        OFFER(ACT_CHAT_BELIEVER, 0);
+    }
+    OFFER(ACT_MEAL, A_CAMP);
+    OFFER(ACT_MUD_HUT, A_CAMP);
+    {
+        /* A Heathen-to-Heathen chat counts as one PAIR against the same-action cap (the partner and this Heathen
+           both go out on it): a new pair only while fewer pairs than the cap are chatting, so Quiet allows one
+           pair, never three Heathens (Codex, PR #899). */
+        int s_, a_, t_;
+        tally(&t_, &a_, &s_, ACT_CHAT);
+        if ((s_ + 1) / 2 < same_cap()) {
+            open[count] = ACT_CHAT;
+            areas[count++] = A_CAMP;
+        }
+    }
+#undef OFFER
+    if (count == 0) {
+        return 0;
+    }
     choice = rnd(count);
     area = areas[choice];
     switch (open[choice]) {
-    case SHOW_NONI: look_harvest(record, L_NONI_GO, area, 0, 0); plan_practice(record, SKILL_FARMING); break;
-    case SHOW_CROPS: look_harvest(record, L_CROPS_GO, area, 0, 0); plan_practice(record, SKILL_FARMING); break;
-    case SHOW_FISH: look_harvest(record, L_FISH_GO, area, 0x38, 1); plan_practice(record, SKILL_FARMING); break;
-    case SHOW_POOLS: look_visit(record, L_POOLS_GO, 0, area); break;
-    case SHOW_STATUE: look_visit(record, L_STATUE_GO, 0, area); plan_practice(record, SKILL_DEVOTION); break;
-    case SHOW_LAB: look_visit(record, L_LAB_GO, 0, area); plan_practice(record, SKILL_RESEARCH); break;
-    case SHOW_LOVE: look_visit(record, L_LOVE_GO, 0, area); break;
-    case SHOW_CLOTHING: look_visit(record, L_CLOTHING_GO, 0, area); break;
-    case SHOW_MEAL: look_meal(record); break;
-    default: look_devotion(record); plan_practice(record, SKILL_DEVOTION); break;
+    case ACT_NONI: look_harvest(record, L_NONI_GO, area, 0, 0); plan_practice(record, SKILL_FARMING); break;
+    case ACT_CROPS: look_harvest(record, L_CROPS_GO, area, 0, 0); plan_practice(record, SKILL_FARMING); break;
+    case ACT_FISH: look_harvest(record, L_FISH_GO, area, 0x38, 1); plan_practice(record, SKILL_FARMING); break;
+    case ACT_POOLS: look_visit(record, L_POOLS_GO, 0, area); break;
+    case ACT_STATUE:
+        if (look_statue(record, area)) {
+            plan_practice(record, SKILL_DEVOTION);
+        }
+        break;
+    case ACT_LAB: look_lab(record, area); plan_practice(record, SKILL_RESEARCH); break;
+    case ACT_LOVE: look_visit(record, L_LOVE_GO, 0, area); break;
+    case ACT_CLOTHING: look_visit(record, L_CLOTHING_GO, 0, area); break;
+    case ACT_MEAL: look_meal(record); break;
+    case ACT_MUD_HUT: look_devotion(record); plan_practice(record, SKILL_DEVOTION); break;
+    case ACT_CHAT:
+    case ACT_CHAT_BELIEVER:
+        partner = chat_partner(record, open[choice] == ACT_CHAT_BELIEVER);
+        if (partner == NULL) {
+            return 0;                                     /* nobody free to talk: the stock Heathen AI */
+        }
+        look_chat(record, partner, open[choice] == ACT_CHAT_BELIEVER);
+        if (open[choice] == ACT_CHAT) {
+            went_out(partner, ACT_CHAT, 0);
+        }
+        break;
+    default: look_leisure(record, open[choice] - ACT_LEISURE); break;
     }
+    went_out(record, open[choice], area != A_CAMP);
     return 1;
 }
 
 /* The picker's Heathen branch: 1 when a look was queued here, 0 for the stock Heathen AI. */
 static int __cdecl pick(unsigned char *record) {
     __try {
-        int index = rec_index(record);
-        if (index < 0 || !heathen(record) || !ordinary(record) || raining()) {
+        int index = rec_index(record), may_go_out, overdue, since;
+        if (index < 0 || !heathen(record) || !ordinary(record)) {
             return 0;
         }
+        /* A pretend find ends here, before anything else (rain included) can hand the record to the stock AI with
+           the carried sprite still set. */
+        clear_flavour(record, index);
+        if (raining()) {
+            return 0;
+        }
+        g_out[index] = 0;                                 /* whatever it was out on has ended */
         if (record[R_SICK] != 0) {
             look_sick(record);
             return 1;
@@ -822,19 +1766,39 @@ static int __cdecl pick(unsigned char *record) {
         if (visiting(index)) {                            /* a doctor between visits: the stock AI */
             return 0;
         }
-        if (i32(record, R_PREGNANT) != 0 || rnd(100) >= g_show_percent) {
+        paced(record, index);
+        since = g_units[index] - g_last_out[index];
+        may_go_out = since >= cooldown();
+        overdue = since >= 4 * cooldown();                /* "not stuck at camp either" */
+        if (i32(record, R_PREGNANT) != 0 || (!overdue && rnd(100) >= g_show_percent)) {
             return 0;
         }
         if (i32(record, R_AGE) < ADULT) {
             /* A child: only what a believer child does that a Heathen child does not in stock -- play in the
-               nursery while an adult teaches at the nursery school (0x46E433..0x46E472; 0x43A810). */
-            if (((teacher_fn)(UINT_PTR)G_TEACHER)() && area_drawn(A_NURSERY_PLAY)) {
+               nursery while an adult teaches at the nursery school (0x46E433..0x46E472; 0x43A810), and bring a
+               find home (the believer children's pick-up, flavour only). */
+            int tribe, away, same, in_nursery, nursery = ((teacher_fn)(UINT_PTR)G_TEACHER)() && area_drawn(A_NURSERY_PLAY);
+            int spot = rnd(2) == 0 ? 0x4C : 0x51;         /* where the believer children look (0x456C10) */
+            tally(&tribe, &away, &in_nursery, ACT_NURSERY);
+            tally(&tribe, &away, &same, ACT_FIND);
+            if (!may_go_out || away >= away_cap(tribe)) {
+                return 0;
+            }
+            /* The same-action cap holds for nursery play too (Codex, PR #899): a full nursery falls back to a find. */
+            nursery = nursery && in_nursery < same_cap();
+            if (nursery && (rnd(2) == 0 || in_use(spot))) {
                 look_visit(record, 0, T_NURSERY_PLAY, A_NURSERY_PLAY);
+                went_out(record, ACT_NURSERY, 1);
+                return 1;
+            }
+            if (same < same_cap() && !in_use(spot)) {
+                g_flavour_item[index] = look_find(record, spot);
+                went_out(record, ACT_FIND, 1);
                 return 1;
             }
             return 0;
         }
-        return show(record);
+        return show(record, may_go_out);
     } __except (EXCEPTION_EXECUTE_HANDLER) {
         return 0;
     }
@@ -859,7 +1823,8 @@ static int onset(const unsigned char *record) {           /* 0x472F7C..0x472F9B 
 
 static int can_heal(const unsigned char *record) {
     return heathen(record) && ordinary(record) && i32(record, R_AGE) >= ADULT && record[R_SICK] == 0
-        && i32(record, R_PREGNANT) == 0 && record[R_HELD] == 0 && (int)skill(record, SKILL_HEALING) >= 1;
+        && i32(record, R_PREGNANT) == 0 && record[R_HELD] == 0 && (int)skill(record, SKILL_HEALING) >= 1
+        && !in_encounter(record);
 }
 
 static void end_visit(int patient) {
@@ -931,7 +1896,7 @@ static void heal(int index, unsigned char *patient) {
         g_patient_who[index] = identity(patient);
         g_waited[index] = 0;
         g_visiting[best] = index + 1;
-        if (patient[R_HELD] == 0) {
+        if (patient[R_HELD] == 0 && !in_encounter(patient)) {
             look_waiting(patient);
         }
         look_healing(who, patient);
@@ -944,6 +1909,9 @@ static void heal(int index, unsigned char *patient) {
 
 static void life_unit(int index, unsigned char *record) {
     int health = i32(record, R_HEALTH), was = health, sick = record[R_SICK] != 0;
+    paced(record, index);
+    ++g_units[index];
+    train_sync();
     if (sick && rnd(100) <= 60 && (health > 20 || rnd(100) <= 30) && health > g_floor) {
         health -= 1;                                      /* 0x472ED1, never below the floor */
     }
@@ -957,7 +1925,7 @@ static void life_unit(int index, unsigned char *record) {
         if (ordinary(record) && onset(record)) {
             record[R_SICK] = 1;
             forget_visits_of(index);
-            if (record[R_HELD] == 0) {
+            if (record[R_HELD] == 0 && !in_encounter(record)) {
                 look_sick(record);                        /* as 0x472FAC..0x472FC1 start behaviour 0x20 */
             }
         }
@@ -966,6 +1934,7 @@ static void life_unit(int index, unsigned char *record) {
     }
     if (record[R_SICK] == 0 && ordinary(record) && i32(record, R_AGE) >= ADULT) {
         int planned = g_practice[index] - 1;
+        train_update(record);
         if (planned >= 0 && g_practice_who[index] == identity(record)) {
             practise(record, planned);
         } else if (rnd(PRACTICE_ROLL) == 0) {
@@ -1037,6 +2006,91 @@ __declspec(naked) static void pick_stub(void) {
 
 static const unsigned char PICK_STOCK[8] = { 0x38, 0x9A, 0xEC, 0x1C, 0x00, 0x00, 0x74, 0x0D };
 
+/* ---- the carry setter's listener calls (0x466420: thiscall on the record, (item, -1 none)) -----------------
+   0x466434 `call 0x413750` (the pick-up listeners: may the record take `item`? vf0 0x413DC0 takes the nearest item
+   of that kind off the map) and 0x466464 `call 0x4137C0` (the release listeners: vf1 0x4146B0 credits a mushroom or
+   a collectible put down).  Both thiscall, ecx = 0x4DB790, (record, item), ret 8.  For a Heathen's pretend find
+   neither is called: the pick-up answers 1 (the carry is stored, the sprite shows), the release does nothing (the
+   carry is already -1, 0x46645A).  Anything else goes to the stock routine with its arguments untouched. */
+
+/* 1 when `record` setting `item` is a pretend find's carry step: a Heathen, its find queued (look_find), and still
+   in that look (behaviour CAMP_WANDER; a player's drop on an item gives the pick behaviour 0x23 / 0x24, 0x4136FC). */
+static int __cdecl pretend_pickup(unsigned char *record, int item) {
+    __try {
+        int index = rec_index(record);
+        if (index < 0 || item <= 0 || !heathen(record)) {
+            return 0;
+        }
+        if (g_flavour_item[index] == item && i32(record, R_BEHAVIOUR) == CAMP_WANDER) {
+            return 1;
+        }
+        g_flavour_item[index] = 0;                         /* a real carry: whatever find was queued is over */
+        return 0;
+    } __except (EXCEPTION_EXECUTE_HANDLER) {
+        return 0;
+    }
+}
+
+/* 1 when `record` putting `item` down is a pretend find being released (by any stop): it is then forgotten. */
+static int __cdecl pretend_release(unsigned char *record, int item) {
+    __try {
+        int index = rec_index(record);
+        if (index < 0 || item <= 0 || !heathen(record) || g_flavour_item[index] != item) {
+            return 0;
+        }
+        g_flavour_item[index] = 0;
+        return 1;
+    } __except (EXCEPTION_EXECUTE_HANDLER) {
+        return 0;
+    }
+}
+
+#define SITE_PICKUP 0x466434u
+#define SITE_RELEASE 0x466464u
+static const unsigned int g_listeners_pickup = 0x413750u;
+static const unsigned int g_listeners_release = 0x4137C0u;
+static int g_carry_result;
+/* `call 0x413750` / `call 0x4137C0` at those sites (rel32 from the next instruction). */
+static const unsigned char PICKUP_STOCK[5] = { 0xE8, 0x17, 0xD3, 0xFA, 0xFF };
+static const unsigned char RELEASE_STOCK[5] = { 0xE8, 0x57, 0xD3, 0xFA, 0xFF };
+
+/* Called in place of 0x413750: [esp] the return (0x466439), [esp+4] the record, [esp+8] the item, ecx 0x4DB790. */
+__declspec(naked) static void pickup_stub(void) {
+    __asm {
+        pushad
+        push dword ptr [esp + 0x28]
+        push dword ptr [esp + 0x28]
+        call pretend_pickup
+        add esp, 8
+        mov dword ptr [g_carry_result], eax
+        popad
+        cmp dword ptr [g_carry_result], 0
+        jne pretend
+        jmp dword ptr [g_listeners_pickup]
+    pretend:
+        mov al, 1
+        ret 8
+    }
+}
+
+/* Called in place of 0x4137C0: [esp] the return (0x466469), [esp+4] the record, [esp+8] the item, ecx 0x4DB790. */
+__declspec(naked) static void release_stub(void) {
+    __asm {
+        pushad
+        push dword ptr [esp + 0x28]
+        push dword ptr [esp + 0x28]
+        call pretend_release
+        add esp, 8
+        mov dword ptr [g_carry_result], eax
+        popad
+        cmp dword ptr [g_carry_result], 0
+        jne pretend
+        jmp dword ptr [g_listeners_release]
+    pretend:
+        ret 8
+    }
+}
+
 static const unsigned int g_cure_sick = CURE_SICK;
 static const unsigned int g_cure_not_sick = CURE_NOT_SICK;
 static const unsigned int g_cure_counted = CURE_COUNTED;
@@ -1098,7 +2152,7 @@ static int cure_guard(vvfp_site_write *sites) {
 
 /* Called once by the patcher's start-up chain before WinMain. */
 void __stdcall VvfpStartup(int game, unsigned int shipped) {
-    vvfp_site_write sites[3];
+    vvfp_site_write sites[5];
     unsigned int manager_rva;
     int guard;
     (void)shipped;
@@ -1112,6 +2166,10 @@ void __stdcall VvfpStartup(int game, unsigned int shipped) {
     g_records = (unsigned char *)GetModuleHandleA(NULL) + manager_rva + 0x48u;
     g_floor = he_option(HE_OPT_SICK_FLOOR, HE_SICK_FLOOR_DEFAULT, 1, 100);
     g_show_percent = he_option(HE_OPT_SHOW_PERCENT, 0, 0, 100);
+    g_busyness = he_option(HE_OPT_BUSYNESS, 2, 1, 3);
+    g_option_away_max = he_option(HE_OPT_AWAY_MAX, 0, 0, 64);
+    g_option_same_max = he_option(HE_OPT_SAME_MAX, 0, 0, 64);
+    g_option_cooldown = he_option(HE_OPT_OUTING_COOLDOWN, 0, 0, 10000);
     if (g_show_percent == 0) {
         g_show_percent = SHOW_PERCENT_OWN;
     }
@@ -1119,12 +2177,14 @@ void __stdcall VvfpStartup(int game, unsigned int shipped) {
     if (g_seed == 0u) {
         g_seed = 0x9E3779B9u;
     }
-    guard = cure_guard(&sites[1]);
+    guard = cure_guard(&sites[3]);
     if (guard < 0) {
         return;                                           /* all or none: People Cured could not be guarded */
     }
     vvfp_site_branch(&sites[0], SITE_PICKER, 8, PICK_STOCK, 0xE9, (const void *)pick_stub);
-    if (vvfp_install_sites(sites, 1 + guard)) {
+    vvfp_site_branch(&sites[1], SITE_PICKUP, 5, PICKUP_STOCK, 0xE8, (const void *)pickup_stub);
+    vvfp_site_branch(&sites[2], SITE_RELEASE, 5, RELEASE_STOCK, 0xE8, (const void *)release_stub);
+    if (vvfp_install_sites(sites, 3 + guard)) {
         g_installed = 1;
     }
 }

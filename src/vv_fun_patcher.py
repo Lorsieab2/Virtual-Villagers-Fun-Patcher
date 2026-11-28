@@ -11536,7 +11536,10 @@ def _write_runtime_slider_choices(output_folder: Path, fun_patches: list[FunPatc
 #                                   -> "VVFP Heathen Options.txt"       key=value lines: show_percent (1 to 100, 25
 #                                                                       unless moved), and mask_orange_percent=0 /
 #                                                                       mask_red_percent=0 when every new Heathen is
-#                                                                       kept blue (else the owner's 7 / 3 stand).
+#                                                                       kept blue (else the owner's 7 / 3 stand), and
+#                                                                       busyness=1/2/3 (Quiet / Normal / Lively: how
+#                                                                       many Heathens may be out at once and how often
+#                                                                       each goes; Normal unless chosen).
 HEATHEN_EVOLUTION_ID = "vv5_heathen_tribe_evolution"
 HEATHEN_EVOLUTION_DLL = "VVFP Heathen Aging.dll"
 HEATHEN_BIRTHS_FILE = "VVFP Heathen Tribe Births.txt"
@@ -11551,12 +11554,15 @@ HEATHEN_ARRIVALS_DEFAULT = 0                             # Default Patches; Owne
 HEATHEN_ARRIVALS_OWNERS_DEFAULT = 1
 HEATHEN_SHOW_PERCENT_RANGE = range(1, 101)
 HEATHEN_SHOW_PERCENT_DEFAULT = 25
+HEATHEN_BUSYNESS_CHOICES = ("quiet", "normal", "lively")   # busyness=1, 2, 3 in the options file
+HEATHEN_BUSYNESS_DEFAULT = "normal"
 _heathen_evolution = {"births": HEATHEN_BIRTHS_DEFAULT, "arrivals": HEATHEN_ARRIVALS_DEFAULT,
-                      "show_percent": HEATHEN_SHOW_PERCENT_DEFAULT, "keep_blue": False}
+                      "show_percent": HEATHEN_SHOW_PERCENT_DEFAULT, "keep_blue": False,
+                      "busyness": HEATHEN_BUSYNESS_DEFAULT}
 HEATHEN_EVOLUTION_NAME_FOR_ERRORS = "Heathen Tribe Expansion and Evolution"
 
 
-def set_heathen_evolution(births=None, arrivals=None, show_percent=None, keep_blue=None) -> dict:
+def set_heathen_evolution(births=None, arrivals=None, show_percent=None, keep_blue=None, busyness=None) -> dict:
     """Choose the Heathen Tribe Expansion and Evolution row's settings for the next patch (each None: unchanged)."""
     if births is not None:
         _heathen_evolution["births"] = validate_multiplier(HEATHEN_BIRTHS_NAME, births, HEATHEN_BIRTHS_RANGE)
@@ -11570,6 +11576,11 @@ def set_heathen_evolution(births=None, arrivals=None, show_percent=None, keep_bl
         _heathen_evolution["show_percent"] = show_percent
     if keep_blue is not None:
         _heathen_evolution["keep_blue"] = bool(keep_blue)
+    if busyness is not None:
+        if busyness not in HEATHEN_BUSYNESS_CHOICES:
+            raise PatcherError(f"{HEATHEN_EVOLUTION_NAME_FOR_ERRORS}: how busy the Heathens are must be one of "
+                               f"{', '.join(HEATHEN_BUSYNESS_CHOICES)}, not {busyness!r}. Nothing was written.")
+        _heathen_evolution["busyness"] = busyness
     return dict(_heathen_evolution)
 
 
@@ -11582,7 +11593,8 @@ def heathen_options_text(settings: dict | None = None) -> str:
     """"VVFP Heathen Options.txt" for these settings (heathen_evo.h he_option: key=value lines, '#' comments)."""
     chosen = _heathen_evolution if settings is None else settings
     lines = ["# Virtual Villagers Fun Patcher: Heathen Tribe Expansion and Evolution's options (New Believers).",
-             f"show_percent={chosen['show_percent']}"]
+             f"show_percent={chosen['show_percent']}",
+             f"busyness={HEATHEN_BUSYNESS_CHOICES.index(chosen.get('busyness', HEATHEN_BUSYNESS_DEFAULT)) + 1}"]
     if chosen["keep_blue"]:
         lines += ["mask_orange_percent=0", "mask_red_percent=0"]
     return "\n".join(lines) + "\n"
@@ -11595,7 +11607,8 @@ def _heathen_evolution_in(fun_patches: list[FunPatch]) -> dict | None:
     return {"heathen_tribe_births_multiplier": _heathen_evolution["births"],
             "heathen_arrivals_multiplier": _heathen_evolution["arrivals"],
             "heathen_show_percent": _heathen_evolution["show_percent"],
-            "heathen_keep_blue": _heathen_evolution["keep_blue"]}
+            "heathen_keep_blue": _heathen_evolution["keep_blue"],
+            "heathen_busyness": _heathen_evolution["busyness"]}
 
 
 def _write_heathen_evolution_choices(output_folder: Path, fun_patches: list[FunPatch]) -> None:
@@ -15174,6 +15187,13 @@ def _add_fun_patch_args(parser: argparse.ArgumentParser) -> None:
               f"show action (default {HEATHEN_SHOW_PERCENT_DEFAULT})"),
     )
     parser.add_argument(
+        "--heathen-busyness",
+        choices=list(HEATHEN_BUSYNESS_CHOICES),
+        default=None,
+        help=("Heathen Tribe Expansion and Evolution: how many Heathens may be out at once and how often each "
+              f"goes out (default {HEATHEN_BUSYNESS_DEFAULT})"),
+    )
+    parser.add_argument(
         "--heathen-keep-blue",
         action=argparse.BooleanOptionalAction,
         default=None,
@@ -15363,7 +15383,8 @@ def main() -> int:
         set_heathen_evolution(births=getattr(args, "heathen_tribe_births_multiplier", None),
                               arrivals=getattr(args, "heathen_arrivals_multiplier", None),
                               show_percent=getattr(args, "heathen_show_percent", None),
-                              keep_blue=getattr(args, "heathen_keep_blue", None))
+                              keep_blue=getattr(args, "heathen_keep_blue", None),
+                              busyness=getattr(args, "heathen_busyness", None))
         if hasattr(args, "fun_patch"):
             args.fun_patch = migrated_fun_patch_ids(args.fun_patch)
         if args.command == "identify":

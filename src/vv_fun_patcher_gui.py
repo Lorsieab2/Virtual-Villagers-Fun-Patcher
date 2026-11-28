@@ -92,6 +92,8 @@ from vv_fun_patcher import (
     HEATHEN_EVOLUTION_ID,
     HEATHEN_SHOW_PERCENT_DEFAULT,
     HEATHEN_SHOW_PERCENT_RANGE,
+    HEATHEN_BUSYNESS_CHOICES,
+    HEATHEN_BUSYNESS_DEFAULT,
     migrated_fun_patch_ids,
     set_heathen_evolution,
     conflict_ids,
@@ -224,7 +226,7 @@ PATCH_SETTINGS_ROWS = {
     # Heathen Tribe Expansion and Evolution (New Believers): its two sliders and two options.
     "heathen_tribe_evolution": ("_fill_heathen_evolution_settings",
                                 ("heathen_tribe_births_multiplier", "heathen_arrivals_multiplier",
-                                 "heathen_show_percent", "heathen_keep_blue")),
+                                 "heathen_show_percent", "heathen_keep_blue", "heathen_busyness")),
 }
 # Heathen Tribe Expansion and Evolution's Settings window (_fill_heathen_evolution_settings): its words, shown in the
 # player's language (the template rows vvfp.gui/heathen_evolution.*, scripts/build_patch_text_inventory.py).
@@ -236,8 +238,10 @@ HEATHEN_ARRIVALS_TICK = "New Heathens arrive"
 HEATHEN_ARRIVALS_LABEL = "0-10x New Heathen Arrivals:"
 HEATHEN_SHOW_LABEL = "Show actions (% of an idle Heathen's choices):"
 HEATHEN_KEEP_BLUE_LABEL = "Keep every new Heathen blue (no orange or red masks for arrivals and babies)"
+HEATHEN_BUSY_LABEL = "How busy the Heathens are:"
+HEATHEN_BUSY_NAMES = ("Quiet", "Normal", "Lively")       # HEATHEN_BUSYNESS_CHOICES, in order
 HEATHEN_SETTINGS_TEXTS = (HEATHEN_SETTINGS_INTRO, HEATHEN_BIRTHS_LABEL, HEATHEN_ARRIVALS_TICK, HEATHEN_ARRIVALS_LABEL,
-                          HEATHEN_SHOW_LABEL, HEATHEN_KEEP_BLUE_LABEL)
+                          HEATHEN_SHOW_LABEL, HEATHEN_KEEP_BLUE_LABEL, HEATHEN_BUSY_LABEL, *HEATHEN_BUSY_NAMES)
 # No Safeguards for Island Events (and Additional Events too) sits under Classic VV Difficulty in the main list (the
 # owner, 2026-11-15), with its title colour -- never ticked by it (off everywhere).
 NO_SAFEGUARDS_TAIL = "island_events_any_time"
@@ -725,6 +729,13 @@ def saved_heathen_evolution(settings: dict) -> tuple:
     if isinstance(show, bool) or not isinstance(show, int) or show not in HEATHEN_SHOW_PERCENT_RANGE:
         show = HEATHEN_SHOW_PERCENT_DEFAULT
     return births, arrivals, show, settings.get("heathen_keep_blue") is True
+
+
+def saved_heathen_busyness(settings: dict) -> str:
+    """How busy the Heathens are, as a settings file holds it ("quiet", "normal", "lively"; "normal" when missing or
+    not readable)."""
+    chosen = settings.get("heathen_busyness") if isinstance(settings, dict) else None
+    return chosen if chosen in HEATHEN_BUSYNESS_CHOICES else HEATHEN_BUSYNESS_DEFAULT
 
 
 def saved_runtime_slider_multiplier(settings: dict, key: str):
@@ -1816,6 +1827,7 @@ class App(tk.Tk):
             self.heathen_arrivals_var = tk.DoubleVar(value=HEATHEN_ARRIVALS_DEFAULT or HEATHEN_ARRIVALS_OWNERS_DEFAULT)
             self.heathen_show_var = tk.IntVar(value=HEATHEN_SHOW_PERCENT_DEFAULT)
             self.heathen_keep_blue_var = tk.BooleanVar(value=False)
+            self.heathen_busy_var = tk.StringVar(value=HEATHEN_BUSYNESS_DEFAULT)
             self.pair_rules: dict = {}  # Village Matchmaker's ticks, remembered
             self.tree_window: dict = {}  # the Family Tree Maker window's size and panes
             self.tree_style: dict = {}   # the Family Tree Maker's look, for the next new tree
@@ -2133,7 +2145,7 @@ class App(tk.Tk):
         self.solidarity_var.trace_add("write", lambda *_args: self._solidarity_changed())
         # Heathen Tribe Expansion and Evolution's settings (its Settings window): what the patch writes follows them.
         for variable in (self.heathen_births_var, self.heathen_arrivals_on_var, self.heathen_arrivals_var,
-                         self.heathen_show_var, self.heathen_keep_blue_var):
+                         self.heathen_show_var, self.heathen_keep_blue_var, self.heathen_busy_var):
             variable.trace_add("write", lambda *_args: self._heathen_evolution_changed())
         self._heathen_evolution_changed()   # the saved settings, loaded before the window was built
         # Each setting stays whole (its label, box or slider and "?" together) and goes to the next line
@@ -3519,6 +3531,7 @@ class App(tk.Tk):
             self.heathen_arrivals_var.set(arrivals if arrivals > 0 else HEATHEN_ARRIVALS_OWNERS_DEFAULT)
             self.heathen_show_var.set(show)
             self.heathen_keep_blue_var.set(blue)
+            self.heathen_busy_var.set(saved_heathen_busyness(data))
         if hasattr(self, "solidarity_var"):
             self.solidarity_var.set(float(set_village_solidarity_strength(saved_solidarity_strength(data))))
         saved_all = data.get("all_game_folders", data.get("all_game_exes", {}))
@@ -3581,6 +3594,7 @@ class App(tk.Tk):
             "heathen_arrivals_multiplier": App._heathen_arrivals(self),
             "heathen_show_percent": App._heathen_show_percent(self),
             "heathen_keep_blue": App._heathen_keep_blue(self),
+            "heathen_busyness": App._heathen_busyness(self),
             "village_solidarity_strength": village_solidarity_strength(),
             "fun_patches": self._selected_fun_patch_ids(),
             "pair_rules": self.pair_rules,
@@ -3687,10 +3701,19 @@ class App(tk.Tk):
         except (tk.TclError, AttributeError):
             return False
 
+    def _heathen_busyness(self) -> str:
+        """Quiet, Normal or Lively ("normal" unless chosen)."""
+        try:
+            chosen = self.heathen_busy_var.get()
+        except (tk.TclError, AttributeError):
+            chosen = HEATHEN_BUSYNESS_DEFAULT
+        return chosen if chosen in HEATHEN_BUSYNESS_CHOICES else HEATHEN_BUSYNESS_DEFAULT
+
     def _heathen_evolution_changed(self) -> None:
         """A Heathen Tribe Expansion and Evolution setting changed: the next patch writes it beside the companion."""
         set_heathen_evolution(births=App._heathen_births(self), arrivals=App._heathen_arrivals(self),
-                              show_percent=App._heathen_show_percent(self), keep_blue=App._heathen_keep_blue(self))
+                              show_percent=App._heathen_show_percent(self), keep_blue=App._heathen_keep_blue(self),
+                              busyness=App._heathen_busyness(self))
 
     def _set_heathen_evolution_defaults(self, owners: bool) -> None:
         """The row's settings as Default Patches (arrivals none) or Owner's Defaults (arrivals at 1) leave them:
@@ -3702,6 +3725,8 @@ class App(tk.Tk):
         self.heathen_arrivals_on_var.set(owners)
         self.heathen_show_var.set(HEATHEN_SHOW_PERCENT_DEFAULT)
         self.heathen_keep_blue_var.set(False)
+        if hasattr(self, "heathen_busy_var"):
+            self.heathen_busy_var.set(HEATHEN_BUSYNESS_DEFAULT)
 
     def _fill_heathen_evolution_settings(self, frame) -> None:
         """Heathen Tribe Expansion and Evolution's settings (New Believers): the births and arrivals sliders, the
@@ -3752,6 +3777,13 @@ class App(tk.Tk):
         ttk.Checkbutton(blue, text=gui_text(HEATHEN_KEEP_BLUE_LABEL, 5), variable=self.heathen_keep_blue_var,
                         command=self._save_settings).pack(side="left")
         self._help_button(blue, "heathen_keep_blue").pack(side="left", padx=(4, 0))
+        busy = ttk.Frame(frame)
+        busy.pack(fill="x", anchor="w", pady=(6, 2))
+        ttk.Label(busy, text=gui_text(HEATHEN_BUSY_LABEL, 5)).pack(side="left", padx=(0, 4))
+        for value, name in zip(HEATHEN_BUSYNESS_CHOICES, HEATHEN_BUSY_NAMES):
+            ttk.Radiobutton(busy, text=gui_text(name, 5), value=value, variable=self.heathen_busy_var,
+                            command=self._save_settings).pack(side="left", padx=(0, 6))
+        self._help_button(busy, "heathen_busyness").pack(side="left", padx=(4, 0))
 
     @staticmethod
     def _forget_trace(variable, trace) -> None:

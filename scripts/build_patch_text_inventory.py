@@ -233,7 +233,8 @@ def add_gui_rows(strings: list[dict]) -> None:
                         "games": ["vv1", "vv2", "vv3", "vv4", "vv5"], "mechanism": "b", "context": context,
                         "notes": "a patcher window"})
     # Heathen Tribe Expansion and Evolution's Settings window (New Believers, v1.35.101): its intro and labels.
-    for name, english in zip(("intro", "births", "arrivals_tick", "arrivals", "show", "keep_blue"),
+    for name, english in zip(("intro", "births", "arrivals_tick", "arrivals", "show", "keep_blue", "busy",
+                              "busy_quiet", "busy_normal", "busy_lively"),
                              gui.HEATHEN_SETTINGS_TEXTS):
         strings.append({"stem": f"vvfp.gui/heathen_evolution.{name}", "english": english, "games": ["vv5"],
                         "mechanism": "b",

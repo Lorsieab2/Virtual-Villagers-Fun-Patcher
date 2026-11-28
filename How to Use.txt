@@ -115,8 +115,9 @@ slots instead (see the 256 VILLAGERS (EXPERIMENTAL) section below).
    harder to reach, or impossible. Its Settings... button holds "0.1-10x
    Heathen Tribe Births" (1 unless moved), "0-10x New Heathen Arrivals" (tick
    "New Heathens arrive" and set the number; none by default, 1 in Owner's
-   Defaults), the share of show actions (25%) and "Keep every new Heathen
-   blue". Patch again after changing them. It replaces "Heathen Tribe Ages,
+   Defaults), the share of show actions (25%), "Keep every new Heathen
+   blue" and how busy the Heathens are (Quiet, Normal or Lively; Normal
+   unless chosen). Patch again after changing them. It replaces "Heathen Tribe Ages,
    Dies and Has Children", "All Heathens Leave Skeletons" and "Heathens can be
    selected in Island Events/Heathen-Exclusive Events"; a saved selection with
    any of them ticks it.
@@ -1738,8 +1739,9 @@ of its own:
 Every Heathen record in the logs is marked as a Heathen. Heathens never count
 in the Village Statistics. Heathens always leave 10 villager records free.
 Its Settings... button holds 0.1-10x Heathen Tribe Births, 0-10x New Heathen
-Arrivals (tick "New Heathens arrive"), the share of show actions and Keep
-every new Heathen blue; patch again after changing them. It replaces "Heathen
+Arrivals (tick "New Heathens arrive"), the share of show actions, Keep
+every new Heathen blue and how busy the Heathens are (Quiet, Normal or
+Lively); patch again after changing them. It replaces "Heathen
 Tribe Ages, Dies and Has Children", "All Heathens Leave Skeletons" and
 "Heathens can be selected in Island Events/Heathen-Exclusive Events": a saved
 selection with any of them ticks it. Not yet seen in a running game.
