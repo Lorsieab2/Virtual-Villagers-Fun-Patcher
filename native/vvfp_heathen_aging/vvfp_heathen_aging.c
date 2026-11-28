@@ -104,9 +104,14 @@
    docs/heathen-tribe-expansion-decisions.md; the shared names in native/shared/heathen_evo.h).  The flag stands
    for the three rows it folds -- every Heathen ages and has children, every Heathen leaves a skeleton, island
    events carry Heathens -- and adds, all drawn from this companion's own xorshift (never the game's rand):
-     * THE BIRTHS SLIDER (0.1x-10x, "VVFP Heathen Tribe Births.txt", 1x when missing): each eligible woman (as
-       above, in a couple with a man) rolls 1 in 2,400 x W / t a unit (t tenths, W such women), and births go on
-       after The Last Heathen while a Heathen woman and man are alive (decisions 1-3);
+     * VISIBLE EMBRACES, NURSING, THE TRIBE'S SIZE AND ITS MASKS (the owner, 2026-11-27/28; heathen_tribe.inc):
+       a conception comes only through a visible embrace of a couple, or of a Heathen titled Parent with a Heathen
+       of the other sex who is not their kin -- about one for the whole tribe every 60 units (6 real hours on
+       Normal) at 1x of THE BIRTHS SLIDER (0.1x-10x, "VVFP Heathen Tribe Births.txt", 1x when missing), the
+       believers' own litter and Medicine rule; births go on after The Last Heathen while a Heathen woman and man
+       are alive (decisions 1-3); the carrier nurses with the believers' mothers' routine until the birth; "Heathen
+       tribe size", "Room kept for believers" and "How often the tribe changes" (the options file) bound and pace
+       the growth; the mask caps, the Rascals and the purple masters;
      * COUPLES (decision 15; the owner, 2026-11-26: "same sex yes"): any two adult Heathens, neither in a couple,
        not kin by their records (parent and child, full or half siblings: the parents' names, heads and bodies),
        pair for life -- until one dies, converts or leaves -- at most one new couple a look and only when the
@@ -115,11 +120,13 @@
        takes any two).  Kept per save slot in "...\Save <S>\Data\Heathen Couples\Heathen Couples - Save
        <S>.dat" (heathen_evo.h section 5), following their identities as the file above does; each new couple
        gets a "Couple formed" record (WriteParentageHeathenCouple, when that export is there);
-     * LITTERS: single, twins 5.25%, triplets 1.75% (the stock odds without the Medicine 3 gate), as many as the
-       room allows; every forced conception -- the tribe's, the Heathen Mommy's infant, an island event's -- gets
-       its Conception record (WriteParentageRecordWithFather: the game's own hook skips forced conceptions);
+     * LITTERS: the believers' own (0x465E00: single below Medicine 3; at Medicine 3 twins 5.25%, triplets 1.75%),
+       as many as the room allows; every forced conception -- the tribe's, the Heathen Mommy's infant, an island
+       event's -- gets its Conception record (WriteParentageRecordWithFather: the game's own hook skips forced
+       conceptions);
      * ARRIVALS (0-10x, "VVFP Heathen Arrivals.txt", off when missing): on 1 unit in 4,800 / t of the village's
-       clock (the age credit of the first living record), a group of 1 to 4 joins the camp -- half the groups of
+       clock (the age credit of the first living record; with "Heathen tribe size" on the rates of heathen_evo.h
+       section 2), a group of 1 to 4 joins the camp -- half the groups of
        two or more a couple with 0-2 children of theirs aged 2-12 -- by the game's own Heathen creator (the stock
        camp's spawn point), roles 0-11 as the stock camp's, each with its Arrived record.  Before The Last Heathen
        only while a Heathen is alive (never from nothing while the puzzle can still be solved); after it, whether
@@ -134,8 +141,9 @@
        the role's, a Chief's at most "Esteemed Elder".  After The Last Heathen a regrown camp of 6 adults or more
        gets a real Chief and Masters, one vacant role a look.  Each with a "Took the role" record
        (VvfpCauseHeathenRole).  While the puzzle is unsolved, today's rule, the new one of either sex;
-     * THE RECORD CAP (decision 18 as the owner changed it): Heathens grow normally in every population mode; a
-       birth or an arrival only keeps 10 records free, so the game never runs out;
+     * THE RECORD CAP (decision 18 as the owner changed it, and "Room kept for believers" of 2026-11-28): Heathens
+       grow normally in every population mode; a birth or an arrival only keeps room_kept records free (20 unless
+       moved, never under 10), so the believers' own are never blocked and the game never runs out;
      * THE BRIDGE: "VVFP Heathen Life.dll"'s VvfpHeathenLifeUnit is called for every aging Heathen's unit, and
        asked every pass whether to keep the sick byte (heathen_evo.h section 3).
 
@@ -249,11 +257,15 @@ typedef void (__stdcall *cod_arrived_fn)(int game, int index, const char *how);
 
 static int g_installed;
 static int g_walk_installed;            /* the elder walk-pace site (walk_stub) */
+static int g_looks_installed;           /* the nursing and Rascal sites (nurse_stub, rascal_stub) */
 static int g_former_row, g_tribe_row, g_bones_former, g_bones_all, g_events_row;
 static int g_evo;                      /* Heathen Tribe Expansion and Evolution (HE_FLAG_ROW) */
 static unsigned int g_births_tenths = HE_BIRTHS_DEFAULT, g_arrivals_tenths = HE_ARRIVALS_DEFAULT;
 static int g_mask_orange = HE_MASK_ORANGE_DEFAULT, g_mask_red = HE_MASK_RED_DEFAULT;
 static int g_group_max = HE_GROUP_MAX_DEFAULT;
+static int g_tribe_max;                /* "Heathen tribe size": 0 off (heathen_evo.h tribe_max) */
+static int g_room = HE_ROOM_DEFAULT;   /* "Room kept for believers" (room_kept) */
+static unsigned int g_change_tenths = HE_CHANGE_DEFAULT;   /* "How often the tribe changes" (change_tenths) */
 static unsigned int g_he_seed = 0x6D2B79F5u;
 static int g_clock_index = -1;         /* the record whose age credit is the village's clock (arrivals) */
 static unsigned int g_clock_units;     /* units it was credited since the last throttled pass */
@@ -271,6 +283,9 @@ static int g_body_count;                   /* the Heathen bodies watched (watch_
 static int g_roster_known;                 /* the last roster look (follow_identities, below) */
 static void pay_owed(void);
 static int owed_count(void);
+static void flush_tribe(void);                     /* heathen_tribe.inc */
+static void tribe_rekey(unsigned int from, unsigned int to);
+static void purple_gone(unsigned char *record);
 
 /* ---- the game, called ------------------------------------------------------------------------------------- */
 
@@ -684,6 +699,7 @@ static void keep_known(void) {
             if (g_evo) {
                 g_couple_synced_at = GetTickCount() - HA_WRITE_MS;
                 write_couples(g_file_slot);
+                flush_tribe();
             }
             forget_village_evo();          /* the couples, the partner cache and every other piece of it */
         }                                  /* (noted before any slot was known: this village's, kept) */
@@ -835,6 +851,9 @@ static void rekey(const unsigned int *was, int n, unsigned int from, unsigned in
         ++i;
     }
     couples_rekey(from, to);
+    if (g_evo) {
+        tribe_rekey(from, to);
+    }
 }
 
 /* The believer the age credit last saw in record index is the same villager under the new identity: one whose
@@ -972,14 +991,40 @@ static int free_records(void) {
 /* ---- the record cap (decision 18, as the owner changed it on 2026-11-26) ---------------------------------------
 
    The owner: Heathens "should grow normally" in every population mode ("we're gonna convert everyone so no point
-   restricting").  The only limit is the technical one: a birth or an arrival of n Heathens is made only while
-   the free records, less n, stay at least HE_ROOM_KEPT (10), so the game's own creator never runs out of
-   records. */
+   restricting").  The technical limit: a birth or an arrival of n Heathens is made only while the free records,
+   less n, stay at least "Room kept for believers" (the owner, 2026-11-28: room_kept, 20 unless moved, never under
+   HE_ROOM_KEPT = 10), so the believers' own babies and arrivals are never blocked and the game's creator never runs
+   out of records.  And with "Heathen tribe size" on, conceptions and arrivals grow the camp only to tribe_max
+   (tribe_room below): at the limit growth waits; nobody is ever removed to make room. */
 
 /* How many of `wanted` new Heathens fit (0 .. wanted). */
 static int heathens_fit(int wanted) {
-    int spare = free_records() - HE_ROOM_KEPT;
+    int spare = free_records() - g_room;
     return spare <= 0 ? 0 : spare < wanted ? spare : wanted;
+}
+
+/* The camp's size for "Heathen tribe size": the living Heathens and the babies on the way among them (pending
+   babies count toward the population). */
+static int tribe_count(void) {
+    unsigned int i;
+    int n = 0;
+    for (i = 0; i < g_slots; ++i) {
+        const unsigned char *r = rec_at((int)i);
+        if (r[R_FACTION] != 0 && living(r)) {
+            n += 1 + (i32(r, R_PREGNANT) != 0 ? (i32(r, R_LITTER) > 0 ? i32(r, R_LITTER) : 1) : 0);
+        }
+    }
+    return n;
+}
+
+/* How many of `wanted` new Heathens the record room and the tribe size let a conception or an arrival add. */
+static int tribe_fit(int wanted) {
+    int fit = heathens_fit(wanted), left;
+    if (g_tribe_max <= 0) {
+        return fit;
+    }
+    left = g_tribe_max - tribe_count();
+    return left <= 0 ? 0 : left < fit ? left : fit;
 }
 
 /* A new Heathen by the game's creator; its Faith written afterwards (the top of this file).  -1: no room. */
@@ -1115,11 +1160,47 @@ static void log_role(int index, int role) {
     }
 }
 
-/* A new arrival's or newborn's mask (decision 7): orange, red or (the rest) blue. */
-static void roll_mask(int *orange, int *red) {
+/* MASK CAPS (the owner, 2026-11-28, fixed rules): "vanilla # up to 10 of orange heathens and red heathens, rest are
+   blue", and among the children "at most ... 1-2 orange child heathens, 1-2 red child heathens, all are labeled
+   Rascals.  the rest = blue".  A new orange or red mask is given only while fewer than HE_MASK_CAP living Heathens
+   wear it (the stock camp's own, when it has more, are kept: no mask is ever changed), and, for a child, fewer than
+   the village's Rascal cap of that colour (1 or 2, drawn once and kept in the tribe file: g_rascal_cap).  An
+   adult's mix stays the owner's 90 / 7 / 3. */
+static int g_rascal_cap[2] = { HE_RASCAL_CAP_MIN, HE_RASCAL_CAP_MIN };   /* orange, red (the tribe file) */
+
+static int masks_worn(unsigned int mask_at, int children) {
+    unsigned int i;
+    int n = 0;
+    for (i = 0; i < g_slots; ++i) {
+        const unsigned char *r = rec_at((int)i);
+        if (r[R_FACTION] != 0 && living(r) && r[mask_at] != 0 && (!children || i32(r, R_AGE) < ADULT)) {
+            ++n;
+        }
+    }
+    return n;
+}
+
+/* 1 when one more Heathen (a child when `child`) may wear the orange (`red` 0) or red mask. */
+static int mask_free(int red, int child) {
+    unsigned int at = red ? R_RED : R_ORANGE;
+    if (masks_worn(at, 0) >= HE_MASK_CAP) {
+        return 0;
+    }
+    return !child || masks_worn(at, 1) < g_rascal_cap[red ? 1 : 0];
+}
+
+/* A new arrival's or newborn's mask (decision 7): orange, red or (the rest) blue, within the caps above. */
+static void roll_mask_of(int *orange, int *red, int child) {
     int roll = he_below(100);
     *orange = roll < g_mask_orange;
     *red = !*orange && roll < g_mask_orange + g_mask_red;
+    if ((*orange && !mask_free(0, child)) || (*red && !mask_free(1, child))) {
+        *orange = *red = 0;
+    }
+}
+
+static void roll_mask(int *orange, int *red) {
+    roll_mask_of(orange, red, 0);
 }
 
 /* ---- couples (decision 15) ----------------------------------------------------------------------------------
@@ -1132,7 +1213,6 @@ static void roll_mask(int *orange, int *red) {
    couple lasts until one of them is no longer a living Heathen here (a death, a conversion, leaving the camp).
    g_partner caches each record's partner for the life tick, rebuilt at each throttled look. */
 static int g_partner[256];
-static int g_couple_women;             /* the women who could conceive now with a partner (the births' W) */
 
 static int same_name(const unsigned char *a, unsigned int at_a, const unsigned char *b, unsigned int at_b) {
     return a[at_a] != 0 && strncmp((const char *)(a + at_a), (const char *)(b + at_b), R_NAME_CAP) == 0;
@@ -1300,22 +1380,6 @@ static unsigned char *partner_man(const unsigned char *woman) {
     return partner != NULL && i32(partner, R_SEX) != 1 ? partner : NULL;
 }
 
-static void count_couple_women(void) {
-    unsigned int i;
-    g_couple_women = 0;
-    for (i = 0; i < g_slots && i < 256u; ++i) {
-        const unsigned char *r = rec_at((int)i);
-        g_couple_women += r[R_FACTION] != 0 && living(r) && ages(r) && could_conceive(r) && partner_man(r) != NULL;
-    }
-}
-
-/* ---- the litter --------------------------------------------------------------------------------------------- */
-
-static int roll_litter(void) {
-    int roll = he_below(10000);
-    return roll < HE_TRIPLETS_IN_10000 ? 3 : roll < HE_TRIPLETS_IN_10000 + HE_TWINS_IN_10000 ? 2 : 1;
-}
-
 /* A child's parents on its own record, as the stock birth writes them (deliver), the head the parents' average
    +-1 on 95% (`rnd`: the caller's numbers). */
 static void set_parents(unsigned char *child, const unsigned char *mother, const char *father_name, int father_head,
@@ -1372,7 +1436,7 @@ static int arrival_adult(int sex) {
 static int arrival_child(const unsigned char *mother, const unsigned char *father) {
     int orange, red, index, sex, age, faith;
     unsigned char *child;
-    roll_mask(&orange, &red);
+    roll_mask_of(&orange, &red, 1);                 /* within the Rascal caps */
     sex = he_below(2);
     age = 40 + he_below(201);
     faith = -38 - he_below(30);
@@ -1386,18 +1450,20 @@ static int arrival_child(const unsigned char *mother, const unsigned char *fathe
     return index;
 }
 
-static void arrive(void) {
+/* `family` (the camp is short of children: keep_children below): a couple with one or two children of theirs, as
+   many as the group size option and the room let in. */
+static void arrive(int family) {
     int made[4], n = 0, size, roll = he_below(100), i, couple;
     char words[64];
-    size = roll < 40 ? 1 : roll < 70 ? 2 : roll < 90 ? 3 : 4;
+    size = family ? 3 + (roll >= 50) : roll < 40 ? 1 : roll < 70 ? 2 : roll < 90 ? 3 : 4;
     if (size > g_group_max) {
         size = g_group_max;
     }
-    size = heathens_fit(size);
+    size = tribe_fit(size);
     if (size <= 0) {
         return;
     }
-    couple = size >= 2 && he_below(2) == 0;
+    couple = size >= 2 && (family || he_below(2) == 0);
     for (i = 0; i < size; ++i) {
         int index = couple && i >= 2 ? (n >= 2 ? arrival_child(rec_at(made[0]), rec_at(made[1])) : -1)
                   : arrival_adult(couple ? (i == 0 ? 1 : 0) : he_below(2));
@@ -1420,24 +1486,10 @@ static void arrive(void) {
     }
 }
 
-/* The arrivals' clock: each unit the village's clock record was credited is one roll of 1 in HE_ARRIVAL_ROLL / t.
-   Before The Last Heathen only while a Heathen is alive (the puzzle is solved when none is: never from nothing
-   while it can be); after it, whether or not anyone is. */
-static void arrivals(void) {
-    unsigned int units = g_clock_units, u;
-    g_clock_units = 0;
-    if (g_arrivals_tenths == 0) {
-        return;
-    }
-    if (units > 100000u) {
-        units = 100000u;
-    }
-    for (u = 0; u < units; ++u) {
-        if ((unsigned int)he_below(HE_ARRIVAL_ROLL) < g_arrivals_tenths
-            && (puzzle_done(LAST_HEATHEN) || living_heathens() > 0)) {
-            arrive();
-        }
-    }
+/* An arrival may come now: before The Last Heathen only while a Heathen is alive (the puzzle is solved when none
+   is: never from nothing while it can be); after it, whether or not anyone is. */
+static int arrival_open(void) {
+    return g_arrivals_tenths > 0 && (puzzle_done(LAST_HEATHEN) || living_heathens() > 0);
 }
 
 /* ---- roles (decision 6) ---------------------------------------------------------------------------------------
@@ -1613,6 +1665,12 @@ static void roles_follow(void) {
 static he_life_unit_fn g_life;
 
 static void retire_elders(void);
+/* heathen_tribe.inc (included below): the tribe file, the purple masters, the embraces and the growth rolls. */
+static void keep_tribe(void);
+static void forget_tribe(void);
+static void purple_masters(void);
+static void embraces_follow(void);
+static void growth(void);
 
 /* ---- the throttled look of the expansion (the age credit's, every HA_KEEP_MS) --------------------------------- */
 static void evo_pass(void) {
@@ -1628,8 +1686,10 @@ static void evo_pass(void) {
     if (g_clock_units > 0) {
         pair_one_couple();                 /* gradually: at most one a look, as the village's clock moves */
     }
-    count_couple_women();
-    arrivals();
+    keep_tribe();                          /* the tribe file: the Rascal caps, the purple masters */
+    purple_masters();
+    embraces_follow();                     /* the embraces under way: met, the conception */
+    growth();                              /* the clock's units: conceptions (embraces) and arrivals */
     regrown_roles();
     g_clock_index = -1;
     for (i = 0; i < g_slots && g_clock_index < 0; ++i) {
@@ -1651,7 +1711,7 @@ static void forget_village_evo(void) {
     g_couple_count = 0;
     g_couple_dirty = 0;
     memset(g_partner, 0xFF, sizeof g_partner);
-    g_couple_women = 0;
+    forget_tribe();                        /* the tribe file's words and the embraces under way */
     g_mommy_parent_name[0] = 0;
     g_mommy_parent_head = g_mommy_parent_body = 0;
     g_clock_index = -1;
@@ -1939,7 +1999,11 @@ static int children_replaced_now(void) {
 }
 
 static int replace_child(int role, int orange, int red) {
-    int age = orange ? CHILD_AGE_RASCAL : (he_below(2) ? CHILD_AGE_OLDER : CHILD_AGE_YOUNG);
+    int age;
+    if (g_evo && ((orange && !mask_free(0, 1)) || (red && !mask_free(1, 1)))) {
+        orange = red = 0;                  /* the Rascal caps (the owner, 2026-11-28): blue until under them */
+    }
+    age = orange ? CHILD_AGE_RASCAL : (he_below(2) ? CHILD_AGE_OLDER : CHILD_AGE_YOUNG);
     int index = heathens_fit(1) < 1 ? -1 : create(0, 2, 0, -1, age, orange, red, role, camp_faith());
     if (index < 0) {
         return 0;
@@ -2074,6 +2138,9 @@ static int gone(unsigned char *record, int how, int cause) {
     int held = g_evo ? held_role(record) : 0;
     if (held != 0 && (role < 13 || role > 16)) {
         (void)store_mask(record, MASK_STORE_BLUE);   /* a role for show: its stored mask goes with it */
+    }
+    if (g_evo) {
+        purple_gone(record);                         /* a purple master's mask too */
     }
     if (role == 17) {                      /* her replacement's infant is named after her own infant's other parent */
         copy_name((unsigned char *)g_mommy_parent_name, record + R_BABY_FATHER_NAME, R_PARENT_NAME_CAP + 1);
@@ -2245,7 +2312,7 @@ static void deliver(unsigned char *mother) {
         int fh = i32(mother, R_BABY_FATHER_HEAD), mh = i32(mother, R_HEAD);
         int orange = 0, red = 0, index, swapped;
         if (g_evo) {
-            roll_mask(&orange, &red);       /* decision 7: a newborn's own mask, not a parent's */
+            roll_mask_of(&orange, &red, 1); /* decision 7: a newborn's own mask, within the Rascal caps */
         }
         index = create(i32(mother, R_LINEAGE), i32(mother, R_BABY_SKILL), i32(mother, R_BABY_VALUE), -1,
                        DELIVERY, orange, red, 0, camp_faith());
@@ -2291,42 +2358,13 @@ static int tribe_women(void) {
     return n > 0 ? n : 1;
 }
 
-/* The expansion's births (decisions 1-3, 15): a woman who could conceive and has a partner rolls 1 in
-   HE_BIRTH_ROLL x W / t (the own numbers), before and after The Last Heathen, while the record cap lets one more
-   in; her partner is the father; the litter is the expansion's own roll, as many as the cap lets in; the
-   statistics' twins and triplets put back; the Conception record written. */
-static void maybe_conceive_evo(unsigned char *woman) {
-    unsigned char *man;
-    int twins, triplets, babies, women = g_couple_women > 0 ? g_couple_women : 1;
-    /* The village's couples not known (no slot yet, or its couples file unreadable): no birth at all -- the
-       documented pause of couples, births and arrivals, and never a stale pairing. */
-    if (g_file_slot == 0 || g_couple_blocked) {
-        return;
-    }
-    if (!could_conceive(woman) || (man = partner_man(woman)) == NULL
-        || (unsigned int)he_below(HE_BIRTH_ROLL * (unsigned int)women) >= g_births_tenths || heathens_fit(1) < 1) {
-        return;
-    }
-    twins = *(volatile int *)(UINT_PTR)G_TWINS;
-    triplets = *(volatile int *)(UINT_PTR)G_TRIPLETS;
-    ((tc7_fn)(UINT_PTR)G_CONCEIVE)(woman, NULL, i32(man, R_LINEAGE), 0, 0, (int)(UINT_PTR)(man + R_NAME),
-                                   i32(man, R_HEAD), i32(man, R_BODY), 1);
-    *(volatile int *)(UINT_PTR)G_TWINS = twins;
-    *(volatile int *)(UINT_PTR)G_TRIPLETS = triplets;
-    if (i32(woman, R_PREGNANT) == 0) {
-        *(int *)(woman + R_PREGNANT) = i32(woman, R_PROCESSED) > 0 ? i32(woman, R_PROCESSED) : 1;
-    }
-    babies = heathens_fit(roll_litter());
-    *(int *)(woman + R_LITTER) = babies > 0 ? babies : 1;
-    known_put(identity(woman), KIND_EXPECTING);
-    log_conception(woman, man);
-}
+/* The expansion's conceptions come only through a visible embrace (heathen_tribe.inc), never this roll. */
+#include "heathen_tribe.inc"
 
 static void maybe_conceive(unsigned char *woman) {
     unsigned char *father;
     int twins, triplets;
     if (g_evo) {
-        maybe_conceive_evo(woman);
         return;
     }
     if (!could_conceive(woman) || ha_rand(TRIBE_UNITS_PER_BABY * tribe_women()) != 0
@@ -2477,6 +2515,66 @@ __declspec(naked) static void walk_stub(void) {
     }
 }
 
+/* VISIBLE NURSING (heathen_tribe.inc nurse): in place of the Heathen AI's carrier test at 0x46EAB8 (`mov ecx,
+   [esi+0x1B88]; cmp [ecx+0x1C4C], ebx; je 0x46EACD`, esi the AI object, ebx 0, the frame `sub esp, 0x20; push ebx;
+   push esi`): a carrier this companion's mothers' routine took returns from the AI (its own epilogue, as
+   0x46EA52..0x46EA57); any other carrier the stock carry 0x46EAC6; nobody carrying 0x46EACD. */
+#define SITE_NURSE 0x46EAB8u
+#define NURSE_CARRY 0x46EAC6u
+#define NURSE_ROLE 0x46EACDu
+static const unsigned char NURSE_STOCK[14] = { 0x8B, 0x8E, 0x88, 0x1B, 0x00, 0x00, 0x39, 0x99, 0x4C, 0x1C, 0x00, 0x00,
+                                               0x74, 0x07 };
+static const unsigned int g_nurse_carry = NURSE_CARRY;
+static const unsigned int g_nurse_role = NURSE_ROLE;
+static int g_nurse_result;
+
+__declspec(naked) static void nurse_stub(void) {
+    __asm {
+        mov ecx, dword ptr [esi + 0x1B88]
+        cmp dword ptr [ecx + 0x1C4C], ebx
+        je not_carrying
+        pushad
+        push esi
+        call nurse
+        add esp, 4
+        mov dword ptr [g_nurse_result], eax
+        popad
+        cmp dword ptr [g_nurse_result], 0
+        jne nursed
+        mov ecx, dword ptr [esi + 0x1B88]
+        jmp dword ptr [g_nurse_carry]
+    nursed:
+        pop esi
+        pop ebx
+        add esp, 0x20
+        ret
+    not_carrying:
+        jmp dword ptr [g_nurse_role]
+    }
+}
+
+/* RASCALS (the owner, 2026-11-28: every orange or red Heathen child is "Rascal"): in place of the panel's child
+   title test at 0x4430C6 (`cmp byte [eax+0x1CED], bl; je 0x4430E3`, eax the record, already a Heathen under 280
+   units): the orange OR the red byte takes the Rascal title 0x4430CE (string 0xD2), else "Child" 0x4430E3. */
+#define SITE_RASCAL 0x4430C6u
+#define RASCAL_TITLE 0x4430CEu
+#define CHILD_TITLE 0x4430E3u
+static const unsigned char RASCAL_STOCK[8] = { 0x38, 0x98, 0xED, 0x1C, 0x00, 0x00, 0x74, 0x15 };
+static const unsigned int g_rascal_title = RASCAL_TITLE;
+static const unsigned int g_child_title = CHILD_TITLE;
+
+__declspec(naked) static void rascal_stub(void) {
+    __asm {
+        cmp byte ptr [eax + 0x1CED], bl
+        jne rascal
+        cmp byte ptr [eax + 0x1CEE], bl
+        jne rascal
+        jmp dword ptr [g_child_title]
+    rascal:
+        jmp dword ptr [g_rascal_title]
+    }
+}
+
 /* "VVFP Statistics Export.dll" (Village Elders): 1 when Roster of the Dead entry `entry` of `game` is a Heathen's
    grave (written down above), else 0 -- a Heathen never counts. */
 int __stdcall VvfpHeathenAgingGrave(int game, int entry) {
@@ -2574,7 +2672,7 @@ int __stdcall VvfpHeathenAgingEventPregnancy(int game, int mother, int father, i
     woman = rec_at(mother);
     if (woman[R_FACTION] == 0 || !living(woman) || i32(woman, R_PREGNANT) != 0
         || (!g_evo && puzzle_done(LAST_HEATHEN))                 /* decision 2: with the expansion, after it too */
-        || (g_evo ? heathens_fit(1) < 1 : free_records() <= HA_ROOM_KEPT)) {   /* the village's own births' room */
+        || (g_evo ? tribe_fit(1) < 1 : free_records() <= HA_ROOM_KEPT)) {   /* the room kept, the tribe size */
         return 0;
     }
     man = father >= 0 && (unsigned int)father < g_slots ? rec_at(father)
@@ -2594,7 +2692,10 @@ int __stdcall VvfpHeathenAgingEventPregnancy(int game, int mother, int father, i
         }
         babies = litter < 1 ? 1 : litter > 3 ? 3 : litter;
         if (g_evo) {
-            babies = heathens_fit(babies);
+            *(int *)(woman + R_PREGNANT) = 0;          /* (counted below as the babies, not before) */
+            babies = tribe_fit(babies);
+            *(int *)(woman + R_PREGNANT) = i32(woman, R_PROCESSED) > 0 ? i32(woman, R_PROCESSED) : 1;
+            babies = babies < 1 ? 1 : babies;
         } else if (babies > free_records() - HA_ROOM_KEPT) {
             babies = free_records() - HA_ROOM_KEPT;
         }
@@ -2656,6 +2757,9 @@ void __stdcall VvfpStartup(int game, unsigned int shipped) {
         g_mask_orange = he_option(HE_OPT_MASK_ORANGE, HE_MASK_ORANGE_DEFAULT, 0, 100);
         g_mask_red = he_option(HE_OPT_MASK_RED, HE_MASK_RED_DEFAULT, 0, 100 - g_mask_orange);
         g_group_max = he_option(HE_OPT_GROUP_MAX, HE_GROUP_MAX_DEFAULT, 1, 4);
+        g_room = he_option(HE_OPT_ROOM, HE_ROOM_DEFAULT, HE_ROOM_MIN, HE_ROOM_MAX);
+        g_tribe_max = he_option(HE_OPT_TRIBE_MAX, 0, 0, 256);
+        g_change_tenths = (unsigned int)he_option(HE_OPT_CHANGE, HE_CHANGE_DEFAULT, 1, 100);
         g_he_seed ^= GetTickCount() ^ (GetCurrentProcessId() << 16);
         if (g_he_seed == 0u) {
             g_he_seed = 0x6D2B79F5u;
@@ -2685,9 +2789,26 @@ void __stdcall VvfpStartup(int game, unsigned int shipped) {
         /* the expansion's elder pace site, in the same all-or-none set */
         vvfp_site_branch(&sites[HA_SITES], SITE_WALK, 11, WALK_STOCK, 0xE9, (const void *)walk_stub);
     }
+    if (g_evo) {
+        /* "Heathen tribe size": at least HE_TRIBE_MIN, and never into the room kept for believers. */
+        if (g_tribe_max > 0 && g_tribe_max < HE_TRIBE_MIN) {
+            g_tribe_max = HE_TRIBE_MIN;
+        }
+        if (g_tribe_max > (int)g_slots - g_room) {
+            g_tribe_max = (int)g_slots - g_room > HE_TRIBE_MIN ? (int)g_slots - g_room : HE_TRIBE_MIN;
+        }
+    }
     if (vvfp_install_sites(sites, HA_SITES + (g_evo ? 1 : 0))) {
         g_installed = 1;
         g_walk_installed = g_evo;
+        if (g_evo) {
+            /* The nursing look and the Rascal title: their own all-or-none set (a site another row holds leaves
+               the rest of the row working, without them). */
+            vvfp_site_write looks[2];
+            vvfp_site_branch(&looks[0], SITE_NURSE, 14, NURSE_STOCK, 0xE9, (const void *)nurse_stub);
+            vvfp_site_branch(&looks[1], SITE_RASCAL, 8, RASCAL_STOCK, 0xE9, (const void *)rascal_stub);
+            g_looks_installed = vvfp_install_sites(looks, 2);
+        }
     }
 }
 

@@ -102,25 +102,45 @@ def _heathen_evolution_facts(add, village, where: str) -> None:
         "with Medicine: 10% for each year over), the puzzle Heathens too; a puzzle Heathen whose puzzle is unsolved "
         "is replaced at once in the same role. Every Heathen who dies leaves a skeleton. A growing camp makes The "
         "Last Heathen harder to reach, or impossible.", sub=True)
-    # Births: 1 in 2,400 x W / t a unit (heathen_evo.h HE_BIRTH_ROLL); the litter HE_TWINS/HE_TRIPLETS_IN_10000.
+    tribe = _option(village, "tribe_max", 0) if getattr(village, "exe", None) is not None else None
+    room = _option(village, "room_kept", 20) if getattr(village, "exe", None) is not None else None
+    # Embraces: 1 in 600 / t a unit of the village's clock (heathen_evo.h HE_CONCEIVE_UNITS); the litter by Medicine.
     births_words = ("set by its slider" if births is None else f"at {births}x")
-    add(f"Births ({births_words}): each Heathen woman 14 to 45, not expecting and not the Heathen Mommy, in a couple "
-        "with a living adult Heathen man, has a chance each age unit of 1 in 2,400 x the number of such women / the "
-        "slider in tenths -- about one baby for the whole tribe every 240 age units (24 real-life hours on Normal, 12 "
-        f"on Fast, 40 on Slow) {_times(births)}as often. Twins 5.25%, triplets 1.75% (any Medicine level). Births go "
-        "on after The Last Heathen while a Heathen woman and man are alive. A Heathen is only made while 10 villager "
-        "records stay free.", sub=True)
+    add(f"Babies ({births_words}): a Heathen couple of a woman and a man -- or a Heathen whose title says Parent with "
+        "any Heathen of the other sex who is not kin -- walk together and embrace as believers do (into the Love "
+        "Shack once it is built, else where they stand), and the baby is conceived then. The tribe has a chance each "
+        "age unit of 1 in 600 / the slider in tenths -- about one conception for the whole tribe every 60 age units "
+        f"(6 real-life hours on Normal) {_times(births)}as often. The woman is 14 to 45 and not expecting; neither is "
+        "sick or the Heathen Mommy, and a puzzle Heathen only once that puzzle is solved. Twins and triplets as for "
+        "believers: only with Medicine at level 3 (5.25% twins, 1.75% triplets). The mother carries and nurses the "
+        "baby with the believers' own mothers' actions (taking care of it, washing, changing, showing it the island) "
+        "for 40 age units, until it joins the camp as a two-year-old child; Heathen children grow up and have "
+        "children of their own. Births go on after The Last Heathen while a Heathen woman and man are alive.", sub=True)
+    tribe_words = ("set in its Settings" if tribe is None else "Off" if tribe == 0 else f"at most {tribe} Heathens")
+    room_words = "the room kept for believers" if room is None else f"{max(10, min(100, room))} villager records"
+    add(f"Tribe size ({tribe_words}): with a tribe size, conceptions and arrivals add Heathens only while the living "
+        "Heathens and the babies on the way are under it; growth slows over the last fifth and waits at the limit, "
+        "and nobody is removed. \"How often the tribe changes\" then paces the growth: at 1x with births and arrivals "
+        "at 1x something new comes about every 40 age units (2-6 real-life hours on Normal); a camp with fewer "
+        "children than a tenth of its size (at least 2) gets babies twice as often and families as arrivals. "
+        f"Heathens are only born or arrive while {room_words} stay free for your believers.", sub=True)
     # Arrivals: 1 in 4,800 / t a unit of the village's clock (HE_ARRIVAL_ROLL); groups 40/30/20/10%.
     if arrivals == 0:
         add("New arrivals: none (the arrivals slider is at 0).", sub=True)
     else:
         arrivals_words = "set by its slider" if arrivals is None else f"at {arrivals}x"
         add(f"New arrivals ({arrivals_words}): a chance each age unit of 1 in 4,800 / the slider in tenths -- about one "
-            f"arrival every 480 age units (48 real-life hours on Normal) {_times(arrivals)}as often, before and after "
-            "The Last Heathen. An arrival is 1, 2, 3 or 4 Heathens (40%, 30%, 20%, 10%); half of the groups of two or "
-            "more are a couple with 0 to 2 children aged 2 to 12; the adults are 18 to 40.", sub=True)
+            f"arrival every 480 age units (48 real-life hours on Normal) {_times(arrivals)}as often (every 120 with a "
+            "tribe size), before and after The Last Heathen. An arrival is 1, 2, 3 or 4 Heathens (40%, 30%, 20%, 10%); "
+            "half of the groups of two or more are a couple with 0 to 2 children aged 2 to 12; the adults are 18 to 40.",
+            sub=True)
     add("Masks of arrivals and Heathen babies: " + ("all blue (\"Keep every new Heathen blue\")." if blue else
-        "90% blue, 7% orange, 3% red. The puzzle Heathens keep their own masks."), sub=True)
+        "90% blue, 7% orange, 3% red.") + " Never more than 10 orange or 10 red Heathens (the camp's own may be "
+        "more), and among the children at most 1 or 2 of each (the village's own number), every orange or red child "
+        "a \"Rascal\"; a village with more already keeps them and its new children are blue. The first Heathen of "
+        "the camp to master each skill (100) wears the purple mask, one for each of the six skills (with Heathens "
+        "Keep Their Masks When Converted and the Origins icons); masters show the game's \"Master\" titles, and only "
+        "the puzzle Heathens keep their own. The puzzle Heathens keep their own masks.", sub=True)
     add("Couples: two living adult Heathens of either sex who are not kin (never parent and child, full or half "
         "siblings) pair for life, at most one new couple at a time; a couple ends when one dies or joins the tribe. "
         "A natural conception is a woman's and a man's; an island event may give any couple a baby.", sub=True)
@@ -133,9 +153,9 @@ def _heathen_evolution_facts(add, village, where: str) -> None:
         "tribe) reaches 280 age units (14 years), a new child takes their place at once in the same camp role and "
         "mask: the Rascal -- the camp's orange-masked child, whom the Details screen calls \"Rascal\" and who chases "
         "believers it meets as every orange Heathen does -- by a new Rascal of 140 units, a blue child by one of 120 "
-        "or 240, as the game's own camp has them. Couples' babies and arrivals' children are not replaced. Only "
-        "while 10 villager records stay free (else it waits), and after The Last Heathen only while New Heathen "
-        "Arrivals is above 0.", sub=True)
+        "or 240, as the game's own camp has them (within the Rascal limits above). Couples' babies and arrivals' "
+        "children are not replaced. Only while the room kept for believers stays free (else it waits), and after The "
+        "Last Heathen only while New Heathen Arrivals is above 0.", sub=True)
     # retire_elders: the elder test 0x46F790; the walk 0x4659C5 / 0x465A06.
     add("Elders retire: at the game's elder age (1,000 age units at Medicine 1, 160 more for each further level; the "
         "game's own test) a Heathen with a camp role or a puzzle role -- the Heathen Doctor, a Heathen Master, the "

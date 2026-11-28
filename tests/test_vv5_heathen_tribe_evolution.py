@@ -100,7 +100,7 @@ class TheRow(unittest.TestCase):
         guide = json.loads((ROOT / "data" / "how_to_use.json").read_text(encoding="utf-8"))
         self.assertEqual(len([e for e in guide["patches"] if ROW in e["ids"]]), 1)
         for key in ("heathen_tribe_births_multiplier", "heathen_arrivals_multiplier", "heathen_show_percent",
-                    "heathen_keep_blue"):
+                    "heathen_keep_blue", "heathen_tribe_max", "heathen_room_kept", "heathen_change_multiplier"):
             self.assertIn(key, guide["controls"])
         release = (ROOT / "scripts" / "build_release.py").read_text(encoding="utf-8")
         self.assertIn(f'"data/{ROW}_feature.json"', release)
@@ -187,7 +187,31 @@ class Migration(unittest.TestCase):
 
 class Settings(unittest.TestCase):
     def tearDown(self):
-        vfp.set_heathen_evolution(births=1, arrivals=0, show_percent=25, keep_blue=False)
+        vfp.set_heathen_evolution(births=1, arrivals=0, show_percent=25, keep_blue=False, tribe_max=0, room_kept=20,
+                                  change=1)
+
+    def test_the_tribe_settings(self):
+        """The owner, 2026-11-28: the tribe size (Off, or 10 up to the table), the room kept (20) and the pace."""
+        self.assertEqual(gui.saved_heathen_tribe({}), (0, 20, 1), "Off, 20, 1x for players")
+        self.assertEqual(gui.saved_heathen_tribe({"heathen_tribe_max": 50, "heathen_room_kept": 30,
+                                                  "heathen_change_multiplier": 2.5}), (50, 30, 2.5))
+        self.assertEqual(gui.saved_heathen_tribe({"heathen_tribe_max": 5, "heathen_room_kept": 5,
+                                                  "heathen_change_multiplier": 50}), (0, 20, 10))
+        self.assertEqual(vfp.HEATHEN_TRIBE_MAX_OWNERS_DEFAULT, 50, "Owner's Defaults: on at 50")
+        for kwargs in ({"tribe_max": 9}, {"tribe_max": 247}, {"tribe_max": True}, {"room_kept": 9},
+                       {"room_kept": 101}, {"change": 0}, {"change": 11}):
+            with self.subTest(**kwargs), self.assertRaises(vfp.PatcherError):
+                vfp.set_heathen_evolution(**kwargs)
+        vfp.set_heathen_evolution(tribe_max=50, room_kept=25, change=0.5)
+        text = vfp.heathen_options_text()
+        for line in ("tribe_max=50\n", "room_kept=25\n", "change_tenths=5\n"):
+            self.assertIn(line, text)
+        header = (ROOT / "native" / "shared" / "heathen_evo.h").read_text(encoding="utf-8")
+        for key in ("tribe_max", "room_kept", "change_tenths"):
+            self.assertIn(f'"{key}"', header)
+        args = vfp._parser().parse_args(["dry-run", "x.exe", "--heathen-tribe-max", "60", "--heathen-room-kept",
+                                         "15", "--heathen-change", "2"])
+        self.assertEqual((args.heathen_tribe_max, args.heathen_room_kept, args.heathen_change), (60, 15, 2))
 
     def test_saved_settings_are_kept_within_range(self):
         self.assertEqual(gui.saved_heathen_evolution({"heathen_tribe_births_multiplier": 0,
@@ -233,9 +257,11 @@ class Settings(unittest.TestCase):
         vfp.set_heathen_evolution(show_percent=7, keep_blue=True)
         text = vfp.heathen_options_text()
         values = dict(line.split("=", 1) for line in text.splitlines() if line and not line.startswith("#"))
-        self.assertEqual(values, {"show_percent": "7", "mask_orange_percent": "0", "mask_red_percent": "0"})
+        self.assertEqual(values, {"show_percent": "7", "mask_orange_percent": "0", "mask_red_percent": "0",
+                                  "tribe_max": "0", "room_kept": "20", "change_tenths": "10"})
         header = (ROOT / "native" / "shared" / "heathen_evo.h").read_text(encoding="utf-8")
-        for key in ("show_percent", "mask_orange_percent", "mask_red_percent"):
+        for key in ("show_percent", "mask_orange_percent", "mask_red_percent", "tribe_max", "room_kept",
+                    "change_tenths"):
             self.assertIn(f'"{key}"', header)
 
     def test_the_patch_log_names_the_settings_only_with_the_row(self):
@@ -243,7 +269,8 @@ class Settings(unittest.TestCase):
         self.assertIsNone(vfp._heathen_evolution_in([]))
         self.assertEqual(vfp._heathen_evolution_in([row]),
                          {"heathen_tribe_births_multiplier": 1, "heathen_arrivals_multiplier": 0,
-                          "heathen_show_percent": 25, "heathen_keep_blue": False})
+                          "heathen_show_percent": 25, "heathen_keep_blue": False, "heathen_tribe_max": 0,
+                          "heathen_room_kept": 20, "heathen_change_multiplier": 1})
 
     def test_the_settings_window_is_registered(self):
         self.assertEqual(gui.PATCH_SETTINGS_ROWS["heathen_tribe_evolution"][0], "_fill_heathen_evolution_settings")
@@ -324,6 +351,7 @@ class CopySlot(unittest.TestCase):
         import vv_copy_slot
         self.assertEqual(vv_copy_slot._SLOT_FIELD[b"VHM1"], 16)
         self.assertEqual(vv_copy_slot._SLOT_FIELD[b"VHC1"], 16)
+        self.assertEqual(vv_copy_slot._SLOT_FIELD[b"VHT1"], 16, "the tribe file (Rascal caps, purple masters)")
 
 
 class GameMechanics(unittest.TestCase):
@@ -343,8 +371,12 @@ class GameMechanics(unittest.TestCase):
             (files / "VVFP Heathen Options.txt").write_text("show_percent=40\n", encoding="ascii")
             faith._heathen_evolution_facts(add, types.SimpleNamespace(exe=exe), "in this game")
         text = "\n".join(lines)
-        self.assertIn("Births (at 2x)", text)
+        self.assertIn("Babies (at 2x)", text)
         self.assertIn("2 times as often", text)
+        self.assertIn("embrace", text)
+        self.assertIn("Tribe size (Off)", text)
+        self.assertIn("while 20 villager records stay free", text)
+        self.assertIn("\"Rascal\"", text)
         self.assertIn("New arrivals: none", text)
         self.assertIn("Show actions (40%", text)
         self.assertIn("Shrine to the Ancestors", text)
@@ -352,7 +384,8 @@ class GameMechanics(unittest.TestCase):
         lines.clear()
         faith._heathen_evolution_facts(add, types.SimpleNamespace(exe=None), "in this game")
         text = "\n".join(lines)
-        self.assertIn("Births (set by its slider)", text)
+        self.assertIn("Babies (set by its slider)", text)
+        self.assertIn("Tribe size (set in its Settings)", text)
         self.assertIn("New arrivals (set by its slider)", text)
 
 

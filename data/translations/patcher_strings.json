@@ -76055,6 +76055,46 @@
    "notes": "a patcher window"
   },
   {
+   "stem": "vvfp.gui/heathen_evolution.tribe_tick",
+   "english": "Limit the Heathen tribe size",
+   "games": [
+    "vv5"
+   ],
+   "mechanism": "b",
+   "context": "Heathen Tribe Expansion and Evolution's Settings window (New Believers)",
+   "notes": "a patcher window"
+  },
+  {
+   "stem": "vvfp.gui/heathen_evolution.tribe",
+   "english": "Heathen tribe size (most living Heathens):",
+   "games": [
+    "vv5"
+   ],
+   "mechanism": "b",
+   "context": "Heathen Tribe Expansion and Evolution's Settings window (New Believers)",
+   "notes": "a patcher window"
+  },
+  {
+   "stem": "vvfp.gui/heathen_evolution.room",
+   "english": "Room kept for believers (villager records always left free):",
+   "games": [
+    "vv5"
+   ],
+   "mechanism": "b",
+   "context": "Heathen Tribe Expansion and Evolution's Settings window (New Believers)",
+   "notes": "a patcher window"
+  },
+  {
+   "stem": "vvfp.gui/heathen_evolution.change",
+   "english": "0.1-10x How Often the Tribe Changes:",
+   "games": [
+    "vv5"
+   ],
+   "mechanism": "b",
+   "context": "Heathen Tribe Expansion and Evolution's Settings window (New Believers)",
+   "notes": "a patcher window"
+  },
+  {
    "stem": "vvfp.gui/game_mechanics.minimum_detail",
    "english": "Minimal Detail",
    "games": [

@@ -118,6 +118,7 @@ _SLOT_FIELD = {
     b"VFK1": 12,    # New Believers' Faith Loss believers kept (vvfp_faith_loss.c)
     b"VHA1": 16,    # New Believers' Heathen Aging (vvfp_heathen_aging.c: magic, version, game, count, slot)
     b"VHC1": 16,    # New Believers' Heathen Couples (heathen_evo.h: magic, version, game, count, slot)
+    b"VHT1": 16,    # New Believers' Heathen Tribe (heathen_evo.h: the same header; Rascal caps, purple masters)
     b"VHM1": 16,    # New Believers' Shrine to the Ancestors (heathen_evo.h / heathen_mausoleum.h: the same header)
 }
 # The Story Purchases Graph, a bought or picked event's run (story_graph.inc cg_file_head): 'VCG1', u32 version,
