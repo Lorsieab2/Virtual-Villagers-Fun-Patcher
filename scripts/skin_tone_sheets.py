@@ -1613,6 +1613,19 @@ def outfit_decide(table, rgb, radius=OUTFIT_RADIUS, least=LEARN_LEAST, pure=OUTF
     return verdict[back.reshape(-1)]
 
 
+def orange_or_yellow(cell, skin):
+    """The pixels of a frame that are orange or yellow in the game's art (OKLCh hue 50 to 110 degrees) and clearly
+    more saturated than the frame's own skin `skin` -- cloth, hair, fruit, beads, flowers, masks.  The owner,
+    2026-11-28: "be careful painting orange and yellow things."  With no skin to compare with, every orange or
+    yellow pixel of any strength counts."""
+    lab = core.to_oklab(cell[..., :3])
+    chroma = np.hypot(lab[..., 1], lab[..., 2])
+    hue = np.degrees(np.arctan2(lab[..., 2], lab[..., 1])) % 360
+    limit = (max(float(np.percentile(chroma[skin], 90)) * 1.15, float(np.median(chroma[skin])) + 0.02)
+             if skin.any() else 0.02)
+    return (cell[..., 3] > 0) & (hue >= 50) & (hue <= 110) & (chroma > limit)
+
+
 def _carry_to_cell(table, cell, was, radius):
     """One frame's skin with an outfit's rule on it -> (skin, how many pixels followed their neighbours).
     First the pixels whose own colour decides.  Then the specks left among them: an undecided pixel inside the
@@ -1622,8 +1635,14 @@ def _carry_to_cell(table, cell, was, radius):
     opaque = cell[..., 3] > 0
     verdict = np.full(opaque.shape, -1, np.int8)
     verdict[opaque] = outfit_decide(table, cell[..., :3][opaque], radius)
+    # Orange and yellow things are never ADDED to the skin by a near colour or by their neighbours: only when
+    # the owner painted that very colour as skin on this outfit (and nowhere on it as cloth).  Removing is free.
+    colours, as_skin, as_not = table
+    theirs = {(int(r) << 16) | (int(g) << 8) | int(b)
+              for (r, g, b), yes, no in zip(colours.tolist(), as_skin.tolist(), as_not.tolist()) if yes and not no}
+    never = orange_or_yellow(cell, was) & ~np.isin(_packed(cell[..., :3]), np.array(sorted(theirs), np.uint32))
     now = was.copy()
-    now[verdict == 1] = True
+    now[(verdict == 1) & ~never] = True
     now[verdict == 0] = False
     around = np.ones((3, 3), int)
     around[1, 1] = 0
@@ -1632,7 +1651,7 @@ def _carry_to_cell(table, cell, was, radius):
     for _ in range(2):
         free = opaque & (verdict == -1)
         off = free & now & (count(opaque & ~now) >= 6) & (count(was & ~now) >= 3)
-        on = free & ~now & (count(now) >= 6) & (count(now & ~was) >= 3)
+        on = free & ~now & ~never & (count(now) >= 6) & (count(now & ~was) >= 3)
         now[off], now[on] = False, True
         followed += int(off.sum()) + int(on.sum())
     return now, followed
@@ -1808,6 +1827,263 @@ def _outfit_preview(base: Art, stems: dict, masks: dict, out: Path, most=6):
     Image.fromarray(picture).resize((picture.shape[1] * 3, picture.shape[0] * 3), Image.NEAREST).save(out)
 
 
+# ---- orange and yellow things are not skin (the owner, 2026-11-28: "can you re-edit my gimp files to account for
+# orange/yellow details???? please theres a ton of orange clothes")
+ORANGE_HUES = (50.0, 110.0)         # OKLCh hue, degrees: orange through yellow
+
+
+def orange_not_skin(stock, skin, cell_h):
+    """The skin pixels of a body sheet that are orange or yellow cloth or detail in the game's own art: hue 50 to
+    110 degrees and clearly more saturated than the sheet's own middle skin (the median chroma of all its skin
+    plus the larger of 0.03 and half of it), so lit skin, which is only a little stronger, stays.  The whole
+    sheet's middle, not a row's: every body of a sheet has the same skin, and a row can be mostly cloth (a tan
+    robe built as skin once made the row's own middle the robe, and the arms and feet came out as "orange").
+    Only ever a part of `skin`: nothing is added."""
+    if not skin.any():
+        return np.zeros(skin.shape, bool)
+    lab = core.to_oklab(stock[..., :3])
+    chroma = np.hypot(lab[..., 1], lab[..., 2])
+    hue = np.degrees(np.arctan2(lab[..., 2], lab[..., 1])) % 360
+    middle = float(np.median(chroma[skin]))
+    limit = middle + max(0.03, 0.5 * middle)
+    return skin & (hue >= ORANGE_HUES[0]) & (hue <= ORANGE_HUES[1]) & (chroma > limit)
+
+
+def orange_dry_run(games_and_images, root: Path, preview: Path | None = None, say=print):
+    """What taking orange and yellow things out of the skin would do, sheet by sheet: nothing is written but the
+    preview pictures.  A sheet still as built: its skin as built (learned skin included).  A sheet the owner
+    edited (read from a copy, through GIMP): tone 10's paint, and only pixels that came from the build or the
+    learning -- never one the owner painted themselves.  Returns {game: {sheet: pixels removed}}."""
+    done = {}
+    games = []
+    for game, images in games_and_images:
+        folder = root / game
+        edits = folder / "edits"
+        art = Art(game, images, edits if edits.is_dir() else None, shipped=False)
+        # Body sheets only: on the head sheets this rule took whole faces (the first dry run's pictures): a head's
+        # complexion is its own, and nothing here tells a warm face from blond hair.
+        stems = {Path(name).stem: name for name in art.specs
+                 if art.specs[name]["kind"] == "bodies" and (folder / f"{game}_{Path(name).stem}.xcf").is_file()}
+        games.append((game, folder, art, stems, changed_by_the_owner(game, folder, list(stems))))
+    with tempfile.TemporaryDirectory() as tmp:
+        paths = [folder / f"{game}_{stem}.xcf" for game, folder, _art, _stems, theirs in games for stem in theirs]
+        read = read_colour_layers(paths, Path(tmp)) if paths else {}
+    tone = core.TONES[-1]
+    for game, folder, art, stems, theirs in games:
+        done[game], strips, total, skin_total = {}, [], 0, 0
+        for stem, name in stems.items():
+            stock, built = art.stock(name), art.mask(name)
+            h = art.specs[name]["cell"][1]
+            now, own = built, np.zeros(built.shape, bool)
+            if stem in theirs:
+                layers = read.get(folder / f"{game}_{stem}.xcf", {})
+                ebony = layers.get(f"skin_{len(core.TONES):02d}.png")
+                if ebony is not None and ebony.shape[:2] == built.shape:
+                    now = painted_from_layer(ebony) & (stock[..., 3] > 0)
+                    own = now & ~built                          # painted by the owner: never undone
+            out = orange_not_skin(stock, now, h) & ~own
+            count = int(out.sum())
+            total, skin_total = total + count, skin_total + int(now.sum())
+            done[game][stem] = count
+            if count:
+                say(f"  {game}_{stem}{' (yours)' if stem in theirs else ''}: {count:,} orange or yellow pixels out of "
+                    f"the skin (of {int(now.sum()):,})" + (f"; {int((orange_not_skin(stock, now, h) & own).sum()):,} "
+                    "more are your own paint and stay" if stem in theirs else ""))
+                rows = np.array([out[top:top + h].sum() for top in range(0, out.shape[0], h)])
+                for row in np.argsort(-rows)[:2]:
+                    if rows[row]:
+                        part = slice(int(row) * h, (int(row) + 1) * h)
+                        marks = core.recolour(stock, now, tone, h)[part].copy()
+                        marks[out[part]] = (255, 0, 200, 255)
+                        strips.append((int(rows[row]), np.concatenate(
+                            [stock[part], core.recolour(stock, now, tone, h)[part], marks,
+                             core.recolour(stock, now & ~out, tone, h)[part]], axis=0)))
+        say(f"{game}: {total:,} pixels out of the skin on {sum(1 for c in done[game].values() if c)} of "
+            f"{len(stems)} sheets (of {skin_total:,} skin pixels)")
+        if preview is not None and strips:
+            strips = [strip for _count, strip in sorted(strips, key=lambda item: -item[0])[:10]]
+            width = min(max(strip.shape[1] for strip in strips), 960)
+            canvas = np.concatenate([np.pad(strip[:, :width], ((0, 6), (0, width - min(width, strip.shape[1])), (0, 0)))
+                                     for strip in strips], axis=0)
+            flat = np.full(canvas.shape[:2] + (3,), 236, np.uint8)
+            alpha = canvas[..., 3:4].astype(np.float32) / 255
+            picture = (canvas[..., :3] * alpha + flat * (1 - alpha)).astype(np.uint8)
+            out_path = Path(preview) / f"{game}_orange_yellow_out_of_skin.png"
+            out_path.parent.mkdir(parents=True, exist_ok=True)
+            Image.fromarray(picture).resize((picture.shape[1] * 2, picture.shape[0] * 2), Image.NEAREST).save(out_path)
+            say(f"{game}: picture (each block: the game's art; Ebony now; the pixels to take out in pink; Ebony "
+                f"after): {out_path}")
+    return done
+
+
+_GIMP_CUT = r'''
+import json, os, re, shutil
+import gi
+gi.require_version("Gimp", "3.0")
+gi.require_version("Gegl", "0.4")
+from gi.repository import Gimp, Gio, Gegl
+FORMAT = "R'G'B'A u8"
+job = json.load(open(os.environ["VVFP_SKIN_JOB"], encoding="utf-8"))
+
+
+def wanted_layers(image):
+    found = []
+    for layer in image.get_layers():
+        name = layer.get_name()
+        if name.startswith("Skin mask"):
+            found.append(layer)
+        if re.match(r"Tone (\d+)", name) and layer.is_group():
+            found += [child for child in layer.get_children() if "paint here" in child.get_name()]
+    return found
+
+
+def pixels(layer, width, height):
+    at = layer.get_offsets()
+    return layer.get_buffer().get(Gegl.Rectangle.new(-at[-2], -at[-1], width, height), 1.0, FORMAT, Gegl.AbyssPolicy.NONE)
+
+
+def cut(item, result):
+    # The pixels to take out: a picture the sheet's size, opaque where a pixel goes.
+    mark = Gimp.file_load(Gimp.RunMode.NONINTERACTIVE, Gio.File.new_for_path(item["cut"]))
+    width, height = mark.get_width(), mark.get_height()
+    out = bytes(pixels(mark.get_layers()[0], width, height)[3::4])
+    mark.delete()
+    keep = int.from_bytes(bytes(0 if b else 255 for b in out), "little")
+    gone = int.from_bytes(bytes(255 if b else 0 for b in out), "little")
+    image = Gimp.file_load(Gimp.RunMode.NONINTERACTIVE, Gio.File.new_for_path(item["xcf"]))
+    if (image.get_width(), image.get_height()) != (width, height):
+        result["did"] = "another size"
+        image.delete()
+        return
+    layers = wanted_layers(image)
+    if len(layers) != item["layers"]:
+        result["did"] = "not ours"
+        image.delete()
+        return
+    os.makedirs(item["backup"], exist_ok=True)
+    stem, k = os.path.splitext(os.path.basename(item["xcf"]))[0], 1
+    kept = os.path.join(item["backup"], stem + ".xcf")
+    while os.path.exists(kept):
+        k += 1
+        kept = os.path.join(item["backup"], "%s (%d).xcf" % (stem, k))
+    shutil.copy2(item["xcf"], kept)
+    result["backup"] = kept
+    for layer in layers:
+        at = layer.get_offsets()
+        if at[-2] or at[-1] or layer.get_width() != width or layer.get_height() != height:
+            layer.resize_to_image_size()
+        data = bytearray(pixels(layer, width, height))
+        alpha = int.from_bytes(bytes(data[3::4]), "little") & keep
+        data[3::4] = alpha.to_bytes(width * height, "little")
+        buffer = layer.get_buffer()
+        buffer.set(Gegl.Rectangle.new(0, 0, width, height), FORMAT, bytes(data))
+        buffer.flush()
+        layer.update(0, 0, width, height)
+    Gimp.file_save(Gimp.RunMode.NONINTERACTIVE, image, Gio.File.new_for_path(item["xcf"]), None)
+    image.delete()
+    # Read the saved file again: no layer has paint left on a pixel that was to go.
+    image = Gimp.file_load(Gimp.RunMode.NONINTERACTIVE, Gio.File.new_for_path(item["xcf"]))
+    left = 0
+    for layer in wanted_layers(image):
+        if int.from_bytes(bytes(pixels(layer, width, height)[3::4]), "little") & gone:
+            left += 1
+    image.delete()
+    result["left"] = left
+    result["did"] = "cut"
+
+
+for item in job["files"]:
+    result = {"xcf": item["xcf"], "did": "nothing"}
+    try:
+        cut(item, result)
+    except Exception as problem:
+        result["did"], result["why"] = "failed", repr(problem)
+    json.dump(result, open(item["result"], "w", encoding="utf-8"))
+    print("VVFP cut", item["xcf"], result["did"])
+'''
+
+
+def orange_write(games_and_images, root: Path, yes=False, say=print, backup=None):
+    """Take the orange and yellow things out of the skin IN the workbench files (body sheets): every tone's colour
+    layer and the "Skin mask" lose those pixels; nothing is added and nothing else in a file changes.  Each file
+    is first copied into <game>/<backup>.  A sheet still as built stays "as built" (its record and pin follow,
+    and its new skin is kept as edits/<sheet>/learned_mask.png so the mod and a rebuild have it); a sheet of
+    the owner's stays theirs, and a pixel they painted in Ebony themselves is never taken.  A file open in
+    GIMP is left; when that cannot be told nothing is written without `yes`.  One start of GIMP a game."""
+    import datetime
+    backup = backup or f"_before orange fix {datetime.date.today().isoformat()}"
+    for game, images in games_and_images:
+        folder = root / game
+        edits = folder / "edits"
+        art = Art(game, images, edits if edits.is_dir() else None, shipped=False)
+        stems = {Path(name).stem: name for name in art.specs
+                 if art.specs[name]["kind"] == "bodies" and (folder / f"{game}_{Path(name).stem}.xcf").is_file()}
+        theirs = changed_by_the_owner(game, folder, list(stems))
+        with tempfile.TemporaryDirectory() as tmp:
+            tmp = Path(tmp)
+            read = read_colour_layers([folder / f"{game}_{stem}.xcf" for stem in theirs], tmp / "read") if theirs else {}
+            files, plans = [], {}
+            for stem, name in stems.items():
+                stock, built = art.stock(name), art.mask(name)
+                h = art.specs[name]["cell"][1]
+                now, own = built, np.zeros(built.shape, bool)
+                if stem in theirs:
+                    ebony = read.get(folder / f"{game}_{stem}.xcf", {}).get(f"skin_{len(core.TONES):02d}.png")
+                    if ebony is None or ebony.shape[:2] != built.shape:
+                        say(f"  {game}_{stem} (yours): left alone: its Ebony layer could not be read")
+                        continue
+                    now = painted_from_layer(ebony) & (stock[..., 3] > 0)
+                    own = now & ~built
+                out = orange_not_skin(stock, now, h) & ~own
+                if not out.any():
+                    continue
+                path = folder / f"{game}_{stem}.xcf"
+                state, why = held_open(path)
+                if state == "open" or (state == "unknown" and not yes):
+                    say(f"  {game}_{stem}: left alone: {why}")
+                    continue
+                mark = np.zeros(out.shape + (4,), np.uint8)
+                mark[out] = 255
+                Image.fromarray(mark).save(tmp / f"{stem}_cut.png")
+                files.append({"xcf": str(path), "cut": str(tmp / f"{stem}_cut.png"), "backup": str(folder / backup),
+                              "layers": len(core.TONES) + 1, "result": str(tmp / f"{stem}.json")})
+                plans[stem] = (out, built & ~out)
+            if not files:
+                say(f"{game}: nothing to take out")
+                continue
+            run_gimp(_GIMP_CUT, {"files": files})
+            manifest = _manifest(folder)
+            learned = json.loads((folder / LEARNED).read_text(encoding="utf-8")) if (folder / LEARNED).is_file() else {}
+            good = 0
+            for item in files:
+                stem = Path(item["xcf"]).stem[len(game) + 1:]
+                result = json.loads(Path(item["result"]).read_text(encoding="utf-8"))
+                out, new = plans[stem]
+                if result["did"] != "cut" or result.get("left"):
+                    say(f"  {game}_{stem}: NOT DONE ({result.get('why', result['did'])}"
+                        f"{', paint left on ' + str(result['left']) + ' layers' if result.get('left') else ''})"
+                        + (f"; the file as it was is in {result['backup']}" if result.get("backup") else ""))
+                    continue
+                good += 1
+                say(f"  {game}_{stem}{' (yours)' if stem in theirs else ''}: {int(out.sum()):,} orange or yellow pixels "
+                    "taken out of the skin in all ten tones (checked in the saved file)")
+                if stem in theirs:
+                    continue
+                white = np.zeros(new.shape + (4,), np.uint8)
+                white[new] = 255
+                (edits / stem).mkdir(parents=True, exist_ok=True)
+                Image.fromarray(white).save(edits / stem / LEARNED_MASK)
+                record = manifest.setdefault(stem, {})
+                record["mask.png"] = _sha(_clean(white))
+                for number in range(1, len(core.TONES) + 1):
+                    record[f"skin_{number:02d}.png"] = _sha(new)
+                manifest.setdefault(XCF_PINS, {})[stem] = _file_sha(Path(item["xcf"]))
+                learned["sheets"] = sorted(set(learned.get("sheets", [])) | {stem})
+            (folder / ".generated.json").write_text(json.dumps(manifest, indent=1), encoding="utf-8")
+            (folder / LEARNED).write_text(json.dumps(learned, indent=1), encoding="utf-8")
+            say(f"{game}: {good} of {len(files)} files written; each as it was is in {backup}")
+
+
 def publish_edits(art: Art, edits: Path, out: Path):
     """The owner's kept edits (<workbench>/<game>/edits) as shippable files under `out`/<game>/<sheet>/:
     skin_NN.png for each tone whose colour layer the owner painted, and mask.png when they changed the
@@ -1919,7 +2195,7 @@ THE OLDER FILES
 def main() -> int:
     ap = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     ap.add_argument("what", choices=["preview", "sheets", "workbench", "import", "mockup", "heathens", "publish", "audit",
-                                    "workbench-all", "spread", "learn"])
+                                    "workbench-all", "spread", "learn", "orange"])
     ap.add_argument("--game", choices=sorted(TITLES))
     ap.add_argument("--images-root", type=Path, help="mockup: the folder holding every game's own folder")
     ap.add_argument("--images", type=Path, help="the game's own Images folder (read only)")
@@ -1965,6 +2241,17 @@ def main() -> int:
         for game, (written, kept, unread) in done.items():
             print(f"{game}: wrote {len(written)}; kept {len(kept)} changed by you (edits read); "
                   f"kept {len(unread)} changed by you that could not be read")
+        return 0
+    if args.what == "orange":
+        games = sorted(TITLES) if args.all_games else [args.game]
+        if games == [None] or args.images_root is None:
+            raise SystemExit("say which game with --game or --all-games, and give --images-root")
+        pairs = [(g, args.images_root / FOLDERS[g] / "Images") for g in games if (args.workbench / g).is_dir()]
+        if args.write:
+            orange_write(pairs, args.workbench, args.yes)
+            return 0
+        print("DRY RUN: nothing is written but the pictures.")
+        orange_dry_run(pairs, args.workbench, args.preview)
         return 0
     if args.what == "learn":
         games = sorted(TITLES) if args.all_games or args.across_games else [args.game]

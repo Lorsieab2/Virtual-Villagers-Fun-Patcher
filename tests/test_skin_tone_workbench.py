@@ -624,6 +624,32 @@ class LearnByOutfit(unittest.TestCase):
         now, followed = sheets._carry_to_cell(table, cell, cell_was, sheets.OUTFIT_RADIUS)
         self.assertEqual((bool(now[40, 20]), followed), (False, 1))
 
+    def test_orange_and_yellow_things_are_never_added_by_a_near_colour(self):
+        """The owner, 2026-11-28: "be careful painting orange and yellow things."  An orange or yellow pixel becomes
+        skin only when the owner painted that very colour as skin on that outfit; removing is always allowed."""
+        orange, near, pale = (236, 150, 40), (233, 147, 43), (232, 180, 134)
+        art = np.zeros((130, 160, 4), np.uint8)
+        art[10:50, 20:60] = self.SKIN + (255,)
+        art[50:80, 20:60] = orange + (255,)                     # an orange sash the owner painted as skin (their call)
+        art[80:110, 20:60] = pale + (255,)                      # and a pale patch they painted as skin
+        built = (art[..., :3] == self.SKIN).all(-1)
+        skin = built | (art[..., :3] == orange).all(-1) | (art[..., :3] == pale).all(-1)
+        table = sheets.outfit_tables(self.BIG, art, built, skin)[("male", 0)]
+        cell = np.zeros((65, 40, 4), np.uint8)
+        cell[5:25, 10:30] = self.SKIN + (255,)
+        cell[25:35, 10:30] = orange + (255,)                    # the very colour the owner painted
+        cell[35:45, 10:30] = near + (255,)                      # an orange three levels away: cloth, for all we know
+        cell[45:55, 10:30] = (230, 182, 136, 255)               # near the pale patch, and no stronger than skin
+        was = (cell[..., :3] == self.SKIN).all(-1)
+        now, _followed = sheets._carry_to_cell(table, cell, was, sheets.OUTFIT_RADIUS)
+        self.assertTrue(now[25:35, 10:30].all(), "the owner's own orange: skin")
+        self.assertFalse(now[35:45, 10:30].any(), "a near orange is never added")
+        self.assertTrue(now[45:55, 10:30].all(), "a near skin-like colour still is")
+        # Removing skin from orange is free: the owner made the orange cloth, and a near orange built as skin goes.
+        cloth = sheets.outfit_tables(self.BIG, art, skin, built)[("male", 0)]
+        gone, _followed = sheets._carry_to_cell(cloth, cell, cell[..., 3] > 0, sheets.OUTFIT_RADIUS)
+        self.assertFalse(gone[35:45, 10:30].any())
+
     def test_the_self_check_learns_from_one_half_and_is_scored_on_the_other(self):
         art, built, skin = self.big()
         check = sheets.outfit_self_check(self.BIG, art, built, skin)

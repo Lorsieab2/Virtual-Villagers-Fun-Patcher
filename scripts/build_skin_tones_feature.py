@@ -8,8 +8,8 @@ body sheets.  Those copies are made at patch time from the player's own pictures
 vv_fun_patcher._write_skin_tone_sheets): the game's art is never shipped.
 
 A New Home and The Lost Children have no row yet: the DLL keeps their tones but does not draw them, and the owner
-wants all five games, so the feature is not for release until they draw too.  Off in every set of defaults until the
-owner decides.
+wants all five games, so the feature is not for release until they draw too.  Off in the normal defaults and Select All, on in Owner's Defaults
+(the owner, 2026-11-28).
 
 One command after the DLL's source changes: this script builds it (scripts/build_vvfp_skin_tones.ps1) and pins it by
 SHA-256 in the rows.  --no-build pins what is already built.
@@ -93,7 +93,7 @@ def description() -> str:
         "villager's tone is kept in the save's own Skin Tones file and follows them through deaths, reloads and "
         "renames; Back Up Saves copies it and Start Over clears it. **Not there yet:** choosing a tone in Change "
         "Appearance; and the memorial list's figures, the parents' small figures on Villager Details and the baby a "
-        "parent holds keep the game's own art. **Off by default, in Owner's Defaults and in Select All.** **Works "
+        "parent holds keep the game's own art. **Off by default and in Select All; on in Owner's Defaults.** **Works "
         "the same with every other patch and in every population mode.** **Not yet seen in a running game** (checked "
         f"by emulation of each game's own draw code). The companion is \"{DLL_NAME}\", started by VVFP More "
         "Companions.dll; nothing is written into a save or a villager record."

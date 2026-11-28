@@ -1616,8 +1616,8 @@ already went back. Runs on the Origins upgrades, which the patcher adds with it.
 
 SKIN TONES (THE SECRET CITY, THE TREE OF LIFE, NEW BELIEVERS)
 
-Off by default and in Owner's Defaults; Select All does not tick it. Tick it
-yourself. Every villager gets one of ten skin tones (Porcelain, Fair, Light
+Off by default; on in Owner's Defaults; Select All does not tick it. Every
+villager gets one of ten skin tones (Porcelain, Fair, Light
 golden, Light olive, Copper, Warm brown, Medium brown, Deep brown, Dark,
 Ebony) and is drawn with it in the village, on Villager Details and in island
 event pictures. Babies inherit their tone the way they inherit their heads:

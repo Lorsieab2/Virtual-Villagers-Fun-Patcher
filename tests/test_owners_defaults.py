@@ -44,8 +44,6 @@ def _owner_keeps_off(patch_id: str) -> bool:
             or patch_id == "vv5_playing_in_the_dirt_spot"
             # The owner (2026-11-11): Yellow Breadfruit Refills Partially Every Time is off in Owner's Defaults.
             or patch_id == "vv4_yellow_fruit_refills_partially"
-            # Skin Tones: in no defaults until the owner decides (the task, 2026-11-26).
-            or patch_id.endswith("_skin_tones")
             # The owner (2026-11-12): Island Events Scale With Stored Food and Tech Points is the alternative, off in
             # Owner's Defaults (Island Events Scale With Population is ticked there).
             or patch_id.endswith("_island_events_scale_with_stored_amounts")
