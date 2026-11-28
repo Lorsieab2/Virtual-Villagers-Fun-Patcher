@@ -35,7 +35,7 @@ DATA = json.loads((ROOT / "data" / "how_to_use.json").read_text(encoding="utf-8"
 # button gets a guide and a line here.
 CONTROLS = {
     "select_all", "default_patches", "owners_defaults", "deselect_all",
-    "heathen_tribe_births_multiplier", "heathen_arrivals_multiplier", "heathen_show_percent", "heathen_keep_blue",
+    "heathen_tribe_births_multiplier", "heathen_arrivals_multiplier", "heathen_show_percent", "heathen_keep_blue", "heathen_busyness",
     "patch_selection_settings", "patch_search",
     "output_location", "choose_exe", "validate", "dry_run", "create_modified_exe",
     "game_folders", "find_all_5", "validate_all_5", "dry_run_all_5", "patch_all_5",

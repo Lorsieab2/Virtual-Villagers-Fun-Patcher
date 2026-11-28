@@ -224,7 +224,8 @@ class PatchSettingsWindows(unittest.TestCase):
         self.assertEqual((saved["heathen_tribe_births_multiplier"], saved["heathen_arrivals_multiplier"],
                           saved["heathen_show_percent"], saved["heathen_keep_blue"]), (0.5, 2.5, 40, True))
         self.assertEqual(self.read["heathen"], {"births": 0.5, "arrivals": 2.5, "show_percent": 40,
-                                                "keep_blue": True}, "read back and handed to the next patch")
+                                                "keep_blue": True, "busyness": "normal"},
+                         "read back and handed to the next patch")
 
 
 if __name__ == "__main__":

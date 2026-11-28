@@ -233,7 +233,8 @@ class Settings(unittest.TestCase):
         vfp.set_heathen_evolution(show_percent=7, keep_blue=True)
         text = vfp.heathen_options_text()
         values = dict(line.split("=", 1) for line in text.splitlines() if line and not line.startswith("#"))
-        self.assertEqual(values, {"show_percent": "7", "mask_orange_percent": "0", "mask_red_percent": "0"})
+        self.assertEqual(values, {"show_percent": "7", "busyness": "2", "mask_orange_percent": "0",
+                                  "mask_red_percent": "0"})
         header = (ROOT / "native" / "shared" / "heathen_evo.h").read_text(encoding="utf-8")
         for key in ("show_percent", "mask_orange_percent", "mask_red_percent"):
             self.assertIn(f'"{key}"', header)
@@ -243,7 +244,8 @@ class Settings(unittest.TestCase):
         self.assertIsNone(vfp._heathen_evolution_in([]))
         self.assertEqual(vfp._heathen_evolution_in([row]),
                          {"heathen_tribe_births_multiplier": 1, "heathen_arrivals_multiplier": 0,
-                          "heathen_show_percent": 25, "heathen_keep_blue": False})
+                          "heathen_show_percent": 25, "heathen_keep_blue": False,
+                          "heathen_busyness": "normal"})
 
     def test_the_settings_window_is_registered(self):
         self.assertEqual(gui.PATCH_SETTINGS_ROWS["heathen_tribe_evolution"][0], "_fill_heathen_evolution_settings")

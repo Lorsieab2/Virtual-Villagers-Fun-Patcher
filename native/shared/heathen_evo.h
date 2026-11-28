@@ -33,6 +33,12 @@
                            group_max            (default 4)   decision 5: an arrival is a group of 1..group_max;
                            sick_floor           (default 21)  decision 8 (W-B): a sick Heathen's health floor;
                            show_percent         (default 0 = W-B's own choice)  W-B's show-action mix.
+                           busyness             (default 2)   W-B's pace: 1 Quiet, 2 Normal, 3 Lively --
+                                                how many Heathens may be out at once, how often each goes;
+                           away_max             (default 0)   W-B: at most this many away (0: from busyness);
+                           same_action_max      (default 0)   W-B: at most this many on one action (0: busyness);
+                           outing_cooldown      (default 0)   W-B: life units between one Heathen's outings
+                                                (0: from busyness).
                          W-D need not write the file: every default is the owner's decision.
 
    2. THE SLIDER RATES (W-A; decision 4).  Every roll is drawn from the companion's own xorshift (slider_scale.h's
@@ -129,6 +135,10 @@
 #define HE_OPT_GROUP_MAX "group_max"
 #define HE_OPT_SICK_FLOOR "sick_floor"
 #define HE_OPT_SHOW_PERCENT "show_percent"
+#define HE_OPT_BUSYNESS "busyness"
+#define HE_OPT_AWAY_MAX "away_max"
+#define HE_OPT_SAME_MAX "same_action_max"
+#define HE_OPT_OUTING_COOLDOWN "outing_cooldown"
 #define HE_MASK_ORANGE_DEFAULT 7
 #define HE_MASK_RED_DEFAULT 3
 #define HE_GROUP_MAX_DEFAULT 4
