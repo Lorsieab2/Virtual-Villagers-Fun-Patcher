@@ -86,11 +86,13 @@ class Camp(Machine):
     """The stock game (or a rendered mode) with the companion started and the real walk map loaded."""
 
     def __init__(self, *, row: bool = True, options: str | None = None, exe: bytes | None = None,
-                 spoil_site: bool = False):
+                 spoil_site: bool = False, spoil: tuple[int, ...] = ()):
         exe = bytearray(exe if exe is not None else stock_path(5).read_bytes())
         if spoil_site:
             # Another patch's bytes at the picker's faction test: the companion must install nothing.
             exe[self._file_offset(bytes(exe), PICK_SITE)] ^= 0xFF
+        for va in spoil:                                    # another patch's bytes at any other site
+            exe[self._file_offset(bytes(exe), va)] ^= 0xFF
         super().__init__(bytes(exe), DLL, present=(FLAG,) if row else ())
         self.options = options
         self.rand_calls = 0
@@ -1228,6 +1230,100 @@ class Finds(_Base):
             if seen == set(FINDS):
                 break
         self.assertEqual(seen, set(FINDS))
+
+    # The carry setter 0x466420 (thiscall on the record, (item, -1 none)) asks the pick-up listeners 0x413750 before
+    # it stores an item (vf0 0x413DC0 takes the nearest real item of that kind off the map) and hands a released
+    # item to the release listeners 0x4137C0 (vf1 0x4146B0 credits it; anywhere with "Collectibles Stay Collected").
+    # The game's stop 0x473440 releases whatever is carried (0x473556: 0x466420(-1)).
+    CARRY_SET, LISTEN_PICKUP, LISTEN_RELEASE = 0x466420, 0x413750, 0x4137C0
+    SITE_PICKUP, SITE_RELEASE = 0x466434, 0x466464
+
+    def _real_carry(self, camp: Camp) -> dict[str, list]:
+        """The game's own stop and carry setter run (the stop's map test 0x4781E0 and its emotion reset 0x465DD0
+        stood in for); the two listener dispatches counted (each answers as an empty registry would)."""
+        heard: dict[str, list] = {"pickup": [], "release": []}
+        del camp.stubs[STOP]
+        camp.stub(0x4781E0, lambda p: (0, 0xC))
+        camp.stub(0x465DD0, lambda p: (0, 0))
+        camp.stub(self.LISTEN_PICKUP, lambda p: (heard["pickup"].append((p.arg(0), p.arg(1))) or 1, 8))
+        camp.stub(self.LISTEN_RELEASE, lambda p: (heard["release"].append((p.arg(0), p.arg(1))) or 0, 8))
+        return heard
+
+    def _find(self, camp: Camp, child: int) -> int:
+        """Pick until a find is queued; the item it will carry."""
+        for _ in range(400):
+            (text, steps), = self.picks(camp, child, 1)
+            if text in FIND_GOING:
+                return [s[1] for s in steps if s[0] == 0x12][0]
+        self.fail("no find was queued")
+
+    def test_a_pretend_find_never_reaches_the_games_listeners(self):
+        camp = Camp(options=FREE)
+        child = camp.villager(3, age=200)
+        believer = camp.villager(4, heathen=False, age=200)
+        for r in (child, believer):
+            camp.put32(r + 0x1B80, r)                       # the queue's record (0x473447)
+            camp.put32(r + CARRY, 0xFFFFFFFF)               # empty hands
+        item = self._find(camp, child)
+        heard = self._real_carry(camp)
+        # The carry step (0x474D80's step -> 0x466420(item)): the sprite shows, no listener is asked.
+        camp.call(self.CARRY_SET, [item], ecx=child)
+        self.assertEqual(camp.i32(child, CARRY), item)
+        self.assertEqual(heard["pickup"], [], "a pretend find never takes a real item off the map")
+        # The game's own stop (the player picking the child up, an event, ...): no release dispatch.
+        camp.call(STOP, ecx=child)
+        self.assertEqual(camp.i32(child, CARRY), -1)
+        self.assertEqual(heard["release"], [], "a plain stop never releases a pretend find")
+        # Sickness while carrying one: the sick look's stop, the game's own, releases nothing either.
+        camp.stubs[STOP] = camp._stop
+        item = self._find(camp, child)
+        del camp.stubs[STOP]
+        camp.call(self.CARRY_SET, [item], ecx=child)
+        self.assertEqual(camp.i32(child, CARRY), item)
+        camp.write(child + SICK, b"\x00")
+        for _ in range(20000):                              # the onset's own rolls (1 in 1,440 a unit)
+            camp.unit(child)
+            if camp.sick(child):
+                break
+        self.assertTrue(camp.sick(child), "a unit brought the sickness")
+        self.assertEqual(camp.i32(child, CARRY), -1)
+        self.assertEqual(heard, {"pickup": [], "release": []}, "sickness never releases a pretend find")
+        # A believer carrying a real item: asked once, released once, as in the stock game.
+        camp.call(self.CARRY_SET, [0x80], ecx=believer)
+        camp.call(STOP, ecx=believer)
+        self.assertEqual(heard["pickup"], [(believer, 0x80)])
+        self.assertEqual(heard["release"], [(believer, 0x80)])
+        self.assertEqual(camp.i32(believer, CARRY), -1)
+
+    def test_a_heathen_childs_real_pickup_is_the_stock_one(self):
+        """The player drops the child on an item while a find is queued: the pick behaviour (0x23 mushroom, 0x24
+        collectible, 0x4136FC) is set, so the item is the game's own -- asked for and released as stock."""
+        camp = Camp(options=FREE)
+        child = camp.villager(3, age=200)
+        camp.put32(child + 0x1B80, child)
+        camp.put32(child + CARRY, 0xFFFFFFFF)
+        item = self._find(camp, child)
+        heard = self._real_carry(camp)
+        camp.call(STOP, ecx=child)                          # 0x4136E1: the drop stops the child first
+        camp.put32(child + BEHAVIOUR, 0x23)                 # 0x465580(0x23)
+        camp.call(self.CARRY_SET, [item], ecx=child)
+        camp.call(STOP, ecx=child)
+        self.assertEqual(heard["pickup"], [(child, item)])
+        self.assertEqual(heard["release"], [(child, item)])
+
+    def test_the_carry_guards_check_the_stock_bytes(self):
+        camp = Camp()
+        self.assertEqual(camp.installed, 1)
+        for va in (self.SITE_PICKUP, self.SITE_RELEASE):
+            with self.subTest(site=hex(va)):
+                self.assertEqual(camp.read(va, 1), b"\xE8")
+                target = (va + 5 + struct.unpack("<i", camp.read(va + 1, 4))[0]) & 0xFFFFFFFF
+                self.assertNotIn(target, (self.LISTEN_PICKUP, self.LISTEN_RELEASE), "the guard, not the stock call")
+                spoiled = Camp(spoil=(va,))
+                self.assertEqual(spoiled.installed, 0, "another patch's bytes there: nothing installs")
+                self.assertNotEqual(spoiled.read(PICK_SITE, 1), b"\xE9")
+                for other in (self.SITE_PICKUP, self.SITE_RELEASE):
+                    self.assertNotEqual(spoiled.read(other, 5), camp.read(other, 5), "all or none")
 
 
 @unittest.skipIf(_skip(), _skip() or "")

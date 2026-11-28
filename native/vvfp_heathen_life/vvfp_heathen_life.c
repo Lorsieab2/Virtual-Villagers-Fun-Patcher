@@ -159,8 +159,9 @@
    NOT LOGGED.  The believers' logs have no sickness, recovery or skill records, so none are written for Heathens.
    Nothing depends on a Heathen's sex.
 
-   SAFETY.  Three splices (0x46F0BA, 8 bytes; 0x468C3C, 8; 0x468D4D, 7 -- the last two only when the Statistics
-   row's are not there), stock bytes checked first, all or none (native/shared/install_sites.h).  Every step
+   SAFETY.  Five splices (0x46F0BA, 8 bytes; the carry setter's two listener calls 0x466434 and 0x466464, 5 each,
+   so a pretend find never reaches a pick-up or release listener; 0x468C3C, 8; 0x468D4D, 7 -- the last two only when
+   the Statistics row's are not there), stock bytes checked first, all or none (native/shared/install_sites.h).  Every step
    of ours runs under structured exception handling; a fault leaves the stock behaviour.  No debug output; the only
    file written is section 5's training file, and the only text shown is the Details text of section 4. */
 #include <windows.h>
@@ -701,7 +702,27 @@ static void put_doing(unsigned char *record, const char *words) {
     record[R_DOING + i] = 0;
 }
 
+/* A child's find (look_find) is a picture: the item it carries is in g_flavour_item[index] from the moment the look
+   is queued until it ends.  A carried sprite of ours still shown when the look was cut short is taken away by a plain
+   write: no drop step, so the game's release listeners (0x4137C0 -> 0x4146B0, which credits a collectible -- anywhere
+   with "Collectibles Stay Collected") never see it.  The carry setter's two listener calls are guarded too (the
+   splices at 0x466434 and 0x466464, below), so neither the game's own stop (0x473440 -> 0x466420(-1)) nor the carry
+   step itself (0x466420(item) -> 0x413750 -> vf0 0x413DC0, which takes the nearest real item of that kind off the
+   map) ever reaches a listener with a pretend find. */
+static int g_flavour_item[256];
+
+static void clear_flavour(unsigned char *record, int index) {
+    if (g_flavour_item[index] != 0 && i32(record, R_CARRY) == g_flavour_item[index]) {
+        *(int *)(record + R_CARRY) = -1;
+    }
+    g_flavour_item[index] = 0;
+}
+
 static void begin_with(unsigned char *record, const char *words) {
+    int index = rec_index(record);
+    if (index >= 0) {
+        clear_flavour(record, index);                     /* before the stop: a pretend find is never released */
+    }
     ((tc0_fn)(UINT_PTR)G_STOP)(record, NULL);
     *(int *)(record + R_BEHAVIOUR) = CAMP_WANDER;
     put_doing(record, words);
@@ -1142,8 +1163,9 @@ static void look_chat(unsigned char *record, unsigned char *partner, int believe
 
 /* A child's find (the believer children's pick-up, 0x45BAB0 / 0x45BBF0: pose 4, the pick-up sound 0x18, carry the
    item): a mushroom or a collectible of any kind, carried to the encampment and set down there.
-   FLAVOUR ONLY: nothing is taken off the map (the carried sprite is only a carry id, 0x474D80 -> 0x466420), nothing
-   is counted or collected, nothing is made. */
+   FLAVOUR ONLY: nothing is taken off the map, nothing is counted or collected, nothing is made.  The carry step
+   (0x474D80 -> 0x466420) would ask the pick-up listeners (0x413750 -> vf0 0x413DC0, which removes the nearest item of
+   that kind within 1,000 pixels); the guard at 0x466434 (pretend_pickup) answers "yes" for it without asking. */
 #define ITEM_LAB_FIRST 0x50            /* 0x50..0x67 science items (0x45BC5D), 0x68..0x7F relics (0x45BC44) */
 #define ITEM_RELIC_FIRST 0x68
 #define ITEM_MUSHROOM 0x80             /* 0x80 a mushroom, 0x81 a rare one, 0x82 the golden mushroom (0x4136E6) */
@@ -1723,18 +1745,6 @@ static int show(unsigned char *record, int may_go_out) {
     return 1;
 }
 
-/* A carried sprite of ours (a child's find) still shown when the look was cut short is taken away by a plain
-   write: no drop step, so the game's drop handler (0x4146B0, which counts a collectible dropped at the lab or the
-   granary) never sees it. */
-static int g_flavour_item[256];
-
-static void clear_flavour(unsigned char *record, int index) {
-    if (g_flavour_item[index] != 0 && i32(record, R_CARRY) == g_flavour_item[index]) {
-        *(int *)(record + R_CARRY) = -1;
-    }
-    g_flavour_item[index] = 0;
-}
-
 /* The picker's Heathen branch: 1 when a look was queued here, 0 for the stock Heathen AI. */
 static int __cdecl pick(unsigned char *record) {
     __try {
@@ -1996,6 +2006,91 @@ __declspec(naked) static void pick_stub(void) {
 
 static const unsigned char PICK_STOCK[8] = { 0x38, 0x9A, 0xEC, 0x1C, 0x00, 0x00, 0x74, 0x0D };
 
+/* ---- the carry setter's listener calls (0x466420: thiscall on the record, (item, -1 none)) -----------------
+   0x466434 `call 0x413750` (the pick-up listeners: may the record take `item`? vf0 0x413DC0 takes the nearest item
+   of that kind off the map) and 0x466464 `call 0x4137C0` (the release listeners: vf1 0x4146B0 credits a mushroom or
+   a collectible put down).  Both thiscall, ecx = 0x4DB790, (record, item), ret 8.  For a Heathen's pretend find
+   neither is called: the pick-up answers 1 (the carry is stored, the sprite shows), the release does nothing (the
+   carry is already -1, 0x46645A).  Anything else goes to the stock routine with its arguments untouched. */
+
+/* 1 when `record` setting `item` is a pretend find's carry step: a Heathen, its find queued (look_find), and still
+   in that look (behaviour CAMP_WANDER; a player's drop on an item gives the pick behaviour 0x23 / 0x24, 0x4136FC). */
+static int __cdecl pretend_pickup(unsigned char *record, int item) {
+    __try {
+        int index = rec_index(record);
+        if (index < 0 || item <= 0 || !heathen(record)) {
+            return 0;
+        }
+        if (g_flavour_item[index] == item && i32(record, R_BEHAVIOUR) == CAMP_WANDER) {
+            return 1;
+        }
+        g_flavour_item[index] = 0;                         /* a real carry: whatever find was queued is over */
+        return 0;
+    } __except (EXCEPTION_EXECUTE_HANDLER) {
+        return 0;
+    }
+}
+
+/* 1 when `record` putting `item` down is a pretend find being released (by any stop): it is then forgotten. */
+static int __cdecl pretend_release(unsigned char *record, int item) {
+    __try {
+        int index = rec_index(record);
+        if (index < 0 || item <= 0 || !heathen(record) || g_flavour_item[index] != item) {
+            return 0;
+        }
+        g_flavour_item[index] = 0;
+        return 1;
+    } __except (EXCEPTION_EXECUTE_HANDLER) {
+        return 0;
+    }
+}
+
+#define SITE_PICKUP 0x466434u
+#define SITE_RELEASE 0x466464u
+static const unsigned int g_listeners_pickup = 0x413750u;
+static const unsigned int g_listeners_release = 0x4137C0u;
+static int g_carry_result;
+/* `call 0x413750` / `call 0x4137C0` at those sites (rel32 from the next instruction). */
+static const unsigned char PICKUP_STOCK[5] = { 0xE8, 0x17, 0xD3, 0xFA, 0xFF };
+static const unsigned char RELEASE_STOCK[5] = { 0xE8, 0x57, 0xD3, 0xFA, 0xFF };
+
+/* Called in place of 0x413750: [esp] the return (0x466439), [esp+4] the record, [esp+8] the item, ecx 0x4DB790. */
+__declspec(naked) static void pickup_stub(void) {
+    __asm {
+        pushad
+        push dword ptr [esp + 0x28]
+        push dword ptr [esp + 0x28]
+        call pretend_pickup
+        add esp, 8
+        mov dword ptr [g_carry_result], eax
+        popad
+        cmp dword ptr [g_carry_result], 0
+        jne pretend
+        jmp dword ptr [g_listeners_pickup]
+    pretend:
+        mov al, 1
+        ret 8
+    }
+}
+
+/* Called in place of 0x4137C0: [esp] the return (0x466469), [esp+4] the record, [esp+8] the item, ecx 0x4DB790. */
+__declspec(naked) static void release_stub(void) {
+    __asm {
+        pushad
+        push dword ptr [esp + 0x28]
+        push dword ptr [esp + 0x28]
+        call pretend_release
+        add esp, 8
+        mov dword ptr [g_carry_result], eax
+        popad
+        cmp dword ptr [g_carry_result], 0
+        jne pretend
+        jmp dword ptr [g_listeners_release]
+    pretend:
+        ret 8
+    }
+}
+
 static const unsigned int g_cure_sick = CURE_SICK;
 static const unsigned int g_cure_not_sick = CURE_NOT_SICK;
 static const unsigned int g_cure_counted = CURE_COUNTED;
@@ -2057,7 +2152,7 @@ static int cure_guard(vvfp_site_write *sites) {
 
 /* Called once by the patcher's start-up chain before WinMain. */
 void __stdcall VvfpStartup(int game, unsigned int shipped) {
-    vvfp_site_write sites[3];
+    vvfp_site_write sites[5];
     unsigned int manager_rva;
     int guard;
     (void)shipped;
@@ -2082,12 +2177,14 @@ void __stdcall VvfpStartup(int game, unsigned int shipped) {
     if (g_seed == 0u) {
         g_seed = 0x9E3779B9u;
     }
-    guard = cure_guard(&sites[1]);
+    guard = cure_guard(&sites[3]);
     if (guard < 0) {
         return;                                           /* all or none: People Cured could not be guarded */
     }
     vvfp_site_branch(&sites[0], SITE_PICKER, 8, PICK_STOCK, 0xE9, (const void *)pick_stub);
-    if (vvfp_install_sites(sites, 1 + guard)) {
+    vvfp_site_branch(&sites[1], SITE_PICKUP, 5, PICKUP_STOCK, 0xE8, (const void *)pickup_stub);
+    vvfp_site_branch(&sites[2], SITE_RELEASE, 5, RELEASE_STOCK, 0xE8, (const void *)release_stub);
+    if (vvfp_install_sites(sites, 3 + guard)) {
         g_installed = 1;
     }
 }

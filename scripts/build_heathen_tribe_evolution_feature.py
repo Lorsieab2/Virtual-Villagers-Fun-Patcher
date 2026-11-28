@@ -66,6 +66,14 @@ LIFE_SITES = (
      "game's own step adders with no skill-check or payoff step (a harvest once its puzzle is solved, carried to "
      "the encampment; a facility visit; a show meal; devotion at the mud hut; a child's nursery play while someone "
      "teaches there), a sick one the sick look; everything else the stock Heathen AI 0x46E9E0"),
+    (0x466434, "E817D3FAFF", "E8",
+     "the carry setter 0x466420's pick-up listener call (0x413750, whose collectibles listener takes the nearest "
+     "item of that kind off the map): skipped for a Heathen child's pretend find, which only shows the sprite; every "
+     "other carry asks the listeners as in the stock game"),
+    (0x466464, "E857D3FAFF", "E8",
+     "the carry setter's release listener call (0x4137C0, run by every stop 0x473440 through 0x466420(-1); with "
+     "Collectibles Stay Collected it credits the item anywhere): skipped for a Heathen child's pretend find, so no "
+     "stop -- sickness, the player picking the child up, an event -- turns it into a real mushroom or collectible"),
     (0x468C3C, "389E481C0000751D", "E9",
      "the drag-a-healer cure 0x468C10's sickness test: the patient's faction is noted as the cure begins (only "
      "when the Village Statistics row's detour is not already there; with it, nothing of ours is written here)"),
