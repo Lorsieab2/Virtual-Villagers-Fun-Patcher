@@ -232,7 +232,8 @@ def started(shipped) -> set[str]:
 # in the process by the time WinMain is entered: A New Home's Golden Child fix is loaded and started
 # by VVFP Speed Change Timers.dll (native/vvfp_speed_timers/vvfp_speed_timers.c, start_vv1).
 STARTED_BY_A_COMPANION = {"VVFP VV1 Golden Child Safe.dll": "VVFP Speed Change Timers.dll",
-                          "VVFP Fullscreen Mouse.dll": "VVFP Window Restore.dll"}
+                          "VVFP Fullscreen Mouse.dll": "VVFP Window Restore.dll",
+                          "VVFP Exact Pickups.dll": "VVFP Window Restore.dll"}
 
 
 def loaded_at_winmain(shipped) -> set[str]:
@@ -433,7 +434,8 @@ class StartupLoaderPlacement(unittest.TestCase):
         self.assertEqual(on_demand & set(vfp.STARTUP_LOADER_COMPANIONS), set())
         loaders = {"VVFP Number Names.dll": {"VVFP Parentage Export.dll", "VVFP VV1 Parentage.dll"},
                    "VVFP VV1 Golden Child Safe.dll": {"VVFP Speed Change Timers.dll"},
-                   "VVFP Fullscreen Mouse.dll": {"VVFP Window Restore.dll"}}
+                   "VVFP Fullscreen Mouse.dll": {"VVFP Window Restore.dll"},
+                   "VVFP Exact Pickups.dll": {"VVFP Window Restore.dll"}}
         self.assertEqual(set(loaders), on_demand)
         for p in vfp.load_fun_patches():
             dlls = {str(item["destination"]) for item in p.raw.get("companion_files", [])}
