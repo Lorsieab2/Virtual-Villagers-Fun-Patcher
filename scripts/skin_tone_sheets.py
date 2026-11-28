@@ -982,7 +982,8 @@ def import_workbench(game, folder: Path, only=None, same_for_all=False, source=N
     and drop the ones that are still as generated.  Returns what was kept.
 
     `same_for_all` (the owner, 2026-11-28: "copy the edited pixels of one tone to the other tones"): for each
-    sheet, the paint of ONE tone -- `source` (1..10), or the one tone the owner changed -- is taken as the skin
+    sheet, the paint of ONE tone -- `source` (1..10), or tone 10 (Ebony) when the owner changed it, or the one
+    tone they changed -- is taken as the skin
     of all ten tones, whatever the other tones' layers hold.  The .xcf is not touched.  A sheet where several
     tones were changed differently and no `source` is given is read the ordinary way, and said so."""
     manifest = _manifest(folder)
@@ -1013,6 +1014,8 @@ def import_workbench(game, folder: Path, only=None, same_for_all=False, source=N
                         say(f"{game}_{stem}: it has no colour layer for tone {source}; read the ordinary way")
                     else:
                         for_all = f"skin_{source:02d}.png"
+                elif f"skin_{len(core.TONES):02d}.png" in changed:
+                    for_all = f"skin_{len(core.TONES):02d}.png"    # Ebony is the tone the owner edits
                 elif len({_sha(tones[leaf]) for leaf in changed}) == 1:
                     for_all = changed[0]
                 elif changed:
@@ -1096,6 +1099,8 @@ def spread(item, result):
     if source is None:
         if not changed:
             result["did"] = "unchanged"
+        elif item["tones"] in changed:
+            source = item["tones"]      # Tone 10 (Ebony) is the tone the owner edits: the others follow it
         elif len({covers[n] for n in changed}) > 1:
             result["did"] = "several"
         else:
@@ -1217,7 +1222,8 @@ def sheet_stem(game, sheet):
 
 def spread_tone(game, folder: Path, sheets=None, source=None, yes=False, backup=None):
     """Make every tone's colour layer of an .xcf the same painted pixels as one tone's -- `source` (1..10),
-    or the one tone changed since the file was built -- each in its own tone's flat colour.  (The owner,
+    or tone 10 (Ebony, the tone the owner edits) when it was changed since the file was built, or else the
+    one tone that was -- each in its own tone's flat colour.  (The owner,
     2026-11-28: "to save time, i'd like to copy the edited pixels of one tone to the other tones in a
     file.")  `sheets`: the sheets ("carrying"), or None for every .xcf of the game.
 
@@ -1332,13 +1338,18 @@ def read_colour_layers(paths, tmp: Path) -> dict:
 
 
 def owners_skin(layers: dict, record: dict, built):
-    """What the owner made skin on an edited sheet, and from which layers: the tones' colour layers changed
-    since the build (a pixel is skin when most of them have paint there), else None.  -> (skin, the tones)."""
+    """What the owner made skin on an edited sheet, and from which layers: tone 10 (Ebony) when it was changed
+    since the build, else the tones that were (a pixel is skin when most of them have paint there), else None.
+    -> (skin, the tones)."""
     votes = [(leaf, painted_from_layer(layer)) for leaf, layer in sorted(layers.items())
              if leaf.startswith("skin_") and layer.shape[:2] == built.shape
              and _sha(painted_from_layer(layer)) != record.get(leaf)]
     if not votes:
         return None, []
+    ebony = f"skin_{len(core.TONES):02d}.png"
+    for leaf, vote in votes:            # the owner, 2026-11-28: "i'll edit the ebony skin tone and the others can
+        if leaf == ebony:               # hopefully follow suit" -- Ebony alone speaks when it was changed
+            return vote, [leaf[5:7]]
     count = np.sum([vote for _leaf, vote in votes], axis=0)
     return count * 2 > len(votes), [leaf[5:7] for leaf, _vote in votes]
 
@@ -1510,6 +1521,275 @@ def learn(games_and_images, root: Path, across=False, write=False, yes=False, le
     return done
 
 
+# ---- learning by outfit (the owner, 2026-11-28, chose it over one colour rule for a whole game): what the owner
+# made skin or cloth on a body is carried to the SAME body's rows of the other sheets.  The big body pictures and
+# the small walking frames are different drawings of the same outfit (another pose, half the size), so no pixel of
+# one lies on a pixel of the other: what is carried is the outfit's own colours.  A pixel of a frame changes only
+# when its colour is, within a tight tolerance, a colour of that outfit which the owner made all skin or all cloth.
+OUTFIT_RADIUS, OUTFIT_PURE = 6, 0.95
+
+
+def _body_cells(spec, shape):
+    """The cells of a body sheet as (sex, body number, y, x, height, width).  A sheet for one sex: every frame
+    of row r is body first + r.  The big bodies (no sex of its own, two columns): column 0 male, 1 female."""
+    w, h = spec["cell"]
+    rows, cols = shape[0] // h, shape[1] // w
+    if spec["kind"] != "bodies":
+        return []
+    if spec["sex"] is None and cols != 2:
+        return []
+    return [(spec["sex"] or ("male", "female")[c], spec["first"] + r, r * h, c * w, h, w)
+            for r in range(rows) for c in range(cols)]
+
+
+def outfit_tables(spec, stock, built, skin, columns=None) -> dict:
+    """{(sex, body): (colours, skin counts, not-skin counts)} from an edited body sheet: for each outfit the
+    owner worked on (a cell with any change; on a one-sex sheet, any frame of the row), every colour of its
+    opaque pixels with how often the owner has it as skin and as not skin.  `columns` (a slice) limits the
+    pixels of each cell that are read (the self check reads one half and predicts the other)."""
+    cells = _body_cells(spec, stock.shape)
+    worked = {(sex, body) for sex, body, y, x, h, w in cells if (skin[y:y + h, x:x + w] != built[y:y + h, x:x + w]).any()}
+    pooled = {}
+    for sex, body, y, x, h, w in cells:
+        if (sex, body) not in worked:
+            continue
+        part = (slice(y, y + h), slice(x, x + w) if columns is None else slice(x + columns.start, x + columns.stop))
+        opaque = stock[part][..., 3] > 0
+        colours = _packed(stock[part][..., :3])[opaque]
+        verdict = skin[part][opaque]
+        counts = pooled.setdefault((sex, body), {})
+        for is_skin in (True, False):
+            values, numbers = np.unique(colours[verdict == is_skin], return_counts=True)
+            for value, number in zip(values.tolist(), numbers.tolist()):
+                counts.setdefault(value, [0, 0])[0 if is_skin else 1] += number
+    tables = {}
+    for key, counts in pooled.items():
+        values = np.array(sorted(counts), np.uint32)
+        rgb = np.stack([values >> 16, (values >> 8) & 255, values & 255], axis=1).astype(np.int16)
+        both = np.array([counts[v] for v in values.tolist()], np.int64).reshape(-1, 2)
+        tables[key] = (rgb, both[:, 0], both[:, 1])
+    return tables
+
+
+def outfit_decide(table, rgb, radius=OUTFIT_RADIUS, least=LEARN_LEAST, pure=OUTFIT_PURE):
+    """For each colour of `rgb` (N x 3): 1 skin, 0 not skin, -1 no decision.  A colour is decided only when the
+    outfit's colours within `radius` levels of it (on each of red, green and blue) were seen on at least `least`
+    pixels and `pure` of those the owner has the same way."""
+    from scipy.spatial import cKDTree
+    colours, as_skin, as_not = table
+    out = np.full(len(rgb), -1, np.int8)
+    if not len(colours) or not len(rgb):
+        return out
+    unique, back = np.unique(rgb.astype(np.int16), axis=0, return_inverse=True)
+    near = cKDTree(colours).query_ball_point(unique, radius + 0.5, p=np.inf)
+    verdict = np.full(len(unique), -1, np.int8)
+    for k, found in enumerate(near):
+        if not found:
+            continue
+        yes, no = int(as_skin[found].sum()), int(as_not[found].sum())
+        if yes + no >= least:
+            if yes >= pure * (yes + no):
+                verdict[k] = 1
+            elif no >= pure * (yes + no):
+                verdict[k] = 0
+    return verdict[back.reshape(-1)]
+
+
+def _carry_to_cell(table, cell, was, radius):
+    """One frame's skin with an outfit's rule on it -> (skin, how many pixels followed their neighbours).
+    First the pixels whose own colour decides.  Then the specks left among them: an undecided pixel inside the
+    sprite follows its neighbours when at least 6 of the 8 around it are now the other way and at least 3 of
+    those were themselves changed by a decision (twice over, so a speck two pixels wide goes too)."""
+    from scipy import ndimage
+    opaque = cell[..., 3] > 0
+    verdict = np.full(opaque.shape, -1, np.int8)
+    verdict[opaque] = outfit_decide(table, cell[..., :3][opaque], radius)
+    now = was.copy()
+    now[verdict == 1] = True
+    now[verdict == 0] = False
+    around = np.ones((3, 3), int)
+    around[1, 1] = 0
+    count = lambda what: ndimage.convolve(what.astype(int), around, mode="constant")
+    followed = 0
+    for _ in range(2):
+        free = opaque & (verdict == -1)
+        off = free & now & (count(opaque & ~now) >= 6) & (count(was & ~now) >= 3)
+        on = free & ~now & (count(now) >= 6) & (count(now & ~was) >= 3)
+        now[off], now[on] = False, True
+        followed += int(off.sum()) + int(on.sum())
+    return now, followed
+
+
+def apply_outfits(spec, stock, built, tables, radius=OUTFIT_RADIUS):
+    """A body sheet's skin with the owner's outfits carried to it -> (skin, frames matched, frames skipped).  A
+    frame is matched when the owner worked on its outfit (same sex, same body number); every other frame is
+    left exactly as built."""
+    new, matched, skipped = built.copy(), 0, 0
+    for sex, body, y, x, h, w in _body_cells(spec, stock.shape):
+        cell = stock[y:y + h, x:x + w]
+        opaque = cell[..., 3] > 0
+        if not opaque.any():
+            continue
+        table = tables.get((sex, body))
+        if table is None:
+            skipped += 1
+            continue
+        matched += 1
+        new[y:y + h, x:x + w] = _carry_to_cell(table, cell, built[y:y + h, x:x + w], radius)[0]
+    return new, matched, skipped
+
+
+def outfit_self_check(spec, stock, built, skin, radius=OUTFIT_RADIUS):
+    """The method tried on the owner's own sheet: each worked outfit's rule is learned from the LEFT half of its
+    cell only and carried to the RIGHT half, which it has not seen, and compared with what the owner did there.
+    -> {"added": (pixels, right), "removed": (pixels, right), "owner": (added, removed) on those right halves}."""
+    w = spec["cell"][0]
+    tables = outfit_tables(spec, stock, built, skin, slice(0, w // 2))
+    put = cut = put_right = cut_right = theirs_put = theirs_cut = 0
+    for sex, body, y, x, h, cw in _body_cells(spec, stock.shape):
+        table = tables.get((sex, body))
+        if table is None:
+            continue
+        part = (slice(y, y + h), slice(x + cw // 2, x + cw))
+        cell, was, now = stock[part], built[part], skin[part]
+        opaque = cell[..., 3] > 0
+        carried = _carry_to_cell(table, cell, was, radius)[0]
+        add, remove = carried & ~was, was & ~carried
+        put, put_right = put + int(add.sum()), put_right + int((add & now).sum())
+        cut, cut_right = cut + int(remove.sum()), cut_right + int((remove & ~now).sum())
+        theirs_put, theirs_cut = theirs_put + int((now & ~was & opaque).sum()), theirs_cut + int((was & ~now).sum())
+    return {"added": (put, put_right), "removed": (cut, cut_right), "owner": (theirs_put, theirs_cut)}
+
+
+def learn_outfits(games_and_images, root: Path, write=False, yes=False, radius=OUTFIT_RADIUS, say=print, backup=None,
+                  preview: Path | None = None):
+    """Carry the owner's edits of each body (outfit) to the same body's rows on the sheets still as built.
+
+    Reads every body sheet the owner changed (a copy, through GIMP): tone 10 (Ebony) when it was changed -- the
+    owner edits Ebony and "the others can hopefully follow suit" -- so the result is every tone's skin.  Without
+    `write` nothing is written (the dry run): per sheet the pixels added and removed and the frames matched and
+    skipped, and the self check on the owner's own sheet.  `preview`: a folder for a before-and-after picture
+    of each game (tone 10).  With `write`: as `learn` -- only sheets still as built and not open in GIMP, their
+    new skin kept as edits/<sheet>/mask.png, each file backed up, then made again.
+    Returns {game: {sheet: (added, removed, frames matched, frames skipped)}}."""
+    import datetime
+    backup = backup or f"_before learned recolor {datetime.date.today().isoformat()}"
+    games = []
+    for game, images in games_and_images:
+        folder = root / game
+        base = Art(game, images, shipped=False)
+        stems = {Path(name).stem: name for name in base.specs if (folder / f"{game}_{Path(name).stem}.xcf").is_file()}
+        theirs = changed_by_the_owner(game, folder, list(stems))
+        games.append({"game": game, "images": images, "folder": folder, "base": base, "stems": stems, "theirs": theirs,
+                      "manifest": _manifest(folder)})
+    with tempfile.TemporaryDirectory() as tmp:
+        paths = [one["folder"] / f"{one['game']}_{stem}.xcf" for one in games for stem in one["theirs"]
+                 if one["base"].specs[one["stems"][stem]]["kind"] == "bodies"]
+        read = read_colour_layers(paths, Path(tmp)) if paths else {}
+    done = {}
+    for one in games:
+        game, base, folder = one["game"], one["base"], one["folder"]
+        tables = {}
+        for stem in one["theirs"]:
+            name = one["stems"][stem]
+            spec = base.specs[name]
+            path = folder / f"{game}_{stem}.xcf"
+            if path not in read:
+                say(f"{game}_{stem}: yours; not a body sheet, so nothing is carried from it yet")
+                continue
+            built, stock = base.mask(name), base.stock(name)
+            skin, tones = owners_skin(read[path], one["manifest"].get(stem, {}), built)
+            if skin is None:
+                say(f"{game}_{stem}: yours, but no tone's skin differs from the build: nothing to carry")
+                continue
+            mine = outfit_tables(spec, stock, built, skin)
+            for key, (rgb, as_skin, as_not) in mine.items():
+                if key in tables:                               # the same outfit worked on in two sheets
+                    old = tables[key]
+                    rgb, as_skin, as_not = (np.concatenate([old[0], rgb]), np.concatenate([old[1], as_skin]),
+                                            np.concatenate([old[2], as_not]))
+                tables[key] = (rgb, as_skin, as_not)
+            check = outfit_self_check(spec, stock, built, skin, radius)
+            say(f"{game}_{stem}: read tone {', '.join(tones)}: {len(mine)} outfits worked on "
+                f"({', '.join(f'{sex} body {body}' for sex, body in sorted(mine))}); you added "
+                f"{int((skin & ~built).sum()):,} pixels to the skin and removed {int((built & ~skin).sum()):,}")
+            say(f"  tried on this sheet itself (each outfit learned from the left half of its picture, carried to the "
+                f"right half): it would add {check['added'][0]:,} pixels, {check['added'][1]:,} of them skin in your "
+                f"edit, and remove {check['removed'][0]:,}, {check['removed'][1]:,} of them removed in your edit; on "
+                f"those right halves you yourself added {check['owner'][0]:,} and removed {check['owner'][1]:,}")
+        changes, masks = {}, {}
+        for stem, name in one["stems"].items():
+            spec = base.specs[name]
+            if stem in one["theirs"] or spec["kind"] != "bodies" or not tables:
+                continue
+            built, stock = base.mask(name), base.stock(name)
+            new, matched, skipped = apply_outfits(spec, stock, built, tables, radius)
+            added, removed = int((new & ~built).sum()), int((built & ~new).sum())
+            say(f"  {game}_{stem}: {added:,} pixels added to the skin, {removed:,} removed (of {int(built.sum()):,}); "
+                f"{matched} frames matched to an outfit you worked on, {skipped} left as built")
+            if added or removed:
+                changes[stem], masks[stem] = (added, removed, matched, skipped), new
+        if not tables:
+            say(f"{game}: no body sheet of yours to carry from")
+        done[game] = changes
+        if preview is not None and changes:
+            _outfit_preview(base, one["stems"], masks, Path(preview) / f"{game}_outfit_learning_before_after.png")
+            say(f"{game}: before and after, tone 10: {Path(preview) / (game + '_outfit_learning_before_after.png')}")
+        if not write or not changes:
+            continue
+        free, unknown = [], []
+        for stem in sorted(changes):
+            state, why = held_open(folder / f"{game}_{stem}.xcf")
+            if state == "open":
+                say(f"  {game}_{stem}: left alone: {why}")
+            elif state == "unknown" and not yes:
+                unknown.append(why)
+            else:
+                free.append(stem)
+        if unknown:
+            say(f"{game}: nothing was rebuilt. {unknown[0]}. Close GIMP and run this again, or, when none of these "
+                "files is open in GIMP, run it again with --yes added.")
+            continue
+        was = json.loads((folder / LEARNED).read_text(encoding="utf-8")).get("sheets", []) if (folder / LEARNED).is_file() else []
+        for stem in free:
+            mark = np.zeros(masks[stem].shape + (4,), np.uint8)
+            mark[masks[stem]] = 255
+            (folder / "edits" / stem).mkdir(parents=True, exist_ok=True)
+            Image.fromarray(mark).save(folder / "edits" / stem / "mask.png")
+        (folder / LEARNED).write_text(json.dumps({
+            "sheets": sorted(set(was) | set(free)), "by": "outfit", "radius": radius,
+            "outfits": [f"{sex} body {body}" for sex, body in sorted(tables)]}, indent=1), encoding="utf-8")
+        written, _kept, _unread = build_workbench(game, one["images"], folder, only=free, fresh_backup=backup)
+        say(f"{game}: made {len(written)} files again with the learned skin; each as it was is in {backup}")
+    return done
+
+
+def _outfit_preview(base: Art, stems: dict, masks: dict, out: Path, most=6):
+    """A picture of the rows that change most, as built (above) and with the learned skin (below), in tone 10,
+    three times the size, the changed pixels marked beneath in red (added) and blue (removed)."""
+    tone = core.TONES[-1]
+    strips = []
+    for stem in sorted(masks, key=lambda s: -int((masks[s] != base.mask(stems[s])).sum()))[:most]:
+        name = stems[stem]
+        stock, built, new = base.stock(name), base.mask(name), masks[stem]
+        h = base.specs[name]["cell"][1]
+        row = int(np.argmax([(new != built)[top:top + h].sum() for top in range(0, built.shape[0], h)]))
+        part = slice(row * h, (row + 1) * h)
+        before = core.recolour(stock, built, tone, h)[part]
+        after = core.recolour(stock, new, tone, h)[part]
+        marks = np.zeros_like(before)
+        marks[(new & ~built)[part]] = (220, 30, 30, 255)
+        marks[(built & ~new)[part]] = (30, 60, 220, 255)
+        strips.append(np.concatenate([before, after, marks], axis=0))
+    width = max(strip.shape[1] for strip in strips)
+    canvas = np.concatenate([np.pad(strip, ((0, 4), (0, width - strip.shape[1]), (0, 0))) for strip in strips], axis=0)
+    flat = np.full(canvas.shape[:2] + (3,), 236, np.uint8)
+    alpha = canvas[..., 3:4].astype(np.float32) / 255
+    picture = (canvas[..., :3] * alpha + flat * (1 - alpha)).astype(np.uint8)
+    out.parent.mkdir(parents=True, exist_ok=True)
+    Image.fromarray(picture).resize((picture.shape[1] * 3, picture.shape[0] * 3), Image.NEAREST).save(out)
+
+
 def publish_edits(art: Art, edits: Path, out: Path):
     """The owner's kept edits (<workbench>/<game>/edits) as shippable files under `out`/<game>/<sheet>/:
     skin_NN.png for each tone whose colour layer the owner painted, and mask.png when they changed the
@@ -1643,10 +1923,16 @@ def main() -> int:
                     help="import: take the one changed tone's paint as the skin of all ten tones (the .xcf is not touched)")
     ap.add_argument("--all-games", action="store_true", help="learn: every game (needs --images-root)")
     ap.add_argument("--across-games", action="store_true", help="learn: one rule from all the games' edits together")
+    ap.add_argument("--by-outfit", action="store_true",
+                    help="learn: carry what you did on each body (outfit) to the same body's rows on the other "
+                         "sheets, instead of one colour rule for the whole game")
+    ap.add_argument("--preview", type=Path, help="learn --by-outfit: a folder for a before-and-after picture")
     ap.add_argument("--write", action="store_true", help="learn: really rebuild the unedited sheets (left out: a dry "
                                                          "run that only lists what would change)")
     ap.add_argument("--tolerance", type=int, default=0, help="learn: count colours in buckets this many levels wide "
-                                                             "(each of red, green, blue); 0 = exact colours only")
+                                                             "(each of red, green, blue); 0 = exact colours only. "
+                                                             "With --by-outfit: how close a colour must be to one "
+                                                             "of the outfit's (default 6)")
     args = ap.parse_args()
     if args.what == "mockup":
         mockup(args.images_root, args.out, args.workbench if args.workbench.is_dir() else None)
@@ -1671,7 +1957,11 @@ def main() -> int:
         pairs = [(g, images) for g, images in pairs if (args.workbench / g).is_dir()]
         if not args.write:
             print("DRY RUN: nothing is written. This is what the unedited sheets would get.")
-        done = learn(pairs, args.workbench, args.across_games, args.write, args.yes, tolerance=args.tolerance)
+        if args.by_outfit:
+            done = learn_outfits(pairs, args.workbench, args.write, args.yes, args.tolerance or OUTFIT_RADIUS,
+                                 preview=args.preview)
+        else:
+            done = learn(pairs, args.workbench, args.across_games, args.write, args.yes, tolerance=args.tolerance)
         if args.across_games and args.game:
             done = {args.game: done.get(args.game, {})}
         if not args.write and any(done.values()):

@@ -271,14 +271,24 @@ class Rebuild(unittest.TestCase):
         self.build()
         self.gimp.painted["vv1_carrying.xcf"] = self.colour_layers(t10=[(152, 7)], t3=[(153, 8)])
         said = []
+        # Tone 10 (Ebony) is the tone the owner edits: changed, it is the one the others follow.
         sheets.import_workbench("vv1", self.folder, same_for_all=True, say=said.append)
-        self.assertEqual(sorted(self.kept_marks()), ["skin_03.png", "skin_10.png"], "each read as it is")
+        marks = self.kept_marks()
+        self.assertEqual(len(marks), 10)
+        self.assertTrue(all((mark == marks["skin_10.png"]).all() for mark in marks.values()))
+        self.assertTrue(marks["skin_03.png"][8, 153] and not marks["skin_03.png"][7, 152], "Ebony's skin, in tone 3 too")
+        for path in (self.folder / "edits" / "carrying").glob("*.png"):
+            path.unlink()
+        self.gimp.painted["vv1_carrying.xcf"] = self.colour_layers(t9=[(152, 7)], t3=[(153, 8)])
+        said = []
+        sheets.import_workbench("vv1", self.folder, same_for_all=True, say=said.append)
+        self.assertEqual(sorted(self.kept_marks()), ["skin_03.png", "skin_09.png"], "each read as it is")
         self.assertIn("add --from and its number", said[0])
         sheets.import_workbench("vv1", self.folder, same_for_all=True, source=3, say=said.append)
         marks = self.kept_marks()
         self.assertEqual(len(marks), 10)
         self.assertTrue(all((mark == marks["skin_03.png"]).all() for mark in marks.values()))
-        self.assertTrue(marks["skin_10.png"][7, 152] and not marks["skin_10.png"][8, 153], "tone 3's skin, in tone 10 too")
+        self.assertTrue(marks["skin_09.png"][7, 152] and not marks["skin_09.png"][8, 153], "tone 3's skin, in tone 9 too")
         # Naming a tone that is still as built puts every tone back as built: no edit is left.
         sheets.import_workbench("vv1", self.folder, same_for_all=True, source=5, say=said.append)
         self.assertEqual(self.kept_marks(), {})
@@ -468,6 +478,12 @@ class Learn(unittest.TestCase):
         skin, tones = sheets.owners_skin(layers, record, built)
         self.assertEqual(tones, ["10"])
         self.assertTrue((skin == one).all(), "the nine tones still as built have no say")
+        two = built.copy()
+        two[2, 2] = True
+        layers["skin_03.png"] = layers["skin_04.png"] = layer(two)
+        skin, tones = sheets.owners_skin(layers, record, built)
+        self.assertEqual(tones, ["10"], "Ebony is the tone the owner edits: changed, it alone speaks")
+        self.assertTrue((skin == one).all())
 
     def test_a_dry_run_writes_nothing_and_never_reads_the_owners_own_file(self):
         with tempfile.TemporaryDirectory() as tmp:
@@ -501,6 +517,82 @@ class Learn(unittest.TestCase):
                 self.assertIn("1 colours are skin", said[1])
                 self.assertIn("1 are yours and are never touched: carrying", said[-1])
                 self.assertEqual(gimp.read, ["vv1_carrying.xcf"])
+
+
+@unittest.skipUnless(HAVE, "numpy, scipy or Pillow is missing")
+class LearnByOutfit(unittest.TestCase):
+    """The owner chose (2026-11-28) to carry what they did on a body to the SAME body's rows of the other
+    sheets: an outfit's own colours, never one rule for the whole game."""
+
+    SKIN, ROBE, SASH = (240, 190, 140), (236, 220, 170), (150, 30, 60)
+    BIG = {"kind": "bodies", "cell": (80, 130), "sex": None, "first": 0}
+    SMALL = {"kind": "bodies", "cell": (40, 65), "sex": "male", "first": 0}
+
+    def big(self):
+        """Two bodies, male and female columns: skin above, a robe below (built as skin: the mistake), a sash."""
+        art = np.zeros((260, 160, 4), np.uint8)
+        for row in (0, 1):
+            for col in (0, 1):
+                y, x = row * 130, col * 80
+                art[y + 10:y + 50, x + 20:x + 60] = self.SKIN + (255,)
+                art[y + 50:y + 110, x + 20:x + 60] = self.ROBE + (255,)
+                art[y + 50:y + 56, x + 20:x + 60] = self.SASH + (255,)
+        built = (art[..., :3] == self.SKIN).all(-1) | (art[..., :3] == self.ROBE).all(-1)
+        skin = built.copy()
+        skin[0:130, 0:80] &= ~(art[0:130, 0:80, :3] == self.ROBE).all(-1)       # the owner: male body 0's robe is cloth
+        return art, built, skin
+
+    def small(self, robe):
+        art = np.zeros((130, 80, 4), np.uint8)
+        for row in (0, 1):
+            for col in (0, 1):
+                y, x = row * 65, col * 40
+                art[y + 5:y + 25, x + 10:x + 30] = self.SKIN + (255,)
+                art[y + 25:y + 55, x + 10:x + 30] = robe + (255,)
+        return art, (art[..., 3] > 0)
+
+    def test_an_outfits_edit_goes_to_the_same_body_and_no_other(self):
+        art, built, skin = self.big()
+        tables = sheets.outfit_tables(self.BIG, art, built, skin)
+        self.assertEqual(sorted(tables), [("male", 0)], "only the outfit the owner worked on")
+        small, was = self.small((233, 222, 168))                # the same robe, drawn a little differently
+        new, matched, skipped = sheets.apply_outfits(self.SMALL, small, was, tables)
+        self.assertEqual((matched, skipped), (2, 2), "body 0's two frames; body 1's are left as built")
+        self.assertFalse(new[25:55, 10:30].any() or new[25:55, 50:70].any(), "the robe is cloth on body 0's frames")
+        self.assertTrue(new[5:25, 10:30].all(), "its skin stays skin")
+        self.assertTrue((new[65:] == was[65:]).all(), "body 1 is exactly as built")
+        women = dict(self.SMALL, sex="female")
+        self.assertTrue((sheets.apply_outfits(women, small, was, tables)[0] == was).all(), "and so is the other sex")
+
+    def test_a_colour_the_outfit_does_not_have_is_left_as_built(self):
+        art, built, skin = self.big()
+        tables = sheets.outfit_tables(self.BIG, art, built, skin)
+        small, was = self.small((200, 220, 170))                # too far from the robe's colour: no decision
+        new, _matched, _skipped = sheets.apply_outfits(self.SMALL, small, was, tables)
+        self.assertTrue((new == was).all())
+
+    def test_a_colour_the_owner_has_both_ways_decides_nothing(self):
+        art, built, skin = self.big()
+        skin[80:110, 20:60] = True                              # half of that robe put back as skin
+        table = sheets.outfit_tables(self.BIG, art, built, skin)[("male", 0)]
+        verdict = sheets.outfit_decide(table, np.array([self.ROBE, self.SKIN, self.SASH]))
+        self.assertEqual(verdict.tolist(), [-1, 1, 0])
+
+    def test_a_speck_follows_its_neighbours(self):
+        art, built, skin = self.big()
+        table = sheets.outfit_tables(self.BIG, art, built, skin)[("male", 0)]
+        small, was = self.small(self.ROBE)
+        cell, cell_was = small[0:65, 0:40].copy(), was[0:65, 0:40]
+        cell[40, 20, :3] = (90, 200, 90)                        # one odd pixel in the middle of the robe
+        now, followed = sheets._carry_to_cell(table, cell, cell_was, sheets.OUTFIT_RADIUS)
+        self.assertEqual((bool(now[40, 20]), followed), (False, 1))
+
+    def test_the_self_check_learns_from_one_half_and_is_scored_on_the_other(self):
+        art, built, skin = self.big()
+        check = sheets.outfit_self_check(self.BIG, art, built, skin)
+        self.assertEqual(check["removed"], (20 * 54, 20 * 54), "the right half of the robe, all as the owner has it")
+        self.assertEqual(check["added"], (0, 0))
+        self.assertEqual(check["owner"], (0, 20 * 54))
 
 
 @unittest.skipUnless(HAVE, "numpy, scipy or Pillow is missing")
