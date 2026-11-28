@@ -208,16 +208,16 @@ class Registration(unittest.TestCase):
             self.assertTrue(owners_default_fun_patch_selection(patch_id))
             self.assertTrue(select_all_fun_patch_selection(patch_id))
 
-    def test_the_slider_is_a_tenth_to_10_default_2(self) -> None:
+    def test_the_slider_is_a_tenth_to_10_default_1(self) -> None:
         r = patcher.MEAL_MULTIPLIER_RANGE
         self.assertEqual((r[0], r[-1], len(r)), (0.1, 10, 100))
-        self.assertEqual(patcher.MEAL_MULTIPLIER_DEFAULT, 2)
+        self.assertEqual(patcher.MEAL_MULTIPLIER_DEFAULT, 1)   # the stock meals for players (the owner, 2026-11-27)
         self.assertEqual(saved_meal_multiplier({"meal_multiplier": 7}), 7)
         self.assertEqual(saved_meal_multiplier({"meal_multiplier": 100}), 10)      # an old 100 loads as 10
         self.assertEqual(saved_meal_multiplier({"meal_multiplier": 0.3}), 0.3)
         self.assertEqual(saved_meal_multiplier({"meal_multiplier": 101}), 10)
         for bad in ({}, {"meal_multiplier": True}, None):
-            self.assertEqual(saved_meal_multiplier(bad), 2)
+            self.assertEqual(saved_meal_multiplier(bad), 1)
 
     def test_classic_ticks_the_harder_patches_and_owners_defaults_sets_sliders_to_2(self) -> None:
         """The owner (2026-11-07): "have the classic vv difficulty on default for owner's defaults! (set the

@@ -680,7 +680,7 @@ def saved_solidarity_strength(settings: dict) -> int | float:
 
 
 def saved_tech_cost_multiplier(settings: dict):
-    """The 0.1-10x Tech Cost multiplier a settings file holds (saved_multiplier; default 3)."""
+    """The 0.1-10x Tech Cost multiplier a settings file holds (saved_multiplier; default 1)."""
     return saved_multiplier(settings, "tech_cost_multiplier", TECH_COST_MULTIPLIER_RANGE, TECH_COST_MULTIPLIER_DEFAULT)
 
 
@@ -3250,6 +3250,14 @@ class App(tk.Tk):
         """
         for patch_id, variable in self.fun_patch_vars.items():
             variable.set(default_fun_patch_selection(patch_id))
+        # Every difficulty slider back to 1x, the stock game (the owner, 2026-11-27: "non-owner's default settings:
+        # all difficulty sliders are set to 1x or whatever vanilla stock is"); Owner's Defaults keeps its own.
+        for name, default in (("tech_cost_var", TECH_COST_MULTIPLIER_DEFAULT), ("meal_var", MEAL_MULTIPLIER_DEFAULT),
+                              ("sickness_var", SICKNESS_MULTIPLIER_DEFAULT)):
+            if hasattr(self, name):
+                getattr(self, name).set(default)
+        for variable in getattr(self, "runtime_slider_vars", {}).values():
+            variable.set(RUNTIME_SLIDER_DEFAULT)
         # Heathen Tribe Expansion and Evolution's settings as the defaults leave them: no new arrivals (decision 3).
         App._set_heathen_evolution_defaults(self, owners=False)
         self._last_fun_selection = set()
