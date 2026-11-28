@@ -370,6 +370,43 @@ class Rebuild(unittest.TestCase):
             self.assertIn(words, text)
         self.assertIn("spread --game vv1 --sheet vv1_carrying", sheets.README)
 
+    def test_an_import_never_withdraws_a_learned_skin_and_puts_a_lost_one_back(self):
+        """Found 2026-11-28: `import` after `learn --write` deleted the learned masks (they equalled the rebuilt
+        files' own "Skin mask" layers), so the learned skin never reached the mod."""
+        base = sheets.Art("vv1", self.images, shipped=False).mask("carrying.png")
+        learned = base.copy()
+        learned[12:20, 125:150] = True                          # the learned skin: the blanket too
+        mark = np.zeros(learned.shape + (4,), np.uint8)
+        mark[learned] = 255
+        kept = self.folder / "edits" / "carrying" / sheets.LEARNED_MASK
+        kept.parent.mkdir(parents=True)
+        Image.fromarray(mark).save(kept)
+        (self.folder / sheets.LEARNED).write_text(json.dumps({"sheets": ["carrying"]}), encoding="utf-8")
+        self.build()                                            # as `learn --write` makes the file again
+        art = sheets.Art("vv1", self.images, self.folder / "edits", shipped=False)
+        self.assertTrue((art.mask("carrying.png") == learned).all(), "the learned skin is the sheet's skin")
+        as_built = {"mask.png": Image.fromarray(mark)}
+        for number in range(1, 11):
+            layer = np.zeros(learned.shape + (4,), np.uint8)
+            layer[learned] = 255
+            as_built[f"skin_{number:02d}.png"] = Image.fromarray(layer)
+        self.gimp.painted["vv1_carrying.xcf"] = as_built
+        self.assertEqual(sheets.import_workbench("vv1", self.folder, say=lambda _line: None), [])
+        self.assertTrue(kept.is_file(), "an import does not withdraw it")
+        kept.unlink()                                           # as the import of 2026-11-28 left it
+        said = []
+        sheets.import_workbench("vv1", self.folder, say=said.append)
+        self.assertTrue(kept.is_file(), "the next import puts it back from the file's own Skin mask layer")
+        self.assertIn("put back", said[0])
+        back = np.array(Image.open(kept).convert("RGBA"))[..., 3] > 0
+        self.assertTrue((back == learned).all())
+        out = self.folder.parent / "shipped"
+        written = sheets.publish_edits(sheets.Art("vv1", self.images, self.folder / "edits", shipped=False),
+                                       self.folder / "edits", out)
+        self.assertEqual(written, ["vv1/carrying/mask.png"], "and it ships as the sheet's skin")
+        shipped = np.array(Image.open(out / "vv1" / "carrying" / "mask.png").convert("RGBA"))[..., 3] > 0
+        self.assertTrue((shipped == learned).all())
+
     def test_the_readme_says_so(self):
         self.assertIn("A file you have changed is never overwritten", sheets.README)
         self.assertNotIn("the .xcf files are replaced", sheets.README)

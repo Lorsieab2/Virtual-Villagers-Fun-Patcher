@@ -156,7 +156,7 @@ class Art:
         if name in self._mask:
             return self._mask[name]
         spec, a = self.specs[name], self.stock(name)
-        edited = self._edit(name, "mask.png")
+        edited = self._edit(name, "mask.png") or self._edit(name, LEARNED_MASK)
         owner = OWNER_MASKS.get(self.game)
         owner = owner / f"{Path(name).stem}_skinmask.png" if owner else None
         if edited is not None:
@@ -1004,6 +1004,19 @@ def import_workbench(game, folder: Path, only=None, same_for_all=False, source=N
             tall = _layer_pixels(Path(item["out"]) / "layers.png")
             height = tall.shape[0] // len(leaves)
             record = manifest.get(stem, {})
+            learned = (json.loads((folder / LEARNED).read_text(encoding="utf-8")).get("sheets", [])
+                       if (folder / LEARNED).is_file() else [])
+            if stem in learned and "mask.png" in leaves and not (edits / stem / LEARNED_MASK).is_file():
+                # A sheet rebuilt with a learned skin whose learned mask is gone: its "Skin mask" layer, when it is
+                # still as built, IS that skin.
+                layer = tall[leaves.index("mask.png") * height:(leaves.index("mask.png") + 1) * height]
+                marked = mask_from_layer(layer)
+                mark = np.zeros_like(layer)
+                mark[marked] = 255
+                if _sha(_clean(mark)) == record.get("mask.png"):
+                    (edits / stem).mkdir(parents=True, exist_ok=True)
+                    Image.fromarray(mark).save(edits / stem / LEARNED_MASK)
+                    say(f"{game}_{stem}: its learned skin was put back in edits ({LEARNED_MASK})")
             for_all = None
             if same_for_all:
                 tones = {leaf: painted_from_layer(tall[k * height:(k + 1) * height])
@@ -1305,6 +1318,11 @@ def _spread_words(result, folder: Path) -> str:
 # ---- learning from the owner's edits (the owner, 2026-11-28: "the other unedited gimp files should attempt to
 # recolor the skin and nonskin parts based on the edited ones (to make my job easier)")
 LEARNED = "learned.json"            # <workbench>/<game>/learned.json: the rule last applied, and the sheets it was put on
+# A sheet's learned skin is kept as edits/<sheet>/learned_mask.png -- NOT as mask.png: `import` withdraws a mask.png
+# that equals the file's own "Skin mask" layer (it is then no edit of the owner's), and a file rebuilt with the
+# learned skin has exactly that layer.  (Found 2026-11-28: an import after `learn --write` deleted all 18 learned
+# masks.)  The owner's own mask.png, when there is one, wins over it.
+LEARNED_MASK = "learned_mask.png"
 LEARN_LEAST, LEARN_TIMES = 3, 4     # a colour counts when changed on this many pixels, this many times oftener one way
 
 
@@ -1512,7 +1530,7 @@ def learn(games_and_images, root: Path, across=False, write=False, yes=False, le
             mark = np.zeros(masks[stem].shape + (4,), np.uint8)
             mark[masks[stem]] = 255
             (folder / "edits" / stem).mkdir(parents=True, exist_ok=True)
-            Image.fromarray(mark).save(folder / "edits" / stem / "mask.png")
+            Image.fromarray(mark).save(folder / "edits" / stem / LEARNED_MASK)
         (folder / LEARNED).write_text(json.dumps({
             "sheets": sorted(set(was) | set(free)), "least": least, "times": times, "tolerance": tolerance,
             "skin": [f"{c:06x}" for c in sorted(skin)], "not skin": [f"{c:06x}" for c in sorted(non)]}, indent=1), encoding="utf-8")
@@ -1755,7 +1773,7 @@ def learn_outfits(games_and_images, root: Path, write=False, yes=False, radius=O
             mark = np.zeros(masks[stem].shape + (4,), np.uint8)
             mark[masks[stem]] = 255
             (folder / "edits" / stem).mkdir(parents=True, exist_ok=True)
-            Image.fromarray(mark).save(folder / "edits" / stem / "mask.png")
+            Image.fromarray(mark).save(folder / "edits" / stem / LEARNED_MASK)
         (folder / LEARNED).write_text(json.dumps({
             "sheets": sorted(set(was) | set(free)), "by": "outfit", "radius": radius,
             "outfits": [f"{sex} body {body}" for sex, body in sorted(tables)]}, indent=1), encoding="utf-8")
@@ -1793,7 +1811,8 @@ def _outfit_preview(base: Art, stems: dict, masks: dict, out: Path, most=6):
 def publish_edits(art: Art, edits: Path, out: Path):
     """The owner's kept edits (<workbench>/<game>/edits) as shippable files under `out`/<game>/<sheet>/:
     skin_NN.png for each tone whose colour layer the owner painted, and mask.png when they changed the
-    "Skin mask" -- each white where skin and nothing else, on pixels of the sprite only.  WHERE the skin is
+    "Skin mask" or the sheet has a learned skin (learned_mask.png) -- each white where skin and nothing else,
+    on pixels of the sprite only.  WHERE the skin is
     ships; no colour and nothing of a game's art does.  Then `out`/manifest.json is written again for
     everything under `out`.  Returns the files written."""
     written = []
@@ -1807,7 +1826,7 @@ def publish_edits(art: Art, edits: Path, out: Path):
         if not folder.is_dir():
             continue
         marks = {}
-        if (folder / "mask.png").is_file():
+        if (folder / "mask.png").is_file() or (folder / LEARNED_MASK).is_file():
             marks["mask.png"] = art.mask(name)
         for number in range(1, len(core.TONES) + 1):
             if (folder / f"skin_{number:02d}.png").is_file():
