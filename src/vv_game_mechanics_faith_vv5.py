@@ -84,7 +84,7 @@ def _shrine_facts(add) -> None:
         "it, still to the mud hut, when no Heathen is able or the body has lain 120 age units (12 real-life hours on "
         "Normal), once The Buried Mausoleum is solved. A full shrine: no grave, the body is gone. Clicking the mud "
         "hut, or dropping a villager on it, opens the game's own Mausoleum screen titled \"Shrine to the Ancestors\" "
-        "once it holds a grave. Day of Honor, the Remembrance Ceremony and the everyday Honoring the dead count its "
+        "even while it holds no grave yet. Day of Honor, the Remembrance Ceremony and the everyday Honoring the dead count its "
         "graves; the Village Statistics never do. Heathen graves already in the Mausoleum stay there.", sub=True)
 
 

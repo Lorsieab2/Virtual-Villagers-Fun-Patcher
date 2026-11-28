@@ -55,7 +55,10 @@
                0x77DC80 ({handler, highlight 6, permission 1}: a child or an expecting villager may be dropped) and
                stamped into the hotspot field (bits 15..24) of the mud hut's cells, x 2152..2287 and y 1464..1599
                (the hovel hover line's own rectangle), only where no other hotspot is.  The handler: a click (2) or
-               a drop (0) opens the Heathen Mausoleum Screen when the Heathens' table holds a grave; a held villager
+               a drop (0) opens the Heathen Mausoleum Screen, an empty shrine's too (the owner, 2026-11-27: "id like
+               to be able to click on the heathen mausoleum/access it. drop someone on it to access it even when its
+               empty"; the stock Mausoleum's own click, 0x43CDF7..0x43CE24, opens 0x43CC00 with no grave count
+               either, so the screen shows an empty roster as it always could); a held villager
                over the hut (1) returns 0, so the point-hover routine 0x444310 still shows Fix Vanilla Bugs' hovel
                hover lines (hook 0x444568) as before.
      0x424569  the save's roster copy, in 0x4244F0 (slot in edi): for a slot save (1..5; never the meta, slot 0, or
@@ -549,10 +552,7 @@ static unsigned char __cdecl hut_handler(int event, void *villager) {
         return 0;                 /* the point-hover routine keeps the hovel hover lines */
     }
     __try {
-        if (table_count() == 0) {
-            return 0;
-        }
-        g_view = (unsigned int)(UINT_PTR)g_heathen;
+        g_view = (unsigned int)(UINT_PTR)g_heathen;   /* empty or not: the shrine opens (header, 0x423E2B) */
         apply_title();
         ((open_fn)(UINT_PTR)G_OPEN)();
     } __except (EXCEPTION_EXECUTE_HANDLER) {

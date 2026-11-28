@@ -729,11 +729,18 @@ class Screen(unittest.TestCase):
                     v.stock_open()
                     self.assertEqual(titles[-1], (widget, "Mausoleum"))
 
-    def test_an_empty_mud_hut_memorial_does_not_open(self):
+    def test_an_empty_mud_hut_memorial_opens_too(self):
+        """The owner (2026-11-27): click or drop someone on it "to access it even when its empty"."""
         v = Village()
         v.lcmap()
-        self.assertEqual(v.click(*HUT), 0)
-        self.assertEqual(v.opened, 0)
+        self.assertEqual(v.click(*HUT), 1)
+        self.assertEqual(v.opened, 1)
+        self.assertEqual(v.screen_count(), 0, "an empty shrine: no rows")
+        self.assertEqual(v.screen_rows(0), [0, 0, 0], "past the last: none, as 0x464E70")
+        adult = v.villager(2, heathen=False, age=600)
+        self.assertEqual(v.drop(adult), 1)
+        self.assertEqual(v.opened, 2)
+        self.assertEqual(v.screen_count(), 0)
 
     def test_a_click_elsewhere_is_not_the_huts(self):
         v = self.village_with_graves("H1")
