@@ -156,9 +156,14 @@ class PolishingPaysTheEnergy(unittest.TestCase):
         rows = [(int(p["offset"], 16), bytes.fromhex(p["before"]), bytes.fromhex(p["after"]))
                 for p in feature["patches"]]
         # The Nursery foundation caption's row (tests/test_vv5_nursery_foundation_caption.py), then the Clothing Hut
-        # click's (tests/test_vv5_clothing_hut_click.py), come after this fix.
+        # click's (tests/test_vv5_clothing_hut_click.py), then the duplicate-pickup fix's
+        # (tests/test_duplicate_pickups.py), come after this fix.
+        from test_duplicate_pickups import dupe_pickup_fixes
         from test_vv5_clothing_hut_click import clothing_hut_click_fixes
         from test_vv5_nursery_foundation_caption import foundation_caption_fixes
+        dupe = list(dupe_pickup_fixes("vv5"))
+        self.assertEqual(rows[-len(dupe):], dupe)
+        rows = rows[:-len(dupe)]
         click = list(clothing_hut_click_fixes())
         self.assertEqual(rows[-len(click):], click)
         rows = rows[:-len(click)]

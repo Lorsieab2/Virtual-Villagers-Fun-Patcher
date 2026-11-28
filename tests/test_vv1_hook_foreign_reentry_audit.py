@@ -216,6 +216,19 @@ CAVE_FINGERPRINTS: dict[tuple[str, str], str] = {
     # step 0x44725C (the exit the second scan's loop already takes), so it has no cave; the pick at 0x46E70 is
     # written in place and emulated in tests/test_birth_control_one_partner.py.
     ("vv1_birth_control", "0x4723D"): "E3B0C44298FC1C149AFBF4C8996FB92427AE41E4649B934CA495991B7852B855",
+    # Fix Vanilla Bugs' duplicate-pickup test (2026-11-27, tests/test_duplicate_pickups.py), re-verified by hand:
+    # 0x454782 `jmp 0x43A25B` and 0x4547A2 `jmp 0x43A24B` are the last of six pieces in int3 padding, reached ONLY
+    # through callback 42's jump-table entry 0x43B510 (no stock branch reaches any piece), so they have no cave of
+    # their own (the empty fingerprint).  State on arrival is the case's entry state: the dispatcher 0x43A230 has
+    # pushed esi/ebx/ebp/edi (slot at [esp+0x14]) and esi is the villagers object.  The pieces read [esp+0x14] and
+    # [esi+...], push the two arguments of 0x414200 (ret 8, so ESP is back to the case-entry ESP) and write only
+    # EAX, ECX, EDX and flags; 0x414200 saves and restores ESI and touches no EBX/EBP/EDI.  Both targets are
+    # instruction starts of the case itself: 0x43A24B (the stock case entry: mov eax,[esi+0x3E010] -- EAX and
+    # then ECX are written before any read, EDX is never read) and 0x43A25B (mov ecx,[esi+0x3E024]; call 0x416380;
+    # the epilogue), which read only ESI and the stack; neither consumes incoming flags.  The epilogue's companion
+    # hook (VVFP Collectibles Stay Collected.dll, vv1_pick_tail) reloads EAX from [esi+0x3E010] itself.
+    ("vv1_fix_vanilla_bugs", "0x54782"): "E3B0C44298FC1C149AFBF4C8996FB92427AE41E4649B934CA495991B7852B855",
+    ("vv1_fix_vanilla_bugs", "0x547A2"): "E3B0C44298FC1C149AFBF4C8996FB92427AE41E4649B934CA495991B7852B855",
     # Doubler persistence. Both halves re-verified after the save and restore
     # hooks were found to be on each other's functions and swapped.
     #
