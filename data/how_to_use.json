@@ -1169,6 +1169,15 @@
       ]
     },
     {
+      "ids": ["vv5_sharp_picture"],
+      "guide": [
+        "Makes the game's picture sharp at your screen's own size, up to 4K: smooth, crisp edges and text instead of blocky or blurred.",
+        "The window opens bigger (New Believers' size times your Windows scaling); full screen uses every pixel of the screen.",
+        "Black bars keep the picture's shape; clicking a bar does nothing. If the graphics card is too slow, a lighter version is used by itself.",
+        "Keep Fix Vanilla Bugs on with it: it puts the mouse in the right spot. Off by default."
+      ]
+    },
+    {
       "ids": ["vv5_max_divine_energy_increases"],
       "guide": [
         "Off by default and in Select All (Select All does not tick it); on in Owner's Defaults only. Nothing to click: it works on its own.",
@@ -1606,7 +1615,7 @@
         "Scrolling Popups, More Island Events, Isola Grand Event Collection, Every Island Event Can Happen, both Island Events Scale patches, One-Time Collectibles Appear Again,",
         "the 0.1-10x sliders and the island event controls. Respecting the Legacy of Isola, Heathens Keep Their Masks When Converted, Memorial Actions Can Also Occur at the Heathen Hovel,",
         "Shrine to the Ancestors, both Fog of Doom patches, Practicing Devotion Builds Faith and Divine Energy, Esteemed Elders in Every Game,",
-        "the three Heathen aging patches, Revive Buried/Disappeared Villagers, Max Divine Energy Continues to Increase."
+        "the three Heathen aging patches, Revive Buried/Disappeared Villagers, Max Divine Energy Continues to Increase, the 4K Filter."
       ]
     },
     "owners_defaults": {

@@ -70,6 +70,7 @@ TEST_BUILDS = {
                                                               "vvfp_village_solidarity"),
     "assets/window_restore/VVFP Window Restore.dll": ("VVFP Window Restore.test.dll", "vvfp_window_restore"),
     "assets/fullscreen_mouse/VVFP Fullscreen Mouse.dll": ("VVFP Fullscreen Mouse.test.dll", "vvfp_fullscreen_mouse"),
+    "assets/sharp_picture/VVFP Sharp Picture.dll": ("VVFP Sharp Picture.test.dll", "vvfp_sharp_picture"),
     "assets/exact_pickups/VVFP Exact Pickups.dll": ("VVFP Exact Pickups.test.dll", "vvfp_exact_pickups"),
 }
 

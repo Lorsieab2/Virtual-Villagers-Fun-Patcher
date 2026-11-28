@@ -172,6 +172,8 @@ FILES = [
     "assets/founder_x_buttons/VVFP Founder X Buttons.dll",
     # Max Divine Energy Continues to Increase (New Believers): the companion.
     "assets/divine_energy_cap/VVFP Divine Energy Cap.dll",
+    # Sharp Full Screen Picture (4K Filter): the companion.
+    "assets/sharp_picture/VVFP Sharp Picture.dll",
     # Fix Vanilla Bugs (all five games): no frozen picture after a maximized or full screen window comes back.
     "assets/window_restore/VVFP Window Restore.dll",
     # Fix Vanilla Bugs (all five games): the mouse in full screen and bigger windows (started by Window Restore).
@@ -398,6 +400,7 @@ FILES = [
     "data/vv5_founder_x_buttons_feature.json",
     # Max Divine Energy Continues to Increase (New Believers).
     "data/vv5_max_divine_energy_increases_feature.json",
+    "data/vv5_sharp_picture_feature.json",
     # 0.1-10x Tech Cost (all five games; scripts/build_tech_cost_multiplier_features.py).
     "data/vv1_tech_cost_multiplier_feature.json",
     "data/vv2_tech_cost_multiplier_feature.json",

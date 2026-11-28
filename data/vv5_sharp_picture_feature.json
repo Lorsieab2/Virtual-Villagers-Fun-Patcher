@@ -1,0 +1,29 @@
+{
+  "id": "vv5_sharp_picture",
+  "enabled": true,
+  "catalog_enabled": true,
+  "catalog_hidden": false,
+  "game_id": "vv5",
+  "name": "Sharp Full Screen Picture (4K Filter)",
+  "description": "Draws the game's picture sharp at your screen's own size -- up to 4K -- with a filter made for these games (not an AI upscale; no art is replaced): edges and text come out smooth and crisp instead of blocky or blurred. The game's window opens at New Believers' size, 1024x768 times your Windows scaling, and full screen uses every pixel of the screen. The picture keeps its shape with black bars at the sides (a click on a bar does nothing), or fills the whole screen if you choose stretch. When the computer's graphics cannot keep up, it switches to a lighter version of the filter by itself. **Use it with Fix Vanilla Bugs** (its full screen mouse fix puts the mouse on the right spot of the sharp picture). **If the graphics card cannot run it, the game draws its picture as before.** **Not yet seen in a running game** (checked with the game's own drawing code and the games' own SDL2.dll). The companion is \"VVFP Sharp Picture.dll\"; it never writes a save or a game file.",
+  "output_tag": "Sharp Picture",
+  "dependencies": [],
+  "behavior_changes": [
+    "The process is made system DPI aware before WinMain (SetProcessDpiAwarenessContext, else SetProcessDPIAware), so the window and full screen are the screen's real pixels; the game's SDL_CreateWindow import opens the window at 1024x768 times the system DPI / 96.",
+    "The frame routine 0x404680 hands SDL its 1024x768 picture with SDL_UpdateTexture, then SDL_RenderClear, SDL_RenderCopy and SDL_RenderPresent through the game's imports. The companion's SDL_UpdateTexture also copies the picture into a texture of its own Direct3D 9Ex device on the game's window (SDL's texture is still updated); SDL_RenderClear and SDL_RenderCopy return at once; SDL_RenderPresent draws the edge-directed 2x scaler (twice, 4x, when the picture is shown more than twice its size), a Catmull-Rom fit to the window (black bars, or stretched with \"stretch\" in VVFP Sharp Picture.txt) and presents. The GPU time is measured (timestamp queries); over 20 ms on average over 60 frames the filter steps down to 2x for the session.",
+    "SDL's event filter (SDL_SetEventFilter) drops a left/right/middle press on a black bar and its release. VVFP Fullscreen Mouse.dll (Fix Vanilla Bugs) asks VvfpSharpPictureRect for the picture's rectangle while the filter draws, so SDL_GetMouseState and the pointer warp map to the picture in bars and stretch."
+  ],
+  "explicit_non_changes": [
+    "No executable byte is patched and no byte of SDL2.dll: the companion changes six entries of the game's import table (SDL_CreateWindow and the four frame calls), only when SDL2.dll reports 2.0.3, the frame routine calls those imports in that order, they still hold SDL2.dll's own addresses and Direct3D 9Ex is there (d3d9.dll from the system folder).",
+    "Any Direct3D failure stops the filter for the session and SDL draws the picture as before.",
+    "Game files, art and saves are untouched; nothing is written."
+  ],
+  "companion_files": [
+    {
+      "source": "assets/sharp_picture/VVFP Sharp Picture.dll",
+      "destination": "VVFP Sharp Picture.dll",
+      "sha256": "26007C5242EEF4E59488CE22DE0853717CE5928241E6424312D3C27EC3FC4D94"
+    }
+  ],
+  "patches": []
+}

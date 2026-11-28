@@ -332,6 +332,8 @@ FORMER_VILLAGERS_AGE_ID = "vv5_former_villagers_keep_aging"
 FORMER_SKELETONS_ID = "vv5_former_villager_heathens_leave_skeletons"
 # Max Divine Energy Continues to Increase (New Believers; the owner, 2026-11-25).
 DIVINE_ENERGY_CAP_ID = "vv5_max_divine_energy_increases"
+# Sharp Full Screen Picture (4K Filter) (New Believers first; the owner, 2026-11-27: "off by default").
+SHARP_PICTURE_IDS = ["vv5_sharp_picture"]
 # What Owner's Defaults sets both sliders to (the owner, 2026-11-07: "set the sliders to 2x").
 OWNERS_DEFAULT_SLIDER = 2
 
@@ -495,6 +497,8 @@ DEFAULT_OFF_FUN_PATCH_IDS = frozenset(
     # Max Divine Energy Continues to Increase (New Believers; the owner, 2026-11-25: "owners defaults on only for the
     # divine energy cap"): off here and in Select All, on in Owner's Defaults.
     + [DIVINE_ENERGY_CAP_ID]
+    # Sharp Full Screen Picture (4K Filter): off by default (the owner, 2026-11-27).
+    + SHARP_PICTURE_IDS
     # Respecting the Legacy of Isola (New Believers): off by default, on in
     # Owner's Defaults and Select All (it ticks its five pieces there too).
     + [LEGACY_OF_ISOLA_FUN_PATCH_ID]
