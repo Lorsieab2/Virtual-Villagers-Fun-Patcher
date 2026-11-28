@@ -513,17 +513,30 @@ static int with_name(const char *format, const unsigned char *record, char *out)
     return 1;
 }
 
+/* A translated label, or the English one `filled` when vvfp_trf hands its text back (no translation companion, no
+   translation, or one that does not fit): `filled` is the caller's local, so it is copied into `out`, the caller's
+   own buffer, which outlives this call (Codex, PR #895). */
+static const char *kept_label(const char *got, const char *filled, char *out) {
+    if (got == filled) {
+        lstrcpynA(out, filled, R_DOING_CAP);
+        return out;
+    }
+    return got;
+}
+
 /* The doctor's two labels, naming the patient when it fits. */
 static const char *heal_label(int at_patient, const unsigned char *patient, char *out) {
     char filled[R_DOING_CAP];
     if (at_patient) {
         if (with_name("Practising Healing on %s", patient, filled)) {
-            return vvfp_trf("vvfp.heathen_life/vvfp_heathen_life.label.heal_at", "Practising Healing on %s", filled, out, R_DOING_CAP);
+            return kept_label(vvfp_trf("vvfp.heathen_life/vvfp_heathen_life.label.heal_at", "Practising Healing on %s",
+                                       filled, out, R_DOING_CAP), filled, out);
         }
         return label(L_HEAL_AT_ANY);
     }
     if (with_name("Going to heal %s", patient, filled)) {
-        return vvfp_trf("vvfp.heathen_life/vvfp_heathen_life.label.heal_go", "Going to heal %s", filled, out, R_DOING_CAP);
+        return kept_label(vvfp_trf("vvfp.heathen_life/vvfp_heathen_life.label.heal_go", "Going to heal %s", filled,
+                                   out, R_DOING_CAP), filled, out);
     }
     return label(L_HEAL_GO_ANY);
 }
