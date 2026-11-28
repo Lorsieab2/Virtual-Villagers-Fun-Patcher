@@ -95,8 +95,8 @@ def any_time_row(game: int) -> dict:
                  "that are not living villagers, such as The Lost Children's totem statues, are never picked, and "
                  "the guards against crashes and damaged saves stay. "
                  f"Off by default, in Owner's Defaults and in Select All too. {UNVERIFIED}",
-                 ["For the new events (Story / Cheat Upgrades): no 61-villager gate, rescue events and the two opening "
-                  "events may be replaced, no trouble guard and no safeguards; only the villagers each event needs. "
+                 ["For the new events (Story / Cheat Upgrades): no casualty limit below 61 villagers, rescue events "
+                  "and the two opening events may be replaced, no trouble guard and no safeguards; only the villagers each event needs. "
                   "The game's own events' conditions are lifted by another companion (later). It applies to whichever "
                   "island events are on in the game."])
     record["needs_on"] = []           # it applies to whichever island events are on (the owner, 2026-11-15)

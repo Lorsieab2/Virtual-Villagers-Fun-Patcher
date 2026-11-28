@@ -105,8 +105,9 @@ With the Isola Grand Event Collection patch installed, the list then shows the c
 events of the game played (from `Events\<group>.lst` beside the companions),
 each possible now by a strict cast or with what it needs; the in-game Custom Island Event
 library has them too, in its own group. More Island Events' events and the collection's also
-come in a natural island event's place: each natural event has a 30-50% chance to be a new one
-instead (never a rescue event, the two opening events or while the village is in trouble), and
+come in a natural island event's place: each natural event has a 50% chance to be a new one
+instead (never a rescue event, the two opening events or while the village is in trouble; below 61
+villagers never one that can take more than 2 villagers in one ending), and
 the game's own event does not come that time; the game's own draw is never widened, so its events
 keep their chances among themselves: `story_collection.inc`, described in
 `docs/island-event-collection-trigger.md`.

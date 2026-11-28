@@ -28,8 +28,8 @@ ASK_INTEGER = simpledialog.askinteger
 
 INTRO = ("Your own island events: put text files in this game's Player Events folder (or use Add Event Files...). "
          "At patch time they join the Isola Grand Event Collection and come in the normal draw like any event, "
-         "with the content filters, content notes and the 61-villager rule for deadly events. Copy AI Prompt gives "
-         "a prompt to paste into any AI; it answers with a file in exactly this format. "
+         "with the content filters, content notes and the rule that below 61 villagers no event takes more than 2. "
+         "Copy AI Prompt gives a prompt to paste into any AI; it answers with a file in exactly this format. "
          "docs/player-events-format.md explains every line.")
 
 

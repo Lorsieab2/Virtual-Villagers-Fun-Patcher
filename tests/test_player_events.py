@@ -121,9 +121,10 @@ class SimpleEvents(unittest.TestCase):
         e2 = compiled(text.replace("WITH father", "WITH father (ANY BIRTH SEX)")).graph["nodes"]["c2o1"]["effects"][0]
         self.assertTrue(e2["any_birth_sex"])
 
-    def test_a_deadly_event_is_tagged_and_kept_for_the_61_gate(self):
+    def test_a_deadly_event_is_tagged_for_the_casualty_limit(self):
         c = compiled(SIMPLE.replace("Effect: INJURY helper (minor)", "Effect: DEATH helper"))
-        # The engine gates kill / vanish / ... itself; the content filters for deaths are written in.
+        # The engine counts kill / vanish / ... itself (the casualty limit below 61); the content filters for deaths
+        # are written in.
         self.assertIn("island_event_filter_f03", c.graph["patches"])
 
     def test_bad_lines_are_reported_with_their_line_and_the_rest_installs(self):

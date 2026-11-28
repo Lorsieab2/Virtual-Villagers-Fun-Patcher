@@ -104,13 +104,17 @@ class ThePage(unittest.TestCase):
         for game in GAMES:
             text = " ".join(t for t, _ in gc.lines(game))
             with self.subTest(game=game):
-                for words in ("never take a share of the game's own draw", f"{gc.REPLACE_PERCENT[0]}-{gc.REPLACE_PERCENT[1]}% chance", f"{gc.REPLACE_MIN_POPULATION} or more villagers",
+                for words in ("never take a share of the game's own draw", f"has a {gc.REPLACE_PERCENT}% chance",
+                              f"fewer than {gc.REPLACE_MIN_POPULATION} villagers",
+                              "more than 2 villagers in one of its endings", "a lost pregnancy counts as no one",
                               "two opening events are never replaced", "in trouble", "rescue event is never replaced",
                               "every event that can happen is equally likely",     # the owner, 2026-11-14
                               "a series counts as one event", "Story / Cheat Upgrades", "Scrolling Popups",
                               "nursing mother or father", gc.PROTECTED[game]):
                     self.assertIn(words, text)
                 self.assertNotIn("half the time", text)              # no 1:1 split between the sources any more
+                self.assertNotIn("30-50", text)                      # a flat 50% (the owner, 2026-11-27)
+                self.assertNotIn("only happen once the village has", text)
                 self.assertNotRegex(text, r"0x[0-9A-Fa-f]{4,}")      # no exe addresses in visible text
 
     def test_shown_only_with_the_patch(self) -> None:

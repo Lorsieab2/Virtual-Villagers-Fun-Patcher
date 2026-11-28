@@ -136,10 +136,12 @@ class TheRows(unittest.TestCase):
                               "drawn like any listed event", "one wider"):
                     self.assertNotIn(stale, text)
                 self.assertIn("never takes a share of the game's own draw", row["description"])
-                self.assertIn("Each natural island event has a 30-50% chance to be one of these instead (never a "
-                              "rescue event or the two opening events). Events that can kill a villager, make one "
-                              "disappear or lose a pregnancy only happen once the village has 61 or more villagers.",
-                              row["description"])
+                self.assertIn("Each natural island event has a 50% chance to be one of these instead (never a "
+                              "rescue event or the two opening events). Every event can come at any population, but "
+                              "while the village has fewer than 61 villagers an event that can kill or make disappear "
+                              "more than 2 villagers in one of its endings is left out (a lost pregnancy counts as no "
+                              "one).", row["description"])
+                self.assertNotIn("30-50", row["description"])
 
     def test_the_shipped_rows_are_what_the_build_makes(self) -> None:
         made = build.build(write=False)

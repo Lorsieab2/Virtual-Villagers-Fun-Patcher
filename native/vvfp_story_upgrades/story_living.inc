@@ -749,10 +749,10 @@ static int lv_excluded(int game, int s, int v) {
     if (!sc_gate) {
         return 0;                      /* only the natural draw below 61 villagers (story_collection.inc) */
     }
-    /* The population gate (story_collection.inc): below 61 villagers the natural draw never takes a variant that
-       can kill a villager, make one disappear or lose a pregnancy. */
+    /* The casualty limit (story_collection.inc): below 61 villagers the natural draw never takes a variant one of
+       whose endings can take more than 2 villagers. */
     blob = lv_blob(v, &size);
-    return blob != NULL && sc_graph_deadly(blob, size);
+    return blob != NULL && sc_graph_too_deadly(blob, size);
 }
 
 /* lv_order (living-pack.md 4.2; Python twin vv_living_mixer.lv_order): seed `s`'s variants in the order they are

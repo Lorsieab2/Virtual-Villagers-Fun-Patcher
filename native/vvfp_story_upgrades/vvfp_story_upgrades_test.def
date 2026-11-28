@@ -183,6 +183,8 @@ EXPORTS
     VvfpStoryProbeCollectionTick=_VvfpStoryProbeCollectionTick@4
     VvfpStoryProbeCollectionState=_VvfpStoryProbeCollectionState@4
     VvfpStoryProbeCollectionCieg=_VvfpStoryProbeCollectionCieg@8
+    VvfpStoryProbeCollectionGone=_VvfpStoryProbeCollectionGone@8
+    VvfpStoryProbeCollectionKeptOut=_VvfpStoryProbeCollectionKeptOut@12
     VvfpStoryProbeMoreEntry=_VvfpStoryProbeMoreEntry@24
     VvfpStoryProbeMoreDescription=_VvfpStoryProbeMoreDescription@12
     VvfpStoryProbeLivingPack=_VvfpStoryProbeLivingPack@8
@@ -399,6 +401,8 @@ EXPORTS
     VvfpStoryProbeCollectionTick=_VvfpStoryProbeCollectionTick@4
     VvfpStoryProbeCollectionState=_VvfpStoryProbeCollectionState@4
     VvfpStoryProbeCollectionCieg=_VvfpStoryProbeCollectionCieg@8
+    VvfpStoryProbeCollectionGone=_VvfpStoryProbeCollectionGone@8
+    VvfpStoryProbeCollectionKeptOut=_VvfpStoryProbeCollectionKeptOut@12
     VvfpStoryProbeMoreEntry=_VvfpStoryProbeMoreEntry@24
     VvfpStoryProbeMoreDescription=_VvfpStoryProbeMoreDescription@12
     VvfpStoryProbeLivingPack=_VvfpStoryProbeLivingPack@8

@@ -167,8 +167,8 @@ class Rows(unittest.TestCase):
         self.assertEqual(gui.island_event_big_warning("vv3_island_events_any_time"),
                          "Warning: with this patch on, the game may be unpredictable.")
         self.assertEqual(gui.island_event_advisory("vv3_island_events_any_time")[0],
-                         "Events that can kill a villager, make one disappear or lose a pregnancy can happen even in "
-                         "a small or new village.")
+                         "Events that can kill or make disappear more than 2 villagers in one ending can happen even "
+                         "in a small or new village.")
         self.assertTrue(gui.island_event_advisory("vv5_story_cheat_upgrades")[0].startswith(
             "Player-created events may contain sensitive subjects."))
         self.assertIn("Warning: Pick Island Event and Custom Island Events ignore the island event safeguards",

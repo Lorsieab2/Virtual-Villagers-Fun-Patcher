@@ -179,11 +179,12 @@ Every roll is the game's own random routine, `random_below(n)` (`ce_random_below
 most 1), in exactly this order. "Weighted" means: total = the sum of the candidates' weights, r = random_below(total),
 the first candidate (in file order) whose running sum passes r.
 
-Inputs: the game; the ticked filters (bits); the 61-villager gate (deadly pieces left out below 61 villagers, the
-natural draw only; No Safeguards lifts it); Content Notes on or off; the village (for casting).
+Inputs: the game; the ticked filters (bits); the casualty limit (below 61 villagers, the natural draw only; No
+Safeguards lifts it: an outcome that alone can take more than 2 villagers is left out, any other piece that can
+take one or is flagged DEADLY; a lost pregnancy takes no one -- the owner, 2026-11-27); Content Notes on or off; the village (for casting).
 
-A piece is USABLE when its games mask has the game, its filters meet no ticked filter, it is not DEADLY while the gate
-holds, and (flags bit 1) the game is New Believers or the flag is clear.
+A piece is USABLE when its games mask has the game, its filters meet no ticked filter, the casualty limit does not leave it out
+(above), and (flags bit 1) the game is New Believers or the flag is clear.
 
 1. **Setup.** Candidates: the file's usable setups. Weighted pick (roll 1). None: the file gives nothing.
 2. **Approaches.** n = 2 + random_below(3) (roll 2, always made). Then n times: the candidates are the usable

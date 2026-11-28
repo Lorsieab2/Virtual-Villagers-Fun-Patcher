@@ -345,8 +345,40 @@ def compatible(p: Piece, q: Piece) -> bool:
 class Settings:
     game: int
     filters: int = 0                    # ticked content filters (bit n-1: Fnn)
-    gate: bool = False                  # the 61-villager gate holds (natural draw below 61 villagers, no No Safeguards)
+    gate: bool = False                  # the casualty limit holds (natural draw below 61 villagers, no No Safeguards)
     notes: bool = False                 # Content Notes on
+
+
+# The casualty limit below 61 villagers (the owner, 2026-11-27; story_procedural.inc pc_too_deadly): one ending of a
+# composed event is its setup, one approach, ONE of that approach's outcomes, the flavour line and the frame.
+GONE_CODES = {4, 5, 18, 20}             # kill, vanish, die_unrecovered, birth_then_die (a lost pregnancy takes none)
+GONE_MANY = 255
+GONE_LIMIT = 2
+
+
+def gone(p: Piece) -> int:
+    """The villagers the piece's effects can take: its distinct slots, each villager the event made (253 / 252), and
+    every villager (EVERY) or a group (254) more than any limit."""
+    slots: set[int] = set()
+    extra = 0
+    for e in p.effects:
+        if e.code not in GONE_CODES:
+            continue
+        if e.slot in (252, 253):
+            extra += 1
+        elif e.slot in (EVERY, 254):
+            extra += GONE_MANY
+        else:
+            slots.add(e.slot)
+    return min(len(slots) + extra, GONE_MANY)
+
+
+def too_deadly(p: Piece) -> bool:
+    """Below 61 villagers: an outcome that alone can take more than 2 villagers, any other piece that can take one
+    (or is flagged deadly), is left out."""
+    if p.kind == KIND_OUTCOME:
+        return gone(p) > GONE_LIMIT
+    return gone(p) > 0 or bool(p.flags & PF_DEADLY)
 
 
 def usable(p: Piece, st: Settings) -> bool:
@@ -354,7 +386,7 @@ def usable(p: Piece, st: Settings) -> bool:
         return False
     if p.filters & st.filters:
         return False
-    if st.gate and (p.flags & PF_DEADLY or any(e.code in DEADLY_CODES for e in p.effects)):
+    if st.gate and too_deadly(p):
         return False
     if p.flags & PF_BELIEVERS and st.game != 5:
         return False

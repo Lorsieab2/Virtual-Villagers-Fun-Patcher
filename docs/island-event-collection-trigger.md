@@ -8,8 +8,12 @@ How the new island events come into a game, in all five games (v1.35.97). The co
 ## The owner's rules
 
 - The stock island events' chances among themselves never change (the game's own draw is never widened).
-- Since 2026-11-15 (the owner) a new event takes a natural event's place, 30-50% of the time; the game's own event
-  does not come that time. This replaced the separate rare roll of 2026-11-14.
+- Since 2026-11-15 (the owner) a new event takes a natural event's place; the game's own event does not come that
+  time. This replaced the separate rare roll of 2026-11-14. Since 2026-11-27 (the owner: "additional events should
+  replace vanilla ones 50% of the time") that is a flat 50% (it was a chance rolled in 30-50% each time).
+- Since 2026-11-27 (the owner: "all events at any size; below 61 population a max of 1-2 villagers can die or
+  disappear to prevent mass casualties") every new event may come at any population; below 61 villagers one that can
+  take more than 2 villagers in one of its endings stays out of the draw (the casualty limit below).
 - They never replace a rescue event or the two opening events.
 - Off by default; Owner's Defaults, Select All and Classic VV Difficulty (The Tree of Life, New Believers) tick both.
 
@@ -41,18 +45,28 @@ The separate rare roll between natural events is gone. Instead:
 
 1. **At each natural island event** the game is about to deliver -- 3 seconds before its island timer is due, once
    for that natural time, with nothing else armed or on its way (and in New Believers no God Power armed) -- the game's
-   own random routine rolls a chance in 30..50 percent each time (`SC_REPLACE_PERCENT_MIN`, `SC_REPLACE_PERCENT_SPAN`)
-   and then passes it.
+   own random routine passes 50 in 100 (`SC_REPLACE_PERCENT`), one roll, at any population.
 2. **On a pass**, one new event (More Island Events' or the collection's, the draw below) is armed **instead**: the
    game's own event does not happen that time. When no new event can be cast, the game's own event comes as always.
 3. **Never replaced:** the village's two opening events (`CE_OPENING_EVENTS`), a rescue event (the trouble guard holds
    the game's own rescue rule), and nothing while the village is in trouble.
-4. **Population:** an event that can kill a villager, make one disappear or lose a pregnancy is drawn only when the
-   village has **61 or more** villagers (`SC_MIN_POPULATION`: the living villagers the game lists and the babies being
-   carried, as the game's own rescue rule counts its population; New Believers' believers only). Below 61 the other
-   new events can still replace a natural event (`sc_gate` in `sc_apply`). More Island Events' deadly events are
-   `SC_MORE_DEADLY` (story_more_filters.h, generated from content_tags/mie.json: any of F01-F04): The Aspiring
-   Adventurer, The Cave Explorers, The Climb, The Troubling Signs, Diving for Treasure and The Mysterious Mask.
+4. **The casualty limit:** every new event may come at any population, when its own requirements hold. While the
+   village has fewer than **61** villagers (`SC_MIN_POPULATION`: the living villagers the game lists and the babies
+   being carried, as the game's own rescue rule counts its population; New Believers' believers only; `sc_gate` in
+   `sc_apply`), an event that can take **more than 2** villagers (`SC_MAX_GONE`) in one of its endings is left out of
+   the draw -- before it is chosen, so what an event shows always happens. **The count** (`sc_graph_gone`; its Python
+   twin `vv_cie_graph.gone`, kept equal by `tests/test_casualty_limit.py`): one ending is one path through the event
+   from its first page to an end, every page's effects on it; it counts the distinct villager roles killed, made to
+   disappear, dead with the body never found, or dead after giving birth (`kill`, `vanish`, `die_unrecovered`,
+   `birth_then_die`), plus each villager the event made itself (every time), plus a group's size (N of a random N;
+   "every villager" and the like more than any limit). A lost pregnancy (`baby_lost`) counts as no one. The event's
+   count is its worst ending. A Living Event Engine variant is counted the same way (`lv_excluded`); a procedural
+   event's ending is its setup, one approach and ONE outcome, so an outcome is left out when it alone takes more than
+   2 and any other piece when it takes anyone (`pc_too_deadly`). More Island Events' counts are `SC_MORE_GONE`
+   (story_more_filters.h, from `GONE` in scripts/build_story_more_filters.py, read from each event's own effects): The
+   Aspiring Adventurer 1, The Cave Explorers 2, The Climb 1, The Troubling Signs 5, Diving for Treasure 1, The
+   Mysterious Mask 9 (five volunteers, and up to four children in a capture); so below 61 villagers only The Troubling
+   Signs and The Mysterious Mask stay out (each also needs 61 villagers of its own).
 5. **The schedule goes on:** the new event is armed as a purchase arms one; once the island timer's keeper has the
    arm, its kept time is set to a new natural time after this one, drawn as the game's own trigger draws one (A New
    Home 12-23 hours, The Lost Children 10-19, the later three 8-15). The delivery counts as one island event.
@@ -61,7 +75,8 @@ The separate rare roll between natural events is gone. Instead:
 7. **The choice** (unchanged): every event equally likely whichever source it comes from; a series counts as one
    event; strict casting; a candidate that cannot be cast is left out and the draw made again.
 
-Pick Island Event and Custom Island Events (player-chosen) ignore the 61 and the 50%.
+Pick Island Event and Custom Island Events (player-chosen) ignore the casualty limit and the 50%. No Safeguards for
+Island Events (and Additional Events too) lifts the casualty limit too.
 
 ## Pick Island Event and the library
 

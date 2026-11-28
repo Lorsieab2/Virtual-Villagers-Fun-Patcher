@@ -278,11 +278,12 @@ ISLAND_EVENT_ADVISORY_CUSTOM = (
     "Player-created events may contain sensitive subjects. Their content and outcomes depend on the creator; review "
     "custom events before enabling them.")
 ISLAND_EVENT_ADVISORY_ANY_TIME = (
-    "Events that can kill a villager, make one disappear or lose a pregnancy can happen even in a small or new village.")
+    "Events that can kill or make disappear more than 2 villagers in one ending can happen even in a small or new "
+    "village.")
 ISLAND_EVENT_ADVISORY_PICK = (
-    "Warning: Pick Island Event and Custom Island Events ignore the island event safeguards (the 61-villager limit for "
-    "deadly events, rescue events, the opening events and a village in trouble). A picked or custom event can kill a "
-    "villager, make one disappear or lose a pregnancy at any time.")
+    "Warning: Pick Island Event and Custom Island Events ignore the island event safeguards (no more than 2 villagers "
+    "killed or made to disappear below 61 villagers, rescue events, the opening events and a village in trouble). "
+    "A picked or custom event can kill a villager, make one disappear or lose a pregnancy at any time.")
 ISLAND_EVENT_INFO_NOTE = (
     "Original game events and their appearance rates remain unchanged. New events can take the place of natural "
     "island events (never rescue events or the two opening events). "
