@@ -393,6 +393,117 @@ class Rebuild(unittest.TestCase):
 
 
 @unittest.skipUnless(HAVE, "numpy, scipy or Pillow is missing")
+class Learn(unittest.TestCase):
+    """The owner, 2026-11-28: "the other unedited gimp files should attempt to recolor the skin and nonskin
+    parts based on the edited ones".  The colours the owner added to the skin, or removed from it, on the
+    sheets they edited become skin, or not skin, on the sheets still as built."""
+
+    SKIN, CLOTH, NEW, GONE, ODD = (240, 190, 140), (200, 60, 60), (150, 100, 70), (250, 240, 200), (10, 200, 10)
+
+    def sheet(self, cells):
+        """One row of 10 x 10 cells, each one colour; -> (pixels, the mask as built: SKIN and GONE are skin)."""
+        art = np.zeros((10, 10 * len(cells), 4), np.uint8)
+        for k, colour in enumerate(cells):
+            art[:, 10 * k:10 * k + 10] = colour + (255,)
+        built = np.zeros(art.shape[:2], bool)
+        for k, colour in enumerate(cells):
+            built[:, 10 * k:10 * k + 10] = colour in (self.SKIN, self.GONE)
+        return art, built
+
+    def learned(self):
+        art, built = self.sheet([self.SKIN, self.CLOTH, self.NEW, self.GONE, self.ODD])
+        skin = built.copy()
+        skin[:, 20:30] = True           # the owner made every NEW pixel skin,
+        skin[:, 30:40] = False          # no GONE pixel skin,
+        skin[0, 40:42] = True           # and two stray ODD pixels: too few to mean anything
+        counts = sheets.learn_counts(art, built, skin, 10)
+        return counts, sheets.learned_rule(counts)
+
+    def test_colours_added_become_skin_and_colours_removed_do_not(self):
+        counts, (skin, non, mixed, rare) = self.learned()
+        pack = lambda c: (c[0] << 16) | (c[1] << 8) | c[2]
+        self.assertEqual((skin, non, mixed, rare), ({pack(self.NEW)}, {pack(self.GONE)}, set(), {pack(self.ODD)}))
+        self.assertEqual(counts[pack(self.NEW)], [100, 0, 0, 0])
+        self.assertEqual(counts[pack(self.SKIN)], [0, 0, 100, 0], "left as built: counted, in no rule")
+        other, built = self.sheet([self.NEW, self.GONE, self.CLOTH, self.SKIN, self.ODD])
+        new = sheets.apply_rule(other, built, skin, non)
+        self.assertTrue(new[:, 0:10].all() and not new[:, 10:20].any(), "NEW is skin now, GONE is not")
+        self.assertTrue(not new[:, 20:30].any() and new[:, 30:40].all() and not new[:, 40:50].any(), "the rest as built")
+
+    def test_a_colour_changed_both_ways_is_left_as_built(self):
+        art, built = self.sheet([self.SKIN, self.SKIN, self.CLOTH, self.CLOTH])
+        skin = built.copy()
+        skin[:5, 0:10] = False          # half of one skin cell removed: SKIN is still mostly skin
+        skin[:, 20:30] = True           # one cloth cell added, the other left: CLOTH ends up half and half
+        rule = sheets.learned_rule(sheets.learn_counts(art, built, skin, 10))
+        self.assertEqual((rule[0], rule[1]), (set(), set()))
+        self.assertEqual(len(rule[2]), 2, "both are mixed")
+
+    def test_rows_the_owner_has_not_worked_on_do_not_count(self):
+        art, built = self.sheet([self.SKIN, self.CLOTH])
+        art, built = np.concatenate([art, art]), np.concatenate([built, built])
+        skin = built.copy()
+        skin[0:10, 10:20] = True        # CLOTH made skin on the first row; the second row not touched yet
+        skin_colours = sheets.learned_rule(sheets.learn_counts(art, built, skin, 10))[0]
+        self.assertEqual(len(skin_colours), 1, "the untouched row's cloth does not speak against it")
+
+    def test_near_colours_can_count_together(self):
+        art, built = self.sheet([(150, 100, 70), (151, 101, 71), self.SKIN])
+        skin = built.copy()
+        skin[:, 0:10] = True
+        self.assertEqual(sheets.apply_rule(art, built, *sheets.learned_rule(sheets.learn_counts(art, built, skin, 10))[:2])[:, 10:20].any(), False)
+        rule = sheets.learned_rule(sheets.learn_counts(art, built, skin, 10, 4))
+        self.assertEqual(rule[0], set(), "counted together, the bucket was added on half its pixels only: mixed")
+
+    def test_what_the_owner_made_skin_is_what_most_changed_tones_say(self):
+        built = np.zeros((4, 4), bool)
+        built[0] = True
+        layer = lambda where: np.dstack([np.zeros((4, 4, 3), np.uint8), np.where(where, 255, 0).astype(np.uint8)])
+        one = built.copy()
+        one[1, 0] = True
+        record = {f"skin_{n:02d}.png": sheets._sha(built) for n in range(1, 11)}
+        layers = {f"skin_{n:02d}.png": layer(built) for n in range(1, 11)}
+        self.assertEqual(sheets.owners_skin(layers, record, built), (None, []))
+        layers["skin_10.png"] = layer(one)
+        skin, tones = sheets.owners_skin(layers, record, built)
+        self.assertEqual(tones, ["10"])
+        self.assertTrue((skin == one).all(), "the nine tones still as built have no say")
+
+    def test_a_dry_run_writes_nothing_and_never_reads_the_owners_own_file(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            images, bench = root / "Images", root / "bench"
+            images.mkdir()
+            art = np.zeros((25, 600, 4), np.uint8)
+            art[5:12, 150:158] = (240, 190, 140, 255)
+            art[12:20, 125:150] = (220, 230, 250, 255)
+            Image.fromarray(art).save(images / "carrying.png")
+            gimp = FakeGimp()
+            with mock.patch.object(sheets, "run_gimp", gimp):
+                sheets.build_workbench("vv1", images, bench / "vv1")
+                xcf = bench / "vv1" / "vv1_carrying.xcf"
+                xcf.write_bytes(xcf.read_bytes() + b" and the owner's painting")
+                mask = sheets.Art("vv1", images, shipped=False).mask("carrying.png")
+                layers = {}
+                for number in range(1, 11):
+                    layer = np.zeros(mask.shape + (4,), np.uint8)
+                    layer[mask] = 255
+                    if number == 10:
+                        layer[12:20, 125:150] = 255         # the owner: the blanket is skin too
+                    layers[f"skin_{number:02d}.png"] = Image.fromarray(layer)
+                gimp.painted["vv1_carrying.xcf"] = layers
+                before = {p: p.read_bytes() for p in bench.rglob("*") if p.is_file()}
+                said = []
+                done = sheets.learn([("vv1", images)], bench, say=said.append)
+                self.assertEqual({p: p.read_bytes() for p in bench.rglob("*") if p.is_file()}, before, "nothing written")
+                self.assertEqual(done, {"vv1": {}}, "the only sheet is the owner's: never touched")
+                self.assertIn("you added 200 pixels to the skin and removed 0", said[0])
+                self.assertIn("1 colours are skin", said[1])
+                self.assertIn("1 are yours and are never touched: carrying", said[-1])
+                self.assertEqual(gimp.read, ["vv1_carrying.xcf"])
+
+
+@unittest.skipUnless(HAVE, "numpy, scipy or Pillow is missing")
 class Guides(unittest.TestCase):
     """README.txt and the GIMP tutorial in the workbench folder: written, brought up to date, never over
     the owner's own changes."""

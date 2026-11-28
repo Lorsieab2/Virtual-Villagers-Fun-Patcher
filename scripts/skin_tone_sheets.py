@@ -6,6 +6,7 @@
     python scripts/skin_tone_sheets.py workbench-all --images-root "<the folder of the five games>"
     python scripts/skin_tone_sheets.py import    --game vv3 [--same-for-all-tones]
     python scripts/skin_tone_sheets.py spread    --game vv3 --sheet vv3_carrying [--from 10]   (or --all-sheets)
+    python scripts/skin_tone_sheets.py learn     --game vv3 --images-root "<the folder of the five games>" [--write]
     python scripts/skin_tone_sheets.py publish   --game vv3 --images "<game>\\Images"
 
 The method is scripts/skin_tone_preview.py's (the skin mask, then REPLACE in OKLCh, everything outside
@@ -1295,6 +1296,220 @@ def _spread_words(result, folder: Path) -> str:
     return f"FAILED ({result.get('why', did)}). The file was not changed."
 
 
+# ---- learning from the owner's edits (the owner, 2026-11-28: "the other unedited gimp files should attempt to
+# recolor the skin and nonskin parts based on the edited ones (to make my job easier)")
+LEARNED = "learned.json"            # <workbench>/<game>/learned.json: the rule last applied, and the sheets it was put on
+LEARN_LEAST, LEARN_TIMES = 3, 4     # a colour counts when changed on this many pixels, this many times oftener one way
+
+
+def _packed(rgb, width=1):
+    """Each pixel's colour as one number (0xRRGGBB).  `width` > 1: its colour BUCKET instead -- red, green and
+    blue each in steps of `width` levels, so that near-identical colours count together."""
+    rgb = (rgb // max(1, width)).astype(np.uint32)
+    return (rgb[..., 0] << 16) | (rgb[..., 1] << 8) | rgb[..., 2]
+
+
+def read_colour_layers(paths, tmp: Path) -> dict:
+    """{path: {leaf: pixels}} -- every tone's colour layer (skin_NN.png) and the "Skin mask" (mask.png) of each
+    .xcf, read through GIMP from a COPY of the file (the owner's file is only ever copied).  One start of GIMP."""
+    files = []
+    for k, path in enumerate(paths):
+        copy = tmp / f"copy{k}" / Path(path).name
+        copy.parent.mkdir(parents=True)
+        shutil.copy2(path, copy)
+        files.append({"xcf": str(copy), "out": str(tmp / f"out{k}")})
+    if files:
+        run_gimp(_GIMP_EXPORT, {"files": files})
+    read = {}
+    for path, item in zip(paths, files):
+        leaves = json.loads((Path(item["out"]) / "layers.json").read_text(encoding="utf-8"))
+        read[path] = {}
+        if leaves:
+            tall = _layer_pixels(Path(item["out"]) / "layers.png")
+            height = tall.shape[0] // len(leaves)
+            read[path] = {leaf: tall[k * height:(k + 1) * height] for k, leaf in enumerate(leaves)}
+    return read
+
+
+def owners_skin(layers: dict, record: dict, built):
+    """What the owner made skin on an edited sheet, and from which layers: the tones' colour layers changed
+    since the build (a pixel is skin when most of them have paint there), else None.  -> (skin, the tones)."""
+    votes = [(leaf, painted_from_layer(layer)) for leaf, layer in sorted(layers.items())
+             if leaf.startswith("skin_") and layer.shape[:2] == built.shape
+             and _sha(painted_from_layer(layer)) != record.get(leaf)]
+    if not votes:
+        return None, []
+    count = np.sum([vote for _leaf, vote in votes], axis=0)
+    return count * 2 > len(votes), [leaf[5:7] for leaf, _vote in votes]
+
+
+def learn_counts(stock, built, skin, cell_h, width=1) -> dict:
+    """{colour: [added, removed, kept skin, kept not skin]} over a sheet's opaque pixels: the game's own colour
+    under each pixel the owner ADDED to the skin, REMOVED from it, or left as it was built.  Only the rows of
+    the sheet the owner worked on count (a row with no change at all may simply not be done yet)."""
+    done = np.zeros(built.shape, bool)
+    for top in range(0, built.shape[0], cell_h):
+        if (skin[top:top + cell_h] != built[top:top + cell_h]).any():
+            done[top:top + cell_h] = True
+    opaque = (stock[..., 3] > 0) & done
+    colours = _packed(stock[..., :3], width)
+    counts = {}
+    for column, where in enumerate((skin & ~built & opaque, built & ~skin & opaque, built & skin & opaque,
+                                    opaque & ~built & ~skin)):
+        values, numbers = np.unique(colours[where], return_counts=True)
+        for value, number in zip(values.tolist(), numbers.tolist()):
+            counts.setdefault(value, [0, 0, 0, 0])[column] += number
+    return counts
+
+
+def add_counts(total: dict, more: dict) -> dict:
+    for colour, row in more.items():
+        mine = total.setdefault(colour, [0, 0, 0, 0])
+        for k in range(4):
+            mine[k] += row[k]
+    return total
+
+
+def learned_rule(counts: dict, least=LEARN_LEAST, times=LEARN_TIMES):
+    """-> (skin, not skin, mixed, rare).  A colour is SKIN everywhere when the owner added it to the skin on at
+    least `least` pixels, `times` times as often as they removed it, AND on the rows they worked on it ends up
+    skin `times` times as often as not (a colour they added in one place but left as clothes in many others
+    says nothing).  NOT SKIN the other way round.  A colour changed without such a lead is mixed, one changed
+    on fewer than `least` pixels rare: both are left as built.  A colour never changed is in none of them."""
+    skin, non, mixed, rare = set(), set(), set(), set()
+    for colour, (added, removed, kept, kept_not) in counts.items():
+        if not added and not removed:
+            continue
+        if added >= least and added >= times * removed and added + kept >= times * kept_not:
+            skin.add(colour)
+        elif removed >= least and removed >= times * added and removed + kept_not >= times * kept:
+            non.add(colour)
+        elif added + removed < least:
+            rare.add(colour)
+        else:
+            mixed.add(colour)
+    return skin, non, mixed, rare
+
+
+def apply_rule(stock, built, skin_colours: set, not_colours: set, width=1):
+    """A sheet's skin by the learned rule: as built, plus every opaque pixel of a skin colour, less every pixel
+    of a not-skin colour (colours, or colour buckets `width` levels wide, as they were counted)."""
+    colours = _packed(stock[..., :3], width)
+    is_skin = np.isin(colours, np.array(sorted(skin_colours), np.uint32))
+    is_not = np.isin(colours, np.array(sorted(not_colours), np.uint32))
+    return ((built | is_skin) & ~is_not) & (stock[..., 3] > 0)
+
+
+def learn(games_and_images, root: Path, across=False, write=False, yes=False, least=LEARN_LEAST, times=LEARN_TIMES,
+          tolerance=0, say=print, backup=None):
+    """Learn, from the sheets the owner edited, which of the game's own colours are skin and which are not, and
+    put that on the sheets still exactly as built.
+
+    Reads every .xcf the owner changed (a copy of it, through GIMP).  `across`: one rule from all the games'
+    edits together, else one a game.  Without `write` (the dry run) nothing at all is written: it says the
+    rule and, sheet by sheet, the pixels that would be added and removed.  `tolerance`: colours are counted
+    and matched in buckets that many levels wide (0 or 1: exact colours).  With `write`, for each sheet that
+    is still as built, not open in GIMP, and would change: its new skin is kept as
+    <game>/edits/<sheet>/mask.png, the .xcf is copied into <game>/<backup> and made again (every tone's colour
+    layer on the new skin; colours and shading as ever).  A file the owner changed is never written.  With
+    GIMP running it cannot be seen which files it has open: then nothing is rebuilt without `yes`.
+    Returns {game: {sheet: (added, removed)}} for the sheets that change."""
+    import datetime
+    backup = backup or f"_before learned recolor {datetime.date.today().isoformat()}"
+    games = []
+    for game, images in games_and_images:
+        folder = root / game
+        base = Art(game, images, shipped=False)                 # the masks as first built: no edits, no rule
+        stems = {Path(name).stem: name for name in base.specs if (folder / f"{game}_{Path(name).stem}.xcf").is_file()}
+        theirs = changed_by_the_owner(game, folder, list(stems))
+        games.append({"game": game, "images": images, "folder": folder, "base": base, "stems": stems, "theirs": theirs,
+                      "counts": {}, "manifest": _manifest(folder)})
+    with tempfile.TemporaryDirectory() as tmp:
+        paths = [one["folder"] / f"{one['game']}_{stem}.xcf" for one in games for stem in one["theirs"]]
+        read = read_colour_layers(paths, Path(tmp)) if paths else {}
+    for one in games:
+        game, base, folder = one["game"], one["base"], one["folder"]
+        for stem in one["theirs"]:
+            name = one["stems"][stem]
+            built, stock = base.mask(name), base.stock(name)
+            record = one["manifest"].get(stem, {})
+            if _sha(built) != record.get("skin_01.png"):            # built on a skin already learned or edited
+                with_edits = Art(game, one["images"], folder / "edits", shipped=False).mask(name)
+                if _sha(with_edits) == record.get("skin_01.png"):
+                    built = with_edits
+            skin, tones = owners_skin(read[one["folder"] / f"{game}_{stem}.xcf"], one["manifest"].get(stem, {}), built)
+            if skin is None:
+                say(f"{game}_{stem}: yours, but no tone's skin differs from the build: nothing to learn from it")
+                continue
+            counts = learn_counts(stock, built, skin, base.specs[name]["cell"][1], max(1, tolerance))
+            add_counts(one["counts"], counts)
+            added, removed = sum(row[0] for row in counts.values()), sum(row[1] for row in counts.values())
+            rule = learned_rule(counts, least, times)
+            again = apply_rule(stock, built, rule[0], rule[1], max(1, tolerance))
+            put, cut = again & ~built, built & ~again
+            say(f"{game}_{stem}: learned from tone{'s' if len(tones) > 1 else ''} {', '.join(tones)}: "
+                f"you added {added:,} pixels to the skin and removed {removed:,}. Its own rule, tried on this same "
+                f"sheet, would add {int(put.sum()):,} pixels ({int((put & skin).sum()):,} of them skin in your edit) "
+                f"and remove {int(cut.sum()):,} ({int((cut & ~skin).sum()):,} of them not skin in your edit)")
+    pooled = {}
+    if across:
+        for one in games:
+            add_counts(pooled, one["counts"])
+    done = {}
+    for one in games:
+        game, folder, base = one["game"], one["folder"], one["base"]
+        counts = pooled if across else one["counts"]
+        skin, non, mixed, rare = learned_rule(counts, least, times)
+        say(f"{game}: the rule{' (from all the games together)' if across else ''}"
+            f"{f' (colours within {tolerance} levels counted together)' if tolerance > 1 else ' (exact colours)'}: {len(skin):,} colours are skin "
+            f"(you added them on {sum(counts[c][0] for c in skin):,} pixels, removed on {sum(counts[c][1] for c in skin):,}); "
+            f"{len(non):,} colours are not skin (removed on {sum(counts[c][1] for c in non):,}, added on "
+            f"{sum(counts[c][0] for c in non):,}); left as built: {len(mixed):,} mixed colours, {len(rare):,} rare ones")
+        if not skin and not non:
+            done[game] = {}
+            continue
+        changes, masks = {}, {}
+        for stem, name in one["stems"].items():
+            if stem in one["theirs"]:
+                continue
+            built = base.mask(name)
+            new = apply_rule(base.stock(name), built, skin, non, max(1, tolerance))
+            added, removed = int((new & ~built).sum()), int((built & ~new).sum())
+            if added or removed:
+                changes[stem], masks[stem] = (added, removed), new
+                say(f"  {game}_{stem}: {added:,} pixels added to the skin, {removed:,} removed (of {int(built.sum()):,})")
+        say(f"{game}: {len(changes)} of the {len(one['stems']) - len(one['theirs'])} sheets still as built would change; "
+            f"{len(one['theirs'])} are yours and are never touched" + (": " + ", ".join(sorted(one["theirs"])) if one["theirs"] else ""))
+        done[game] = changes
+        if not write or not changes:
+            continue
+        free, unknown = [], []
+        for stem in sorted(changes):
+            state, why = held_open(folder / f"{game}_{stem}.xcf")
+            if state == "open":
+                say(f"  {game}_{stem}: left alone: {why}")
+            elif state == "unknown" and not yes:
+                unknown.append(why)
+            else:
+                free.append(stem)
+        if unknown:
+            say(f"{game}: nothing was rebuilt. {unknown[0]}. Close GIMP and run this again, or, when none of these "
+                "files is open in GIMP, run it again with --yes added.")
+            continue
+        was = json.loads((folder / LEARNED).read_text(encoding="utf-8")).get("sheets", []) if (folder / LEARNED).is_file() else []
+        for stem in free:
+            mark = np.zeros(masks[stem].shape + (4,), np.uint8)
+            mark[masks[stem]] = 255
+            (folder / "edits" / stem).mkdir(parents=True, exist_ok=True)
+            Image.fromarray(mark).save(folder / "edits" / stem / "mask.png")
+        (folder / LEARNED).write_text(json.dumps({
+            "sheets": sorted(set(was) | set(free)), "least": least, "times": times, "tolerance": tolerance,
+            "skin": [f"{c:06x}" for c in sorted(skin)], "not skin": [f"{c:06x}" for c in sorted(non)]}, indent=1), encoding="utf-8")
+        written, _kept, _unread = build_workbench(game, one["images"], folder, only=free, fresh_backup=backup)
+        say(f"{game}: made {len(written)} files again with the learned skin; each as it was is in {backup}")
+    return done
+
+
 def publish_edits(art: Art, edits: Path, out: Path):
     """The owner's kept edits (<workbench>/<game>/edits) as shippable files under `out`/<game>/<sheet>/:
     skin_NN.png for each tone whose colour layer the owner painted, and mask.png when they changed the
@@ -1405,7 +1620,7 @@ THE OLDER FILES
 def main() -> int:
     ap = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     ap.add_argument("what", choices=["preview", "sheets", "workbench", "import", "mockup", "heathens", "publish", "audit",
-                                    "workbench-all", "spread"])
+                                    "workbench-all", "spread", "learn"])
     ap.add_argument("--game", choices=sorted(TITLES))
     ap.add_argument("--images-root", type=Path, help="mockup: the folder holding every game's own folder")
     ap.add_argument("--images", type=Path, help="the game's own Images folder (read only)")
@@ -1426,6 +1641,12 @@ def main() -> int:
                                                        "has the file open (you have checked that it has not)")
     ap.add_argument("--same-for-all-tones", action="store_true",
                     help="import: take the one changed tone's paint as the skin of all ten tones (the .xcf is not touched)")
+    ap.add_argument("--all-games", action="store_true", help="learn: every game (needs --images-root)")
+    ap.add_argument("--across-games", action="store_true", help="learn: one rule from all the games' edits together")
+    ap.add_argument("--write", action="store_true", help="learn: really rebuild the unedited sheets (left out: a dry "
+                                                         "run that only lists what would change)")
+    ap.add_argument("--tolerance", type=int, default=0, help="learn: count colours in buckets this many levels wide "
+                                                             "(each of red, green, blue); 0 = exact colours only")
     args = ap.parse_args()
     if args.what == "mockup":
         mockup(args.images_root, args.out, args.workbench if args.workbench.is_dir() else None)
@@ -1439,6 +1660,22 @@ def main() -> int:
         for game, (written, kept, unread) in done.items():
             print(f"{game}: wrote {len(written)}; kept {len(kept)} changed by you (edits read); "
                   f"kept {len(unread)} changed by you that could not be read")
+        return 0
+    if args.what == "learn":
+        games = sorted(TITLES) if args.all_games or args.across_games else [args.game]
+        if games == [None]:
+            raise SystemExit("say which game with --game, or --all-games")
+        if args.images_root is None and (len(games) > 1 or args.images is None):
+            raise SystemExit("--images-root (the folder holding every game's own folder) is needed")
+        pairs = [(g, args.images if args.images and len(games) == 1 else args.images_root / FOLDERS[g] / "Images") for g in games]
+        pairs = [(g, images) for g, images in pairs if (args.workbench / g).is_dir()]
+        if not args.write:
+            print("DRY RUN: nothing is written. This is what the unedited sheets would get.")
+        done = learn(pairs, args.workbench, args.across_games, args.write, args.yes, tolerance=args.tolerance)
+        if args.across_games and args.game:
+            done = {args.game: done.get(args.game, {})}
+        if not args.write and any(done.values()):
+            print("To do it, run the same command again with --write added.")
         return 0
     if not args.game:
         raise SystemExit("--game is needed")
