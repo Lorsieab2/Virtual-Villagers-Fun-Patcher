@@ -25,6 +25,7 @@
 #endif
 #include "../shared/sex_change.h"    /* a villager's sex changed: the mask follows (VvfpVillagerSexChanged) */
 #include "../shared/sex_change_ui.h" /* Change Appearance's "Change sex..." button */
+#include "../shared/skin_tone.h"     /* Change Appearance's "Skin tone" row ("VVFP Skin Tones.dll") */
 
 /* Sidecar persistence lives next to the game's own saves. CSIDL_PERSONAL
    follows OneDrive redirection (Documents may be C:\Users\<u>\OneDrive\Documents),
@@ -1600,6 +1601,11 @@ static struct {
     int is_old;   /* the old head atlas: the head look, else displayed age >= 1,100 (head_look.h) */
 } appearance_state;
 
+/* The skin tone (native/shared/skin_tone.h): kept on OK, free, logged by the DLL.  The tone the per-villager
+   window's preview draws its cells with (0: the game's own art; set only around those draws). */
+static vvfp_skin_window appearance_skin;
+static int appearance_preview_tone;
+
 /* GDI+ must NOT be started from DllMain: GdiplusStartup is unsupported under the
    loader lock and can deadlock while loading its dependencies. Initialize it
    lazily the first time the appearance picker (the only GDI+ user) runs. The
@@ -1665,6 +1671,12 @@ static void appearance_draw_cell(HDC hdc, RECT rc, int is_head, int value, int c
         page = value / VV_BODY_ROWS_PER_PAGE;
         row = value % VV_BODY_ROWS_PER_PAGE;
         wsprintfW(path, L"Images\\%ls_bodies0%d.png", sex, page);
+    }
+    {
+        WCHAR toned[MAX_PATH];         /* the villager's skin tone's copy of the sheet, when it is there */
+        if (vvfp_skin_preview_path(toned, path, appearance_preview_tone)) {
+            lstrcpyW(path, toned);
+        }
     }
     if (GdipCreateBitmapFromFile(path, &bitmap) == 0 && bitmap != NULL) {
         GpGraphics *graphics = NULL;
@@ -2467,6 +2479,7 @@ static void appearance_show(HWND window) {
         appearance_look, *(int *)(appearance_state.villager + VV_DISPLAY_AGE_OFFSET));
     appearance_state.sex = vvfp_gp_window_sex(&appearance_gp, 4, appearance_state.villager);
     vvfp_gp_window_show(window, &appearance_gp, 4, appearance_state.villager);
+    vvfp_skin_window_show(window, &appearance_skin, 4, appearance_state.villager);
     SetDlgItemTextA(window, ID_MASK_LABEL, g_mask_names[vv_get_mask(appearance_state.villager)]);
     if (appearance_look_offered) {
         CheckRadioButton(window, ID_LOOK_AUTO, ID_LOOK_OLD, ID_LOOK_AUTO + appearance_look);
@@ -2484,6 +2497,7 @@ static int appearance_extra(HWND window, unsigned int command) {
         appearance_revert();
         appearance_look = appearance_look_was;
         appearance_gp.on = appearance_gp.was;
+        vvfp_skin_window_undo(&appearance_skin);
     } else if (command == VVFP_AX_PRESENTATION) {
         if (!vvfp_gp_window_toggle(window, &appearance_gp, 4, appearance_state.villager)) {
             return 1;
@@ -2547,14 +2561,12 @@ static INT_PTR CALLBACK appearance_dialog(
         return TRUE;
     } else if (message == WM_DRAWITEM) {
         const DRAWITEMSTRUCT *dis = (const DRAWITEMSTRUCT *)lparam;
-        if (dis->CtlID == ID_HEAD_PIC) {
-            appearance_draw_cell(dis->hDC, dis->rcItem, 1,
-                *(int *)(appearance_state.villager + VV_HEAD_OFFSET), 1);
-            return TRUE;
-        }
-        if (dis->CtlID == ID_BODY_PIC) {
-            appearance_draw_cell(dis->hDC, dis->rcItem, 0,
-                *(int *)(appearance_state.villager + VV_CLOTHING_OFFSET), 1);
+        if (dis->CtlID == ID_HEAD_PIC || dis->CtlID == ID_BODY_PIC) {
+            appearance_preview_tone = vvfp_skin_window_drawn(&appearance_skin);
+            appearance_draw_cell(dis->hDC, dis->rcItem, dis->CtlID == ID_HEAD_PIC,
+                *(int *)(appearance_state.villager
+                         + (dis->CtlID == ID_HEAD_PIC ? VV_HEAD_OFFSET : VV_CLOTHING_OFFSET)), 1);
+            appearance_preview_tone = 0;
             return TRUE;
         }
         if (dis->CtlID == ID_MASK_PIC) {
@@ -2577,6 +2589,14 @@ static INT_PTR CALLBACK appearance_dialog(
             appearance_state.is_old = vvfp_head_look_old(
                 appearance_look, *(int *)(appearance_state.villager + VV_DISPLAY_AGE_OFFSET));
             InvalidateRect(GetDlgItem(window, ID_HEAD_PIC), NULL, TRUE);
+            return TRUE;
+        }
+        if (command == VVFP_AX_SKIN_LIST || command == VVFP_AX_SKIN_RESET) {
+            if (vvfp_skin_window_command(window, &appearance_skin, 4, appearance_state.villager, command,
+                                         HIWORD(wparam))) {
+                InvalidateRect(GetDlgItem(window, ID_HEAD_PIC), NULL, TRUE);
+                InvalidateRect(GetDlgItem(window, ID_BODY_PIC), NULL, TRUE);
+            }
             return TRUE;
         }
         if (appearance_extra(window, command)) {
@@ -2615,17 +2635,19 @@ static INT_PTR CALLBACK appearance_dialog(
             int body_changed = (*body != appearance_state.original_body);
             int mask_changed = (vv_get_mask(appearance_state.villager)
                                 != appearance_state.original_mask);
-            int gp_changed = vvfp_gp_window_changed(&appearance_gp);
+            int gp_changed = vvfp_gp_window_changed(&appearance_gp) || vvfp_skin_window_changed(&appearance_skin);
             if (!head_changed && !body_changed && !mask_changed
                 && appearance_look_offered && appearance_look != appearance_look_was) {
                 /* The look alone: kept, and charged like any change -- 1, so the exe charges 5,000. */
                 (void)vvfp_gp_window_keep(window, &appearance_gp, 4, appearance_state.villager);
+                (void)vvfp_skin_window_keep(window, &appearance_skin, 4, appearance_state.villager);
                 EndDialog(window, appearance_keep_look(window) ? 1 : 0);
                 return TRUE;
             }
             if (!head_changed && !body_changed && !mask_changed && (appearance_sex_changed || gp_changed)) {
                 /* Only the sex (made at once) or the gender presentation: free, nothing more to keep or charge. */
                 (void)vvfp_gp_window_keep(window, &appearance_gp, 4, appearance_state.villager);
+                (void)vvfp_skin_window_keep(window, &appearance_skin, 4, appearance_state.villager);
                 EndDialog(window, 0);
                 return TRUE;
             }
@@ -2660,6 +2682,7 @@ static INT_PTR CALLBACK appearance_dialog(
             }
             vv_write_mask_sidecar();
             (void)vvfp_gp_window_keep(window, &appearance_gp, 4, appearance_state.villager);
+            (void)vvfp_skin_window_keep(window, &appearance_skin, 4, appearance_state.villager);
             EndDialog(window, 1);
             return TRUE;
         }
@@ -3230,6 +3253,7 @@ int __stdcall ShowOriginsAppearancePicker(
     appearance_rng = GetTickCount() | 1u;
     appearance_sex_changed = 0;
     vvfp_gp_window_open(&appearance_gp, 4, villager);
+    vvfp_skin_window_open(&appearance_skin, 4, villager);
     appearance_state.sex = vvfp_gp_window_sex(&appearance_gp, 4, villager);
     result = (int)DialogBoxParamA(
         module_instance,

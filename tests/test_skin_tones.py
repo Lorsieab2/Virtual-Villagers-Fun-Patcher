@@ -376,5 +376,51 @@ class Harness(unittest.TestCase):
         self.assertEqual(randoms, 12 * 34 * 12)
 
 
+# The Change Appearance windows that offer the Skin tone row (native/shared/skin_tone.h), game by game.
+CHANGE_APPEARANCE = {
+    4: ("native/vv4_origins_icons/vv4_origins_icons.rc", "native/vv4_origins_icons/vv4_origins_icons.c"),
+}
+
+
+class ChangeAppearance(unittest.TestCase):
+    """The "Skin tone" row: under the Gender presentation checkbox in both per-villager dialogs (the window
+    grows to fit it), filled and shown only when the DLL's draws follow the tone, kept on OK, put back by Undo
+    changes, and drawn in the preview."""
+
+    def test_the_row_is_in_both_dialogs(self) -> None:
+        import re
+        for game, (rc, _) in CHANGE_APPEARANCE.items():
+            text = (ROOT / rc).read_text(encoding="utf-8")
+            with self.subTest(game=game):
+                self.assertEqual(text.count('"Skin tone:", 3508,'), 2)
+                self.assertEqual(text.count("COMBOBOX    3509,"), 2)
+                self.assertEqual(text.count('"Reset to birth tone", 3515,'), 2)
+                for row in re.finditer(r'"Skin tone:", 3508, \d+, (\d+),', text):
+                    after = text.index('"Reset to birth tone", 3515,', row.end())
+                    below = text[text.index("\n", after):text.index("END", after)]
+                    ys = [int(y) for y in re.findall(r", -?\d+, \d+, (\d+), \d+, \d+", below)]
+                    self.assertTrue(ys and min(ys) >= int(row.group(1)) + 12, (game, ys))
+
+    def test_the_window_uses_it(self) -> None:
+        for game, (_, c) in CHANGE_APPEARANCE.items():
+            text = (ROOT / c).read_text(encoding="utf-8")
+            with self.subTest(game=game):
+                self.assertIn('#include "../shared/skin_tone.h"', text)
+                for call in ("vvfp_skin_window_open(", "vvfp_skin_window_show(", "vvfp_skin_window_command(",
+                             "vvfp_skin_window_undo(", "vvfp_skin_window_changed(", "vvfp_skin_window_keep(",
+                             "vvfp_skin_window_drawn("):
+                    self.assertIn(call, text)
+
+    def test_the_shared_row(self) -> None:
+        text = (ROOT / "native" / "shared" / "skin_tone.h").read_text(encoding="utf-8")
+        self.assertIn('"VvfpSkinToneDrawn"', text)          # offered only where the draws follow the tone
+        self.assertIn("VVFP_SKIN_TONE_GAMES_OWN_NAME", text)  # "Game's own" first
+        self.assertIn('L"vvfp_skin_%02d_%ls"', text)         # the preview: the tone's copy of the sheet
+        dll = (ROOT / "native" / "vvfp_skin_tones" / "vvfp_skin_tones.def").read_text(encoding="utf-8")
+        for name in ("VvfpSkinToneDrawn", "VvfpSkinToneOf", "VvfpSkinToneSet", "VvfpSkinToneBirth",
+                     "VvfpSkinToneConceived", "VvfpSkinTonePending", "VvfpSkinToneBorn"):
+            self.assertIn(name, text)
+            self.assertIn(name, dll)
+
 if __name__ == "__main__":
     unittest.main()
